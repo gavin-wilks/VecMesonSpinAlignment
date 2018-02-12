@@ -16,19 +16,19 @@ class StZdcSmdProManger
 
     // ReCenter Correction
     void InitReCenter();
-    void FillReCenterEast(TVector2 qVector, int Cent9, int RunIndex, int vz_sign); // vz_sign = vertex pos/neg
-    void FillReCenterWest(TVector2 qVector, int Cent9, int RunIndex, int vz_sign);
+    void FillReCenterEast(TVector2 qVector, int Cent9, int RunIndex); // vz_sign = vertex pos/neg
+    void FillReCenterWest(TVector2 qVector, int Cent9, int RunIndex);
     void WriteReCenter();
 
     // Shift Correction for East/West
     void InitShift();
-    void FillShiftEast(TVector2 qVector, int Cent9, int RunIndex, int vz_sign);
-    void FillShiftWest(TVector2 qVector, int Cent9, int RunIndex, int vz_sign);
+    void FillShiftEast(TVector2 qVector, int Cent9, int RunIndex);
+    void FillShiftWest(TVector2 qVector, int Cent9, int RunIndex);
     void WriteShift();
 
     // Shift Correction for Full
     void InitShiftFull();
-    void FillShiftFull(TVector2 qVector, int Cent9, int RunIndex, int vz_sign);
+    void FillShiftFull(TVector2 qVector, int Cent9, int RunIndex);
     void WriteShiftFull();
 
     // Event Plane Resolution for East/West
@@ -43,20 +43,20 @@ class StZdcSmdProManger
 
   private:
     // ReCenter Correction | x axis is RunIndex, y axis is Centrality
-    TProfile2D *p_mQEastVertical[2]; // 0 = vertex pos/neg
-    TProfile2D *p_mQEastHorizontal[2];
-    TProfile2D *p_mQWestVertical[2];
-    TProfile2D *p_mQWestHorizontal[2];
+    TProfile2D *p_mQEastVertical; // 0 = vertex pos/neg
+    TProfile2D *p_mQEastHorizontal;
+    TProfile2D *p_mQWestVertical;
+    TProfile2D *p_mQWestHorizontal;
 
     // Shift Correction for East/West
-    TProfile2D *p_mQEastCos[2][20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
-    TProfile2D *p_mQEastSin[2][20];
-    TProfile2D *p_mQWestCos[2][20];
-    TProfile2D *p_mQWestSin[2][20];
+    TProfile2D *p_mQEastCos[20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
+    TProfile2D *p_mQEastSin[20];
+    TProfile2D *p_mQWestCos[20];
+    TProfile2D *p_mQWestSin[20];
 
     // Shift Correction for East/West
-    TProfile2D *p_mQFullCos[2][20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
-    TProfile2D *p_mQFullSin[2][20];
+    TProfile2D *p_mQFullCos[20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
+    TProfile2D *p_mQFullSin[20];
 
     // event plane resolution for East/West
     TProfile *p_mResolution;

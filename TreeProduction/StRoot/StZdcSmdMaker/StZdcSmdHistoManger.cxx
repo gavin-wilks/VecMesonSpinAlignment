@@ -51,7 +51,7 @@ void StZdcSmdHistoManger::InitGainCorr()
       for(int i_slat = 0; i_slat < 8; ++i_slat)
       {
 	string HistName = Form("h_mGainCorr%s%s_%d",vmsa::mEastWest[i_eastwest].c_str(),vmsa::mVertHori[i_verthori].c_str(),i_slat);
-	h_mGainCorr[i_eastwest][i_verthori][i_slat] = new TH2F(HistName.c_str(),HistName.c_str(),2000,-0.5,1999.5,1000,-5.0,995.0);
+	h_mGainCorr[i_eastwest][i_verthori][i_slat] = new TH2F(HistName.c_str(),HistName.c_str(),6000,1212000.5,1218000.5,1000,-5.0,995.0);
       }
     }
   }
@@ -83,11 +83,11 @@ void StZdcSmdHistoManger::InitRawEP()
   for(int i_cent = 0; i_cent < 9; ++i_cent)
   {
     string HistName = Form("h_mRawEast_%d",i_cent);
-    h_mRawEast[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mRawEast[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
     HistName = Form("h_mRawWest_%d",i_cent);
-    h_mRawWest[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mRawWest[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
     HistName = Form("h_mRawFull_%d",i_cent);
-    h_mRawFull[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mRawFull[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
   }
 }
 
@@ -115,11 +115,11 @@ void StZdcSmdHistoManger::InitReCenterEP()
   for(int i_cent = 0; i_cent < 9; ++i_cent)
   {
     string HistName = Form("h_mReCenterEast_%d",i_cent);
-    h_mReCenterEast[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mReCenterEast[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
     HistName = Form("h_mReCenterWest_%d",i_cent);
-    h_mReCenterWest[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mReCenterWest[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
     HistName = Form("h_mReCenterFull_%d",i_cent);
-    h_mReCenterFull[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mReCenterFull[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
   }
 }
 
@@ -147,11 +147,11 @@ void StZdcSmdHistoManger::InitShiftEP()
   for(int i_cent = 0; i_cent < 9; ++i_cent)
   {
     string HistName = Form("h_mShiftEast_%d",i_cent);
-    h_mShiftEast[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mShiftEast[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
     HistName = Form("h_mShiftWest_%d",i_cent);
-    h_mShiftWest[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mShiftWest[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
     HistName = Form("h_mShiftFull_%d",i_cent);
-    h_mShiftFull[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mShiftFull[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
   }
 }
 
@@ -179,7 +179,7 @@ void StZdcSmdHistoManger::InitShiftEPFull()
   for(int i_cent = 0; i_cent < 9; ++i_cent)
   {
     string HistName = Form("h_mShiftFullCorr_%d",i_cent);
-    h_mShiftFullCorr[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),1600,-0.5,1599.5);
+    h_mShiftFullCorr[i_cent] = new TH2F(HistName.c_str(),HistName.c_str(),360,-1.0*TMath::Pi(),TMath::Pi(),6000, 1212000.5,1218000.5);
   }
 }
 

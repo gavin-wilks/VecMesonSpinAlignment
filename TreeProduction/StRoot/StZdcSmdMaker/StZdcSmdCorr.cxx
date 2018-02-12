@@ -81,11 +81,10 @@ void StZdcSmdCorrection::clear()
   mCenterWestHorizontal = -999.9;
 }
 
-void StZdcSmdCorrection::InitEvent(int Cent9, int RunIndex, int vz_sign)
+void StZdcSmdCorrection::InitEvent(int Cent9, int RunIndex)
 {
   mCent9 = Cent9;
   mRunIndex = RunIndex;
-  mVz_sign = vz_sign;
 }
 
 //---------------------------------------------------------------------------------
@@ -216,36 +215,32 @@ void StZdcSmdCorrection::ReadReCenterCorr()
   string InPutFile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ZDCSMD/ReCenterPar/merged_file/file_%s_ReCenterPar.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamEnergy[mEnergy].c_str());
   mFile_ReCenterPar = TFile::Open(InPutFile.c_str());
 
-  string mVStr[2] = {"pos","neg"};
-  for(Int_t i_vz = 0; i_vz < 2; ++i_vz) // vertex pos/neg
-  {
-    string ProName;
+  string ProName;
 
-    ProName = Form("p_mQEastVertical_%s",mVStr[i_vz].c_str());
-    p_mQEastVertical[i_vz] = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
-    ProName = Form("p_mQEastHorizontal_%s",mVStr[i_vz].c_str());
-    p_mQEastHorizontal[i_vz] = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
+  ProName = "p_mQEastVertical";
+  p_mQEastVertical = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
+  ProName = "p_mQEastHorizontal";
+  p_mQEastHorizontal = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
 
-    ProName = Form("p_mQWestVertical_%s",mVStr[i_vz].c_str());
-    p_mQWestVertical[i_vz] = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
-    ProName = Form("p_mQWestHorizontal_%s",mVStr[i_vz].c_str());
-    p_mQWestHorizontal[i_vz] = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
-  }
+  ProName = "p_mQWestVertical";
+  p_mQWestVertical = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
+  ProName = "p_mQWestHorizontal";
+  p_mQWestHorizontal = (TProfile2D*)mFile_ReCenterPar->Get(ProName.c_str());
 }
 
 void StZdcSmdCorrection::SetZdcSmdCenter()
 {
-  int binEastVertical = p_mQEastVertical[mVz_sign]->FindBin((double)mRunIndex,(double)mCent9);
-  mCenterEastVertical = p_mQEastVertical[mVz_sign]->GetBinContent(binEastVertical);
+  int binEastVertical = p_mQEastVertical->FindBin((double)mRunIndex,(double)mCent9);
+  mCenterEastVertical = p_mQEastVertical->GetBinContent(binEastVertical);
 
-  int binEastHorizontal = p_mQEastHorizontal[mVz_sign]->FindBin((double)mRunIndex,(double)mCent9);
-  mCenterEastHorizontal = p_mQEastHorizontal[mVz_sign]->GetBinContent(binEastHorizontal);
+  int binEastHorizontal = p_mQEastHorizontal->FindBin((double)mRunIndex,(double)mCent9);
+  mCenterEastHorizontal = p_mQEastHorizontal->GetBinContent(binEastHorizontal);
 
-  int binWestVertical = p_mQWestVertical[mVz_sign]->FindBin((double)mRunIndex,(double)mCent9);
-  mCenterWestVertical = -1.0*p_mQWestVertical[mVz_sign]->GetBinContent(binWestVertical);
+  int binWestVertical = p_mQWestVertical->FindBin((double)mRunIndex,(double)mCent9);
+  mCenterWestVertical = -1.0*p_mQWestVertical->GetBinContent(binWestVertical);
 
-  int binWestHorizontal = p_mQWestHorizontal[mVz_sign]->FindBin((double)mRunIndex,(double)mCent9);
-  mCenterWestHorizontal = p_mQWestHorizontal[mVz_sign]->GetBinContent(binWestHorizontal);
+  int binWestHorizontal = p_mQWestHorizontal->FindBin((double)mRunIndex,(double)mCent9);
+  mCenterWestHorizontal = p_mQWestHorizontal->GetBinContent(binWestHorizontal);
   // cout << "mCenterEastVertical = " << mCenterEastVertical << ", mCenterEastHorizontal = " << mCenterEastHorizontal << ", mCenterWestVertical = " << mCenterWestVertical << ", mCenterWestHorizontal = " << mCenterWestHorizontal << endl;
 }
 
@@ -256,23 +251,19 @@ void StZdcSmdCorrection::ReadShiftCorr()
   string InPutFile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ZDCSMD/ShiftPar/merged_file/file_%s_ShiftPar.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamEnergy[mEnergy].c_str());
   mFile_ShiftPar = TFile::Open(InPutFile.c_str());
 
-  string mVStr[2] = {"pos","neg"};
-  for(int i_vz = 0; i_vz < 2; ++i_vz) // vertex pos/neg
+  for(int i_shift = 0; i_shift < 20; ++i_shift) // Shift Order
   {
-    for(int i_shift = 0; i_shift < 20; ++i_shift) // Shift Order
-    {
-      string ProName;
+    string ProName;
 
-      ProName = Form("p_mQEastCos_%s_%d",mVStr[i_vz].c_str(),i_shift);
-      p_mQEastCos[i_vz][i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
-      ProName = Form("p_mQEastSin_%s_%d",mVStr[i_vz].c_str(),i_shift);
-      p_mQEastSin[i_vz][i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
+    ProName = Form("p_mQEastCos_%d",i_shift);
+    p_mQEastCos[i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
+    ProName = Form("p_mQEastSin_%d",i_shift);
+    p_mQEastSin[i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
 
-      ProName = Form("p_mQWestCos_%s_%d",mVStr[i_vz].c_str(),i_shift);
-      p_mQWestCos[i_vz][i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
-      ProName = Form("p_mQWestSin_%s_%d",mVStr[i_vz].c_str(),i_shift);
-      p_mQWestSin[i_vz][i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
-    }
+    ProName = Form("p_mQWestCos_%d",i_shift);
+    p_mQWestCos[i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
+    ProName = Form("p_mQWestSin_%d",i_shift);
+    p_mQWestSin[i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
   }
 }
 
@@ -285,11 +276,11 @@ TVector2 StZdcSmdCorrection::ApplyZdcSmdShiftCorrEast(TVector2 qVector)
 
   for(Int_t i_shift = 0; i_shift < 20; ++i_shift) // Shift Order loop
   {
-    int bin_Cos = p_mQEastCos[mVz_sign][i_shift]->FindBin((double)mRunIndex,(double)mCent9);
-    float mean_Cos = p_mQEastCos[mVz_sign][i_shift]->GetBinContent(bin_Cos);
+    int bin_Cos = p_mQEastCos[i_shift]->FindBin((double)mRunIndex,(double)mCent9);
+    float mean_Cos = p_mQEastCos[i_shift]->GetBinContent(bin_Cos);
 
-    int bin_Sin = p_mQEastSin[mVz_sign][i_shift]->FindBin((double)mRunIndex,(double)mCent9);
-    float mean_Sin = p_mQEastSin[mVz_sign][i_shift]->GetBinContent(bin_Sin);
+    int bin_Sin = p_mQEastSin[i_shift]->FindBin((double)mRunIndex,(double)mCent9);
+    float mean_Sin = p_mQEastSin[i_shift]->GetBinContent(bin_Sin);
 
     delta_Psi += (2.0/((float)i_shift+1.0))*(-1.0*mean_Sin*TMath::Cos(((float)i_shift+1.0)*Psi_ReCenter)+mean_Cos*TMath::Sin(((float)i_shift+1.0)*Psi_ReCenter));
   }
@@ -311,11 +302,11 @@ TVector2 StZdcSmdCorrection::ApplyZdcSmdShiftCorrWest(TVector2 qVector)
 
   for(Int_t i_shift = 0; i_shift < 20; ++i_shift) // Shift Order loop
   {
-    int bin_Cos = p_mQWestCos[mVz_sign][i_shift]->FindBin((double)mRunIndex,(double)mCent9);
-    float mean_Cos = p_mQWestCos[mVz_sign][i_shift]->GetBinContent(bin_Cos);
+    int bin_Cos = p_mQWestCos[i_shift]->FindBin((double)mRunIndex,(double)mCent9);
+    float mean_Cos = p_mQWestCos[i_shift]->GetBinContent(bin_Cos);
 
-    int bin_Sin = p_mQWestSin[mVz_sign][i_shift]->FindBin((double)mRunIndex,(double)mCent9);
-    float mean_Sin = p_mQWestSin[mVz_sign][i_shift]->GetBinContent(bin_Sin);
+    int bin_Sin = p_mQWestSin[i_shift]->FindBin((double)mRunIndex,(double)mCent9);
+    float mean_Sin = p_mQWestSin[i_shift]->GetBinContent(bin_Sin);
 
     delta_Psi += (2.0/((float)i_shift+1.0))*(-1.0*mean_Sin*TMath::Cos(((float)i_shift+1.0)*Psi_ReCenter)+mean_Cos*TMath::Sin(((float)i_shift+1.0)*Psi_ReCenter));
   }
@@ -348,21 +339,17 @@ float StZdcSmdCorrection::AngleShift(float Psi_raw)
 
 void StZdcSmdCorrection::ReadShiftCorrFull()
 {
-  string InPutFile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ZDCSMD/ShiftPar/merged_file/file_%s_ShiftParFull.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamEnergy[mEnergy].c_str());
+  string InPutFile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ZDCSMD/ShiftParFull/merged_file/file_%s_ShiftParFull.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamEnergy[mEnergy].c_str());
   mFile_ShiftPar = TFile::Open(InPutFile.c_str());
 
-  string mVStr[2] = {"pos","neg"};
-  for(int i_vz = 0; i_vz < 2; ++i_vz) // vertex pos/neg
+  for(int i_shift = 0; i_shift < 20; ++i_shift) // Shift Order
   {
-    for(int i_shift = 0; i_shift < 20; ++i_shift) // Shift Order
-    {
-      string ProName;
+    string ProName;
 
-      ProName = Form("p_mQFullCos_%s_%d",mVStr[i_vz].c_str(),i_shift);
-      p_mQFullCos[i_vz][i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
-      ProName = Form("p_mQFullSin_%s_%d",mVStr[i_vz].c_str(),i_shift);
-      p_mQFullSin[i_vz][i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
-    }
+    ProName = Form("p_mQFullCos_%d",i_shift);
+    p_mQFullCos[i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
+    ProName = Form("p_mQFullSin_%d",i_shift);
+    p_mQFullSin[i_shift] = (TProfile2D*)mFile_ShiftPar->Get(ProName.c_str());
   }
 }
 
@@ -375,11 +362,11 @@ TVector2 StZdcSmdCorrection::ApplyZdcSmdShiftCorrFull(TVector2 qVector)
 
   for(Int_t i_shift = 0; i_shift < 20; ++i_shift) // Shift Order loop
   {
-    int bin_Cos = p_mQFullCos[mVz_sign][i_shift]->FindBin((double)mRunIndex,(double)mCent9);
-    float mean_Cos = p_mQFullCos[mVz_sign][i_shift]->GetBinContent(bin_Cos);
+    int bin_Cos = p_mQFullCos[i_shift]->FindBin((double)mRunIndex,(double)mCent9);
+    float mean_Cos = p_mQFullCos[i_shift]->GetBinContent(bin_Cos);
 
-    int bin_Sin = p_mQFullSin[mVz_sign][i_shift]->FindBin((double)mRunIndex,(double)mCent9);
-    float mean_Sin = p_mQFullSin[mVz_sign][i_shift]->GetBinContent(bin_Sin);
+    int bin_Sin = p_mQFullSin[i_shift]->FindBin((double)mRunIndex,(double)mCent9);
+    float mean_Sin = p_mQFullSin[i_shift]->GetBinContent(bin_Sin);
 
     delta_Psi += (2.0/((float)i_shift+1.0))*(-1.0*mean_Sin*TMath::Cos(((float)i_shift+1.0)*Psi_ReCenter)+mean_Cos*TMath::Sin(((float)i_shift+1.0)*Psi_ReCenter));
   }

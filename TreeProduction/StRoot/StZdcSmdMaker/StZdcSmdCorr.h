@@ -17,7 +17,7 @@ class StZdcSmdCorrection : public TObject
     StZdcSmdCorrection(int energy);
     virtual ~StZdcSmdCorrection();
     void clear();
-    void InitEvent(int Cent9, int RunIndex, int vz_sign);
+    void InitEvent(int Cent9, int RunIndex);
 
     void SetZdcSmd(int eastwest,int verthori,int strip,const float zdcsmd);
     float GetZdcSmd(int eastwest,int verthori,int strip);
@@ -55,21 +55,21 @@ class StZdcSmdCorrection : public TObject
     float mGainCorrFactor[2][2][8];
 
     // ReCenter Correction | x axis is RunIndex, y axis is Centrality
-    TProfile2D *p_mQEastVertical[2]; // vz_sign
-    TProfile2D *p_mQEastHorizontal[2];
-    TProfile2D *p_mQWestVertical[2];
-    TProfile2D *p_mQWestHorizontal[2];
+    TProfile2D *p_mQEastVertical; // vz_sign
+    TProfile2D *p_mQEastHorizontal;
+    TProfile2D *p_mQWestVertical;
+    TProfile2D *p_mQWestHorizontal;
     float mCenterEastVertical, mCenterEastHorizontal, mCenterWestVertical, mCenterWestHorizontal;
 
     // Shift Correction for East/West
-    TProfile2D *p_mQEastCos[2][20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
-    TProfile2D *p_mQEastSin[2][20];
-    TProfile2D *p_mQWestCos[2][20];
-    TProfile2D *p_mQWestSin[2][20];
+    TProfile2D *p_mQEastCos[20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
+    TProfile2D *p_mQEastSin[20];
+    TProfile2D *p_mQWestCos[20];
+    TProfile2D *p_mQWestSin[20];
 
     // Shift Correction for East/West
-    TProfile2D *p_mQFullCos[2][20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
-    TProfile2D *p_mQFullSin[2][20];
+    TProfile2D *p_mQFullCos[20]; // 0 = vertex pos/neg | 1 = shift correction harmonics
+    TProfile2D *p_mQFullSin[20];
 
     // charged hadron v1 calculation
     TProfile *p_mResolution;

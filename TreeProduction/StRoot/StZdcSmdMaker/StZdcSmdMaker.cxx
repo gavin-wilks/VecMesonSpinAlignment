@@ -51,7 +51,7 @@ StZdcSmdMaker::StZdcSmdMaker(const char* name, StPicoDstMaker *picoMaker, const 
   }
   if(mMode == 3)
   { // apply gian, re-center and shift correction and fill shift parameter for Full 
-    mOutPut_ShiftParFull = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ZDCSMD/ShiftPar/file_%s_ShiftParFull_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),jobCounter);
+    mOutPut_ShiftParFull = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ZDCSMD/ShiftParFull/file_%s_ShiftParFull_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),jobCounter);
   }
   if(mMode == 4)
   { // apply gian, re-center and shift correction and fill shift parameter for Full 
@@ -282,9 +282,10 @@ Int_t StZdcSmdMaker::Make()
   }
 
   // runIndex
-  mRunIdEventsDb = StRunIdEventsDb::Instance((Float_t)mPicoEvent->energy(),(Float_t)mPicoEvent->year());
-  const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(runId); // expensive
-//  cout << runIndex << endl;
+  // mRunIdEventsDb = StRunIdEventsDb::Instance((Float_t)mPicoEvent->energy(),(Float_t)mPicoEvent->year());
+  // const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(runId); // expensive
+  const Int_t runIndex = (int)runId/10;
+//  cout << "runId = " << runId << ", runIndex = " << runIndex << endl;
 //  cout << mRunIdEventsDb->getTotalNrRunIds() << endl;
 
   if(mZdcSmdCut->passEventCut(mPicoDst)) // event cut
@@ -295,7 +296,7 @@ Int_t StZdcSmdMaker::Make()
     const float reweight = mRefMultCorr->getWeight();
     const int nToFMatched = mZdcSmdCut->getMatchedToF();
 
-    mZdcSmdCorrection->InitEvent(cent9,runIndex,vz_sign);
+    mZdcSmdCorrection->InitEvent(cent9,runIndex);
 
     // set ADC for each slats
     if(mMode == 0)
@@ -342,8 +343,8 @@ Int_t StZdcSmdMaker::Make()
       TVector2 QFull = QWest-QEast;
       if( !(QEast.Mod() < 1e-10 || QWest.Mod() < 1e-10 || QFull.Mod() < 1e-10) )
       {
-	mZdcSmdProManger->FillReCenterEast(QEast,cent9,runIndex,vz_sign);
-	mZdcSmdProManger->FillReCenterWest(QWest,cent9,runIndex,vz_sign);
+	mZdcSmdProManger->FillReCenterEast(QEast,cent9,runIndex);
+	mZdcSmdProManger->FillReCenterWest(QWest,cent9,runIndex);
 	mZdcSmdHistoManger->FillRawEP(QEast,QWest,QFull,cent9,runIndex);
       }
     }
@@ -354,8 +355,8 @@ Int_t StZdcSmdMaker::Make()
       TVector2 QFull = QWest-QEast;
       if( !(QEast.Mod() < 1e-10 || QWest.Mod() < 1e-10 || QFull.Mod() < 1e-10) )
       {
-	mZdcSmdProManger->FillShiftEast(QEast,cent9,runIndex,vz_sign);
-	mZdcSmdProManger->FillShiftWest(QWest,cent9,runIndex,vz_sign);
+	mZdcSmdProManger->FillShiftEast(QEast,cent9,runIndex);
+	mZdcSmdProManger->FillShiftWest(QWest,cent9,runIndex);
 	mZdcSmdHistoManger->FillReCenterEP(QEast,QWest,QFull,cent9,runIndex);
       }
     }
@@ -366,7 +367,7 @@ Int_t StZdcSmdMaker::Make()
       TVector2 QFull = QWest-QEast;
       if( !(QEast.Mod() < 1e-10 || QWest.Mod() < 1e-10 || QFull.Mod() < 1e-10) )
       {
-	mZdcSmdProManger->FillShiftFull(QFull,cent9,runIndex,vz_sign);
+	mZdcSmdProManger->FillShiftFull(QFull,cent9,runIndex);
 	mZdcSmdHistoManger->FillShiftEP(QEast,QWest,QFull,cent9,runIndex);
       }
     }
