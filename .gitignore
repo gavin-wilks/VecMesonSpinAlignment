@@ -17,7 +17,8 @@ temp_gccflags.c
 */*_C.*
 */macro/*_C.*
 
-TreeProduction/submit/failed*.list
+TreeProduction/submit/List/*/failed*.list
+TreeProduction/submit/List/*/deleteROOT*.list
 
 McPhiResCorr/*_C.*
 McPhiResCorr/*.pdf
