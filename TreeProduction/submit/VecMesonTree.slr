@@ -11,6 +11,7 @@
 echo "start-A "`hostname`" in PWD="`pwd`
 
 startSkew=1200 # (seconds), random delay for task
+# startSkew=600 # (seconds), random delay for resubmit or test
 nsleep=$(($RANDOM % $startSkew))
 echo nsleep=$nsleep
 sleep $nsleep
@@ -20,21 +21,21 @@ job_sh=VecMesonTree.csh
 
 # export mode=0  # fill ReCenterPar mode
 # export mode=1  # fill ShiftPar mode
-export mode=2  # Resolution mode
-# export mode=3  # Phi mode
+# export mode=2  # Resolution mode
+export mode=3  # Phi mode
 
 ##########Energy Selection##########
 # export energy=0  # 7.7GeV
 # export Energy=7GeV
 
-# export energy=1  # 11.5GeV
-# export Energy=11GeV
+export energy=1  # 11.5GeV
+export Energy=11GeV
 
 # export energy=2  # 19.6GeV
 # export Energy=19GeV
 
-export energy=3  # 27GeV
-export Energy=27GeV
+# export energy=3  # 27GeV
+# export Energy=27GeV
 
 # export energy=4  # 39GeV
 # export Energy=39GeV

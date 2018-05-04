@@ -19,6 +19,7 @@ temp_gccflags.c
 
 TreeProduction/submit/List/*/failed*.list
 TreeProduction/submit/List/*/deleteROOT*.list
+TreeProduction/submit/slurm-*
 
 McPhiResCorr/*_C.*
 McPhiResCorr/*.pdf

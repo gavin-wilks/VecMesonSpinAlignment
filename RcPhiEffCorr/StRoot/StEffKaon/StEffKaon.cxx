@@ -8,7 +8,7 @@
 #include "StThreeVectorF.hh"
 #include <fstream>
 #include <vector>
-#include "../../../Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "StEffCut.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"

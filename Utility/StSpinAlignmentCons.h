@@ -127,6 +127,14 @@ namespace vmsa
   float const CTS_low[7] = {0.0/7.0,1.0/7.0,2.0/7.0,3.0/7.0,4.0/7.0,5.0/7.0,6.0/7.0};
   float const CTS_up[7]  = {1.0/7.0,2.0/7.0,3.0/7.0,4.0/7.0,5.0/7.0,6.0/7.0,7.0/7.0};
 
+  int const Dca_Start = 0;
+  int const Dca_Stop = 3;
+  float const mDcaSys[3] = {2.0,2.5,3.0}; // dca sys. errors
+
+  int const nSig_Start = 0;
+  int const nSig_Stop = 3;
+  float const mNSigmaKaonSys[3] = {2.5,2.0,3.0}; // nSigKaon sys. errors
+
   int const EtaGap_total = 4; // EtaGap bin
   int const Eta_start = 0; // EtaGap bin
   int const Eta_stop  = 1;
