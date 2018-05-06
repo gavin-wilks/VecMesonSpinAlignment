@@ -114,9 +114,9 @@ namespace vmsa
   int const pt_RawQA[NumBeamEnergy]    = {2,4,6,3,10,12,14};
 
   std::string const Centrality[9] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%"}; // Centrality bin
-  int const Cent_Total = 5;
+  int const Cent_Total = 10; // centrality: 9 = 20%-60%, 0-8 from RefMultCorr
   int const Cent_start = 0;
-  int const Cent_stop  = 1;
+  int const Cent_stop  = 10;
   int const cent_low[5] = {2,0,7,4,0}; // 0 = 20%-60%, 1 = 0-80%, 2 = 0-10%, 3 = 10-40%, 4 = 40-80%
   int const cent_up[5]  = {5,8,8,6,3}; // 0 = 20%-60%, 1 = 0-80%, 2 = 0-10%, 3 = 10-40%, 4 = 40-80%
   int const Cent_QA    = 0;
@@ -127,12 +127,12 @@ namespace vmsa
   float const CTS_low[7] = {0.0/7.0,1.0/7.0,2.0/7.0,3.0/7.0,4.0/7.0,5.0/7.0,6.0/7.0};
   float const CTS_up[7]  = {1.0/7.0,2.0/7.0,3.0/7.0,4.0/7.0,5.0/7.0,6.0/7.0,7.0/7.0};
 
-  int const Dca_Start = 0;
-  int const Dca_Stop = 3;
+  int const Dca_start = 0;
+  int const Dca_stop = 3;
   float const mDcaSys[3] = {2.0,2.5,3.0}; // dca sys. errors
 
-  int const nSig_Start = 0;
-  int const nSig_Stop = 3;
+  int const nSigKaon_start = 0;
+  int const nSigKaon_stop = 3;
   float const mNSigmaKaonSys[3] = {2.5,2.0,3.0}; // nSigKaon sys. errors
 
   int const EtaGap_total = 4; // EtaGap bin

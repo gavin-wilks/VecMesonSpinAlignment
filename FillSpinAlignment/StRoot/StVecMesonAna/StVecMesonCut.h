@@ -12,11 +12,13 @@ class StVecMesonCut : public TObject
     ~StVecMesonCut();
 
     bool passTrackEP(TLorentzVector, Float_t);
-    bool passTrackDCA(Float_t, Float_t); // apply dca cuts to Kaon for Systematic errors => default value is 2.0
     bool passTrackEtaEast(TLorentzVector); // different eta_gap
     bool passTrackEtaWest(TLorentzVector);
     bool passPhiEtaEast(TLorentzVector); // eta cut for Phi candidate
     bool passPhiEtaWest(TLorentzVector);
+
+    bool passTrackDcaSys(Float_t, Float_t, Int_t); // apply dca cuts to Kaon for Systematic errors => default value is 2.0
+    bool passTrackSigSys(Float_t, Float_t, Int_t); // apply nSigKaon cuts to Kaon for Systematic errors => default value is 2.5
 
   private:
     Int_t mEnergy;

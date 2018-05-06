@@ -45,13 +45,6 @@ bool StVecMesonCut::passTrackEP(TLorentzVector lTrack, Float_t dca)
   return kTRUE;
 }
 //---------------------------------------------------------------------------------
-bool StVecMesonCut::passTrackDCA(Float_t dcaA, Float_t dcaB) 
-{
-  if( !(fabs(dcaA) <= 2.0 && fabs(dcaB) <= 2.0) ) return kFALSE;
-
-  return kTRUE;
-}
-
 bool StVecMesonCut::passTrackEtaEast(TLorentzVector lTrack) // neg
 {
   Float_t eta = lTrack.Eta();
@@ -104,6 +97,20 @@ bool StVecMesonCut::passPhiEtaWest(TLorentzVector lTrack) // pos
   {
     return kFALSE;
   }
+
+  return kTRUE;
+}
+//---------------------------------------------------------------------------------
+bool StVecMesonCut::passTrackDcaSys(Float_t dcaA, Float_t dcaB, Int_t dcaSys) 
+{
+  if( !(fabs(dcaA) <= vmsa::mDcaSys[dcaSys] && fabs(dcaB) <= vmsa::mDcaSys[dcaSys]) ) return kFALSE;
+
+  return kTRUE;
+}
+
+bool StVecMesonCut::passTrackSigSys(Float_t nsA, Float_t nsB, Int_t sigSys) 
+{
+  if( !(fabs(nsA) <= vmsa::mNSigmaKaonSys[sigSys] && fabs(nsB) <= vmsa::mNSigmaKaonSys[sigSys]) ) return kFALSE;
 
   return kTRUE;
 }
