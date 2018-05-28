@@ -18,18 +18,33 @@ sleep $nsleep
 #tasks script to be executed
 job_sh=FillSpinAlignment.csh
 
+##########Energy Selection##########
 # export energy=0  # 7.7GeV
-# export energy=1  # 11.5GeV
-# export energy=2  # 19.6GeV
-# export energy=3  # 27GeV
-# export energy=4  # 39GeV
-# export energy=5  # 62.4GeV
-export energy=6  # 200GeV
+# export Energy=7GeV
 
-export flag_ME=0  # Same Event 
-export SM=SE
-# export flag_ME=1  # Mixed Event
-# export SM=ME
+# export energy=1  # 11.5GeV
+# export Energy=11GeV
+
+# export energy=2  # 19.6GeV
+# export Energy=19GeV
+
+export energy=3  # 27GeV
+export Energy=27GeV
+
+# export energy=4  # 39GeV
+# export Energy=39GeV
+
+# export energy=5  # 62.4GeV
+# export Energy=62GeV
+
+# export energy=6  # 200GeV
+# export Energy=200GeV
+##########Energy Selection##########
+
+# export flag_ME=0  # Same Event 
+# export SM=SE
+export flag_ME=1  # Mixed Event
+export SM=ME
 
 export startEvent=0
 export stopEvent=1000000000
@@ -37,7 +52,6 @@ export stopEvent=1000000000
 
 export mode=0 # phi-meson
 
-export Energy=200GeV
 # use data from the submit_$Energy.list
 export STAR_VER=pro
 
