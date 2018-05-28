@@ -22,9 +22,10 @@
 #endif
 
 
-void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
+void calSpinAlignmentSys(int energy = 3, int pid = 0, int year = 0)
 {
   string inputfile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/rho00/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  // string inputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   File_InPut->cd();
   TH1FMap h_mMass, h_mMass_InteTheta;
@@ -35,16 +36,16 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
   {
     for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // Centrality loop
     {
-      for(int i_eta = vmsa::Eta_start; i_eta < vmsa::Eta_stop; i_eta++) // EtaGap loop
+      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
       {
-	for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+	for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	{
-	  for(int i_func = vmsa::Func_start; i_func < vmsa::Func_stop; ++i_func)
+	  for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	  {
-	    string KEY_InteTheta = Form("pt_%d_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d",i_pt,i_cent,i_eta,vmsa::mPID[pid].c_str(),i_norm,i_func);
+	    string KEY_InteTheta = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	    for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	    {
-	      string KEY = Form("pt_%d_Centrality_%d_EtaGap_%d_CosThetaStar_%d_2nd_%s_Norm_%d_Func_%d",i_pt,i_cent,i_eta,i_theta,vmsa::mPID[pid].c_str(),i_norm,i_func);
+	      string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	      h_mMass[KEY] = (TH1F*)File_InPut->Get(KEY.c_str());
 
 	      if(i_theta == vmsa::CTS_start) h_mMass_InteTheta[KEY_InteTheta] = (TH1F*)h_mMass[KEY]->Clone(KEY_InteTheta.c_str());
@@ -81,7 +82,7 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
     c_diff->cd(i_theta+1)->SetGrid(0,0);
     if(i_theta < vmsa::CTS_stop)
     {
-      string KEY_QA = Form("pt_%d_Centrality_%d_EtaGap_%d_CosThetaStar_%d_2nd_%s_Norm_%d_Func_%d",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Eta_start,i_theta,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Func_QA);
+      string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],vmsa::Cent_start,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
       h_mMass[KEY_QA]->SetTitle("");
       h_mMass[KEY_QA]->GetXaxis()->SetNdivisions(505,'N');
       h_mMass[KEY_QA]->GetXaxis()->SetLabelSize(0.03);
@@ -105,7 +106,7 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
     }
     if(i_theta == vmsa::CTS_stop)
     {
-      string KEY_InteTheta_QA = Form("pt_%d_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Eta_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Func_QA);
+      string KEY_InteTheta_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
       h_mMass_InteTheta[KEY_InteTheta_QA]->SetTitle("");
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetNdivisions(505,'N');
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetLabelSize(0.03);
@@ -138,8 +139,8 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
   }
 #endif
 
+  /*
   // fit theta-differential bin to extract fit parameters for integration
-  vecFMap Par;
   for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
   {
     for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // Centrality loop
@@ -159,37 +160,40 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
       }
     }
   }
+  */
 
   // extract counts vs. pT with diffenretial integration ranges and methods
+  vecFMap Par;
   TH1FMap h_mCounts;
   vecFMap Par_rhoFit;
   TGraMap g_mRho;
   for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; ++i_cent) // Centrality loop
   {
-    for(int i_eta = vmsa::Eta_start; i_eta < vmsa::Eta_stop; ++i_eta) // EtaGap loop
+    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     {
-      for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
-	for(int i_func = vmsa::Func_start; i_func < vmsa::Func_stop; ++i_func)
+	for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	{
 	  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
 	  {
 	    for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	    {
-	      string KEY_rho = Form("rhoRaw_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d_Sigma_%d_%s",i_cent,i_eta,vmsa::mPID[pid].c_str(),i_norm,i_func,i_sigma,vmsa::mInteMethod[i_method].c_str());
+	      string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
 	      g_mRho[KEY_rho] = new TGraphAsymmErrors();
 	      for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt) // pt loop
 	      {
-		string KEY_counts = Form("pt_%d_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d_Sigma_%d_%s",i_pt,i_cent,i_eta,vmsa::mPID[pid].c_str(),i_norm,i_func,i_sigma,vmsa::mInteMethod[i_method].c_str());
+		string KEY_counts = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_pt,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
 		h_mCounts[KEY_counts] = new TH1F(KEY_counts.c_str(),KEY_counts.c_str(),7,0.0,1.0);
-		string KEY_InteTheta = Form("pt_%d_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d",i_pt,i_cent,i_eta,vmsa::mPID[pid].c_str(),i_norm,i_func);
+
+		string KEY_InteTheta = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 		for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; ++i_theta) // cos(theta*) loop
 		{
-		  string KEY = Form("pt_%d_Centrality_%d_EtaGap_%d_CosThetaStar_%d_2nd_%s_Norm_%d_Func_%d",i_pt,i_cent,i_eta,i_theta,vmsa::mPID[pid].c_str(),i_norm,i_func);
+		  string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 		  TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
 		  f_bw->FixParameter(0,Par_InteTheta[KEY_InteTheta][0]);
 		  f_bw->FixParameter(1,Par_InteTheta[KEY_InteTheta][1]);
-		  f_bw->SetParameter(2,Par_InteTheta[KEY_InteTheta][2]);
+		  f_bw->SetParameter(2,Par_InteTheta[KEY_InteTheta][2]/7.0);
 		  f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
 		  h_mMass[KEY]->Fit(f_bw,"MQNR");
 		  float bin_center = 1/14.0+i_theta/7.0;
@@ -245,7 +249,7 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
   for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; ++i_theta)
   {
     c_diff->cd(i_theta+1);
-    string KEY_QA = Form("pt_%d_Centrality_%d_EtaGap_%d_CosThetaStar_%d_2nd_%s_Norm_%d_Func_%d",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Eta_start,i_theta,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Func_QA);
+    string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],vmsa::Cent_start,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
     f_bw->SetParameter(0,Par[KEY_QA][0]);
     f_bw->SetParameter(1,Par[KEY_QA][1]);
@@ -261,7 +265,7 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
   {
     for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
     {
-      string KEY_counts_QA = Form("pt_%d_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d_Sigma_%d_%s",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Eta_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Func_QA,i_sigma,vmsa::mInteMethod[i_method].c_str());
+      string KEY_counts_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,i_sigma,vmsa::mInteMethod[i_method].c_str());
       if(i_sigma == vmsa::Sig_start && i_method == vmsa::Method_start)
       {
 	h_mCounts[KEY_counts_QA];
@@ -337,17 +341,17 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
 
   for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; ++i_cent) // Centrality loop
   {
-    for(int i_eta = vmsa::Eta_start; i_eta < vmsa::Eta_stop; ++i_eta) // EtaGap loop
+    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     {
-      for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
-	for(int i_func = vmsa::Func_start; i_func < vmsa::Func_stop; ++i_func)
+	for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	{
 	  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
 	  {
 	    for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	    {
-	      string KEY_rho = Form("rhoRaw_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d_Sigma_%d_%s",i_cent,i_eta,vmsa::mPID[pid].c_str(),i_norm,i_func,i_sigma,vmsa::mInteMethod[i_method].c_str());
+	      string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
 	      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
 	    }
 	  }
@@ -358,27 +362,28 @@ void calSpinAlignmentSys(int energy = 6, int pid = 0, int year = 0)
   c_rho->SaveAs("../figures/c_rho.eps");
 
   string outputfile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/rho00/RawRhoPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  // string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/RawRhoPtSys.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
   h_frame->Write();
   for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; ++i_cent) // Centrality loop
   {
-    for(int i_eta = vmsa::Eta_start; i_eta < vmsa::Eta_stop; ++i_eta) // EtaGap loop
+    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     {
-      for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
-	for(int i_func = vmsa::Func_start; i_func < vmsa::Func_stop; ++i_func)
+	for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	{
 	  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
 	  {
 	    for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	    {
-	      string KEY_rho = Form("rhoRaw_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d_Sigma_%d_%s",i_cent,i_eta,vmsa::mPID[pid].c_str(),i_norm,i_func,i_sigma,vmsa::mInteMethod[i_method].c_str());
+	      string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
 	      g_mRho[KEY_rho]->SetName(KEY_rho.c_str());
 	      g_mRho[KEY_rho]->Write();
 	      for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt) // pt loop
 	      {
-		string KEY_counts = Form("pt_%d_Centrality_%d_EtaGap_%d_2nd_%s_Norm_%d_Func_%d_Sigma_%d_%s",i_pt,i_cent,i_eta,vmsa::mPID[pid].c_str(),i_norm,i_func,i_sigma,vmsa::mInteMethod[i_method].c_str());
+		string KEY_counts = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_pt,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
 		h_mCounts[KEY_counts]->Write();
 	      }
 	    }
