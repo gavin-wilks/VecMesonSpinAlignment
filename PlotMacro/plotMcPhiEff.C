@@ -70,5 +70,5 @@ void plotMcPhiEff(int energy = 6, int cent = 9)
   plotTopLegend((char*)legEnergy.c_str(),0.17,0.995,0.05,1,0.0,42,0,1);
 
   // c_eff->SaveAs("../figures/effPt.eps");
-  c_eff->SaveAs("../figures/effPt.png");
+  // c_eff->SaveAs("../figures/effPt.png");
 }

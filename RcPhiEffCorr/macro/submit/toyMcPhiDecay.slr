@@ -10,13 +10,17 @@
 
 echo "start-A "`hostname`" in PWD="`pwd`
 
-startSkew=600 # (seconds), random delay for task
+# startSkew=1200 # (seconds), random delay for task
+startSkew=600 # (seconds), random delay for resubmit or test
 nsleep=$(($RANDOM % $startSkew))
 echo nsleep=$nsleep
 sleep $nsleep
 
 #tasks script to be executed
-job_sh=FillSpinAlignment.csh
+job_sh=toyMcPhiDecay.csh
+
+export pid=0  # phi-meson 
+export NMax=1000000 # number of simulated events
 
 ##########Energy Selection##########
 # export energy=0  # 7.7GeV
@@ -31,36 +35,23 @@ job_sh=FillSpinAlignment.csh
 # export energy=3  # 27GeV
 # export Energy=27GeV
 
-export energy=4  # 39GeV
-export Energy=39GeV
+# export energy=4  # 39GeV
+# export Energy=39GeV
 
 # export energy=5  # 62.4GeV
 # export Energy=62GeV
 
-# export energy=6  # 200GeV
-# export Energy=200GeV
+export energy=6  # 200GeV
+export year=0
+export cut=0
+export Energy=200GeV
 ##########Energy Selection##########
 
-export flag_ME=0  # Same Event 
-export SM=SE
-# export flag_ME=1  # Mixed Event
-# export SM=ME
-
-export startEvent=0
-export stopEvent=1000000000
-# export stopEvent=100024 # test mode
-
-export mode=0 # phi-meson
-
-# use data from the submit_$Energy.list
 export STAR_VER=pro
-
-kD=$SLURM_ARRAY_TASK_ID
-echo pick list $kD from $SM List
 
 export LOG_PATH=/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu${Energy}/Log/SLURM
 mkdir -p $LOG_PATH
-echo write FillSpinAlignment logs to  $LOG_PATH
+echo write toyMcPhiDecay logs to  $LOG_PATH
 
 # pick STAR library you want to use
 export EXEC_NAME=root4star
@@ -74,13 +65,13 @@ export WRK_DIR=$SLURM_TMP
 codeDir=/global/homes/x/xusun/STAR/VecMesonSpinAlignment/
 
 echo Prepare a local copy of binaries
-time( cp -rpL FillSpinAlignment.csh $WRK_DIR ; cp -rpL $codeDir  $WRK_DIR )
+time( cp -rpL toyMcPhiDecay.csh $WRK_DIR ; cp -rpL $codeDir  $WRK_DIR )
 
 echo run job in STAR_VER=$STAR_VER  WRK_DIR=$WRK_DIR
 echo see vCores=$SLURM_CPUS_ON_NODE
 
 ls -l  ${job_sh}
-ls -l ${WRK_DIR}/VecMesonSpinAlignment/FillSpinAlignment/
+ls -l ${WRK_DIR}/VecMesonSpinAlignment/RcPhiEffCorr/macro/
 if [[ $SLURM_JOB_PARTITION == *"-chos" ]]
 then
     echo  run-in-chos
