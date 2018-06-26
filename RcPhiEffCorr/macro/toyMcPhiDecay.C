@@ -73,7 +73,8 @@ void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, 
 
 void getKinematics(TLorentzVector& lPhi, double const mass)
 {
-   double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptEffMax);
+   // double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptEffMax);
+   double const pt = gRandom->Uniform(0.8, 2.4);
    double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
    double const phi = TMath::TwoPi() * gRandom->Rndm();
 
@@ -126,7 +127,8 @@ void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters)
 
 void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus)
 {
-   int const centrality = floor(vmsa::NCentMax * gRandom->Rndm());
+   // int const centrality = floor(vmsa::NCentMax * gRandom->Rndm());
+   int const centrality = floor(2 * gRandom->Rndm());
    TLorentzVector lRcPhi = lKplus + lKminus; // phi meson reconstruction
    // cout << "lPhi.pt = " << lPhi->Pt() << ", lPhi.eta = " << lPhi->Eta() << ", lPhi.phi = " << lPhi->Phi() << ", lPhi.m = " << lPhi->M() << endl;
    // cout << "lRcPhi.pt = " << lRcPhi.Pt() << ", lRcPhi.eta = " << lRcPhi.Eta() << ", lRcPhi.phi = " << lRcPhi.Phi() << ", lRcPhi.m = " << lRcPhi.M() << endl;

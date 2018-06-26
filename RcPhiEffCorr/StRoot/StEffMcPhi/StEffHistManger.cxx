@@ -43,14 +43,19 @@ void StEffHistManger::InitHist()
 void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float cos)
 {
   h_mMcTracks[cent]->Fill(pt,eta,phi);
-  h_mMcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
+  if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
+  {//20-60%
+    h_mMcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
+  }
   for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
   {
     if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= vmsa::pt_up[mEnergy][i_pt])
     {
       h_mMcEffCos[cent][i_pt]->Fill(cos);
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
+      {//20-60%
 	h_mMcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
+      }
     }
   }
 }
@@ -58,14 +63,19 @@ void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float
 void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float cos)
 {
   h_mRcTracks[cent]->Fill(pt,eta,phi);
-  h_mRcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
+  if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
+  {//20-60%
+    h_mRcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
+  }
   for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
   {
     if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= vmsa::pt_up[mEnergy][i_pt])
     {
       h_mRcEffCos[cent][i_pt]->Fill(cos);
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
+      {//20-60%
 	h_mRcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
+      }
     }
   }
 }
