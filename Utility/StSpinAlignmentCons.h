@@ -109,7 +109,7 @@ namespace vmsa
     {2,4,7,10,13,16,19,23,24}
   };
   int const pt_rebin_first[NumBeamEnergy] = {0,0,0,0,0,0,0};
-  int const pt_rebin_last[NumBeamEnergy]  = {8,8,6,6,6,6,8};
+  int const pt_rebin_last[NumBeamEnergy]  = {8,6,6,6,6,6,8};
   int const pt_QA[NumBeamEnergy]    = {1,1,2,2,3,3,0};
   int const pt_RawQA[NumBeamEnergy]    = {2,4,6,3,10,12,14};
 

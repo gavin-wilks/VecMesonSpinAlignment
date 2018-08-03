@@ -11,10 +11,11 @@ void run_StMcAnalysisMaker(const char* file = "/projecta/projectdirs/starprod/em
   // in the production from http://www.star.bnl.gov/devcgi/dbProdOptionRetrv.pl
 
   // string SL_version = "SL11d_embed"; // 200 GeV
-  string SL_version = "SL10k_embed"; // 62.4 GeV
+  // string SL_version = "SL10k_embed"; // 62.4 GeV
   // string SL_version = "SL10k_embed"; // 39 GeV
   // string SL_version = "SL11d_embed"; // 27 GeV
   // string SL_version = "SL11d_embed"; // 19.6 GeV
+  string SL_version = "SL10h_embed"; // 11.5 GeV
   string env_SL = getenv("STAR");
   // cout << env_SL << endl;
 

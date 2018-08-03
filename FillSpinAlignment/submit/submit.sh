@@ -9,9 +9,9 @@ then
   # sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-2 --time=08:00:00 FillSpinAlignment.slr # 11 GeV production mode
   # sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-6 --time=08:00:00 FillSpinAlignment.slr # 19 GeV production mode
   # sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-10 --time=08:00:00 FillSpinAlignment.slr # 27 GeV production mode
-  sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-24 --time=08:00:00 FillSpinAlignment.slr # 39 GeV production mode
+  # sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-24 --time=08:00:00 FillSpinAlignment.slr # 39 GeV production mode
   # sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-24 --time=12:00:00 FillSpinAlignment.slr # 62 GeV production mode
-  # sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-80 --time=24:00:00 FillSpinAlignment.slr # 200 GeV production mode
+  sbatch -p shared-chos --account rhstar --ntasks=1 --array=0-80 --time=24:00:00 FillSpinAlignment.slr # 200 GeV production mode
   ####submit macro####
 
   ####test macro####

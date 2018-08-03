@@ -31,14 +31,14 @@ job_sh=FillSpinAlignment.csh
 # export energy=3  # 27GeV
 # export Energy=27GeV
 
-export energy=4  # 39GeV
-export Energy=39GeV
+# export energy=4  # 39GeV
+# export Energy=39GeV
 
 # export energy=5  # 62.4GeV
 # export Energy=62GeV
 
-# export energy=6  # 200GeV
-# export Energy=200GeV
+export energy=6  # 200GeV
+export Energy=200GeV
 ##########Energy Selection##########
 
 export flag_ME=0  # Same Event 
