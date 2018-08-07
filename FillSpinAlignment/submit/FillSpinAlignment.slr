@@ -41,10 +41,10 @@ export energy=6  # 200GeV
 export Energy=200GeV
 ##########Energy Selection##########
 
-export flag_ME=0  # Same Event 
-export SM=SE
-# export flag_ME=1  # Mixed Event
-# export SM=ME
+# export flag_ME=0  # Same Event 
+# export SM=SE
+export flag_ME=1  # Mixed Event
+export SM=ME
 
 export startEvent=0
 export stopEvent=1000000000
