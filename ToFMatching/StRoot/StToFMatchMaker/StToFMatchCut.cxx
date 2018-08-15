@@ -189,7 +189,6 @@ Float_t StToFMatchCut::getV0Mass2(StPicoTrack *track)
 bool StToFMatchCut::passTrackBasic(StPicoTrack *track)
 {
   // nHitsFit cut
-  /*
   if(track->nHitsFit() < vmsa::mHitsFitTPCMin)
   {
     return kFALSE;
@@ -211,43 +210,14 @@ bool StToFMatchCut::passTrackBasic(StPicoTrack *track)
   {
     return kFALSE;
   }
-  */
 
-  // Shuai's cut
-  Float_t pt = track->pMom().perp();
-  if( pt < 0.2 || pt > 30.0) 
+  // primary pt and momentum cut: PtMin = 0.1
+  if(!(track->pMom().perp() > vmsa::mGlobPtMin && track->pMom().mag() < vmsa::mPrimMomMax))
   {
     return kFALSE;
   }
 
-  if(track->nHitsFit() < 20)
-  {
-    return kFALSE;
-  }
-
-  // nHitsRatio cut
-  if(track->nHitsMax() <= vmsa::mHitsMaxTPCMin)
-  {
-    return kFALSE;
-  }
-  if((Float_t)track->nHitsFit()/(Float_t)track->nHitsMax() < 0.52)
-  {
-    return kFALSE;
-  }
-
-  if(track->nHitsDedx() < 15)
-  {
-    return kFALSE;
-  }
-
-  if(track->dca() > 1.0)
-  {
-    return kFALSE;
-  }
-
-  // eta cut
-  Float_t eta = track->pMom().pseudoRapidity();
-  if(fabs(eta) > vmsa::mEtaMax)
+  if(track->dca() > vmsa::mDcaTrMax_phi)
   {
     return kFALSE;
   }
@@ -264,8 +234,7 @@ bool StToFMatchCut::passSigPionCut(StPicoTrack* track, Float_t scale_nSigma_fact
   if(!passTrackBasic(track)) return kFALSE;
 
   Float_t nSigmaPion = track->nSigmaPion();
-  // if(fabs(nSigmaPion*scale_nSigma_factor) > vmsa::mNSigmaPionMax)
-  if(fabs(nSigmaPion*scale_nSigma_factor) > 0.6)
+  if(fabs(nSigmaPion*scale_nSigma_factor) > vmsa::mNSigmaToF)
   {
     return kFALSE;
   }
@@ -279,8 +248,7 @@ bool StToFMatchCut::passSigProntonCut(StPicoTrack* track, Float_t scale_nSigma_f
   if(!passTrackBasic(track)) return kFALSE;
 
   Float_t nSigmaProton = track->nSigmaProton();
-  // if(fabs(nSigmaProton*scale_nSigma_factor) > vmsa::mNSigmaProtonMax)
-  if(fabs(nSigmaProton*scale_nSigma_factor) > 0.6)
+  if(fabs(nSigmaProton*scale_nSigma_factor) > vmsa::mNSigmaToF)
   {
     return kFALSE;
   }
@@ -296,8 +264,7 @@ bool StToFMatchCut::passSigKaonCut(StPicoTrack* track, Float_t scale_nSigma_fact
   if(!passTrackBasic(track)) return kFALSE;
 
   Float_t nSigmaKaon = track->nSigmaKaon();
-  // if(fabs(nSigmaKaon*scale_nSigma_factor) > vmsa::mNSigmaKaonMax)
-  if(fabs(nSigmaKaon*scale_nSigma_factor) > 0.6)
+  if(fabs(nSigmaKaon*scale_nSigma_factor) > vmsa::mNSigmaToF)
   {
     return kFALSE;
   }

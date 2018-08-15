@@ -28,8 +28,8 @@ export mode=3  # Phi mode
 # export energy=0  # 7.7GeV
 # export Energy=7GeV
 
-export energy=1  # 11.5GeV
-export Energy=11GeV
+# export energy=1  # 11.5GeV
+# export Energy=11GeV
 
 # export energy=2  # 19.6GeV
 # export Energy=19GeV
@@ -43,8 +43,8 @@ export Energy=11GeV
 # export energy=5  # 62.4GeV
 # export Energy=62GeV
 
-# export energy=6  # 200GeV
-# export Energy=200GeV
+export energy=6  # 200GeV
+export Energy=200GeV
 ##########Energy Selection##########
 
 export flag_ME=0  # Same Event 

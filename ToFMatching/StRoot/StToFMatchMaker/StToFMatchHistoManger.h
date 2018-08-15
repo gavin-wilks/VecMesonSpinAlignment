@@ -47,12 +47,12 @@ class StToFMatchHistoManger : public TObject
     TH1F *h_mVz;
     TH1F *h_mRefMult;
 
-    TH3D *h_mTracks_TPC[2][3][9]; // pt, eta, phi distribution as a function of charge | pid | centrality
-    TH3D *h_mTracks_ToF[2][3][9];
+    TH3D *h_mTracks_TPC[2][3][10]; // pt, eta, phi distribution as a function of charge | pid | centrality => 9 for miniBias <= temporary
+    TH3D *h_mTracks_ToF[2][3][10];
     TH1DMap h_mCounts_TPC; // counts for TPC tracks
     TH1DMap h_mCounts_ToF; // counts for ToF tracks
-    TH1D *h_FrameEta;
-    TH1D *h_FramePhi;
+    TH1D *h_FrameEta_ToF;
+    TH1D *h_FramePhi_ToF;
 
   ClassDef(StToFMatchHistoManger,1)
 };

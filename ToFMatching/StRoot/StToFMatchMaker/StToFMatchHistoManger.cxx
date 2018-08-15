@@ -80,14 +80,14 @@ void StToFMatchHistoManger::WriteQA()
   h_mDEdx->Write();
   h_mMass2->Write();
 
-  h_mDEdx_Pion->Write();
-  h_mMass2_Pion->Write();
+  // h_mDEdx_Pion->Write();
+  // h_mMass2_Pion->Write();
 
   h_mDEdx_Kaon->Write();
   h_mMass2_Kaon->Write();
 
-  h_mDEdx_Proton->Write();
-  h_mMass2_Proton->Write();
+  // h_mDEdx_Proton->Write();
+  // h_mMass2_Proton->Write();
 }
 //-------------------------------------------------------------------------------------------
 void StToFMatchHistoManger::InitHist()
@@ -96,7 +96,7 @@ void StToFMatchHistoManger::InitHist()
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
     {
-      for(int i_cent = 0; i_cent < 9; ++i_cent)
+      for(int i_cent = 0; i_cent < 10; ++i_cent)
       {
 	string HistName_Trakcs_TPC = Form("h_mTracks_TPC_%s%s_Cent_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent);
 	h_mTracks_TPC[i_charge][i_pid][i_cent] = new TH3D(HistName_Trakcs_TPC.c_str(),HistName_Trakcs_TPC.c_str(),tof::BinPt,tof::ptMin,tof::ptMax,tof::BinEta,tof::etaMin,tof::etaMax,tof::BinPhi,tof::phiMin,tof::phiMax);
@@ -121,38 +121,46 @@ void StToFMatchHistoManger::InitHist()
       }
     }
   }
-  h_FrameEta = new TH1D("h_FrameEta","h_FrameEta",tof::BinEta,tof::etaMin,tof::etaMax);
-  h_FramePhi = new TH1D("h_FramePhi","h_FramePhi",tof::BinPhi,tof::phiMin,tof::phiMax);
+  h_FrameEta_ToF = new TH1D("h_FrameEta_ToF","h_FrameEta_ToF",tof::BinEta,tof::etaMin,tof::etaMax);
+  h_FramePhi_ToF = new TH1D("h_FramePhi_ToF","h_FramePhi_ToF",tof::BinPhi,tof::phiMin,tof::phiMax);
 }
 
 int StToFMatchHistoManger::findEta(float eta)
 {
-  int EtaBin = h_FrameEta->FindBin(eta)-1;
+  int EtaBin = h_FrameEta_ToF->FindBin(eta)-1;
   return EtaBin;
 }
 
 int StToFMatchHistoManger::findPhi(float phi)
 {
-  int PhiBin = h_FramePhi->FindBin(phi)-1;
+  int PhiBin = h_FramePhi_ToF->FindBin(phi)-1;
   return PhiBin;
 }
 
 void StToFMatchHistoManger::Fill_TPC(int charge, int pid, int cent, float pt, float eta, float phi)
 {
   h_mTracks_TPC[charge][pid][cent]->Fill(pt,eta,phi);
+  h_mTracks_TPC[charge][pid][9]->Fill(pt,eta,phi);  //miniBias
   int i_eta = findEta(eta);
   int i_phi = findPhi(phi);
   string HistName_TPC = Form("h_mCounts_TPC_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[pid].c_str(),tof::mCharge[charge].c_str(),cent,i_eta,i_phi);
   h_mCounts_TPC[HistName_TPC]->Fill(pt);
+
+  string HistName_TPC_miniBias = Form("h_mCounts_TPC_%s%s_Cent_9_Eta_%d_Phi_%d",tof::mPID_ToF[pid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
+  h_mCounts_TPC[HistName_TPC_miniBias]->Fill(pt);
 }
 
 void StToFMatchHistoManger::Fill_ToF(int charge, int pid, int cent, float pt, float eta, float phi)
 {
   h_mTracks_ToF[charge][pid][cent]->Fill(pt,eta,phi);
+  h_mTracks_ToF[charge][pid][9]->Fill(pt,eta,phi); // miniBias
   int i_eta = findEta(eta);
   int i_phi = findPhi(phi);
   string HistName_ToF = Form("h_mCounts_ToF_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[pid].c_str(),tof::mCharge[charge].c_str(),cent,i_eta,i_phi);
   h_mCounts_ToF[HistName_ToF]->Fill(pt);
+
+  string HistName_ToF_miniBias = Form("h_mCounts_ToF_%s%s_Cent_9_Eta_%d_Phi_%d",tof::mPID_ToF[pid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
+  h_mCounts_ToF[HistName_ToF_miniBias]->Fill(pt);
 }
 
 void StToFMatchHistoManger::WriteHist()
@@ -161,7 +169,7 @@ void StToFMatchHistoManger::WriteHist()
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
     {
-      for(int i_cent = 0; i_cent < 9; ++i_cent)
+      for(int i_cent = 0; i_cent < 10; ++i_cent)
       {
 	h_mTracks_TPC[i_charge][i_pid][i_cent]->Write();
 	h_mTracks_ToF[i_charge][i_pid][i_cent]->Write();
@@ -179,7 +187,7 @@ void StToFMatchHistoManger::WriteHist()
       }
     }
   }
-  h_FrameEta->Write();
-  h_FramePhi->Write();
+  h_FrameEta_ToF->Write();
+  h_FramePhi_ToF->Write();
 }
 //-------------------------------------------------------------------------------------------

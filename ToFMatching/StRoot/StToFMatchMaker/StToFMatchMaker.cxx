@@ -110,7 +110,7 @@ Int_t StToFMatchMaker::Make()
   {
     const Int_t nTracks = mPicoDst->numberOfTracks();
     const Int_t cent9 = mRefMultCorr->getCentralityBin9();
-//    if(cent9 < 0) cout << cent9 << endl;
+   // if(cent9 < 0) cout << cent9 << endl;
     const Double_t reweight = mRefMultCorr->getWeight();
     const Int_t nToFMatched = mToFMatchCut->getMatchedToF();
 
@@ -135,6 +135,7 @@ Int_t StToFMatchMaker::Make()
 	mToFMatchHistoManger->FillQA_Detector(dEdx,Mass2,p*polarity);
       }
 
+      /*
       if(mToFMatchCut->passSigPionCut(track,mScaleFactor_nSigma)) // pion QA
       {
 	mToFMatchHistoManger->FillQA_Pion(dEdx,Mass2,p*polarity);
@@ -153,6 +154,7 @@ Int_t StToFMatchMaker::Make()
 	  mToFMatchHistoManger->Fill_ToF(charge,2,cent9,pt,eta,phi);
 	}
       }
+      */
 
       if(mToFMatchCut->passSigKaonCut(track,mScaleFactor_nSigma)) // Kaon QA
       {

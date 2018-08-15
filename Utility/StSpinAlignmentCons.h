@@ -45,6 +45,7 @@ namespace vmsa
   float const mMassKaon = 0.49368;
   float const mMassProton = 0.93827;
   float const mSigKaon = 2.5;
+  float const mNSigmaToF = 0.6;
 
   // used constant
   // float const mEta_Gap[4] = {0.05,0.10,0.20,0.50};

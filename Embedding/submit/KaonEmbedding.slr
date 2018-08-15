@@ -10,58 +10,62 @@
 
 echo "start-A "`hostname`" in PWD="`pwd`
 
-# startSkew=1200 # (seconds), random delay for task
 startSkew=600 # (seconds), random delay for resubmit or test
 nsleep=$(($RANDOM % $startSkew))
 echo nsleep=$nsleep
 sleep $nsleep
 
 #tasks script to be executed
-job_sh=toyMcPhiDecay.csh
-
-export pid=0  # phi-meson 
-export NMax=1000000 # number of simulated events
+job_sh=KaonEmbedding.csh
 
 ##########Energy Selection##########
-# export energy=0  # 7.7GeV
-# export Energy=7GeV
-
-export energy=1  # 11.5GeV
-export year=1
-export cut=0
 export Energy=11GeV
+export year=run10
+export STAR_VER=SL10h_embed
 
-# export energy=2  # 19.6GeV
-# export year=0
-# export cut=0
 # export Energy=19GeV
+# export year=run11
+# export STAR_VER=SL11d_embed
 
-# export energy=3  # 27GeV
-# export year=0
-# export cut=0
 # export Energy=27GeV
+# export year=run11
+# export STAR_VER=SL11d_embed
 
-# export energy=4  # 39GeV
-# export year=1
-# export cut=0
 # export Energy=39GeV
+# export year=run10
+# export STAR_VER=SL10k_embed
 
-# export energy=5  # 62.4GeV
-# export year=1
-# export cut=0
 # export Energy=62GeV
+# export year=run10
+# export STAR_VER=SL10k_embed
 
-# export energy=6  # 200GeV
-# export year=0
-# export cut=0
 # export Energy=200GeV
+# export year=run11
+# export STAR_VER=SL11d_embed
 ##########Energy Selection##########
 
-export STAR_VER=pro
+##########Particle Selection##########
+export pid=Kplus
+# export pid=Kminus
+##########Particle Selection##########
+
+export PATH_XRD=/global/homes/x/xusun/AuAu${Energy}/SpinAlignment/Embedding/${pid}/List/${year}
+dataList=${PATH_XRD}/${pid}.list
+# dataList=${PATH_XRD}/failed_${Energy}_${SM}.list # resubmit mode
+
+kD=$(($SLURM_ARRAY_TASK_ID + 1))
+echo pick data $kD from list $dataList
+dataName=`head -n $kD  $dataList | tail -n1`
+# dataName=`head -n $(($kD - 2000))  $dataList | tail -n1` # resubmit mode
+echo $dataName
+
+export PATH_OutPut=/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu$Energy/SpinAlignment/Embedding/$pid/StMcEvents
+outputfile=${PATH_OutPut}/StMcEvents_${SLURM_ARRAY_TASK_ID}.root
+echo $outputfile
 
 export LOG_PATH=/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu${Energy}/Log/SLURM
 mkdir -p $LOG_PATH
-echo write toyMcPhiDecay logs to  $LOG_PATH
+echo write KaonEmbedding logs to  $LOG_PATH
 
 # pick STAR library you want to use
 export EXEC_NAME=root4star
@@ -75,17 +79,17 @@ export WRK_DIR=$SLURM_TMP
 codeDir=/global/homes/x/xusun/STAR/VecMesonSpinAlignment/
 
 echo Prepare a local copy of binaries
-time( cp -rpL toyMcPhiDecay.csh $WRK_DIR ; cp -rpL $codeDir  $WRK_DIR )
+time( cp -rpL KaonEmbedding.csh $WRK_DIR ; cp -rpL $codeDir  $WRK_DIR )
 
 echo run job in STAR_VER=$STAR_VER  WRK_DIR=$WRK_DIR
 echo see vCores=$SLURM_CPUS_ON_NODE
 
 ls -l  ${job_sh}
-ls -l ${WRK_DIR}/VecMesonSpinAlignment/RcPhiEffCorr/macro/
+ls -l ${WRK_DIR}/VecMesonSpinAlignment/Embedding/
 if [[ $SLURM_JOB_PARTITION == *"-chos" ]]
 then
     echo  run-in-chos
-    CHOS=sl64 chos  $WRK_DIR/${job_sh}
+    CHOS=sl64 chos  $WRK_DIR/${job_sh} $dataName $outputfile
 else
     echo  run-in-shifter
     # minor operation allowing to jump into tcsh inside shifter image
@@ -93,7 +97,7 @@ else
     unset MODULE_VERSION
     unset MODULEPATH MODULESHOME
     unset LOADEDMODULES PRGENVMODULES
-    shifter   --volume=/global/project:/project   /bin/tcsh $WRK_DIR/${job_sh}
+    shifter   --volume=/global/project:/project   /bin/tcsh $WRK_DIR/${job_sh} $dataName $outputfile
 fi
 echo end-A-slurm-job
 

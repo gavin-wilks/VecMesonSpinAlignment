@@ -5,13 +5,13 @@ date
 
 if [ $# -eq 0 ]
   then
-    Energy=11GeV
+    # Energy=11GeV
     # Energy=19GeV
     # Energy=27GeV
     # Energy=39GeV
     # Energy=62GeV
-    # Energy=200GeV
-    SM=ME
+    Energy=200GeV
+    SM=SE
     InPutList="./List/AuAu${Energy}/deleteROOT_${Energy}_${SM}.list"
     echo "delete following files from "
     echo $InPutList
