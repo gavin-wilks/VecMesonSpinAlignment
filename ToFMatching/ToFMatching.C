@@ -8,8 +8,8 @@ class StPicoDstMaker;
 
 
 StChain *chain;
-// void ToFMatching(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu200GeV/List/run_list/200GeV_1024.list", const Int_t jobCounter = 1024, const Int_t energy = 6)
-void ToFMatching(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu11GeV/List/run_list/11GeV_14.list", const Int_t jobCounter = 14, const Int_t energy = 1)
+void ToFMatching(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu200GeV/List/run_list/200GeV_1024.list", const Int_t jobCounter = 1024, const Int_t energy = 6)
+// void ToFMatching(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu11GeV/List/run_list/11GeV_14.list", const Int_t jobCounter = 14, const Int_t energy = 1)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // Mode: 0 for re-center correction, 1 for shift correction, 2 for resolution calculation, 3 for phi meson

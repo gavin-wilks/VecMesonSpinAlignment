@@ -10,8 +10,8 @@
 
 echo "start-A "`hostname`" in PWD="`pwd`
 
-# startSkew=1200 # (seconds), random delay for task
-startSkew=60 # (seconds), random delay for resubmit or test
+startSkew=1200 # (seconds), random delay for task
+# startSkew=60 # (seconds), random delay for resubmit or test
 nsleep=$(($RANDOM % $startSkew))
 echo nsleep=$nsleep
 sleep $nsleep
@@ -23,8 +23,8 @@ job_sh=ToFMatching.csh
 # export energy=0  # 7.7GeV
 # export Energy=7GeV
 
-# export energy=1  # 11.5GeV
-# export Energy=11GeV
+export energy=1  # 11.5GeV
+export Energy=11GeV
 
 # export energy=2  # 19.6GeV
 # export Energy=19GeV
@@ -38,8 +38,8 @@ job_sh=ToFMatching.csh
 # export energy=5  # 62.4GeV
 # export Energy=62GeV
 
-export energy=6  # 200GeV
-export Energy=200GeV
+# export energy=6  # 200GeV
+# export Energy=200GeV
 ##########Energy Selection##########
 
 # use data from the submit_$Energy.list

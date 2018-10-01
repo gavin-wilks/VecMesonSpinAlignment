@@ -5,12 +5,12 @@ date
 
 if [ $# -eq 0 ]
 then
-  Energy=11GeV
+  # Energy=11GeV
   # Energy=19GeV
   # Energy=27GeV
   # Energy=39GeV
   # Energy=62GeV
-  # Energy=200GeV
+  Energy=200GeV
   SM=ME
 
   OutPutList="/global/homes/x/xusun/STAR/VecMesonSpinAlignment/TreeProduction/submit/List/AuAu${Energy}/failed_"$Energy"_"$SM".list"

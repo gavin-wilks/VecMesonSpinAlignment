@@ -11,7 +11,7 @@ namespace tof
   int const mPID_Start = 0;
   int const mPID_Stop  = 1;
   int const pidQA = 0;
-  int const chargeQA = 0;
+  int const chargeQA = 1;
 
   // int const BinPt  = 160; // for efficiency
   int const BinPt  = 80; // for efficiency
@@ -22,13 +22,13 @@ namespace tof
   // int const BinEta = 1;
   float const etaMin = -1.2;
   float const etaMax = 1.2;
-  int const etaQA = 0;
+  int const etaQA = 5;
 
   int const BinPhi = 12;
   // int const BinPhi = 1;
   float const phiMin = -1.0*TMath::Pi();
   float const phiMax = 1.0*TMath::Pi();
-  int const phiQA = 0;
+  int const phiQA = 5;
 
   int const NCentMax = 9; 
   float const weight[NCentMax] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.5,0.5};
