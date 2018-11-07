@@ -20,21 +20,28 @@ using namespace std;
 typedef std::map<std::string,TH1D*> TH1DMap;
 
 void readEfficiency(int energy, int year, int cut, int jobID);
+void readTofEff(int energy);
 void getKinematics(TLorentzVector& lPhi, double const mass);
 void setDecayChannels(int const pid);
 void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters);
 void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus);
 bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon);
 void findHist(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
+void findHist_ToF(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
 void write();
 
 TPythia6Decayer* pydecay;
 TNtuple* McPhiMeson;
+
 TH1DMap h_EffKplus;
 TH1DMap h_EffKminus;
-
 TH1D *h_FrameEta[2];
 TH1D *h_FramePhi[2];
+
+TH1DMap h_TofKplus;
+TH1DMap h_TofKminus;
+TH1D *h_FrameEta_ToF[2];
+TH1D *h_FramePhi_ToF[2];
 
 TFile *File_OutPut;
 
@@ -44,6 +51,7 @@ void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, 
   stopWatch->Start();
   gRandom->SetSeed();
   readEfficiency(energy,year,cut,jobID);
+  readTofEff(energy);
 
   pydecay = TPythia6Decayer::Instance();
   pydecay->Init();
@@ -186,28 +194,45 @@ void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLor
 
 bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
 {
-   TH1D* h = NULL;
-   int EtaBin = -1;
-   int PhiBin = -1;
-
    if(fabs(lKaon.Eta()) > 1.0) return false;
-   findHist(lKaon,iParticleIndex,EtaBin,PhiBin);
 
-   // string KEY = Form("h_mRcEffPt_Cent_%d",cent);
-   string KEY = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin,PhiBin);
+   TH1D* h_TPC = NULL;
+   int EtaBin_TPC = -1;
+   int PhiBin_TPC = -1;
+   findHist(lKaon,iParticleIndex,EtaBin_TPC,PhiBin_TPC);
+
+   TH1D* h_ToF = NULL;
+   int EtaBin_ToF = -1;
+   int PhiBin_ToF = -1;
+   findHist_ToF(lKaon,iParticleIndex,EtaBin_ToF,PhiBin_ToF);
+
    // cout << KEY.c_str() << endl;
    if (iParticleIndex == 0)
    {
-     h = h_EffKplus[KEY];
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+     h_TPC = h_EffKplus[KEY_TPC];
+
+     string KEY_ToF = Form("h_mEfficiency_Kplus_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_ToF,PhiBin_ToF); // get ToF eff
+     h_ToF = h_TofKplus[KEY_ToF];
    }
    else
    {
-     h = h_EffKminus[KEY];
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+     h_TPC = h_EffKminus[KEY_TPC];
+
+     string KEY_ToF = Form("h_mEfficiency_Kminus_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_ToF,PhiBin_ToF); // get ToF eff
+     h_ToF = h_TofKminus[KEY_ToF];
    }
 
-   int const bin = h->FindBin(lKaon.Perp());
+   double pt = lKaon.Perp();
+   int const bin_TPC = h_TPC->FindBin(pt);
+   bool is_TPC = gRandom->Rndm() < h_TPC->GetBinContent(bin_TPC);
 
-   return gRandom->Rndm() < h->GetBinContent(bin);
+   int const bin_ToF = h_ToF->FindBin(pt);
+   bool is_ToF = gRandom->Rndm() < h_ToF->GetBinContent(bin_ToF);
+   // cout << "is_TPC: " << is_TPC << ", is_ToF: " << is_ToF << ", is_TPC && is_ToF: " << (is_TPC && is_ToF) << endl;
+
+   return is_TPC && is_ToF;
 }
 
 void findHist(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin)
@@ -217,6 +242,16 @@ void findHist(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int&
   // cout << "eta = " << eta << ", EtaBin = " << EtaBin << endl;
   float phi = lKaon.Phi();
   PhiBin = h_FramePhi[iParticleIndex]->FindBin(phi)-1;
+}
+
+void findHist_ToF(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin)
+{
+  float eta = lKaon.Eta();
+  EtaBin = h_FrameEta_ToF[iParticleIndex]->FindBin(eta)-1;
+  // cout << "eta = " << eta << ", EtaBin = " << EtaBin << endl;
+  float phi = lKaon.Phi();
+  PhiBin = h_FramePhi_ToF[iParticleIndex]->FindBin(phi)-1;
+  // cout << "phi = " << phi << ", PhiBin = " << PhiBin << endl;
 }
 
 void readEfficiency(int energy, int year, int cut, int jobID)
@@ -264,6 +299,36 @@ void readEfficiency(int energy, int year, int cut, int jobID)
                         "RcPt:RcP:RcEta:RcY:RcPhi:RcInvMass"; // reconstructed phi
 
   McPhiMeson = new TNtuple("McPhiMeson", "McPhiMeson", varlist, BufSize);
+}
+
+void readTofEff(int energy)
+{
+  string inputfile = Form("/global/homes/x/xusun/AuAu%s/SpinAlignment/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_InPut = TFile::Open(inputfile.c_str());
+  cout << "OPEN Efficiency File for K+ and K-: " << inputfile.c_str() << endl;
+
+  for(int i_cent = 0; i_cent < 10; ++i_cent)
+  {
+    for(int i_eta = 0; i_eta < vmsa::BinEta+2; ++i_eta)
+    {
+      for(int i_phi = 0; i_phi < vmsa::BinPhi; ++i_phi)
+      {
+	string KEY;
+	KEY = Form("h_mEfficiency_Kplus_Cent_%d_Eta_%d_Phi_%d",i_cent,i_eta,i_phi);
+	h_TofKplus[KEY] = (TH1D*)File_InPut->Get(KEY.c_str());
+	// cout << "Kplus KEY: " << KEY.c_str() << endl;
+
+	KEY = Form("h_mEfficiency_Kminus_Cent_%d_Eta_%d_Phi_%d",i_cent,i_eta,i_phi);
+	h_TofKminus[KEY] = (TH1D*)File_InPut->Get(KEY.c_str());
+	// cout << "Kminus KEY: " << KEY.c_str() << endl;
+      }	
+    }
+  }
+
+  h_FrameEta_ToF[0] = (TH1D*)File_InPut->Get("h_FrameEta_ToF")->Clone();
+  h_FramePhi_ToF[0] = (TH1D*)File_InPut->Get("h_FramePhi_ToF")->Clone();
+  h_FrameEta_ToF[1] = (TH1D*)File_InPut->Get("h_FrameEta_ToF")->Clone();
+  h_FramePhi_ToF[1] = (TH1D*)File_InPut->Get("h_FramePhi_ToF")->Clone();
 }
 
 void write()

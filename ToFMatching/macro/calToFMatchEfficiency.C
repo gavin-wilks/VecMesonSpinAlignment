@@ -29,6 +29,9 @@ void calToFMatchEfficiency(int energy = 6)
   TH1DMap h_mCounts_TPC; // counts for TPC tracks
   TH1DMap h_mCounts_ToF; // counts for ToF tracks
 
+  TH1D *h_FrameEta_ToF = (TH1D*)File_InPut->Get("h_FrameEta_ToF");
+  TH1D *h_FramePhi_ToF = (TH1D*)File_InPut->Get("h_FramePhi_ToF");
+
   for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
@@ -128,5 +131,7 @@ void calToFMatchEfficiency(int energy = 6)
       }
     }
   }
+  h_FrameEta_ToF->Write();
+  h_FramePhi_ToF->Write();
   File_OutPut->Close();
 }
