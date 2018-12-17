@@ -21,17 +21,19 @@
 
 void calToFMatchEfficiency(int energy = 6)
 {
-  string inputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string inputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
-
-  TH3D *h_mTracks_TPC[2][3][10]; // pt, eta, phi distribution as a function of charge | pid | centrality
-  TH3D *h_mTracks_ToF[2][3][10];
-  TH1DMap h_mCounts_TPC; // counts for TPC tracks
-  TH1DMap h_mCounts_ToF; // counts for ToF tracks
 
   TH1D *h_FrameEta_ToF = (TH1D*)File_InPut->Get("h_FrameEta_ToF");
   TH1D *h_FramePhi_ToF = (TH1D*)File_InPut->Get("h_FramePhi_ToF");
 
+  // calculate efficiency vs centrality
+  TH3D *h_mTracks_TPC[2][3][10]; // pt, eta, phi distribution as a function of charge | pid | centrality
+  TH3D *h_mTracks_ToF[2][3][10];
+  TH1DMap h_mCounts_TPC_cent; // efficiency vs. cent
+  TH1DMap h_mCounts_ToF_cent;
+  TH1DMap h_mEfficiency_cent;
   for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
@@ -41,24 +43,55 @@ void calToFMatchEfficiency(int energy = 6)
 	string HistName_Trakcs_TPC = Form("h_mTracks_TPC_%s%s_Cent_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent);
 	h_mTracks_TPC[i_charge][i_pid][i_cent] = (TH3D*)File_InPut->Get(HistName_Trakcs_TPC.c_str());
 
+	string HistName_TPC = Form("h_mCounts_TPC_%s%s_Cent_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent);
+	h_mCounts_TPC_cent[HistName_TPC] = (TH1D*)h_mTracks_TPC[i_charge][i_pid][i_cent]->ProjectionX(HistName_TPC.c_str())->Clone();
+
 	string HistName_Trakcs_ToF = Form("h_mTracks_ToF_%s%s_Cent_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent);
 	h_mTracks_ToF[i_charge][i_pid][i_cent] = (TH3D*)File_InPut->Get(HistName_Trakcs_ToF.c_str());
 
+	string HistName_ToF = Form("h_mCounts_ToF_%s%s_Cent_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent);
+	h_mCounts_ToF_cent[HistName_ToF] = (TH1D*)h_mTracks_ToF[i_charge][i_pid][i_cent]->ProjectionX(HistName_ToF.c_str())->Clone();
+
+	string HistName = Form("h_mEfficiency_%s%s_Cent_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent);
+	h_mEfficiency_cent[HistName] = (TH1D*)h_mCounts_ToF_cent[HistName_ToF]->Clone(HistName.c_str());
+	h_mEfficiency_cent[HistName]->SetTitle(HistName.c_str());
+	h_mEfficiency_cent[HistName]->Reset();
+	h_mEfficiency_cent[HistName]->Divide(h_mCounts_ToF_cent[HistName_ToF],h_mCounts_TPC_cent[HistName_TPC],1,1,"B");
+      }
+    }
+  }
+
+  // calculate efficiencya vs. eta
+  TH1DMap h_mCounts_TPC_eta; // efficiency vs. cent & eta
+  TH1DMap h_mCounts_ToF_eta;
+  TH1DMap h_mEfficiency_eta;
+  for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
+  {
+    for(int i_charge = 0; i_charge < 2; ++i_charge)
+    {
+      for(int i_cent = 0; i_cent < 10; ++i_cent)
+      {
 	for(int i_eta = 0; i_eta < tof::BinEta; ++i_eta)
 	{
-	  for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi)
-	  {
-	    string HistName_TPC = Form("h_mCounts_TPC_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
-	    h_mCounts_TPC[HistName_TPC] = (TH1D*)File_InPut->Get(HistName_TPC.c_str())->Clone();
-	    string HistName_ToF = Form("h_mCounts_ToF_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
-	    h_mCounts_ToF[HistName_ToF] = (TH1D*)File_InPut->Get(HistName_ToF.c_str())->Clone();
-	  }
+	  string HistName_TPC = Form("h_mCounts_TPC_%s%s_Cent_%d_Eta_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta);
+	  h_mCounts_TPC_eta[HistName_TPC] = (TH1D*)h_mTracks_TPC[i_charge][i_pid][i_cent]->ProjectionX(HistName_TPC.c_str(),i_eta+1,i_eta+1)->Clone();
+
+	  string HistName_ToF = Form("h_mCounts_ToF_%s%s_Cent_%d_Eta_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta);
+	  h_mCounts_ToF_eta[HistName_ToF] = (TH1D*)h_mTracks_ToF[i_charge][i_pid][i_cent]->ProjectionX(HistName_ToF.c_str(),i_eta+1,i_eta+1)->Clone();
+
+	  string HistName = Form("h_mEfficiency_%s%s_Cent_%d_Eta_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta);
+	  h_mEfficiency_eta[HistName] = (TH1D*)h_mCounts_ToF_eta[HistName_ToF]->Clone(HistName.c_str());
+	  h_mEfficiency_eta[HistName]->SetTitle(HistName.c_str());
+	  h_mEfficiency_eta[HistName]->Reset();
+	  h_mEfficiency_eta[HistName]->Divide(h_mCounts_ToF_eta[HistName_ToF],h_mCounts_TPC_eta[HistName_TPC],1,1,"B");
 	}
       }
     }
   }
 
-  //---------------efficiency calculation------------------------
+  // calculate differential efficiency
+  TH1DMap h_mCounts_TPC; // counts for TPC tracks
+  TH1DMap h_mCounts_ToF; // counts for ToF tracks
   TH1DMap h_mEfficiency; // ToF matching efficiency
   for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
   {
@@ -71,7 +104,9 @@ void calToFMatchEfficiency(int energy = 6)
 	  for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi)
 	  {
 	    string HistName_TPC = Form("h_mCounts_TPC_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
+	    h_mCounts_TPC[HistName_TPC] = (TH1D*)File_InPut->Get(HistName_TPC.c_str())->Clone();
 	    string HistName_ToF = Form("h_mCounts_ToF_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
+	    h_mCounts_ToF[HistName_ToF] = (TH1D*)File_InPut->Get(HistName_ToF.c_str())->Clone();
 
 	    string HistName = Form("h_mEfficiency_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
 	    h_mEfficiency[HistName] = (TH1D*)h_mCounts_ToF[HistName_ToF]->Clone(HistName.c_str());
@@ -111,7 +146,8 @@ void calToFMatchEfficiency(int energy = 6)
 #endif 
 
   //---------------output------------------------
-  string outputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string outputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
   for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
@@ -120,11 +156,15 @@ void calToFMatchEfficiency(int energy = 6)
     {
       for(int i_cent = 0; i_cent < 10; ++i_cent)
       {
+	string HistName = Form("h_mEfficiency_%s%s_Cent_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent);
+	h_mEfficiency_cent[HistName]->Write();
 	for(int i_eta = 0; i_eta < tof::BinEta; ++i_eta)
 	{
+	  HistName = Form("h_mEfficiency_%s%s_Cent_%d_Eta_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta);
+	  h_mEfficiency_eta[HistName]->Write();
 	  for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi)
 	  {
-	    string HistName = Form("h_mEfficiency_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
+	    HistName = Form("h_mEfficiency_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
 	    h_mEfficiency[HistName]->Write();
 	  }
 	}
