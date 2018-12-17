@@ -378,3 +378,9 @@ double Resolution_Full(double *x_val, double *par)
 
   return y;
 }
+
+// tof matching efficiency
+double tof_Kaon(double* x, double* par)
+{
+  return par[0]*(1.0 / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6]);
+}

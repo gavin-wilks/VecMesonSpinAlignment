@@ -13,7 +13,10 @@
 #include "TMath.h"
 #include "TClonesArray.h"
 #include "TNtuple.h"
-#include "/global/homes/x/xusun/STAR/VecMesonSpinAlignment/Utility/StSpinAlignmentCons.h"
+// #include "/global/homes/x/xusun/STAR/VecMesonSpinAlignment/Utility/StSpinAlignmentCons.h"
+// #include "/global/homes/x/xusun/STAR/VecMesonSpinAlignment/Utility/functions.h"
+#include "../../Utility/StSpinAlignmentCons.h"
+#include "../../Utility/functions.h"
 
 using namespace std;
 
@@ -21,6 +24,7 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 
 void readEfficiency(int energy, int year, int cut, int jobID);
 void readTofEff(int energy);
+void readTofEffFit(int energy);
 void getKinematics(TLorentzVector& lPhi, double const mass);
 void setDecayChannels(int const pid);
 void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters);
@@ -43,6 +47,9 @@ TH1DMap h_TofKminus;
 TH1D *h_FrameEta_ToF[2];
 TH1D *h_FramePhi_ToF[2];
 
+TF1Map f_TofKplus;
+TF1Map f_TofKminus;
+
 TFile *File_OutPut;
 
 void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, const int cut = 0, const int NMax = 500000, const int jobID = 9)
@@ -52,6 +59,7 @@ void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, 
   gRandom->SetSeed();
   readEfficiency(energy,year,cut,jobID);
   readTofEff(energy);
+  readTofEffFit(energy);
 
   pydecay = TPythia6Decayer::Instance();
   pydecay->Init();
@@ -196,12 +204,12 @@ bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
 {
    if(fabs(lKaon.Eta()) > 1.0) return false;
 
-   TH1D* h_TPC = NULL;
+   TH1D *h_TPC = NULL;
    int EtaBin_TPC = -1;
    int PhiBin_TPC = -1;
    findHist(lKaon,iParticleIndex,EtaBin_TPC,PhiBin_TPC);
 
-   TH1D* h_ToF = NULL;
+   TH1D *h_ToF = NULL;
    int EtaBin_ToF = -1;
    int PhiBin_ToF = -1;
    findHist_ToF(lKaon,iParticleIndex,EtaBin_ToF,PhiBin_ToF);
@@ -329,6 +337,48 @@ void readTofEff(int energy)
   h_FramePhi_ToF[0] = (TH1D*)File_InPut->Get("h_FramePhi_ToF")->Clone();
   h_FrameEta_ToF[1] = (TH1D*)File_InPut->Get("h_FrameEta_ToF")->Clone();
   h_FramePhi_ToF[1] = (TH1D*)File_InPut->Get("h_FramePhi_ToF")->Clone();
+}
+
+void readTofEffFit(int energy)
+{
+  string inputKplus = Form("/global/homes/x/xusun/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_Kplus = TFile::Open(inputKplus.c_str());
+  cout << "OPEN ToF Matching Efficiency Fit File for K+: " << inputKplus.c_str() << endl;
+
+  string inputKminus = Form("/global/homes/x/xusun/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_Kminus = TFile::Open(inputKminus.c_str());
+  cout << "OPEN ToF Matching Efficiency Fit File for K-: " << inputKminus.c_str() << endl;
+
+  for(int i_eta = 0; i_eta < vmsa::BinEta+2; ++i_eta)
+  {
+    for(int i_phi = 0; i_phi < vmsa::BinPhi; ++i_phi)
+    {
+      TH1D *h_Kplus = NULL;
+      string KEY;
+      KEY = Form("h_mFitParameters_Kplus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
+      h_Kplus = (TH1D*)File_InPut->Get(KEY.c_str());
+      cout << "Kplus KEY: " << KEY.c_str() << endl;
+      KEY = Form("f_mToFMatch_Kplus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
+      f_TofKplus[KEY] = new TF1(KEY.c_str(),tof_Kaon,0.2,10,7);
+      for(int i_par = 0; i_par < 7; ++i_par)
+      {
+	f_TofKplus[KEY]->FixParameter(i_par,h_Kplus->GetBinContent(i_par+1));
+	if(i_par < 2) cout << "Kplus: i_par = " << i_par << ", par = " << f_TofKplus[KEY]->GetParameter(i_par) << endl;
+      }
+
+      TH1D *h_Kminus = NULL;
+      KEY = Form("h_mFitParameters_Kminus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
+      h_Kminus = (TH1D*)File_InPut->Get(KEY.c_str());
+      cout << "Kminus KEY: " << KEY.c_str() << endl;
+      KEY = Form("f_mToFMatch_Kminus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
+      f_TofKminus[KEY] = new TF1(KEY.c_str(),tof_Kaon,0.2,10,7);
+      for(int i_par = 0; i_par < 7; ++i_par)
+      {
+	f_TofKminus[KEY]->FixParameter(i_par,h_Kminus->GetBinContent(i_par+1));
+	if(i_par < 2) cout << "Kminus: i_par = " << i_par << ", par = " << f_TofKplus[KEY]->GetParameter(i_par) << endl;
+      }
+    }	
+  }
 }
 
 void write()
