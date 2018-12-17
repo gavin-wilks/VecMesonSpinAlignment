@@ -13,6 +13,7 @@
 #include "TMath.h"
 #include "TClonesArray.h"
 #include "TNtuple.h"
+#include "TF1.h"
 // #include "/global/homes/x/xusun/STAR/VecMesonSpinAlignment/Utility/StSpinAlignmentCons.h"
 // #include "/global/homes/x/xusun/STAR/VecMesonSpinAlignment/Utility/functions.h"
 #include "../../Utility/StSpinAlignmentCons.h"
@@ -21,6 +22,7 @@
 using namespace std;
 
 typedef std::map<std::string,TH1D*> TH1DMap;
+typedef std::map<std::string,TF1*> TF1Map;
 
 void readEfficiency(int energy, int year, int cut, int jobID);
 void readTofEff(int energy);
@@ -52,7 +54,7 @@ TF1Map f_TofKminus;
 
 TFile *File_OutPut;
 
-void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, const int cut = 0, const int NMax = 500000, const int jobID = 9)
+void toyMcPhiDecay(const int energy = 4, const int pid = 0, const int year = 1, const int cut = 0, const int NMax = 50, const int jobID = 9)
 {
   TStopwatch* stopWatch = new TStopwatch();
   stopWatch->Start();
@@ -210,6 +212,7 @@ bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
    findHist(lKaon,iParticleIndex,EtaBin_TPC,PhiBin_TPC);
 
    TH1D *h_ToF = NULL;
+   TF1 *f_ToF = NULL;
    int EtaBin_ToF = -1;
    int PhiBin_ToF = -1;
    findHist_ToF(lKaon,iParticleIndex,EtaBin_ToF,PhiBin_ToF);
@@ -222,6 +225,9 @@ bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
 
      string KEY_ToF = Form("h_mEfficiency_Kplus_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_ToF,PhiBin_ToF); // get ToF eff
      h_ToF = h_TofKplus[KEY_ToF];
+
+     string KEY_ToFFit = Form("f_mToFMatch_Kplus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff
+     f_ToF = f_TofKplus[KEY_ToFFit]; // only 20-60%
    }
    else
    {
@@ -230,15 +236,20 @@ bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
 
      string KEY_ToF = Form("h_mEfficiency_Kminus_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_ToF,PhiBin_ToF); // get ToF eff
      h_ToF = h_TofKminus[KEY_ToF];
+
+     string KEY_ToFFit = Form("f_mToFMatch_Kminus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff
+     f_ToF = f_TofKminus[KEY_ToFFit]; // only 20-60%
    }
 
    double pt = lKaon.Perp();
    int const bin_TPC = h_TPC->FindBin(pt);
    bool is_TPC = gRandom->Rndm() < h_TPC->GetBinContent(bin_TPC);
 
-   int const bin_ToF = h_ToF->FindBin(pt);
-   bool is_ToF = gRandom->Rndm() < h_ToF->GetBinContent(bin_ToF);
+   // int const bin_ToF = h_ToF->FindBin(pt);
+   // bool is_ToF = gRandom->Rndm() < h_ToF->GetBinContent(bin_ToF);
+   bool is_ToF = gRandom->Rndm() < f_ToF->Eval(pt);
    // cout << "is_TPC: " << is_TPC << ", is_ToF: " << is_ToF << ", is_TPC && is_ToF: " << (is_TPC && is_ToF) << endl;
+   // if(cent >=2 && cent <=5) cout << "pt = " << pt << ", h_ToF = " << h_ToF->GetBinContent(bin_ToF) << ", f_ToF = " << f_ToF->Eval(pt) << endl; // comparison between eff from hist and func
 
    return is_TPC && is_ToF;
 }
@@ -341,11 +352,11 @@ void readTofEff(int energy)
 
 void readTofEffFit(int energy)
 {
-  string inputKplus = Form("/global/homes/x/xusun/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKplus = Form("/global/homes/x/xusun/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kplus = TFile::Open(inputKplus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K+: " << inputKplus.c_str() << endl;
 
-  string inputKminus = Form("/global/homes/x/xusun/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKminus = Form("/global/homes/x/xusun/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kminus = TFile::Open(inputKminus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K-: " << inputKminus.c_str() << endl;
 
@@ -356,26 +367,26 @@ void readTofEffFit(int energy)
       TH1D *h_Kplus = NULL;
       string KEY;
       KEY = Form("h_mFitParameters_Kplus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
-      h_Kplus = (TH1D*)File_InPut->Get(KEY.c_str());
-      cout << "Kplus KEY: " << KEY.c_str() << endl;
+      h_Kplus = (TH1D*)File_Kplus->Get(KEY.c_str());
+      // cout << "Kplus KEY: " << KEY.c_str() << endl;
       KEY = Form("f_mToFMatch_Kplus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
       f_TofKplus[KEY] = new TF1(KEY.c_str(),tof_Kaon,0.2,10,7);
       for(int i_par = 0; i_par < 7; ++i_par)
       {
 	f_TofKplus[KEY]->FixParameter(i_par,h_Kplus->GetBinContent(i_par+1));
-	if(i_par < 2) cout << "Kplus: i_par = " << i_par << ", par = " << f_TofKplus[KEY]->GetParameter(i_par) << endl;
+	// if(i_par < 2) cout << "Kplus: i_par = " << i_par << ", par = " << f_TofKplus[KEY]->GetParameter(i_par) << endl;
       }
 
       TH1D *h_Kminus = NULL;
       KEY = Form("h_mFitParameters_Kminus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
-      h_Kminus = (TH1D*)File_InPut->Get(KEY.c_str());
-      cout << "Kminus KEY: " << KEY.c_str() << endl;
+      h_Kminus = (TH1D*)File_Kminus->Get(KEY.c_str());
+      // cout << "Kminus KEY: " << KEY.c_str() << endl;
       KEY = Form("f_mToFMatch_Kminus_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
       f_TofKminus[KEY] = new TF1(KEY.c_str(),tof_Kaon,0.2,10,7);
       for(int i_par = 0; i_par < 7; ++i_par)
       {
 	f_TofKminus[KEY]->FixParameter(i_par,h_Kminus->GetBinContent(i_par+1));
-	if(i_par < 2) cout << "Kminus: i_par = " << i_par << ", par = " << f_TofKplus[KEY]->GetParameter(i_par) << endl;
+	// if(i_par < 2) cout << "Kminus: i_par = " << i_par << ", par = " << f_TofKminus[KEY]->GetParameter(i_par) << endl;
       }
     }	
   }
