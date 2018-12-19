@@ -37,3 +37,5 @@ figures/*
 !figures/c_rho00PtEnergy.eps
 
 Embedding/*.root
+
+RcPhiEffCorr/macro/submit/star/JOBS/*

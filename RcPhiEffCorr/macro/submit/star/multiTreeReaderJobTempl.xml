@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job>
+
+  <command>
+    echo $STAR
+    echo `pwd`
+    cd $SCRATCH/VecMesonSpinAlignment/RcPhiEffCorr/macro
+    echo `pwd`
+    ls -alrt
+
+    root4star -b -q toyMcPhiDecay.C+\(&energy;,&pid;,&year;,&cut;,&NMAX;,&jobID;\)
+  </command>
+  <stdout URL="file:&outPath;/Log/mcPhi_&jobID;_$JOBINDEX.out"/>
+  <stderr URL="file:&outPath;/Log/mcPhi_&jobID;_$JOBINDEX.err"/>
+
+  <SandBox>
+    <Package> 
+      <File>file:&codePath;</File> 
+    </Package>
+  </SandBox>
+
+</job>
