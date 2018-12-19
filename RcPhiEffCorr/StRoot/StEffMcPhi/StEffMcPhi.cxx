@@ -9,7 +9,7 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TRandom3.h"
-#include "../../../Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 
 ClassImp(StEffMcPhi)
 
@@ -20,14 +20,16 @@ StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int
   energy = Energy;
   pid = PID;
 
-  string InPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
+  // string InPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
+  string InPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/eta/Eff_%s_SingleKaon_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
 
   SetInPutFile(InPutFile); // set input list
 
   SetStartEvent(StartEvent); // set start event
   SetStopEvent(StopEvent); // set stop event
 
-  string OutPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string OutPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string OutPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   SetOutPutFile(OutPutFile); // set output file
 
   mEffCut = new StEffCut();
