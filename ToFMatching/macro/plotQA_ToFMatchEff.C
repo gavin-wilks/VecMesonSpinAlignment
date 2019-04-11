@@ -40,7 +40,7 @@ void plotQA_ToFMatchEff(const int energy = 4, const int charge = 0)
 {
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(10000);
 
-  std::string inputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  std::string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
   TH1DMap h_mEffCent;
@@ -106,7 +106,7 @@ void plotQA_ToFMatchEff(const int energy = 4, const int charge = 0)
   float dip_2nd[7] = {0.8,0.8,0.8,0.8,0.8,0.8,0.8};
   float dip_3rd[7] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0};
   float dip_4th[7] = {2.5,2.5,2.5,2.5,2.5,2.5,2.5}; // kplus
-  // float dip_4th[7] = {2.5,2.0,2.3,2.5,2.5,2.5,2.5}; // kminus
+  /* float dip_4th[7] = {2.5,2.0,2.3,2.5,2.5,2.5,2.5}; // kminus */
 
   double range[7] = {4.0,4.0,5.0,5.0,5.0,5.0,5.0};
 
@@ -205,8 +205,8 @@ void plotQA_ToFMatchEff(const int energy = 4, const int charge = 0)
 	f_kaon_phi[i_eta][i_phi]->FixParameter(i_par,par_fit[i_par]);
       }
       f_kaon_phi[i_eta][i_phi]->SetRange(0.2,range[energy]);
-      // if(i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]);
-      // if(i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy]+0.5,range[energy]);
+      /* if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // first */
+      /* if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy]+0.5,range[energy]); // second */
 
       h_mEfficiency[HistName]->Fit(f_kaon_phi[i_eta][i_phi], "NR");
 
@@ -226,10 +226,10 @@ void plotQA_ToFMatchEff(const int energy = 4, const int charge = 0)
   c_Efficiency->cd()->SetGrid(0,0);
   c_Efficiency->cd()->SetTicks(1,1);
 
-  string output_start = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_AuAu%s_K%s_QA.pdf[",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string output_start = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_AuAu%s_K%s_QA.pdf[",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
   c_Efficiency->Print(output_start.c_str());
 
-  string outputname = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_AuAu%s_K%s_QA.pdf",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string outputname = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_AuAu%s_K%s_QA.pdf",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
 
   HistName = Form("h_mEfficiency_K%s_Cent_9",tof::mCharge[charge].c_str()); // ToF efficiency at cent 9
   h_mEffCent[HistName]->Draw("pE");
@@ -276,12 +276,12 @@ void plotQA_ToFMatchEff(const int energy = 4, const int charge = 0)
     c_Efficiency->Print(outputname.c_str());
   }
 
-  string output_stop = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_AuAu%s_K%s_QA.pdf]",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string output_stop = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_AuAu%s_K%s_QA.pdf]",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
   c_Efficiency->Print(output_stop.c_str());
 
 #endif
 
-  string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/FitPar_AuAu%s_K%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string outputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/FitPar_AuAu%s_K%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9",tof::mCharge[charge].c_str());
   h_mFitPar[HistName_FitPar]->Write();
