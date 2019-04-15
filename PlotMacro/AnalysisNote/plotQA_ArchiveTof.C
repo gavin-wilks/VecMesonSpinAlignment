@@ -10,7 +10,7 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 
 using namespace std;
 
-void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
+void plotQA_ArchiveTof(int mEnergy = 3, int mPID = 1)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -19,7 +19,7 @@ void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
   int const mPlotStyle[10] = {0,0,1,1,1,1,0,0,0,1};
   int const mPlotColor[10] = {0,0,kGray+3,kAzure+4,kOrange+1,kCyan+1,0,0,0,kRed};
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_run11_pr_2060.root",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch_2060.root",mBeamEnergy[mEnergy].c_str(),mBeamEnergy[mEnergy].c_str());
   cout << "open input file: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -27,30 +27,24 @@ void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
     string HistName;
-
-    HistName = Form("h_mEffPt_Cent_%d",i_cent);
+    HistName = Form("h_mEfficiency_%s_Cent_%d",mParType[mPID].c_str(),i_cent);
     h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str());
     cout << "read in => " << HistName.c_str() << endl;
-
-    HistName = Form("h_mEffEta_Cent_%d",i_cent);
-    h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str());
-    cout << "read in => " << HistName.c_str() << endl;
-
-    HistName = Form("h_mEffPhi_Cent_%d",i_cent);
-    h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str());
-    cout << "read in => " << HistName.c_str() << endl;
-    for(int i_eta = 0; i_eta < 10; ++i_eta)
+    for(int i_eta = 0; i_eta < 12; ++i_eta)
     {
+      HistName = Form("h_mEfficiency_%s_Cent_%d_Eta_%d",mParType[mPID].c_str(),i_cent,i_eta);
+      h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str());
+      cout << "read in => " << HistName.c_str() << endl;
       for(int i_phi = 0; i_phi < 12; ++i_phi)
       {
-	HistName = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",i_cent,i_eta,i_phi);
+	HistName = Form("h_mEfficiency_%s_Cent_%d_Eta_%d_Phi_%d",mParType[mPID].c_str(),i_cent,i_eta,i_phi);
 	h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str());
 	cout << "read in => " << HistName.c_str() << endl;
       }
     }
   }
 
-  string outputname = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/TPC/QAs/EffTpc_AuAu%s_%s_QA.pdf",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
+  string outputname = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/QAs/EffTof_AuAu%s_%s_QA.pdf",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
 
   TCanvas *c_play = new TCanvas("c_play","c_play",10,10,800,800);
   c_play->SetLeftMargin(0.15);
@@ -58,10 +52,10 @@ void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
   c_play->SetGrid(0,0);
   c_play->SetTicks(1,1);
 
-  string output_start = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/TPC/QAs/EffTpc_AuAu%s_%s_QA.pdf[",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
+  string output_start = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/QAs/EffTof_AuAu%s_%s_QA.pdf[",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
   c_play->Print(output_start.c_str()); // open pdf file
 
-  string HistNameEff = "h_mEffPt_Cent_9";
+  string HistNameEff = Form("h_mEfficiency_%s_Cent_9",mParType[mPID].c_str());
   string title = Form("%s @ Au+Au %s",mParTex[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
   h_mEfficiency[HistNameEff]->SetTitle(title.c_str());
   h_mEfficiency[HistNameEff]->SetStats(0);
@@ -78,12 +72,12 @@ void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
 
   for(int i_cent = 2; i_cent <= 5; ++i_cent)
   {
-    HistNameEff = Form("h_mEffPt_Cent_%d",i_cent);
+    HistNameEff = Form("h_mEfficiency_%s_Cent_%d",mParType[mPID].c_str(),i_cent);
     h_mEfficiency[HistNameEff]->SetLineColor(mPlotColor[i_cent]);
     h_mEfficiency[HistNameEff]->SetLineWidth(2);
     h_mEfficiency[HistNameEff]->DrawCopy("HIST same");
   }
-  HistNameEff = "h_mEffPt_Cent_9";
+  HistNameEff = Form("h_mEfficiency_%s_Cent_9",mParType[mPID].c_str());
   h_mEfficiency[HistNameEff]->DrawCopy("HIST same");
 
   TLegend *leg = new TLegend(0.5,0.2,0.8,0.5);
@@ -93,7 +87,7 @@ void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
   {
     if(mPlotStyle[i_cent] > 0)
     {
-      HistNameEff = Form("h_mEffPt_Cent_%d",i_cent);
+      HistNameEff = Form("h_mEfficiency_%s_Cent_%d",mParType[mPID].c_str(),i_cent);
       leg->AddEntry(h_mEfficiency[HistNameEff],Centrality[i_cent].c_str());
     }
   }
@@ -111,12 +105,12 @@ void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
     c_diff->cd(i_pad+1)->SetTicks(1,1);
   }
 
-  for(int i_eta = 0; i_eta < 10; ++i_eta)
+  for(int i_eta = 0; i_eta < 12; ++i_eta)
   {
     for(int i_phi = 0; i_phi < 12; ++i_phi)
     {
       c_diff->cd(i_phi+1);
-      string HistName = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
+      string HistName = Form("h_mEfficiency_%s_Cent_9_Eta_%d_Phi_%d",mParType[mPID].c_str(),i_eta,i_phi);
 
       h_mEfficiency[HistName]->SetTitle(HistName.c_str());
       h_mEfficiency[HistName]->SetStats(0);
@@ -133,19 +127,18 @@ void plotQA_ArchiveTpc(int mEnergy = 3, int mPID = 1)
 
       for(int i_cent = 2; i_cent <= 5; ++i_cent)
       {
-	HistName = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",i_cent,i_eta,i_phi);
+	HistName = Form("h_mEfficiency_%s_Cent_%d_Eta_%d_Phi_%d",mParType[mPID].c_str(),i_cent,i_eta,i_phi);
 	h_mEfficiency[HistName]->SetLineColor(mPlotColor[i_cent]);
 	h_mEfficiency[HistName]->SetLineWidth(1);
 	h_mEfficiency[HistName]->DrawCopy("HIST same");
       }
-      HistName = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",i_eta,i_phi);
+      HistName = Form("h_mEfficiency_%s_Cent_9_Eta_%d_Phi_%d",mParType[mPID].c_str(),i_eta,i_phi);
       h_mEfficiency[HistName]->DrawCopy("HIST same");
-
     }
     c_diff->Update();
     c_diff->Print(outputname.c_str()); // print differential efficiency
   }
 
-  string output_stop = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/TPC/QAs/EffTpc_AuAu%s_%s_QA.pdf]",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
+  string output_stop = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/QAs/EffTof_AuAu%s_%s_QA.pdf]",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
   c_play->Print(output_stop.c_str()); // close pdf file
 }

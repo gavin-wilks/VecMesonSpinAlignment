@@ -10,10 +10,17 @@
 #include "../../Utility/type.h"
 #include "../StRoot/StToFMatchMaker/StToFMatchCons.h"
 
+/*
 double tof_Kaon(double* x, double* par)
 {
   // return par[0] / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6] + par[7]*x[0];
   return par[0] / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6];
+}
+*/
+
+double tof_Kaon(double* x, double* par)
+{
+  return par[0]*(1.0 / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6]);
 }
 
 /*
@@ -44,10 +51,11 @@ void fitToFMatchEffEnergy()
   float dip_1st[6] = {0.4,0.4,0.4,0.4,0.4,0.4};
   float dip_2nd[6] = {0.8,0.8,0.8,0.8,0.8,0.8};
   float dip_3rd[6] = {1.0,1.0,1.0,1.0,1.0,1.0};
-  float dip_4th[6] = {2.0,2.0,2.0,2.0,2.0,2.0};
+  // float dip_4th[6] = {2.5,2.5,2.5,2.5,2.5,2.5};
+  float dip_4th[6] = {2.5,2.5,2.3,2.5,2.5,2.5};
   for(int i_energy = 0; i_energy < 6; ++i_energy)
   {
-    std::string inputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch.root",Energy[i_energy].c_str(),Energy[i_energy].c_str());
+    std::string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch_2060.root",Energy[i_energy].c_str(),Energy[i_energy].c_str());
     File_InPut[i_energy] = TFile::Open(inputfile.c_str());
     h_mKplus[i_energy] = (TH1F*)File_InPut[i_energy]->Get("h_mEfficiency_Kplus_Cent_9");
     h_mKplus[i_energy]->SetTitle(Energy[i_energy].c_str());
@@ -90,8 +98,9 @@ void fitToFMatchEffEnergy()
   TF1 *f_kminus[6];
   TF1 *f_kminus_plot[6];
   int cent_kplus = 2; 
-  int cent_kminus = 5; 
-  double range[6] = {4.0,5.0,5.0,5.0,5.0,5.0};
+  int cent_kminus = 4; 
+  double range[6] = {4.0,5.0,4.0,4.7,4.8,5.0}; // Kplus
+  // double range[6] = {4.0,4.5,4.0,4.7,4.8,5.0}; // Kminus
 
   double par0[9] = {-0.018979, -0.0322611, -0.0680754, -0.0698575, -0.0315267, -0.00589929, -0.00226724, -0.00212137, -0.00389514 };
   double par1[9] = {0.0308943, -0.0939411, -0.14377, -0.19003, -0.116323, 0.180593, 0.207874, 0.208863, 0.194876};
@@ -113,7 +122,7 @@ void fitToFMatchEffEnergy()
     h_mKplus[i_energy]->Draw("pE");
 
     std::string FuncName = Form("f_kplus%d",i_energy);
-    f_kplus[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.24,10.0,7);
+    f_kplus[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.20,10.0,7);
     f_kplus[i_energy]->SetParameter(0,par0[cent_kplus]);
     f_kplus[i_energy]->SetParameter(1,par1[cent_kplus]);
     f_kplus[i_energy]->SetParameter(2,par2[cent_kplus]);
@@ -134,7 +143,7 @@ void fitToFMatchEffEnergy()
     f_kplus[i_energy]->Draw("l same");
 
     FuncName = Form("f_kplus_plot_%d",i_energy);
-    f_kplus_plot[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.24,10.0,7);
+    f_kplus_plot[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.20,10.0,7);
     for(int i_par = 0; i_par < 7; ++i_par)
     {
       f_kplus_plot[i_energy]->SetParameter(i_par,f_kplus[i_energy]->GetParameter(i_par));
@@ -165,7 +174,7 @@ void fitToFMatchEffEnergy()
     h_mKminus[i_energy]->Draw("pE");
 
     std::string FuncName = Form("f_kminu%d",i_energy);
-    f_kminus[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.24,10.0,7);
+    f_kminus[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.20,10.0,7);
     f_kminus[i_energy]->SetParameter(0,par0[cent_kminus]);
     f_kminus[i_energy]->SetParameter(1,par1[cent_kminus]);
     f_kminus[i_energy]->SetParameter(2,par2[cent_kminus]);
@@ -186,7 +195,7 @@ void fitToFMatchEffEnergy()
     f_kminus[i_energy]->Draw("l same");
 
     FuncName = Form("f_kminus_plot_%d",i_energy);
-    f_kminus_plot[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.24,10.0,7);
+    f_kminus_plot[i_energy] = new TF1(FuncName.c_str(),tof_Kaon,0.20,10.0,7);
     for(int i_par = 0; i_par < 7; ++i_par)
     {
       f_kminus_plot[i_energy]->SetParameter(i_par,f_kminus[i_energy]->GetParameter(i_par));
