@@ -108,11 +108,11 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   // float dip_4th[7] = {2.5,2.5,2.5,2.3,2.5,2.5,2.5}; // Kminus
 
   double range[7] = {4.0,4.0,5.0,4.0,4.7,4.8,5.0}; // Kplus
-  // double range[7] = {4.0,4.0,4.5,4.0,4.7,4.8,5.0}; // Kminus
+  // double range[7] = {4.0,3.5,4.5,4.0,4.7,4.2,5.0}; // Kminus
 
   int cent_kaon = -1;
   if(charge == 0) cent_kaon = 2;
-  if(charge == 1) cent_kaon = 2;
+  if(charge == 1) cent_kaon = 4;
   double par0[9] = {-0.018979, -0.0322611, -0.0680754, -0.0698575, -0.0315267, -0.00589929, -0.00226724, -0.00212137, -0.00389514 };
   double par1[9] = {0.0308943, -0.0939411, -0.14377, -0.19003, -0.116323, 0.180593, 0.207874, 0.208863, 0.194876};
   double par2[9] = {-0.00592033, -0.0600635, -0.0515391, -0.0708703, -0.0756912, 0.00912449, 0.00500487, 0.00497987, 0.00824164};
@@ -193,8 +193,21 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
       for(int i_bin = 0; i_bin < h_mEfficiency[HistName]->GetNbinsX(); ++i_bin) 
       {
 	float pt = h_mEfficiency[HistName]->GetBinCenter(i_bin+1); 
-	if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
-	if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
+	if(i_phi == 3 || i_phi == 5 || i_phi == 6) // 200 GeV second
+	// if(i_phi == 4 || i_phi == 5 || i_phi == 6) // 62 GeV second
+	// if(i_phi == 5 || i_phi == 6) // 39 GeV second
+	// if(i_phi == 3 || i_phi == 4 || i_phi == 5 || i_phi == 6) // 27 GeV second
+	// if(i_phi == 3 || i_phi == 5 || i_phi == 6) // 19 GeV second
+	// if(i_phi == 5 || i_phi == 6) // 11 GeV second
+	{
+	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
+	}
+	else
+	{
+	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
+	}
       }
 
       std::string FuncName = Form("f_kaon_cent_9_eta_%d_phi_%d",i_eta,i_phi);
@@ -205,8 +218,18 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
 	f_kaon_phi[i_eta][i_phi]->FixParameter(i_par,par_fit[i_par]);
       }
       f_kaon_phi[i_eta][i_phi]->SetRange(0.2,range[energy]);
-      /* if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // first */
-      /* if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy]+0.5,range[energy]); // second */
+      if(i_phi == 3 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 200 GeV first
+      // if(i_phi == 3 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 200 GeV second
+      // if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 62 GeV first
+      // if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 62 GeV second
+      // if(i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 39 GeV first
+      // if(i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 39 GeV second
+      // if(i_phi == 3 || i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 27 GeV first
+      // if(i_phi == 3 || i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 27 GeV second
+      // if(i_phi == 3 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 19 GeV first
+      // if(i_phi == 3 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 19 GeV second
+      // if(i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 11 GeV first
+      // if(i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 11 GeV second
 
       h_mEfficiency[HistName]->Fit(f_kaon_phi[i_eta][i_phi], "NR");
 

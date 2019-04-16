@@ -51,8 +51,8 @@ void fitToFMatchEffEnergy()
   float dip_1st[6] = {0.4,0.4,0.4,0.4,0.4,0.4};
   float dip_2nd[6] = {0.8,0.8,0.8,0.8,0.8,0.8};
   float dip_3rd[6] = {1.0,1.0,1.0,1.0,1.0,1.0};
-  // float dip_4th[6] = {2.5,2.5,2.5,2.5,2.5,2.5};
-  float dip_4th[6] = {2.5,2.5,2.3,2.5,2.5,2.5};
+  float dip_4th[6] = {2.5,2.5,2.5,2.5,2.5,2.5}; // Kplus
+  // float dip_4th[6] = {2.0,2.5,2.3,2.5,2.5,2.5}; // Kminus
   for(int i_energy = 0; i_energy < 6; ++i_energy)
   {
     std::string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch_2060.root",Energy[i_energy].c_str(),Energy[i_energy].c_str());
@@ -100,7 +100,7 @@ void fitToFMatchEffEnergy()
   int cent_kplus = 2; 
   int cent_kminus = 4; 
   double range[6] = {4.0,5.0,4.0,4.7,4.8,5.0}; // Kplus
-  // double range[6] = {4.0,4.5,4.0,4.7,4.8,5.0}; // Kminus
+  // double range[6] = {4.0,4.5,4.0,4.7,4.2,5.0}; // Kminus
 
   double par0[9] = {-0.018979, -0.0322611, -0.0680754, -0.0698575, -0.0315267, -0.00589929, -0.00226724, -0.00212137, -0.00389514 };
   double par1[9] = {0.0308943, -0.0939411, -0.14377, -0.19003, -0.116323, 0.180593, 0.207874, 0.208863, 0.194876};

@@ -10,16 +10,17 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 
 using namespace std;
 
-void plotQA_TpcTrackingEfficiency(int mEnergy = 3, int mPID = 1)
+void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 0, int year = 0)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
   string const mParTex[2] = {"K^{+}","K^{-}"};
   string const Centrality[10] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%","20%-60%"}; // Centrality bin
+  string const mYear[2] = {"run11","run10"};
   int const mPlotStyle[10] = {0,0,1,1,1,1,0,0,0,1};
   int const mPlotColor[10] = {0,0,kGray+3,kAzure+4,kOrange+1,kCyan+1,0,0,0,kRed};
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_run11_pr_2060.root",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr_2060.root",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str(),mYear[year].c_str());
   cout << "open input file: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -132,6 +133,13 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 3, int mPID = 1)
     }
     HistName = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",eta_bin,i_pad);
     h_mEfficiency[HistName]->DrawCopy("HIST same");
+
+    string phi_leg = Form("phi bin: %d",i_pad);
+    TLegend *leg_phi = new TLegend(0.5,0.2,0.8,0.5);
+    leg_phi->SetFillColor(10);
+    leg_phi->SetBorderSize(0);
+    leg_phi->AddEntry(h_mEfficiency[HistName],phi_leg.c_str());
+    leg_phi->Draw("same");
   }
   FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/TPC/c_TpcEffDiffComEta_%d_%s%s.eps",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
   c_diff->SaveAs(FigName.c_str());

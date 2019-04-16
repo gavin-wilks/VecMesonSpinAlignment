@@ -10,7 +10,7 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 
 using namespace std;
 
-void plotQA_TofMatchingEfficiency(int mEnergy = 3, int mPID = 1)
+void plotQA_TofMatchingEfficiency(int mEnergy = 6, int mPID = 0)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -90,4 +90,7 @@ void plotQA_TofMatchingEfficiency(int mEnergy = 3, int mPID = 1)
     }
     leg->Draw("same");
   }
+
+  string FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/c_TofEffCentCom_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  c_play->SaveAs(FigName.c_str());
 }
