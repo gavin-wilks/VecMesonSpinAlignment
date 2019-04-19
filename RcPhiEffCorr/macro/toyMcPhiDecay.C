@@ -224,8 +224,8 @@ bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
      string KEY_TPC = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
      h_TPC = h_EffKplus[KEY_TPC];
 
-     // string KEY_ToF = Form("h_mEfficiency_Kplus_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_ToF,PhiBin_ToF); // get ToF eff
-     string KEY_ToF = Form("h_mEfficiency_Kplus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
+     // string KEY_ToF = Form("h_mEfficiency_Kplus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
+     string KEY_ToF = Form("h_mEfficiency_Kplus_Cent_9_Eta_%d",EtaBin_ToF); // get ToF eff with eta only @ 20-60%
      h_ToF = h_TofKplus[KEY_ToF];
 
      // string KEY_ToFFit = Form("f_mToFMatch_Kplus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
@@ -238,8 +238,8 @@ bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
      string KEY_TPC = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
      h_TPC = h_EffKminus[KEY_TPC];
 
-     // string KEY_ToF = Form("h_mEfficiency_Kminus_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_ToF,PhiBin_ToF); // get ToF eff
-     string KEY_ToF = Form("h_mEfficiency_Kminus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
+     // string KEY_ToF = Form("h_mEfficiency_Kminus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
+     string KEY_ToF = Form("h_mEfficiency_Kminus_Cent_9_Eta_%d",EtaBin_ToF); // get ToF eff with eta only @ 20-60%
      h_ToF = h_TofKminus[KEY_ToF];
 
      // string KEY_ToFFit = Form("f_mToFMatch_Kminus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
@@ -371,12 +371,12 @@ void readTofEff(int energy)
 void readTofEffFit(int energy)
 {
   // string inputKplus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputKplus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_second_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKplus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_first_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kplus = TFile::Open(inputKplus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K+: " << inputKplus.c_str() << endl;
 
   // string inputKminus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputKminus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_second_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKminus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_first_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kminus = TFile::Open(inputKminus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K-: " << inputKminus.c_str() << endl;
 
