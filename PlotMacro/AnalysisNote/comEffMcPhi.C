@@ -13,11 +13,12 @@ using namespace std;
 float pos_x[8] = {0.05,0.54,0.05,0.54,0.05,0.54,0.05,0.54};
 float pos_y[8] = {0.95,0.95,0.90,0.90,0.85,0.85,0.80,0.80};
 
-void comEffMcPhi(int energy = 4, int cent = 9)
+void comEffMcPhi(int energy = 6, int cent = 9)
 {
   gStyle->SetOptDate(0);
 
-  string input_first = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string input_first = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string input_first = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/Efficiency/Eff_%s_SingleKaon_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_fisrt = TFile::Open(input_first.c_str());
   TH1D *h_mEff_first[vmsa::pt_rebin];
   for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt)
@@ -26,7 +27,8 @@ void comEffMcPhi(int energy = 4, int cent = 9)
     h_mEff_first[i_pt] = (TH1D*)File_fisrt->Get(HistName.c_str());
   }
 
-  string input_second = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string input_second = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string input_second = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/Efficiency/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_second = TFile::Open(input_second.c_str());
   TH1D *h_mEff_second[vmsa::pt_rebin];
   for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt)
@@ -35,7 +37,8 @@ void comEffMcPhi(int energy = 4, int cent = 9)
     h_mEff_second[i_pt] = (TH1D*)File_second->Get(HistName.c_str());
   }
 
-  string input_eta = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_eta.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string input_eta = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_eta.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string input_eta = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/Efficiency/Eff_%s_SingleKaon_eta.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_eta = TFile::Open(input_eta.c_str());
   TH1D *h_mEff_eta[vmsa::pt_rebin];
   for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt)
@@ -56,7 +59,7 @@ void comEffMcPhi(int energy = 4, int cent = 9)
     h_frame->SetBinError(i_bin+1,1);
   }
   string legEnergy = Form("AuAu %s 20%%-60%%",vmsa::mBeamEnergy[energy].c_str());
-  h_frame->SetTitle("");
+  h_frame->SetTitle(legEnergy.c_str());
   h_frame->SetStats(0);
   h_frame->GetXaxis()->SetTitle("cos(#theta^{*})");
   h_frame->GetXaxis()->CenterTitle();
@@ -69,7 +72,7 @@ void comEffMcPhi(int energy = 4, int cent = 9)
   h_frame->GetYaxis()->SetLabelSize(0.04);
   h_frame->GetYaxis()->SetNdivisions(505);
   h_frame->GetYaxis()->SetTitleOffset(1.2);
-  h_frame->GetYaxis()->SetRangeUser(0.0,0.4);
+  h_frame->GetYaxis()->SetRangeUser(0.0,0.5);
   h_frame->Draw("pE");
   for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt)
   {
@@ -97,5 +100,7 @@ void comEffMcPhi(int energy = 4, int cent = 9)
   leg->AddEntry(h_mEff_second[0],"phi & plateau","p");
   leg->Draw("same");
 
-  c_eff->SaveAs("/star/data01/pwg/sunxuhit/AuAu39GeV/SpinAlignment/Phi/Efficiency/c_eff_com.eps");
+  // c_eff->SaveAs("/star/data01/pwg/sunxuhit/AuAu39GeV/SpinAlignment/Phi/Efficiency/c_eff_com.eps");
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/Efficiency/c_effAuAu%s_com.eps",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  c_eff->SaveAs(FigName.c_str());
 }

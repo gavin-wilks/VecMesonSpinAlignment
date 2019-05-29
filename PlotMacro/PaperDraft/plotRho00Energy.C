@@ -13,7 +13,7 @@ using namespace std;
 
 void plotRho00Energy()
 {
-  bool isPlotMean = true;
+  bool isPlotMean = false;
   gStyle->SetOptDate(0);
   TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_stat_sys.root");
   TGraphAsymmErrors *g_rho_1st_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_stat");;
