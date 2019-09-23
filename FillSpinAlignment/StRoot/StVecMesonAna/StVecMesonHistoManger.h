@@ -20,6 +20,10 @@ class StVecMesonHistoManger
     void FillSigSys(Float_t,Float_t,Int_t);
     void WriteSys(Int_t X_flag, Int_t mode);
 
+    void InitSys_EP(Int_t X_flag, Int_t mode);
+    void FillSys_EP(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t Mass2, Double_t reweight, Int_t X_flag, Int_t mode);
+    void WriteSys_EP(Int_t X_flag, Int_t mode);
+
   private:
     // spin alignment analysis
     // 0 = pt bin
@@ -28,6 +32,7 @@ class StVecMesonHistoManger
     // 3 = dca => 2.0, 2.5 and 3.0
     // 4 = nSigmaKaon => 2.5, 2.0 and 3.0
     TH1FMap h_mMass2;
+    TH1FMap h_mMass2_EP;
 
     // raw pt spectra
     // 0 = pt bin

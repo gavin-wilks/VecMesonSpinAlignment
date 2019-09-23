@@ -80,6 +80,7 @@ void StVecMesonAna::Init()
   mVecMesonCorr->InitShiftCorrection();
   mVecMesonCorr->InitResolutionCorr();
   mVecMesonHistoManger->InitSys(mX_flag,mMode);
+  mVecMesonHistoManger->InitSys_EP(mX_flag,mMode);
 
   // TString inputdir = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Forest/",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str());
   TString inputdir = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Forest/",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str());
@@ -344,11 +345,16 @@ void StVecMesonAna::MakePhi()
 		}
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
+
 		TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
 		TVector3 nQ = nQ_West.Unit();
 		Double_t CosThetaStar = vKpRest.Dot(nQ);
-
 		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+
+		TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
+		TVector3 nQ_EP = nQ_West_EP.Unit();
+		Double_t CosThetaStar_EP = vKpRest.Dot(nQ_EP);
+		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
 	      if(mVecMesonCut->passPhiEtaWest(lTrackA)) // K+ pos eta (west)
@@ -364,11 +370,16 @@ void StVecMesonAna::MakePhi()
 		}
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
+
 		TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane
 		TVector3 nQ = nQ_East.Unit();
 		Double_t CosThetaStar = vKpRest.Dot(nQ);
-
 		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+
+		TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
+		TVector3 nQ_EP = nQ_East_EP.Unit();
+		Double_t CosThetaStar_EP = vKpRest.Dot(nQ_EP);
+		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }
 	  }
@@ -387,5 +398,6 @@ void StVecMesonAna::Finish()
 {
   mFile_OutPut->cd();
   mVecMesonHistoManger->WriteSys(mX_flag,mMode);
+  mVecMesonHistoManger->WriteSys_EP(mX_flag,mMode);
   mFile_OutPut->Close();
 }
