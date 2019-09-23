@@ -273,7 +273,7 @@ void StVecMesonHistoManger::InitSys_EP(Int_t X_flag, Int_t mode) // 0 for Same E
   }
 }
 //-------------------------------------------------------------
-void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
+void StVecMesonHistoManger::FillSys_EP(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
 {
   TString Mode[2] = {"SE","ME"};
   if(Res2 > 0.0)
