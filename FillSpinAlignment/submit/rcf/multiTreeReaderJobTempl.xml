@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job>
+
+  <command>
+    echo $STAR
+    echo `pwd`
+    cd $SCRATCH/VecMesonSpinAlignment/FillSpinAlignment
+    echo `pwd`
+    ls -alrt
+
+    root4star -b -q FillSpinAlignment.C\(&energy;,&flag_ME;,&jobID;,&StartEvent;,&StopEvent;,&pid;\)
+  </command>
+  <stdout URL="file:&outPath;/Log/phi_&SM;_&jobID;_$JOBINDEX.out"/>
+  <stderr URL="file:&outPath;/Log/phi_&SM;_&jobID;_$JOBINDEX.err"/>
+
+  <SandBox>
+    <Package> 
+      <File>file:&codePath;</File> 
+    </Package>
+  </SandBox>
+
+</job>

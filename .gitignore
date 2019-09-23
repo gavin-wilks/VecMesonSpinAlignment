@@ -39,3 +39,4 @@ figures/*
 Embedding/*.root
 
 RcPhiEffCorr/macro/submit/star/JOBS/*
+FillSpinAlignment/submit/rcf/JOBS/*
