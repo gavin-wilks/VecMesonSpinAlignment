@@ -18,24 +18,21 @@
 #include "../../Utility/StSpinAlignmentCons.h"
 #include "../../Utility/type.h"
 
-void plotQA_rhoSig(int energy = 6, int ptBin = 3)
+void plotQA_rhoSig_1st(int energy = 6, int ptBin = 3)
 {
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/rho00/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str());
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AnalysisNote_1st/fig_%s.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   File_InPut->cd();
-  TH1F *h_mMass[7]; 
-  TH1F *h_mMass_InteTheta;
+
   // read in histograms
-  // integrated over cos(theta*) and do breit wiger fit to extract common fit parameter
-  string KEY_InteTheta = Form("pt_%d_Centrality_9_2nd_Dca_0_Sig_0_%s_Norm_0",ptBin,vmsa::mPID[0].c_str());
+  TH1F *h_mMass[7]; 
   for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
   {
-    string KEY = Form("pt_%d_Centrality_9_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_Norm_0",ptBin,i_theta,vmsa::mPID[0].c_str());
+    string KEY = Form("imass_cos%d_pt%d",i_theta+1,ptBin);
     h_mMass[i_theta] = (TH1F*)File_InPut->Get(KEY.c_str());
-
-    if(i_theta == vmsa::CTS_start) h_mMass_InteTheta = (TH1F*)h_mMass[i_theta]->Clone(KEY_InteTheta.c_str());
-    else h_mMass_InteTheta->Add(h_mMass[i_theta],1.0);
   }
+  string KEY_InteTheta = Form("imass_all_pt%d",ptBin);
+  TH1F *h_mMass_InteTheta = (TH1F*)File_InPut->Get(KEY_InteTheta.c_str());
 
   string order[9] = {"I","II","III","IV","V","VI","VII","VIII","IX"};
   float mean = 0.0;
@@ -134,15 +131,8 @@ void plotQA_rhoSig(int energy = 6, int ptBin = 3)
     }
   }
 
-  string input_yields = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/rho00/RawRhoPtSys.root",vmsa::mBeamEnergy[energy].c_str());
-  TFile *File_Yields = TFile::Open(input_yields.c_str());
-  File_Yields->cd();
-
-  string KEY_Count = Form("pt_%d_Centrality_9_2nd_Dca_0_Sig_0_%s_Norm_0_Sigma_0_Count",ptBin,vmsa::mPID[0].c_str());
-  TH1F *h_mYields_Count = (TH1F*)File_Yields->Get(KEY_Count.c_str());
-
-  string KEY_Inte = Form("pt_%d_Centrality_9_2nd_Dca_0_Sig_0_%s_Norm_0_Sigma_0_Inte",ptBin,vmsa::mPID[0].c_str());
-  TH1F *h_mYields_Inte = (TH1F*)File_Yields->Get(KEY_Inte.c_str());
+  string KEY_Count = Form("fit_cos_pt%d",ptBin);
+  TH1F *h_mYields_Count = (TH1F*)File_InPut->Get(KEY_Count.c_str());
 
   c_diff->cd(9);
   string leg_pt = Form("%1.1f < p_{T} < %1.1f GeV/c",vmsa::pt_low[energy][ptBin],vmsa::pt_up[energy][ptBin]);
@@ -176,25 +166,10 @@ void plotQA_rhoSig(int energy = 6, int ptBin = 3)
   f_rho_count->SetLineStyle(2);
   f_rho_count->Draw("l same");
 
-  h_mYields_Inte->SetMarkerStyle(24);
-  h_mYields_Inte->SetMarkerColor(2);
-  h_mYields_Inte->SetMarkerSize(1.2);
-  h_mYields_Inte->Draw("pE same");
-
-  TF1 *f_rho_inte = new TF1("f_rho_inte",SpinDensity,0.0,1.0,2);
-  f_rho_inte->SetParameter(0,0.33);
-  f_rho_inte->SetParameter(1,h_mYields_Inte->GetMaximum());
-  h_mYields_Inte->Fit(f_rho_inte,"NMRI");
-  f_rho_inte->SetLineColor(2);
-  f_rho_inte->SetLineWidth(2);
-  f_rho_inte->SetLineStyle(2);
-  f_rho_inte->Draw("l same");
-
-  TLegend *leg = new TLegend(0.2,0.2,0.8,0.4);
+  TLegend *leg = new TLegend(0.2,0.2,0.8,0.3);
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->AddEntry(h_mYields_Count,"bin counting","p");
-  leg->AddEntry(h_mYields_Inte,"integration","p");
   leg->Draw("same");
 
   TLegend *leg_order = new TLegend(0.75,0.75,0.85,0.85);
@@ -202,6 +177,10 @@ void plotQA_rhoSig(int energy = 6, int ptBin = 3)
   leg_order->SetFillColor(10);
   leg_order->AddEntry((TObject*)0,order[8].c_str(),"");
   leg_order->Draw("same");
+
+  string beamenergy = Form("AuAu %s", vmsa::mBeamEnergy[energy].c_str());
+  plotTopLegend((char*)beamenergy.c_str(),0.2,0.78,0.07,1,0.0,42,1,1);
+  plotTopLegend((char*)"1^{st} EP",0.3,0.68,0.07,1,0.0,42,1,1);
 
   for(int i_theta = 0; i_theta < 7; ++i_theta)
   {
@@ -214,6 +193,6 @@ void plotQA_rhoSig(int energy = 6, int ptBin = 3)
     PlotLine(mean+2.0*sigma,mean+2.0*sigma,0.0,0.5*h_mMass[i_theta]->GetMaximum(),4,2,2);
   }
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/RhoSig/c_rhoSig_AuAu%s_Pt%d.eps",vmsa::mBeamEnergy[energy].c_str(),ptBin);
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/RhoSig/c_rhoSig_1st_AuAu%s_Pt%d.eps",vmsa::mBeamEnergy[energy].c_str(),ptBin);
   c_diff->SaveAs(FigName.c_str());
 }
