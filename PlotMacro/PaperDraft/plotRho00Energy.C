@@ -16,9 +16,9 @@ void plotRho00Energy()
   bool isPlotMean = false;
   gStyle->SetOptDate(0);
   TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_stat_sys.root");
-  TGraphAsymmErrors *g_rho_1st_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_stat");;
+  TGraphAsymmErrors *g_rho_1st_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_stat");
   TGraphAsymmErrors *g_rho_1st_sys  = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_sys");
-  TGraphAsymmErrors *g_rho_2nd_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_stat");;
+  TGraphAsymmErrors *g_rho_2nd_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_stat");
   TGraphAsymmErrors *g_rho_2nd_sys  = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_sys");
 
   TH1F *h_frame = new TH1F("h_frame","h_frame",1000,0,1000);
@@ -98,9 +98,9 @@ void plotRho00Energy()
   //-----------plot mean rho_00------------------
 
   TFile *File_Input_mean = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_mean_BES.root");
-  TGraphAsymmErrors *g_mean_rho_1st_stat = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_1stEP_mean_stat");;
+  TGraphAsymmErrors *g_mean_rho_1st_stat = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_1stEP_mean_stat");
   TGraphAsymmErrors *g_mean_rho_1st_sys  = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_1stEP_mean_sys");
-  TGraphAsymmErrors *g_mean_rho_2nd_stat = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_2ndEP_mean_stat");;
+  TGraphAsymmErrors *g_mean_rho_2nd_stat = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_2ndEP_mean_stat");
   TGraphAsymmErrors *g_mean_rho_2nd_sys  = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_2ndEP_mean_sys");
   if(isPlotMean)
   {
@@ -137,6 +137,28 @@ void plotRho00Energy()
   }
 
   //-----------plot mean rho_00------------------
+
+  //-----------plot theory rho_00------------------
+  TFile *File_Input_Theory = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Theory.root");
+  TGraph *g_Theory_120 = (TGraph*)File_Input_Theory->Get("g_Theory_120");
+  TGraph *g_Theory_128 = (TGraph*)File_Input_Theory->Get("g_Theory_128");
+  TGraph *g_Theory_136 = (TGraph*)File_Input_Theory->Get("g_Theory_136");
+
+  g_Theory_136->SetLineColor(2);
+  g_Theory_136->SetLineStyle(1);
+  g_Theory_136->SetLineWidth(6);
+  g_Theory_136->Draw("l Same");
+
+  g_Theory_128->SetLineColor(6);
+  g_Theory_128->SetLineStyle(3);
+  g_Theory_128->SetLineWidth(6);
+  g_Theory_128->Draw("l Same");
+
+  g_Theory_120->SetLineColor(4);
+  g_Theory_120->SetLineStyle(9);
+  g_Theory_120->SetLineWidth(6);
+  g_Theory_120->Draw("l Same");
+  //-----------plot theory rho_00------------------
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/c_rhoSys_energy.eps");
 }
