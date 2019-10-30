@@ -146,17 +146,17 @@ void plotRho00Energy()
 
   g_Theory_136->SetLineColor(2);
   g_Theory_136->SetLineStyle(1);
-  g_Theory_136->SetLineWidth(6);
+  g_Theory_136->SetLineWidth(4);
   g_Theory_136->Draw("l Same");
 
   g_Theory_128->SetLineColor(6);
   g_Theory_128->SetLineStyle(3);
-  g_Theory_128->SetLineWidth(6);
+  g_Theory_128->SetLineWidth(4);
   g_Theory_128->Draw("l Same");
 
   g_Theory_120->SetLineColor(4);
   g_Theory_120->SetLineStyle(9);
-  g_Theory_120->SetLineWidth(6);
+  g_Theory_120->SetLineWidth(4);
   g_Theory_120->Draw("l Same");
   //-----------plot theory rho_00------------------
 
