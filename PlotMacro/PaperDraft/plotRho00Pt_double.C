@@ -35,18 +35,39 @@ void plotRho00Pt_double()
   int plot_color_2nd = kRed;
   float plot_size_2nd = 1.4;
 
+  TGraphAsymmErrors *g_rho_1st_stat_temp[6];
+  TGraphAsymmErrors *g_rho_1st_sys_temp[6];
   TGraphAsymmErrors *g_rho_1st_stat[6];
   TGraphAsymmErrors *g_rho_1st_sys[6];
   TGraphAsymmErrors *g_rho_2nd_stat[6];
   TGraphAsymmErrors *g_rho_2nd_sys[6];
 
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_stat_sys.root");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/rho00_stat_sys_Laxis.root");
   for(int i_energy = 0; i_energy < 6; ++i_energy)
   {
     string GrapName_1st_stat = Form("rho00_1stEP_pt_stat_%d",mEnergy[i_energy]);
-    g_rho_1st_stat[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_1st_stat.c_str());
+    g_rho_1st_stat_temp[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_1st_stat.c_str());
+    g_rho_1st_stat[i_energy] = new TGraphAsymmErrors();
+    for(int i_pt = 0; i_pt < g_rho_1st_stat_temp[i_energy]->GetN(); ++i_pt) // shift pT of 1st EP results by 0.1
+    {
+      double pt, rho;
+      g_rho_1st_stat_temp[i_energy]->GetPoint(i_pt,pt,rho);
+      double err = g_rho_1st_stat_temp[i_energy]->GetErrorYhigh(i_pt);
+      g_rho_1st_stat[i_energy]->SetPoint(i_pt,pt+0.1,rho);
+      g_rho_1st_stat[i_energy]->SetPointError(i_pt,0.0,0.0,err,err);
+    }
+
     string GrapName_1st_sys = Form("rho00_1stEP_pt_sys_%d",mEnergy[i_energy]);
-    g_rho_1st_sys[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_1st_sys.c_str());
+    g_rho_1st_sys_temp[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_1st_sys.c_str());
+    g_rho_1st_sys[i_energy] = new TGraphAsymmErrors();
+    for(int i_pt = 0; i_pt < g_rho_1st_sys_temp[i_energy]->GetN(); ++i_pt) // shift pT of 1st EP results by 0.1
+    {
+      double pt, rho;
+      g_rho_1st_sys_temp[i_energy]->GetPoint(i_pt,pt,rho);
+      double err = g_rho_1st_sys_temp[i_energy]->GetErrorYhigh(i_pt);
+      g_rho_1st_sys[i_energy]->SetPoint(i_pt,pt+0.1,rho);
+      g_rho_1st_sys[i_energy]->SetPointError(i_pt,0.0,0.0,err,err);
+    }
 
     string GrapName_2nd_stat = Form("rho00_2ndEP_pt_stat_%d",mEnergy[i_energy]);
     g_rho_2nd_stat[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_2nd_stat.c_str());
@@ -231,7 +252,7 @@ void plotRho00Pt_double()
     }
   }
 
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/c_rhoSys_pt.eps");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/BESII/c_rhoSys_pt_BESII.eps");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

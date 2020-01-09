@@ -37,13 +37,13 @@ void plot2ndRho00EnergyTheoryEP()
   double font_size = 0.035;
 
   gStyle->SetOptDate(0);
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_stat_sys.root");
-  TGraphAsymmErrors *g_rho_2nd_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_stat");
-  TGraphAsymmErrors *g_rho_2nd_sys  = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_sys");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/rho00_stat_sys_Laxis.root");
+  TGraphAsymmErrors *g_rho_2nd_stat_Laxis = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_stat");
+  TGraphAsymmErrors *g_rho_2nd_sys_Laxis  = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_sys");
 
-  TFile *File_Input_EP = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_stat_sys_EP.root");
-  TGraphAsymmErrors *g_rho_2nd_stat_EP = (TGraphAsymmErrors*)File_Input_EP->Get("rho00_2ndEP_energy_stat");
-  TGraphAsymmErrors *g_rho_2nd_sys_EP  = (TGraphAsymmErrors*)File_Input_EP->Get("rho00_2ndEP_energy_sys");
+  TFile *File_Input_EP = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/rho00_stat_sys_Xaxis.root");
+  TGraphAsymmErrors *g_rho_2nd_stat_Xaxis = (TGraphAsymmErrors*)File_Input_EP->Get("rho00_2ndEP_energy_stat");
+  TGraphAsymmErrors *g_rho_2nd_sys_Xaxis = (TGraphAsymmErrors*)File_Input_EP->Get("rho00_2ndEP_energy_sys");
 
   // plot frame
   TH1F *h_frame = new TH1F("h_frame","h_frame",1000,0,1000);
@@ -80,12 +80,12 @@ void plot2ndRho00EnergyTheoryEP()
   PlotLine(9.0,240.0,1.0/3.0,1.0/3.0,1,3,2);
 
   // plot 2nd EP rho00 in normal direction
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat,29,kRed,1.8);
-  for(int i_energy = 0; i_energy < g_rho_2nd_sys->GetN(); ++i_energy) // plot sys errors
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat_Laxis,29,kRed,1.8);
+  for(int i_energy = 0; i_energy < g_rho_2nd_sys_Laxis->GetN(); ++i_energy) // plot sys errors
   {
     double energy, rho;
-    g_rho_2nd_sys->GetPoint(i_energy,energy,rho);
-    double err = g_rho_2nd_sys->GetErrorYhigh(i_energy);
+    g_rho_2nd_sys_Laxis->GetPoint(i_energy,energy,rho);
+    double err = g_rho_2nd_sys_Laxis->GetErrorYhigh(i_energy);
 
     PlotLine(energy*0.95,energy*1.05,rho+err,rho+err,kRed+2,2,1);
     PlotLine(energy*0.95,energy*0.95,rho+err-0.001,rho+err,kRed+2,2,1);
@@ -99,12 +99,12 @@ void plot2ndRho00EnergyTheoryEP()
   // plotTopLegend((char*)"Out-of-Plane #rho_{00}",90,0.3790,font_size,1,0.0,42,0);
 
   // plot 2nd EP rho00 in tangent direction
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat_EP,20,kAzure+2,1.4);
-  for(int i_energy = 0; i_energy < g_rho_2nd_sys_EP->GetN(); ++i_energy) // plot sys errors
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat_Xaxis,20,kAzure+2,1.4);
+  for(int i_energy = 0; i_energy < g_rho_2nd_sys_Xaxis->GetN(); ++i_energy) // plot sys errors
   {
     double energy, rho;
-    g_rho_2nd_sys_EP->GetPoint(i_energy,energy,rho);
-    double err = g_rho_2nd_sys_EP->GetErrorYhigh(i_energy);
+    g_rho_2nd_sys_Xaxis->GetPoint(i_energy,energy,rho);
+    double err = g_rho_2nd_sys_Xaxis->GetErrorYhigh(i_energy);
 
     PlotLine(energy*0.95,energy*1.05,rho+err,rho+err,kAzure+2,2,1);
     PlotLine(energy*0.95,energy*0.95,rho+err-0.001,rho+err,kAzure+2,2,1);
@@ -163,5 +163,5 @@ void plot2ndRho00EnergyTheoryEP()
 
   // plotTopLegend((char*)"#rho_{00} = 1/3",100,0.328,0.04,1,0.0,42,0);
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/c_rhoSys_energy_Theory_2ndEP.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/BESII/c_rhoSys_energy_Theory_2ndEP_BESII.eps");
 }

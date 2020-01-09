@@ -15,7 +15,7 @@ void plotRho00Energy()
 {
   bool isPlotMean = false;
   gStyle->SetOptDate(0);
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_stat_sys.root");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/rho00_stat_sys_Laxis.root");
   TGraphAsymmErrors *g_rho_1st_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_stat");
   TGraphAsymmErrors *g_rho_1st_sys  = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_sys");
   TGraphAsymmErrors *g_rho_2nd_stat = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_stat");
@@ -95,8 +95,8 @@ void plotRho00Energy()
   plotTopLegend((char*)"Au+Au (20-60\% & |#eta| < 1)",0.45,0.30,0.04,1,0.0,42,1);
   plotTopLegend((char*)"#phi-meson (1.2 < p_{T}< 5.4 GeV/c)",0.4,0.25,0.04,1,0.0,42,1);
 
+#if 0
   //-----------plot mean rho_00------------------
-
   TFile *File_Input_mean = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_mean_BES.root");
   TGraphAsymmErrors *g_mean_rho_1st_stat = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_1stEP_mean_stat");
   TGraphAsymmErrors *g_mean_rho_1st_sys  = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_1stEP_mean_sys");
@@ -159,6 +159,7 @@ void plotRho00Energy()
   g_Theory_120->SetLineWidth(4);
   g_Theory_120->Draw("l Same");
   //-----------plot theory rho_00------------------
+#endif
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/c_rhoSys_energy.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/BESII/c_rhoSys_energy_BESII.eps");
 }
