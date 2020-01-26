@@ -156,9 +156,9 @@ void plot2ndRho00EnergyTheoryEP()
   // experimental information
   // plotTopLegend((char*)"Au+Au (20-60\% & |#eta| < 1)",15,0.3890,font_size,1,0.0,42,0);
   // plotTopLegend((char*)"#phi-meson (1.2 < p_{T}< 5.4 GeV/c)",14,0.3790,font_size,1,0.0,42,0);
-  plotTopLegend((char*)"Au+Au 20-60\%",10,0.392,font_size,1,0.0,42,0);
+  plotTopLegend((char*)"Au+Au 20-60\%",13,0.392,font_size,1,0.0,42,0);
   // plotTopLegend((char*)"#phi (1.2 < p_{T}< 5.4 GeV/c & |#eta| < 1)",30,0.392,font_size,1,0.0,42,0);
-  plotTopLegend((char*)"1.2 < p_{T}< 5.4 GeV/c",30,0.392,font_size,1,0.0,42,0);
+  plotTopLegend((char*)"1.2 < p_{T}< 5.4 GeV/c",37,0.392,font_size,1,0.0,42,0);
   plotTopLegend((char*)"|#eta| < 1",140,0.392,font_size,1,0.0,42,0);
 
   // plotTopLegend((char*)"#rho_{00} = 1/3",100,0.328,0.04,1,0.0,42,0);
