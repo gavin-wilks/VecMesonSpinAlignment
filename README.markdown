@@ -45,6 +45,7 @@
 
 ### PlotMacro
 > - macros to plot QA and final figures for rho_00 vs energy with sysErrors
+> - macros to plot figures in Analysis Note and Paper Draft
 
 ### figures
 > - place to save QA and final plots
