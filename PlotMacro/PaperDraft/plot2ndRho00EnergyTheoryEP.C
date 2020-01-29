@@ -148,9 +148,10 @@ void plot2ndRho00EnergyTheoryEP()
   // theory
   for(int i_line = 0; i_line <3; ++i_line)
   {
-    string leg_scurrent = Form("g^{4}_{#phi}(#partialj^{(i)}_{s}/#partialt)^{2} = %1.0f fm^{-4} [*]",scurrent[i_line]);
-    plotTopLegend((char*)leg_scurrent.c_str(),50,0.315-i_line*0.009,font_size,1,0.0,42,0);
-    PlotLine(35,48,0.3157-i_line*0.009,0.3157-i_line*0.009,Color[i_line],4,Style[i_line]);
+    // string leg_scurrent = Form("g^{4}_{#phi}(#partialj^{(i)}_{s}/#partialt)^{2} = %1.0f fm^{-8} [*]",scurrent[i_line]);
+    string leg_scurrent = Form("C^{(y)}_{s} = %1.0f fm^{-8} [*]",scurrent[i_line]);
+    plotTopLegend((char*)leg_scurrent.c_str(),70,0.315-i_line*0.009,font_size,1,0.0,42,0);
+    PlotLine(55,68,0.3162-i_line*0.009,0.3162-i_line*0.009,Color[i_line],4,Style[i_line]);
   }
 
   // experimental information
