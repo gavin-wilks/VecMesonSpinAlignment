@@ -319,7 +319,8 @@ void readEfficiency(int energy, int year, int cut, int jobID)
   }
 
   // string outputfile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_%s_%s_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str(),jobID);
-  string outputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_%s_%s_%d_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str(),jobID);
+  // string outputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_%s_%s_%d_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str(),jobID);
+  string outputfile = Form("./Eff_%s_SingleKaon_%s_%s_%d_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str(),jobID);
   cout << "OutPut File set to: " << outputfile.c_str() << endl;
   File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
@@ -348,9 +349,17 @@ void readTofEff(int energy)
   {
     for(int i_eta = 0; i_eta < vmsa::BinEta+2; ++i_eta)
     {
+      string KEY;
+      KEY = Form("h_mEfficiency_Kplus_Cent_%d_Eta_%d",i_cent,i_eta);
+      h_TofKplus[KEY] = (TH1D*)File_InPut->Get(KEY.c_str());
+      // cout << "Kplus KEY: " << KEY.c_str() << endl;
+
+      KEY = Form("h_mEfficiency_Kminus_Cent_%d_Eta_%d",i_cent,i_eta);
+      h_TofKminus[KEY] = (TH1D*)File_InPut->Get(KEY.c_str());
+      // cout << "Kminus KEY: " << KEY.c_str() << endl;
       for(int i_phi = 0; i_phi < vmsa::BinPhi; ++i_phi)
       {
-	string KEY;
+	// string KEY;
 	KEY = Form("h_mEfficiency_Kplus_Cent_%d_Eta_%d_Phi_%d",i_cent,i_eta,i_phi);
 	h_TofKplus[KEY] = (TH1D*)File_InPut->Get(KEY.c_str());
 	// cout << "Kplus KEY: " << KEY.c_str() << endl;
