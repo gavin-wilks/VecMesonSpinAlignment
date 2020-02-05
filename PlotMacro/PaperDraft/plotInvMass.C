@@ -15,7 +15,7 @@ using namespace std;
 
 void plotInvMass()
 {
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/invmass.root");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/invmass.root");
   TH1D *h_mMass_SE = (TH1D*)File_Input->Get("imass_all_clone")->Clone("h_mMass_SE");
   TH1D *h_mMass_ME = (TH1D*)File_Input->Get("imass_all_bg")->Clone("h_mMass_ME");
   TH1D *h_mMass_SM = (TH1D*)File_Input->Get("imass_all")->Clone("h_mMass_SM");
@@ -100,4 +100,5 @@ void plotInvMass()
   plotTopLegend((char*)"1.2 < p_{T} < 1.8 GeV/c",0.50,0.79,0.04,1,0.0,42,1);
 
   c_peak->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/c_InvMass.eps");
+  c_peak->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_InvMass.png");
 }

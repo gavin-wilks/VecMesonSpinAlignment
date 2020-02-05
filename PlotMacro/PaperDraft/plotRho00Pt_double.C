@@ -206,7 +206,7 @@ void plotRho00Pt_double()
 
       if(x_pads == 0 && y_pads == 1)
       {
-	h_frame[total_pad-1]->GetYaxis()->SetTitle("#rho_{00}");
+	h_frame[total_pad-1]->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
 	h_frame[total_pad-1]->GetYaxis()->CenterTitle();
 	h_frame[total_pad-1]->GetYaxis()->SetTitleSize(0.10*scaling_factor);
       }
@@ -253,6 +253,7 @@ void plotRho00Pt_double()
   }
 
   c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/BESII/c_rhoSys_pt_BESII.eps");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoSys_pt_BESII.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

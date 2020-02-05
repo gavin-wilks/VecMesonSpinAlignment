@@ -15,7 +15,7 @@ using namespace std;
 
 void plotYields()
 {
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/counts.root");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/counts.root");
   TH1D *h_mYields = (TH1D*)File_Input->Get("PtCos")->Clone("h_mYields");
 
   TCanvas *c_yields = new TCanvas("c_yields","c_yields",10,10,800,800);
@@ -60,4 +60,5 @@ void plotYields()
   plotTopLegend((char*)"1.2 < p_{T} < 1.8 GeV/c",0.25,0.70,0.04,1,0.0,42,1);
 
   c_yields->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/c_yields.eps");
+  c_yields->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_yields.png");
 }

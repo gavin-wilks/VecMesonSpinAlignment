@@ -46,9 +46,9 @@ void plotRho00Energy()
 
   h_frame->GetYaxis()->SetRangeUser(0.301,0.40);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
-  h_frame->GetYaxis()->SetTitle("#rho_{00}");
+  h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
   h_frame->GetYaxis()->SetTitleSize(0.06);
-  h_frame->GetYaxis()->SetTitleOffset(1.2);
+  h_frame->GetYaxis()->SetTitleOffset(1.1);
   h_frame->GetYaxis()->SetLabelSize(0.04);
   h_frame->GetYaxis()->CenterTitle();
   h_frame->DrawCopy("pE");
@@ -162,4 +162,5 @@ void plotRho00Energy()
 #endif
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/BESII/c_rhoSys_energy_BESII.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoSys_energy_BESII.png");
 }

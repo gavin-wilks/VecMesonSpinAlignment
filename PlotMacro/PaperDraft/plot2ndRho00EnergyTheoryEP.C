@@ -165,4 +165,5 @@ void plot2ndRho00EnergyTheoryEP()
   // plotTopLegend((char*)"#rho_{00} = 1/3",100,0.328,0.04,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/BESII/c_rhoSys_energy_Theory_2ndEP_BESII.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoSys_energy_Theory_2ndEP_BESII.png");
 }
