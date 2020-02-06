@@ -14,7 +14,7 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotSys_Inte(int energy = 2)
+void plotSys_Inte_EP(int energy = 2)
 {
   const string mBeamEnergy[6] = {"11.5 GeV","19.6 GeV","27 GeV","39 GeV","62.4 GeV","200 GeV"};
   const int mEnergy[6] = {11,19,27,39,62,200};
@@ -38,8 +38,8 @@ void plotSys_Inte(int energy = 2)
   const float total_center = 4.5;
   // const int mode_default = 0;
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV.root",mEnergy[energy]);
-  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean.root",mEnergy[energy]);
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_EP.root",mEnergy[energy]);
+  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean_EP.root",mEnergy[energy]);
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -344,9 +344,9 @@ void plotSys_Inte(int energy = 2)
   // h_frame->GetXaxis()->SetTitleOffset(1.1);
   // h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.33,0.40);
+  h_frame->GetYaxis()->SetRangeUser(0.32,0.38);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
-  h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
+  h_frame->GetYaxis()->SetTitle("#rho_{00} (In-Plane)");
   h_frame->GetYaxis()->SetTitleSize(0.06);
   h_frame->GetYaxis()->SetTitleOffset(1.1);
   h_frame->GetYaxis()->SetLabelSize(0.04);
@@ -413,7 +413,7 @@ void plotSys_Inte(int energy = 2)
   leg->AddEntry((TObject*)0,leg_total.c_str(),"");
   leg->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysInte_AuAu%dGeV.eps",mEnergy[energy]);
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysInte_AuAu%dGeV_EP.eps",mEnergy[energy]);
   c_sys->SaveAs(FigName.c_str());
 }
 

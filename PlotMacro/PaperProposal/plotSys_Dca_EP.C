@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void plotSys_Dca(int energy = 2)
+void plotSys_Dca_EP(int energy = 2)
 {
   const string mBeamEnergy[6] = {"11.5 GeV","19.6 GeV","27 GeV","39 GeV","62.4 GeV","200 GeV"};
   const int mEnergy[6] = {11,19,27,39,62,200};
@@ -25,8 +25,8 @@ void plotSys_Dca(int energy = 2)
   const string mLeg_dca[3] = {"dca < 2.0 cm", "dca < 2.5 cm", "dca < 3.0 cm"};
   const string mLeg_mode[4] = {"BW Inte (2#sigma)", "Counting (2#sigma)", "Counting (2.5#sigma)", "Counting (3.0#sigma)"};
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV.root",mEnergy[energy]);
-  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean.root",mEnergy[energy]);
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_EP.root",mEnergy[energy]);
+  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean_EP.root",mEnergy[energy]);
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -109,9 +109,9 @@ void plotSys_Dca(int energy = 2)
   h_frame->GetXaxis()->SetTitleOffset(1.1);
   h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.25,0.42);
+  h_frame->GetYaxis()->SetRangeUser(0.22,0.38);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
-  h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
+  h_frame->GetYaxis()->SetTitle("#rho_{00} (In-Plane)");
   h_frame->GetYaxis()->SetTitleSize(0.06);
   h_frame->GetYaxis()->SetTitleOffset(1.1);
   h_frame->GetYaxis()->SetLabelSize(0.04);
@@ -133,7 +133,7 @@ void plotSys_Dca(int energy = 2)
 
   string formula = "#Delta#rho_{00,sys}^{dca} = #frac{#rho_{00,max}^{dca}-#rho_{00,min}^{dca}}{#sqrt{12}}";
   // string formula = "#Delta#rho_{00,sys}^{dca} = (#rho_{00,max}^{dca}-#rho_{00,min}^{dca})/#sqrt{12}";
-  plotTopLegend((char*)formula.c_str(),0.3,0.8,0.03,1,0.0,42,1);
+  plotTopLegend((char*)formula.c_str(),0.3,0.45,0.03,1,0.0,42,1);
 
   TLegend *leg_dca = new TLegend(0.2,0.2,0.5,0.4);
   leg_dca->SetBorderSize(0);
@@ -156,6 +156,6 @@ void plotSys_Dca(int energy = 2)
   }
   leg_mode->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysDca_AuAu%dGeV.eps",mEnergy[energy]);
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysDca_AuAu%dGeV_EP.eps",mEnergy[energy]);
   c_rho00->SaveAs(FigName.c_str());
 }
