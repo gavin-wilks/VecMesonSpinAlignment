@@ -153,7 +153,8 @@ void plotSys_Inte(int energy = 2)
   }
   float delta_dca = rho_max_dca-rho_min_dca;
   float sys_dca = delta_dca/TMath::Sqrt(12.0);
-  string leg_dca = Form("#Delta#rho_{00,sys}^{dca}: %1.2f (#times 100%%)", 100.0*sys_dca/rho_def);
+  // string leg_dca = Form("#Delta#rho_{00,sys}^{dca}: %1.2f (#times 100%%)", 100.0*sys_dca/rho_def);
+  string leg_dca = Form("#Delta#rho_{00,sys}^{dca}: %1.2f%%", 100.0*sys_dca/rho_def);
   cout << "sys_dca = " << sys_dca << endl;
   // cout << "sys_dca = " << sys_dca << " = " << 100.0*sys_dca/rho_def << "%" << endl;
   //--------------------------------------------------------------
@@ -204,7 +205,8 @@ void plotSys_Inte(int energy = 2)
   float delta_sig = rho_max_sig - rho_min_sig;
   float sys_sig = delta_sig/TMath::Sqrt(12.0);
   cout << "sys_sig = " << sys_sig << endl;
-  string leg_sig = Form("#Delta#rho_{00,sys}^{sig}: %1.2f (#times 100%%)", 100.0*sys_sig/rho_def);
+  // string leg_sig = Form("#Delta#rho_{00,sys}^{sig}: %1.2f (#times 100%%)", 100.0*sys_sig/rho_def);
+  string leg_sig = Form("#Delta#rho_{00,sys}^{sig}: %1.2f%%", 100.0*sys_sig/rho_def);
   // cout << "sys_sig = " << sys_sig << " = " << 100.0*sys_sig/rho_def << "%" << endl;
   //--------------------------------------------------------------
   
@@ -253,7 +255,8 @@ void plotSys_Inte(int energy = 2)
   }
   float delta_norm = rho_max_norm - rho_min_norm;
   float sys_norm = delta_norm/TMath::Sqrt(12.0);
-  string leg_norm = Form("#Delta#rho_{00,sys}^{norm}: %1.2f (#times 100%%)", 100.0*sys_norm/rho_def);
+  // string leg_norm = Form("#Delta#rho_{00,sys}^{norm}: %1.2f (#times 100%%)", 100.0*sys_norm/rho_def);
+  string leg_norm = Form("#Delta#rho_{00,sys}^{norm}: %1.2f%%", 100.0*sys_norm/rho_def);
   cout << "sys_norm = " << sys_norm << endl;
   // cout << "sys_norm = " << sys_norm << " = " << 100.0*sys_norm/rho_def << "%" << endl;
   //--------------------------------------------------------------
@@ -303,13 +306,15 @@ void plotSys_Inte(int energy = 2)
   }
   float delta_eff = rho_max_eff - rho_min_eff;
   float sys_eff = delta_eff/TMath::Sqrt(12.0);
-  string leg_eff = Form("#Delta#rho_{00,sys}^{eff}: %1.2f (#times 100%%)", 100.0*sys_eff/rho_def);
+  // string leg_eff = Form("#Delta#rho_{00,sys}^{eff}: %1.2f (#times 100%%)", 100.0*sys_eff/rho_def);
+  string leg_eff = Form("#Delta#rho_{00,sys}^{eff}: %1.2f%%", 100.0*sys_eff/rho_def);
   cout << "sys_eff = " << sys_eff << endl;
   // cout << "sys_eff = " << sys_eff << " = " << 100.0*sys_eff/rho_def << "%" << endl;
   //--------------------------------------------------------------
   
   float sys_total = TMath::Sqrt(sys_dca*sys_dca + sys_sig*sys_sig + sys_norm*sys_norm + sys_eff*sys_eff);
-  string leg_total = Form("#Delta#rho_{00,sys}^{total}: %1.2f (#times 100%%)", 100.0*sys_total/rho_def);
+  // string leg_total = Form("#Delta#rho_{00,sys}^{total}: %1.2f (#times 100%%)", 100.0*sys_total/rho_def);
+  string leg_total = Form("#Delta#rho_{00,sys}^{total}: %1.2f%%", 100.0*sys_total/rho_def);
   cout << "sys_total = " << sys_total << endl;
   g_rhoSys_Total->SetPointError(0,0,0,sys_total,sys_total);
   // cout << "sys_total_graph = " << g_rhoSys_Total->GetErrorYhigh(0) << endl;
@@ -402,7 +407,7 @@ void plotSys_Inte(int energy = 2)
   g_rhoDef_Total->Draw("pE same");
   plotSysErrors(g_rhoSys_Total, 2);
 
-  TLegend *leg = new TLegend(0.2,0.55,0.55,0.85);
+  TLegend *leg = new TLegend(0.2,0.55,0.45,0.85);
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->AddEntry(g_rhoDef_Total,"default","P");

@@ -126,7 +126,7 @@ void fitRho00EnergyTheoryEP()
   f_rho00_Laxis->SetLineColor(kRed);
   f_rho00_Laxis->SetLineStyle(kDashed);
   f_rho00_Laxis->SetLineWidth(4);
-  f_rho00_Laxis->SetRange(10.0,200.0);
+  f_rho00_Laxis->SetRange(19.0,200.0);
   g_rho_2nd_fit_Laxis->Fit(f_rho00_Laxis,"MNR");
   f_rho00_Laxis->Draw("l same");
   double chi2_Laxis = f_rho00_Laxis->GetChisquare();
@@ -137,13 +137,13 @@ void fitRho00EnergyTheoryEP()
   cout << "ndf for Laxis: " << ndf_Laxis << endl;
   cout << "chi2/ndf for Laxis: " << chi2_ndf_Laxis  << ", p_Laxis: " << p_Laxis << endl;
 
-  TF1 *f_rho00_Xaxis = new TF1("f_rho00_Xaxis",rho00_theory,20,201,2);
+  TF1 *f_rho00_Xaxis = new TF1("f_rho00_Xaxis",rho00_theory,1,201,2);
   f_rho00_Xaxis->SetParameter(0,200.0);
   f_rho00_Xaxis->FixParameter(1,ms);
   f_rho00_Xaxis->SetLineColor(kBlue);
   f_rho00_Xaxis->SetLineStyle(kDashed);
   f_rho00_Xaxis->SetLineWidth(4);
-  f_rho00_Xaxis->SetRange(10.0,200.0);
+  f_rho00_Xaxis->SetRange(19.0,200.0);
   g_rho_2nd_fit_Xaxis->Fit(f_rho00_Xaxis,"MNR");
   f_rho00_Xaxis->Draw("l same");
   double chi2_Xaxis = f_rho00_Xaxis->GetChisquare();
