@@ -53,7 +53,7 @@ void plotRho00Cent(int energy)
   h_frame->GetXaxis()->SetRangeUser(0.0,80.0);
   h_frame->GetXaxis()->SetNdivisions(510,'N');
   h_frame->GetXaxis()->SetLabelSize(0.04);
-  h_frame->GetXaxis()->SetTitle("#sqrt{s_{NN}}  (GeV)");
+  h_frame->GetXaxis()->SetTitle("Centrality (%)");
   h_frame->GetXaxis()->SetTitleSize(0.06);
   h_frame->GetXaxis()->SetTitleOffset(1.1);
   h_frame->GetXaxis()->CenterTitle();
@@ -113,6 +113,8 @@ void plotRho00Cent(int energy)
   */
 
   string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoCentSys_%s.eps",mBeamEnergy[energy].c_str());
+  c_rho00->SaveAs(FigName.c_str());
+  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoCentSys_%s.png",mBeamEnergy[energy].c_str());
   c_rho00->SaveAs(FigName.c_str());
 }
 

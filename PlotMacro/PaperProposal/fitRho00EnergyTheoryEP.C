@@ -136,6 +136,7 @@ void fitRho00EnergyTheoryEP()
   cout << "chi2 for Laxis: " << chi2_Laxis << endl;
   cout << "ndf for Laxis: " << ndf_Laxis << endl;
   cout << "chi2/ndf for Laxis: " << chi2_ndf_Laxis  << ", p_Laxis: " << p_Laxis << endl;
+  cout << "C^{y}_{s} = " << f_rho00_Laxis->GetParameter(0) << " +/- " << f_rho00_Laxis->GetParError(0) << endl;
 
   TF1 *f_rho00_Xaxis = new TF1("f_rho00_Xaxis",rho00_theory,1,201,2);
   f_rho00_Xaxis->SetParameter(0,200.0);
@@ -153,6 +154,7 @@ void fitRho00EnergyTheoryEP()
   cout << "chi2 for Xaxis: " << chi2_Xaxis << endl;
   cout << "ndf for Xaxis: " << ndf_Xaxis << endl;
   cout << "chi2/ndf for Xaxis: " << chi2_ndf_Xaxis << ", p_Xaxis: " << p_Xaxis << endl;
+  cout << "C^{y}_{s} = " << f_rho00_Xaxis->GetParameter(0) << " +/- " << f_rho00_Xaxis->GetParError(0) << endl;
 
   // plot legend
 
@@ -165,14 +167,16 @@ void fitRho00EnergyTheoryEP()
   plotTopLegend((char*)"In-Plane (2^{nd} EP)",50,0.3735,font_size+0.005,1,0.0,42,0);
 
   // theory
-  string leg_current_Laxis = Form("C^{(y)}_{s} = %1.1f fm^{-8} [*]",f_rho00_Laxis->GetParameter(0));
+  // string leg_current_Laxis = Form("C^{(y)}_{s} = %1.1f fm^{-8} [*]",f_rho00_Laxis->GetParameter(0));
+  string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8} [*]",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
   string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
   string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
   string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);
   // plotTopLegend((char*)leg_current_Laxis.c_str(),70,0.315,font_size,1,0.0,42,0);
   // PlotLine(55,68,0.3162,0.3162,kRed,4,kDashed);
 
-  string leg_current_Xaxis = Form("C^{(y)}_{s} = %1.1f fm^{-8} [*]",f_rho00_Xaxis->GetParameter(0));
+  // string leg_current_Xaxis = Form("C^{(y)}_{s} = %1.1f fm^{-8} [*]",f_rho00_Xaxis->GetParameter(0));
+  string leg_current_Xaxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8} [*]",f_rho00_Xaxis->GetParameter(0),f_rho00_Xaxis->GetParError(0));
   string leg_chi2_Xaxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Xaxis);
   string leg_p_Xaxis = Form("p-value: %1.3f", p_Xaxis);
   string leg_stat_Xaxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Xaxis,p_Xaxis);
@@ -203,7 +207,7 @@ void fitRho00EnergyTheoryEP()
   // plotTopLegend((char*)"#rho_{00} = 1/3",100,0.328,0.04,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoSys_energy_TheoryFit_2ndEP_BESII.eps");
-  // c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoSys_energy_TheoryFit_2ndEP_BESII.png");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoSys_energy_TheoryFit_2ndEP_BESII.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
