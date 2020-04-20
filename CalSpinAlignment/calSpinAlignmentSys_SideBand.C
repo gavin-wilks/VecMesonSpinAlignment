@@ -35,6 +35,8 @@ void calSpinAlignmentSys_SideBand(int energy = 6, int pid = 0)
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
   
   int norm = vmsa::Norm_QA;
+  const float norm_start = 0.99;
+  const float norm_stop  = 1.00;
   // read in histogram for same event
   TH1FMap h_mInPut_SE;
   TH1FMap h_mMass_SE;
@@ -71,8 +73,10 @@ void calSpinAlignmentSys_SideBand(int energy = 6, int pid = 0)
   h_mMass_SE[KEY_SE_QA]->GetYaxis()->SetRangeUser(-0.1*h_mMass_SE[KEY_SE_QA]->GetMaximum(),1.1*h_mMass_SE[KEY_SE_QA]->GetMaximum());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  PlotLine(vmsa::Norm_Start[pid][norm],vmsa::Norm_Start[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
-  PlotLine(vmsa::Norm_Stop[pid][norm],vmsa::Norm_Stop[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+  // PlotLine(vmsa::Norm_Start[pid][norm],vmsa::Norm_Start[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+  // PlotLine(vmsa::Norm_Stop[pid][norm],vmsa::Norm_Stop[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+  PlotLine(norm_start,norm_start,0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+  PlotLine(norm_stop,norm_stop,0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
 
 
   // QA Plots for pT bins
@@ -92,8 +96,10 @@ void calSpinAlignmentSys_SideBand(int energy = 6, int pid = 0)
     string pT_range = Form("[%.2f,%.2f]",vmsa::ptRawStart[i_pt],vmsa::ptRawStop[i_pt]);
     plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
 
-    PlotLine(vmsa::Norm_Start[pid][norm],vmsa::Norm_Start[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
-    PlotLine(vmsa::Norm_Stop[pid][norm],vmsa::Norm_Stop[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+    // PlotLine(vmsa::Norm_Start[pid][norm],vmsa::Norm_Start[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+    // PlotLine(vmsa::Norm_Stop[pid][norm],vmsa::Norm_Stop[pid][norm],0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+    PlotLine(norm_start,norm_start,0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
+    PlotLine(norm_stop,norm_stop,0,0.8*h_mMass_SE[KEY_SE_QA]->GetMaximum(),4,2,2);
   }
 #endif
 
@@ -175,8 +181,10 @@ void calSpinAlignmentSys_SideBand(int energy = 6, int pid = 0)
 	  {
 	    string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),norm);
 	    float bin_center = 1/14.0+i_theta/7.0;
-	    int bin_start = h_mMass[KEY]->FindBin(vmsa::Norm_Start[pid][norm]);
-	    int bin_stop  = h_mMass[KEY]->FindBin(vmsa::Norm_Stop[pid][norm]);
+	    // int bin_start = h_mMass[KEY]->FindBin(vmsa::Norm_Start[pid][norm]);
+	    // int bin_stop  = h_mMass[KEY]->FindBin(vmsa::Norm_Stop[pid][norm]);
+	    int bin_start = h_mMass[KEY]->FindBin(norm_start);
+	    int bin_stop  = h_mMass[KEY]->FindBin(norm_stop);
 	    float counts = 0.0;
 	    float errors = 0.0;
 	    for(int i_bin = bin_start; i_bin <= bin_stop; i_bin++)
@@ -236,8 +244,10 @@ void calSpinAlignmentSys_SideBand(int energy = 6, int pid = 0)
       h_mMass[KEY_QA]->SetMarkerSize(1.2);
       h_mMass[KEY_QA]->Draw("pE");
       PlotLine(vmsa::InvMass_low[pid],vmsa::InvMass_high[pid],0.0,0.0,1,2,2);
-      PlotLine(vmsa::Norm_Start[pid][norm],vmsa::Norm_Start[pid][norm],0,0.95*h_mMass[KEY_QA]->GetMaximum(),4,2,2);
-      PlotLine(vmsa::Norm_Stop[pid][norm],vmsa::Norm_Stop[pid][norm],0,0.95*h_mMass[KEY_QA]->GetMaximum(),4,2,2);
+      // PlotLine(vmsa::Norm_Start[pid][norm],vmsa::Norm_Start[pid][norm],0,0.95*h_mMass[KEY_QA]->GetMaximum(),4,2,2);
+      // PlotLine(vmsa::Norm_Stop[pid][norm],vmsa::Norm_Stop[pid][norm],0,0.95*h_mMass[KEY_QA]->GetMaximum(),4,2,2);
+      PlotLine(norm_start,norm_start,0,0.95*h_mMass[KEY_QA]->GetMaximum(),4,2,2);
+      PlotLine(norm_stop,norm_stop,0,0.95*h_mMass[KEY_QA]->GetMaximum(),4,2,2);
     }
   }
 
