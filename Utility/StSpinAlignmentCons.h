@@ -158,9 +158,9 @@ namespace vmsa
   int const Method_stop  = 2;
   int const Method_QA    = 0;
 
-  float const nSigVecSys[3] = {2.0,2.5,3.0};
+  float const nSigVecSys[6] = {2.0,2.5,3.0,1.5,1.0,0.5};
   int const Sig_start = 0;
-  int const Sig_stop  = 3;
+  int const Sig_stop  = 6;
   int const Sig_QA    = 0;
 
   // used for systematic errors
