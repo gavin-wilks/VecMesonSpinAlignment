@@ -29,11 +29,11 @@ void makeData_rho00EnergyKstar()
   // K* ALICE
   TGraphAsymmErrors *g_rhoPhi_ALICE_stat = new TGraphAsymmErrors();
   g_rhoPhi_ALICE_stat->SetName("g_rhoPhi_ALICE_stat");
-  g_rhoPhi_ALICE_stat->SetPoint(0,sNN_alice2760_phim[0],Rho00_pT12_50_alice2760_phim[0]);
+  g_rhoPhi_ALICE_stat->SetPoint(0,sNN_alice2760_phim[0]-300.0,Rho00_pT12_50_alice2760_phim[0]);
   g_rhoPhi_ALICE_stat->SetPointError(0,0.0,0.0,err_Rho00_pT12_50_alice2760_phim[0], err_Rho00_pT12_50_alice2760_phim[0]);
   TGraphAsymmErrors *g_rhoPhi_ALICE_sys = new TGraphAsymmErrors();
   g_rhoPhi_ALICE_sys->SetName("g_rhoPhi_ALICE_sys");
-  g_rhoPhi_ALICE_sys->SetPoint(0,sNN_alice2760_phim[0],Rho00_pT12_50_alice2760_phim[0]);
+  g_rhoPhi_ALICE_sys->SetPoint(0,sNN_alice2760_phim[0]-300.0,Rho00_pT12_50_alice2760_phim[0]);
   g_rhoPhi_ALICE_sys->SetPointError(0,0.0,0.0,syst_Rho00_pT12_50_alice2760_phim[0], syst_Rho00_pT12_50_alice2760_phim[0]);
 
   TFile *File_OutPut = new TFile("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN.root","RECREATE");

@@ -43,12 +43,12 @@ void plotFig3_Rho00EnergyTheory()
   const int style_phi_2nd = 29;
   const int color_phi_2nd = kRed;
   const int style_phi_ALICE = 30;
-  const int color_phi_ALICE = kRed;
+  const int color_phi_ALICE = kGray+1;
 
   const int style_Kstr = 20;
   const int color_Kstr = kAzure+2;
   const int style_Kstr_ALICE = 24;
-  const int color_Kstr_ALICE = kAzure+2;
+  const int color_Kstr_ALICE = kGray+1;
 
   const float size_marker = 1.4;
   const float size_font = 0.03;
@@ -149,13 +149,8 @@ void plotFig3_Rho00EnergyTheory()
   TF1 *f_rho00_Laxis = new TF1("f_rho00_Laxis",rho00_theory,1,201,2);
   f_rho00_Laxis->SetParameter(0,1000.0);
   f_rho00_Laxis->FixParameter(1,ms);
-  f_rho00_Laxis->SetLineColor(kRed);
-  f_rho00_Laxis->SetLineStyle(kDashed);
-  f_rho00_Laxis->SetLineWidth(4);
   f_rho00_Laxis->SetRange(19.0,200.0);
   g_rho_2nd_fit_Laxis->Fit(f_rho00_Laxis,"MNR");
-  f_rho00_Laxis->SetRange(19.0,3000.0);
-  f_rho00_Laxis->Draw("l same");
   double chi2_Laxis = f_rho00_Laxis->GetChisquare();
   int ndf_Laxis = f_rho00_Laxis->GetNDF();
   double chi2_ndf_Laxis = chi2_Laxis/(double)ndf_Laxis;
@@ -164,6 +159,19 @@ void plotFig3_Rho00EnergyTheory()
   cout << "ndf for Laxis: " << ndf_Laxis << endl;
   cout << "chi2/ndf for Laxis: " << chi2_ndf_Laxis  << ", p_Laxis: " << p_Laxis << endl;
   cout << "C^{y}_{s} = " << f_rho00_Laxis->GetParameter(0) << " +/- " << f_rho00_Laxis->GetParError(0) << endl;
+
+  f_rho00_Laxis->SetLineColor(kRed);
+  f_rho00_Laxis->SetLineStyle(1);
+  f_rho00_Laxis->SetLineWidth(4);
+  f_rho00_Laxis->Draw("l same");
+
+  TF1 *f_rho00_plot = new TF1("f_rho00_plot",rho00_theory,1,4000,2);
+  f_rho00_plot->FixParameter(0,f_rho00_Laxis->GetParameter(0));
+  f_rho00_plot->FixParameter(1,ms);
+  f_rho00_plot->SetLineStyle(2);
+  f_rho00_plot->SetLineWidth(4);
+  f_rho00_plot->SetRange(200.0,3000.0);
+  f_rho00_plot->Draw("l same");
 
   // plot Legend
   plotTopLegend((char*)"Au+Au 20-60%",0.25,0.85,size_font+0.01,1,0.0,42,1);

@@ -110,6 +110,7 @@ void plotFig5_Rho00Energy()
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,size_marker);
   plotSysErrors(g_rhoKstar_ALICE_sys,color_Kstr_ALICE);
 
+  // plot legend
   plotTopLegend((char*)"Au+Au 20-60%",0.25,0.85,size_font+0.01,1,0.0,42,1);
   plotTopLegend((char*)"Pb+Pb 10-50%",0.65,0.85,size_font+0.01,1,0.0,42,1);
   // plotTopLegend((char*)"ALICE (Ref)",0.65,0.85,size_font+0.01,1,0.0,42,1);
