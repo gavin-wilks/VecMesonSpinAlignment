@@ -129,65 +129,17 @@ void plotFig5_Rho00EnergyPhiOnly()
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Xaxis,33,9,size_marker+0.4);
   plotSysErrors(g_rhoPhi_2nd_sys_Xaxis,9);
 
-  /*
-  // plot theory curve
-  double scurrent[3] = {400.0,600.0,1000.0};
-  double ms = 450.0;
-  int Style[3] = {kDashed,kDotted,kSolid};
-  int Color[3] = {kBlue,kMagenta,kRed};
-  TF1 *f_rho00_Laxis = new TF1("f_rho00_Laxis",rho00_theory,1,201,2);
-  f_rho00_Laxis->SetParameter(0,1000.0);
-  f_rho00_Laxis->FixParameter(1,ms);
-  f_rho00_Laxis->SetLineColor(kRed);
-  f_rho00_Laxis->SetLineStyle(kDashed);
-  f_rho00_Laxis->SetLineWidth(4);
-  f_rho00_Laxis->SetRange(19.0,200.0);
-  g_rhoPhi_2nd_fit_Laxis->Fit(f_rho00_Laxis,"MNR");
-  f_rho00_Laxis->Draw("l same");
-  double chi2_Laxis = f_rho00_Laxis->GetChisquare();
-  int ndf_Laxis = f_rho00_Laxis->GetNDF();
-  double chi2_ndf_Laxis = chi2_Laxis/(double)ndf_Laxis;
-  double p_Laxis = TMath::Prob(chi2_Laxis,ndf_Laxis);
-  cout << "chi2 for Laxis: " << chi2_Laxis << endl;
-  cout << "ndf for Laxis: " << ndf_Laxis << endl;
-  cout << "chi2/ndf for Laxis: " << chi2_ndf_Laxis  << ", p_Laxis: " << p_Laxis << endl;
-  cout << "C^{y}_{s} = " << f_rho00_Laxis->GetParameter(0) << " +/- " << f_rho00_Laxis->GetParError(0) << endl;
+  Draw_TGAE_Point_new_Symbol(23,0.41,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
+  plotTopLegend((char*)"#phi (1^{st}-order EP & Out-of-Plane)",25,0.4085,size_font,1,0.0,42,0);
 
-  TF1 *f_rho00_Xaxis = new TF1("f_rho00_Xaxis",rho00_theory,1,201,2);
-  f_rho00_Xaxis->SetParameter(0,200.0);
-  f_rho00_Xaxis->FixParameter(1,ms);
-  f_rho00_Xaxis->SetLineColor(kBlue);
-  f_rho00_Xaxis->SetLineStyle(kDashed);
-  f_rho00_Xaxis->SetLineWidth(4);
-  f_rho00_Xaxis->SetRange(19.0,200.0);
-  g_rhoPhi_2nd_fit_Xaxis->Fit(f_rho00_Xaxis,"MNR");
-  f_rho00_Xaxis->Draw("l same");
-  double chi2_Xaxis = f_rho00_Xaxis->GetChisquare();
-  int ndf_Xaxis = f_rho00_Xaxis->GetNDF();
-  double chi2_ndf_Xaxis = chi2_Xaxis/(double)ndf_Xaxis;
-  double p_Xaxis = TMath::Prob(chi2_Xaxis,ndf_Xaxis);
-  cout << "chi2 for Xaxis: " << chi2_Xaxis << endl;
-  cout << "ndf for Xaxis: " << ndf_Xaxis << endl;
-  cout << "chi2/ndf for Xaxis: " << chi2_ndf_Xaxis << ", p_Xaxis: " << p_Xaxis << endl;
-  cout << "C^{y}_{s} = " << f_rho00_Xaxis->GetParameter(0) << " +/- " << f_rho00_Xaxis->GetParError(0) << endl;
-  */
+  Draw_TGAE_Point_new_Symbol(23,0.40,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotTopLegend((char*)"#phi (2^{nd}-order EP & Out-of-Plane)",25,0.3985,size_font,1,0.0,42,0);
 
-  // plot legend
-  // plotTopLegend((char*)"Au+Au 20-60\%",13,0.392,size_font,1,0.0,42,0);
-  // plotTopLegend((char*)"1.2 < p_{T}< 5.4 GeV/c",37,0.392,size_font,1,0.0,42,0);
-  // plotTopLegend((char*)"|y| < 1",140,0.392,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(23,0.39,0.0,0.0,0.0,0.0,33,9,size_marker+0.4);
+  plotTopLegend((char*)"#phi (2^{nd}-order EP & In-Plane)",25,0.3885,size_font,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(27,0.41,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotTopLegend((char*)"Out-of-Plane (1^{st}-order EP)",30,0.4085,size_font,1,0.0,42,0);
-
-  Draw_TGAE_Point_new_Symbol(27,0.40,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotTopLegend((char*)"Out-of-Plane (2^{nd}-order EP)",30,0.3985,size_font,1,0.0,42,0);
-
-  Draw_TGAE_Point_new_Symbol(27,0.39,0.0,0.0,0.0,0.0,33,9,size_marker+0.4);
-  plotTopLegend((char*)"In-Plane (2^{nd}-order EP)",30,0.3885,size_font,1,0.0,42,0);
-
-  plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1)",30,0.315,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"#phi-meson (1.2 < p_{T}< 5.4 GeV/c)",26,0.308,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"Au+Au 20-60%",35,0.315,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"|y| < 1 & 1.2 < p_{T}< 5.4 GeV/c",26,0.308,size_font,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.eps");
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.png");
