@@ -12,7 +12,7 @@ void makeData_rho00CentKstar()
   {
     g_rhoCent_stat_39GeV->SetPoint(i_cent,kstar_Centrality_39[i_cent],kstar_rho00_Cent_39[i_cent]);
     g_rhoCent_stat_39GeV->SetPointError(i_cent,0.0,0.0,kstar_rho00_Cent_39_stat[i_cent],kstar_rho00_Cent_39_stat[i_cent]);
-    g_rhoCent_sys_39GeV->SetPoint(i_cent,kstar_Centrality_39[i_cent],kstar_rho00_Cent_39_stat[i_cent]);
+    g_rhoCent_sys_39GeV->SetPoint(i_cent,kstar_Centrality_39[i_cent],kstar_rho00_Cent_39[i_cent]);
     g_rhoCent_sys_39GeV->SetPointError(i_cent,0.0,0.0,kstar_rho00_Cent_39_syst[i_cent],kstar_rho00_Cent_39_syst[i_cent]);
   }
 
@@ -25,7 +25,7 @@ void makeData_rho00CentKstar()
   {
     g_rhoCent_stat_54GeV->SetPoint(i_cent,kstar_Centrality_54[i_cent],kstar_rho00_Cent_54[i_cent]);
     g_rhoCent_stat_54GeV->SetPointError(i_cent,0.0,0.0,kstar_rho00_Cent_54_stat[i_cent],kstar_rho00_Cent_54_stat[i_cent]);
-    g_rhoCent_sys_54GeV->SetPoint(i_cent,kstar_Centrality_54[i_cent],kstar_rho00_Cent_54_stat[i_cent]);
+    g_rhoCent_sys_54GeV->SetPoint(i_cent,kstar_Centrality_54[i_cent],kstar_rho00_Cent_54[i_cent]);
     g_rhoCent_sys_54GeV->SetPointError(i_cent,0.0,0.0,kstar_rho00_Cent_54_syst[i_cent],kstar_rho00_Cent_54_syst[i_cent]);
   }
 
@@ -38,7 +38,7 @@ void makeData_rho00CentKstar()
   {
     g_rhoCent_stat_200GeV->SetPoint(i_cent,kstar_Centrality_200[i_cent],kstar_rho00_Cent_200[i_cent]);
     g_rhoCent_stat_200GeV->SetPointError(i_cent,0.0,0.0,kstar_rho00_Cent_200_stat[i_cent],kstar_rho00_Cent_200_stat[i_cent]);
-    g_rhoCent_sys_200GeV->SetPoint(i_cent,kstar_Centrality_200[i_cent],kstar_rho00_Cent_200_stat[i_cent]);
+    g_rhoCent_sys_200GeV->SetPoint(i_cent,kstar_Centrality_200[i_cent],kstar_rho00_Cent_200[i_cent]);
     g_rhoCent_sys_200GeV->SetPointError(i_cent,0.0,0.0,kstar_rho00_Cent_200_syst[i_cent],kstar_rho00_Cent_200_syst[i_cent]);
   }
 

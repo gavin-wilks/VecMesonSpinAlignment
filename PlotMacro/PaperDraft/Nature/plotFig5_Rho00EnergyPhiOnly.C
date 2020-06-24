@@ -13,6 +13,26 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
+double rho00_theory(double *x_var, double *par)
+{
+  double s12 = x_var[0];
+  double scurrent = par[0]; // strangeness current
+  double ms = par[1]; // mass of s-quark MeV
+
+  double mphi = 1020.0; // MeV
+  double c1 = 300.0/(pow(200.0,1.0/3.0) * pow((-0.4+0.39*log(200.0*200.0)),1.0/3.0)); // 300.0/Teff[200.0]
+  double gphi = 2.0*sqrt(2.0); // included in scurrent
+
+  double Teff = pow(s12,1.0/3.0) * pow((-0.4+0.39*log(s12*s12)),1.0/3.0);
+
+  double denom_phifield = 27.0*pow(ms,4.0)*pow(mphi,4.0)*pow(c1,2.0)*pow(Teff,2.0);
+  double numer_phifield = scurrent*pow(197.0,8.0)*1.8*1.0e+5; // <p^2>_phi = 0.18 GeV^2
+
+  double rho00 = 1.0/3.0 + numer_phifield/denom_phifield;
+
+  return rho00;
+}
+
 void plotFig5_Rho00EnergyPhiOnly()
 {
   gStyle->SetOptDate(0);
@@ -22,13 +42,49 @@ void plotFig5_Rho00EnergyPhiOnly()
   const int color_phi_2nd = kRed;
 
   const float size_marker = 1.4;
-  const float size_font = 0.03;
+  const float size_font = 0.04;
 
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
-  TGraphAsymmErrors *g_rhoPhi_1st_stat = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_1stEP_energy_stat");
-  TGraphAsymmErrors *g_rhoPhi_1st_sys  = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_1stEP_energy_sys");
-  TGraphAsymmErrors *g_rhoPhi_2nd_stat = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_stat");
-  TGraphAsymmErrors *g_rhoPhi_2nd_sys  = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_sys");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
+  TGraphAsymmErrors *g_rhoPhi_1st_stat_Laxis = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_stat");
+  TGraphAsymmErrors *g_rhoPhi_1st_sys_Laxis  = (TGraphAsymmErrors*)File_Input->Get("rho00_1stEP_energy_sys");
+  TGraphAsymmErrors *g_rhoPhi_2nd_stat_Laxis = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_stat");
+  TGraphAsymmErrors *g_rhoPhi_2nd_sys_Laxis  = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_sys");
+  TGraphAsymmErrors *g_rhoPhi_2nd_fit_Laxis  = new TGraphAsymmErrors();
+  for(int i_energy = 0; i_energy < g_rhoPhi_2nd_stat_Laxis->GetN(); ++i_energy) // combine stat & sys for fit
+  {
+    double energy, rho;
+    g_rhoPhi_2nd_stat_Laxis->GetPoint(i_energy,energy,rho);
+    double err_stat = g_rhoPhi_2nd_stat_Laxis->GetErrorYhigh(i_energy);
+    double err_sys = g_rhoPhi_2nd_sys_Laxis->GetErrorYhigh(i_energy);
+    double err_fit = TMath::Sqrt(err_stat*err_stat+err_sys*err_sys);
+
+    g_rhoPhi_2nd_fit_Laxis->SetPoint(i_energy,energy,rho);
+    g_rhoPhi_2nd_fit_Laxis->SetPointError(i_energy,0.0,0.0,err_fit,err_fit);
+  }
+
+  TFile *File_Input_EP = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Xaxis.root");
+  TGraphAsymmErrors *g_rhoPhi_2nd_stat_Xaxis_temp = (TGraphAsymmErrors*)File_Input_EP->Get("rho00_2ndEP_energy_stat");
+  TGraphAsymmErrors *g_rhoPhi_2nd_sys_Xaxis_temp  = (TGraphAsymmErrors*)File_Input_EP->Get("rho00_2ndEP_energy_sys");
+  TGraphAsymmErrors *g_rhoPhi_2nd_stat_Xaxis      = new TGraphAsymmErrors();
+  TGraphAsymmErrors *g_rhoPhi_2nd_sys_Xaxis       = new TGraphAsymmErrors();
+  TGraphAsymmErrors *g_rhoPhi_2nd_fit_Xaxis       = new TGraphAsymmErrors();
+  for(int i_energy = 0; i_energy < g_rhoPhi_2nd_stat_Xaxis_temp->GetN(); ++i_energy) // combine stat & sys for fit
+  {
+    double energy, rho;
+    g_rhoPhi_2nd_stat_Xaxis_temp->GetPoint(i_energy,energy,rho);
+    double err_stat = g_rhoPhi_2nd_stat_Xaxis_temp->GetErrorYhigh(i_energy);
+    double err_sys  = g_rhoPhi_2nd_sys_Xaxis_temp->GetErrorYhigh(i_energy);
+    double err_fit  = TMath::Sqrt(err_stat*err_stat+err_sys*err_sys);
+
+    g_rhoPhi_2nd_stat_Xaxis->SetPoint(i_energy,energy*0.95,rho);
+    g_rhoPhi_2nd_stat_Xaxis->SetPointError(i_energy,0.0,0.0,err_stat,err_stat);
+
+    g_rhoPhi_2nd_sys_Xaxis->SetPoint(i_energy,energy*0.95,rho);
+    g_rhoPhi_2nd_sys_Xaxis->SetPointError(i_energy,0.0,0.0,err_sys,err_sys);
+
+    g_rhoPhi_2nd_fit_Xaxis->SetPoint(i_energy,energy,rho);
+    g_rhoPhi_2nd_fit_Xaxis->SetPointError(i_energy,0.0,0.0,err_fit,err_fit);
+  }
 
   TH1F *h_frame = new TH1F("h_frame","h_frame",1000,0,1000);
   for(int i_bin = 0; i_bin < 1000; ++i_bin)
@@ -53,7 +109,7 @@ void plotFig5_Rho00EnergyPhiOnly()
   h_frame->GetXaxis()->SetTitleOffset(1.1);
   h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.301,0.40);
+  h_frame->GetYaxis()->SetRangeUser(0.301,0.42);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
   // h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
   h_frame->GetYaxis()->SetTitle("#rho_{00}");
@@ -64,87 +120,74 @@ void plotFig5_Rho00EnergyPhiOnly()
   h_frame->DrawCopy("pE");
   PlotLine(9.0,240.0,1.0/3.0,1.0/3.0,1,3,2);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_1st_stat,style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotSysErrors(g_rhoPhi_1st_sys,color_phi_1st);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_1st_stat_Laxis,style_phi_1st,color_phi_1st,size_marker-0.2);
+  plotSysErrors(g_rhoPhi_1st_sys_Laxis,color_phi_1st);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhi_2nd_sys,color_phi_2nd);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Xaxis,33,9,size_marker+0.4);
+  plotSysErrors(g_rhoPhi_2nd_sys_Xaxis,9);
+
+  /*
+  // plot theory curve
+  double scurrent[3] = {400.0,600.0,1000.0};
+  double ms = 450.0;
+  int Style[3] = {kDashed,kDotted,kSolid};
+  int Color[3] = {kBlue,kMagenta,kRed};
+  TF1 *f_rho00_Laxis = new TF1("f_rho00_Laxis",rho00_theory,1,201,2);
+  f_rho00_Laxis->SetParameter(0,1000.0);
+  f_rho00_Laxis->FixParameter(1,ms);
+  f_rho00_Laxis->SetLineColor(kRed);
+  f_rho00_Laxis->SetLineStyle(kDashed);
+  f_rho00_Laxis->SetLineWidth(4);
+  f_rho00_Laxis->SetRange(19.0,200.0);
+  g_rhoPhi_2nd_fit_Laxis->Fit(f_rho00_Laxis,"MNR");
+  f_rho00_Laxis->Draw("l same");
+  double chi2_Laxis = f_rho00_Laxis->GetChisquare();
+  int ndf_Laxis = f_rho00_Laxis->GetNDF();
+  double chi2_ndf_Laxis = chi2_Laxis/(double)ndf_Laxis;
+  double p_Laxis = TMath::Prob(chi2_Laxis,ndf_Laxis);
+  cout << "chi2 for Laxis: " << chi2_Laxis << endl;
+  cout << "ndf for Laxis: " << ndf_Laxis << endl;
+  cout << "chi2/ndf for Laxis: " << chi2_ndf_Laxis  << ", p_Laxis: " << p_Laxis << endl;
+  cout << "C^{y}_{s} = " << f_rho00_Laxis->GetParameter(0) << " +/- " << f_rho00_Laxis->GetParError(0) << endl;
+
+  TF1 *f_rho00_Xaxis = new TF1("f_rho00_Xaxis",rho00_theory,1,201,2);
+  f_rho00_Xaxis->SetParameter(0,200.0);
+  f_rho00_Xaxis->FixParameter(1,ms);
+  f_rho00_Xaxis->SetLineColor(kBlue);
+  f_rho00_Xaxis->SetLineStyle(kDashed);
+  f_rho00_Xaxis->SetLineWidth(4);
+  f_rho00_Xaxis->SetRange(19.0,200.0);
+  g_rhoPhi_2nd_fit_Xaxis->Fit(f_rho00_Xaxis,"MNR");
+  f_rho00_Xaxis->Draw("l same");
+  double chi2_Xaxis = f_rho00_Xaxis->GetChisquare();
+  int ndf_Xaxis = f_rho00_Xaxis->GetNDF();
+  double chi2_ndf_Xaxis = chi2_Xaxis/(double)ndf_Xaxis;
+  double p_Xaxis = TMath::Prob(chi2_Xaxis,ndf_Xaxis);
+  cout << "chi2 for Xaxis: " << chi2_Xaxis << endl;
+  cout << "ndf for Xaxis: " << ndf_Xaxis << endl;
+  cout << "chi2/ndf for Xaxis: " << chi2_ndf_Xaxis << ", p_Xaxis: " << p_Xaxis << endl;
+  cout << "C^{y}_{s} = " << f_rho00_Xaxis->GetParameter(0) << " +/- " << f_rho00_Xaxis->GetParError(0) << endl;
+  */
 
   // plot legend
-  Draw_TGAE_Point_new_Symbol(80,0.39,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotTopLegend((char*)"1^{st}-order EP",90,0.3885,0.04,1,0.0,42,0);
+  // plotTopLegend((char*)"Au+Au 20-60\%",13,0.392,size_font,1,0.0,42,0);
+  // plotTopLegend((char*)"1.2 < p_{T}< 5.4 GeV/c",37,0.392,size_font,1,0.0,42,0);
+  // plotTopLegend((char*)"|y| < 1",140,0.392,size_font,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(80,0.38,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotTopLegend((char*)"2^{nd}-order EP",90,0.3785,0.04,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(27,0.41,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
+  plotTopLegend((char*)"Out-of-Plane (1^{st}-order EP)",30,0.4085,size_font,1,0.0,42,0);
 
-  plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1)",0.45,0.30,0.04,1,0.0,42,1);
-  plotTopLegend((char*)"#phi-meson (1.2 < p_{T}< 5.4 GeV/c)",0.4,0.25,0.04,1,0.0,42,1);
+  Draw_TGAE_Point_new_Symbol(27,0.40,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotTopLegend((char*)"Out-of-Plane (2^{nd}-order EP)",30,0.3985,size_font,1,0.0,42,0);
 
-#if 0
-  //-----------plot mean rho_00------------------
-  TFile *File_Input_mean = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/rho00_mean_BES.root");
-  TGraphAsymmErrors *g_mean_rho_1st_stat = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_1stEP_mean_stat");
-  TGraphAsymmErrors *g_mean_rho_1st_sys  = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_1stEP_mean_sys");
-  TGraphAsymmErrors *g_mean_rho_2nd_stat = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_2ndEP_mean_stat");
-  TGraphAsymmErrors *g_mean_rho_2nd_sys  = (TGraphAsymmErrors*)File_Input_mean->Get("rho00_2ndEP_mean_sys");
-  if(isPlotMean)
-  {
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mean_rho_1st_stat,24,kAzure+2,1.4);
-    for(int i_energy = 0; i_energy < 1; ++i_energy) // plot sys errors
-    {
-      double energy, rho;
-      g_mean_rho_1st_sys->GetPoint(i_energy,energy,rho);
-      double err = g_mean_rho_1st_sys->GetErrorYhigh(i_energy);
+  Draw_TGAE_Point_new_Symbol(27,0.39,0.0,0.0,0.0,0.0,33,9,size_marker+0.4);
+  plotTopLegend((char*)"In-Plane (2^{nd}-order EP)",30,0.3885,size_font,1,0.0,42,0);
 
-      PlotLine(energy*0.95,energy*1.05,rho+err,rho+err,kAzure+2,2,1);
-      PlotLine(energy*0.95,energy*0.95,rho+err-0.001,rho+err,kAzure+2,2,1);
-      PlotLine(energy*1.05,energy*1.05,rho+err-0.001,rho+err,kAzure+2,2,1);
-      PlotLine(energy*0.95,energy*1.05,rho-err,rho-err,kAzure+2,2,1);
-      PlotLine(energy*0.95,energy*0.95,rho-err+0.001,rho-err,kAzure+2,2,1);
-      PlotLine(energy*1.05,energy*1.05,rho-err+0.001,rho-err,kAzure+2,2,1);
-    }
-
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mean_rho_2nd_stat,30,kRed,1.8);
-    for(int i_energy = 0; i_energy < 1; ++i_energy) // plot sys errors
-    {
-      double energy, rho;
-      g_mean_rho_2nd_sys->GetPoint(i_energy,energy,rho);
-      double err = g_mean_rho_2nd_sys->GetErrorYhigh(i_energy);
-
-      PlotLine(energy*0.95,energy*1.05,rho+err,rho+err,kRed,2,1);
-      PlotLine(energy*0.95,energy*0.95,rho+err-0.001,rho+err,kRed,2,1);
-      PlotLine(energy*1.05,energy*1.05,rho+err-0.001,rho+err,kRed,2,1);
-      PlotLine(energy*0.95,energy*1.05,rho-err,rho-err,kRed,2,1);
-      PlotLine(energy*0.95,energy*0.95,rho-err+0.001,rho-err,kRed,2,1);
-      PlotLine(energy*1.05,energy*1.05,rho-err+0.001,rho-err,kRed,2,1);
-    }
-
-  }
-
-  //-----------plot mean rho_00------------------
-
-  //-----------plot theory rho_00------------------
-  TFile *File_Input_Theory = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Theory.root");
-  TGraph *g_Theory_120 = (TGraph*)File_Input_Theory->Get("g_Theory_120");
-  TGraph *g_Theory_128 = (TGraph*)File_Input_Theory->Get("g_Theory_128");
-  TGraph *g_Theory_136 = (TGraph*)File_Input_Theory->Get("g_Theory_136");
-
-  g_Theory_136->SetLineColor(2);
-  g_Theory_136->SetLineStyle(1);
-  g_Theory_136->SetLineWidth(4);
-  g_Theory_136->Draw("l Same");
-
-  g_Theory_128->SetLineColor(6);
-  g_Theory_128->SetLineStyle(3);
-  g_Theory_128->SetLineWidth(4);
-  g_Theory_128->Draw("l Same");
-
-  g_Theory_120->SetLineColor(4);
-  g_Theory_120->SetLineStyle(9);
-  g_Theory_120->SetLineWidth(4);
-  g_Theory_120->Draw("l Same");
-  //-----------plot theory rho_00------------------
-#endif
+  plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1)",30,0.315,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"#phi-meson (1.2 < p_{T}< 5.4 GeV/c)",26,0.308,size_font,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.eps");
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.png");
