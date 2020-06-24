@@ -124,7 +124,7 @@ void plotFig3_Rho00EnergyTheory()
   h_frame->GetYaxis()->SetLabelSize(0.04);
   h_frame->GetYaxis()->CenterTitle();
   h_frame->DrawCopy("pE");
-  PlotLine(7.0,4796.0,1.0/3.0,1.0/3.0,1,3,2);
+  PlotLine(7.0,4996.0,1.0/3.0,1.0/3.0,1,2,2);
 
   // phi-meson STAR
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
