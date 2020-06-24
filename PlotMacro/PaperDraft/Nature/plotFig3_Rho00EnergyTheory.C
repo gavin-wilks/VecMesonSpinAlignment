@@ -107,7 +107,7 @@ void plotFig3_Rho00EnergyTheory()
   c_rho00->cd()->SetLogx();
   h_frame->SetTitle("");
   h_frame->SetStats(0);
-  h_frame->GetXaxis()->SetRangeUser(8.0,4096.0);
+  h_frame->GetXaxis()->SetRangeUser(7.0,4996.0);
   h_frame->GetXaxis()->SetNdivisions(505,'N');
   h_frame->GetXaxis()->SetLabelSize(0.04);
   h_frame->GetXaxis()->SetTitle("#sqrt{s_{NN}}  (GeV)");
@@ -124,7 +124,7 @@ void plotFig3_Rho00EnergyTheory()
   h_frame->GetYaxis()->SetLabelSize(0.04);
   h_frame->GetYaxis()->CenterTitle();
   h_frame->DrawCopy("pE");
-  PlotLine(8.0,4096.0,1.0/3.0,1.0/3.0,1,3,2);
+  PlotLine(7.0,4796.0,1.0/3.0,1.0/3.0,1,3,2);
 
   // phi-meson STAR
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
@@ -174,16 +174,18 @@ void plotFig3_Rho00EnergyTheory()
   f_rho00_plot->Draw("l same");
 
   // plot Legend
-  plotTopLegend((char*)"Au+Au 20-60%",0.25,0.85,size_font+0.01,1,0.0,42,1);
-  plotTopLegend((char*)"Pb+Pb 10-50%",0.65,0.85,size_font+0.01,1,0.0,42,1);
+  plotTopLegend((char*)"Au+Au",0.34,0.85,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
   // plotTopLegend((char*)"ALICE (Ref)",0.65,0.85,size_font+0.01,1,0.0,42,1);
 
-  Draw_TGAE_Point_new_Symbol(60,0.20,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",85,0.1965,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(52,0.20,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",75,0.1965,size_font,1,0.0,42,0);
   // plotTopLegend((char*)"#phi (2^{nd}-Order EP)",40,0.2165,size_font,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(60,0.18,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
-  plotTopLegend((char*)"K^{*0} (|y| < 0.5 & 1.0 < p_{T} < 1.5 GeV/c)",85,0.1765,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(52,0.18,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
+  plotTopLegend((char*)"K^{*0} (|y| < 0.5 & 1.0 < p_{T} < 1.5 GeV/c)",75,0.1765,size_font,1,0.0,42,0);
   // plotTopLegend((char*)"K^{*0} (2^{nd}-Order EP)",550,0.2165,size_font,1,0.0,42,0);
 
   // theory
@@ -191,7 +193,7 @@ void plotFig3_Rho00EnergyTheory()
   string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
   string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
   string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);
-  TLegend *leg = new TLegend(0.35,0.18,0.69,0.23);
+  TLegend *leg = new TLegend(0.335,0.18,0.675,0.23);
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->SetFillStyle(0);
