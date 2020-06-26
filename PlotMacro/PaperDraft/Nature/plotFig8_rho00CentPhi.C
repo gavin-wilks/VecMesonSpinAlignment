@@ -13,7 +13,7 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotFig7_rho00CentPhi(int energy = 4)
+void plotFig8_rho00CentPhi(int energy = 4)
 {
   gStyle->SetOptDate(0);
   const int style_phi_1st = 21;
@@ -95,9 +95,9 @@ void plotFig7_rho00CentPhi(int energy = 4)
   plotTopLegend((char*)leg_energy.c_str(),0.38,0.25,0.04,1,0.0,42,1);
   plotTopLegend((char*)"1.2 < p_{T}< 5.4 GeV/c",0.38,0.20,0.04,1,0.0,42,1);
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig7_rhoCentPhi_%s.eps",mBeamEnergy[energy].c_str());
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig8_rhoCentPhi_%s.eps",mBeamEnergy[energy].c_str());
   c_rho00->SaveAs(FigName.c_str());
-  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig7_rhoCentPhi_%s.png",mBeamEnergy[energy].c_str());
+  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig8_rhoCentPhi_%s.png",mBeamEnergy[energy].c_str());
   c_rho00->SaveAs(FigName.c_str());
 }
 

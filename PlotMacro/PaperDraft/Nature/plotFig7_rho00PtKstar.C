@@ -14,7 +14,7 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotFig6_rho00PtKstar()
+void plotFig7_rho00PtKstar()
 {
   gStyle->SetOptDate(0);
   const int style_Kstr = 20;
@@ -222,8 +222,8 @@ void plotFig6_rho00PtKstar()
     }
   }
 
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig6_rho00PtKstar.eps");
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig6_rho00PtKstar.png");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig7_rho00PtKstar.eps");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig7_rho00PtKstar.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
