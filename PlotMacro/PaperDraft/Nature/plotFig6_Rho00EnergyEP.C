@@ -173,31 +173,25 @@ void plotFig6_Rho00EnergyEP()
   plotTopLegend((char*)"#phi (In-Plane & 2^{nd}-Order EP)",23,0.3885,size_font,1,0.0,42,0);
 
   // theory
-  // string leg_current_Laxis = Form("C^{(y)}_{s} = %1.1f fm^{-8} [*]",f_rho00_Laxis->GetParameter(0));
-  string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8} [*]",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
+  string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
   string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
   string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
   string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);
-  // plotTopLegend((char*)leg_current_Laxis.c_str(),70,0.315,size_font,1,0.0,42,0);
-  // PlotLine(55,68,0.3162,0.3162,kRed,4,kDashed);
 
-  // string leg_current_Xaxis = Form("C^{(y)}_{s} = %1.1f fm^{-8} [*]",f_rho00_Xaxis->GetParameter(0));
-  string leg_current_Xaxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8} [*]",f_rho00_Xaxis->GetParameter(0),f_rho00_Xaxis->GetParError(0));
+  string leg_current_Xaxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Xaxis->GetParameter(0),f_rho00_Xaxis->GetParError(0));
   string leg_chi2_Xaxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Xaxis);
   string leg_p_Xaxis = Form("p-value: %1.3f", p_Xaxis);
   string leg_stat_Xaxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Xaxis,p_Xaxis);
-  // plotTopLegend((char*)leg_current_Xaxis.c_str(),35,0.305,size_font,1,0.0,42,0);
-  // PlotLine(15,28,0.3062,0.3062,kBlue,4,kDashed);
 
-  TLegend *leg = new TLegend(0.5,0.16,0.89,0.33);
+  TLegend *leg = new TLegend(0.45,0.17,0.85,0.32);
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->AddEntry(f_rho00_Laxis,leg_current_Laxis.c_str(),"l");
-  leg->AddEntry((TObject*)0,leg_stat_Laxis.c_str(),"");
+  // leg->AddEntry((TObject*)0,leg_stat_Laxis.c_str(),"");
   // leg->AddEntry((TObject*)0,leg_chi2_Laxis.c_str(),"");
   // leg->AddEntry((TObject*)0,leg_p_Laxis.c_str(),"");
   leg->AddEntry(f_rho00_Xaxis,leg_current_Xaxis.c_str(),"l");
-  leg->AddEntry((TObject*)0,leg_stat_Xaxis.c_str(),"");
+  // leg->AddEntry((TObject*)0,leg_stat_Xaxis.c_str(),"");
   // leg->AddEntry((TObject*)0,leg_chi2_Xaxis.c_str(),"");
   // leg->AddEntry((TObject*)0,leg_p_Xaxis.c_str(),"");
   leg->Draw("same");

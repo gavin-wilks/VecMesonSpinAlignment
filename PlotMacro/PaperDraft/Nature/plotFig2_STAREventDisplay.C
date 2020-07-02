@@ -112,6 +112,9 @@ void Draw_STAR_3D()
     // Like this, geom->SetTopVisible(1);
 
 
+    // TGeoVolume *inner_field_tube       = geom->MakeTube("inner_field_tube",Iron,49.5,52.5,200.0);  // r_min, r_max, dz (half of total length)
+    // TGeoVolume *outer_field_tube       = geom->MakeTube("outer_field_tube",Me_outer_tube,199.5,201.5,200.0);  // r_min, r_max, dz (half of total length)
+    // TGeoVolume *outer_field_cap        = geom->MakeTube("outer_field_cap",Me_outer_cap,199.5,201.5,2.0);  // r_min, r_max, dz (half of total length)
     TGeoVolume *inner_field_tube       = geom->MakeTube("inner_field_tube",Iron,49.5,50.0,200.0);  // r_min, r_max, dz (half of total length)
     TGeoVolume *outer_field_tube       = geom->MakeTube("outer_field_tube",Me_outer_tube,199.5,220.0,200.0);  // r_min, r_max, dz (half of total length)
     TGeoVolume *outer_field_cap        = geom->MakeTube("outer_field_cap",Me_outer_cap,199.5,220.0,2.0);  // r_min, r_max, dz (half of total length)
@@ -195,7 +198,7 @@ void Draw_STAR_3D()
         // TPC_endcaps[r]->SetLineColor(TPC_color); // 28
         TPC_endcaps[r]->SetLineColor(4); // 28
         TPC_endcaps[r]->SetLineWidth(2);
-        TPC_endcaps[r]->DrawClone("ogl");
+        // TPC_endcaps[r]->DrawClone("ogl");
     }
 
     for(Int_t r = 0; r < 1; r++)
@@ -233,8 +236,8 @@ void Draw_STAR_3D()
     BeamLine   ->SetPoint(0,0,0,-750);
     BeamLine   ->SetPoint(1,0,0,750);
     BeamLine   ->SetLineStyle(0);
-    BeamLine   ->SetLineColor(kOrange);
-    BeamLine   ->SetLineWidth(6);
+    BeamLine   ->SetLineColor(kOrange+7);
+    BeamLine   ->SetLineWidth(10);
     BeamLine   ->DrawClone("ogl");
 }
 //----------------------------------------------------------------------------------------
@@ -599,18 +602,25 @@ void plotFig2_STAREventDisplay(Int_t Event, Int_t eBeamTime)
     Int_t track_Kstar_A = 12;
     Int_t track_Kstar_B = 246;
 
+    Int_t track_Kstar_C = 242;
+    Int_t track_Kstar_D = 230;
+
     printf("Loop over tracks \n");
     for(Int_t i_track = 0; i_track < n_tracks; i_track++)
     // for(Int_t i_track = 0; i_track < 30; i_track++)
     {
         Int_t i_pid = h_track_pid->GetBinContent(i_track);
         {
-            pTrack[i_track]             ->SetLineWidth(1);
-            //pTrack[i_track]             ->SetLineColor(color_array_particle_pidC[i_pid]);
-            // pTrack[i_track]             ->SetLineColorAlpha(kGray,0.2);
-            pTrack[i_track]             ->SetLineColorAlpha(1,0.2);
+            pTrack[i_track]->SetLineWidth(1);
+            pTrack[i_track]->SetLineColorAlpha(1,0.2);
+            pTrack_extrapolate[i_track]->SetLineWidth(1);
+            pTrack_extrapolate[i_track]->SetLineColorAlpha(1,0.2);
 
 	    // if(i_pid == 11 || i_pid == 12)
+	    // {
+	    //   cout << "i_track = " << i_track << ", i_pid: " << i_pid <<endl;
+	    // }
+	    // if(i_pid == 9 && i_track > 200 && i_track < 300)
 	    // {
 	    //   cout << "i_track = " << i_track << ", i_pid: " << i_pid <<endl;
 	    // }
@@ -618,56 +628,57 @@ void plotFig2_STAREventDisplay(Int_t Event, Int_t eBeamTime)
 	    // phi candidate
 	    if(i_pid == 11 && i_track == track_sel_A)
 	    {
-	      pTrack[i_track] ->SetLineWidth(20);
-	      pTrack[i_track] ->SetLineColorAlpha(kMagenta,1.0);
+	      pTrack[i_track]->SetLineWidth(20);
+	      pTrack[i_track]->SetLineColorAlpha(kMagenta,1.0);
+	      pTrack_extrapolate[i_track]->SetLineWidth(20);
+	      pTrack_extrapolate[i_track]->SetLineColorAlpha(kMagenta,1.0);
 	    }
 	    if(i_pid == 12 && i_track == track_sel_B)
 	    {
-	      pTrack[i_track] ->SetLineWidth(20);
-	      pTrack[i_track] ->SetLineColorAlpha(kCyan,1.0);
+	      pTrack[i_track]->SetLineWidth(20);
+	      pTrack[i_track]->SetLineColorAlpha(kCyan,1.0);
+	      pTrack_extrapolate[i_track]->SetLineWidth(20);
+	      pTrack_extrapolate[i_track]->SetLineColorAlpha(kCyan,1.0);
 	    }
 
-	    // K* candidate
+	    /*
+	    // K*bar candidate
 	    if(i_pid == 8 && i_track == track_Kstar_A)
-	    {
-	      pTrack[i_track] ->SetLineWidth(20);
-	      pTrack[i_track] ->SetLineColorAlpha(kRed,1.0);
+	    { // pi+
+	      pTrack[i_track]->SetLineWidth(20);
+	      pTrack[i_track]->SetLineColorAlpha(kRed,1.0);
+	      pTrack_extrapolate[i_track]->SetLineWidth(20);
+	      pTrack_extrapolate[i_track]->SetLineColorAlpha(kRed,1.0);
 	    }
 	    if(i_pid == 12 && i_track == track_Kstar_B)
-	    {
-	      pTrack[i_track] ->SetLineWidth(20);
-	      pTrack[i_track] ->SetLineColorAlpha(kCyan,1.0);
+	    { // K-
+	      pTrack[i_track]->SetLineWidth(20);
+	      pTrack[i_track]->SetLineColorAlpha(kCyan,1.0);
+	      pTrack_extrapolate[i_track]->SetLineWidth(20);
+	      pTrack_extrapolate[i_track]->SetLineColorAlpha(kCyan,1.0);
+	    }
+	    */
+
+	    // k* candidate
+	    if(i_pid == 9 && i_track == track_Kstar_C)
+	    { // pi-
+	      pTrack[i_track]->SetLineWidth(20);
+	      pTrack[i_track]->SetLineColorAlpha(kRed,1.0);
+	      pTrack_extrapolate[i_track]->SetLineWidth(20);
+	      pTrack_extrapolate[i_track]->SetLineColorAlpha(kRed,1.0);
+	    }
+	    if(i_pid == 11 && i_track == track_Kstar_D)
+	    // if(i_pid == 11 && i_track > 100)
+	    { // K+
+	      pTrack[i_track]->SetLineWidth(20);
+	      pTrack[i_track]->SetLineColorAlpha(kMagenta,1.0);
+	      pTrack_extrapolate[i_track]->SetLineWidth(20);
+	      pTrack_extrapolate[i_track]->SetLineColorAlpha(kMagenta,1.0);
 	    }
 
             pTrack[i_track]->DrawClone("ogl");
-
-	    // phi extrapolation
-	    if(i_pid == 11 && i_track == track_sel_A)
-	    {
-	      pTrack_extrapolate[i_track] ->SetLineWidth(20);
-	      pTrack_extrapolate[i_track] ->SetLineColorAlpha(kMagenta,1.0);
-	      pTrack_extrapolate[i_track] ->DrawClone("ogl");
-	    }
-	    if(i_pid == 12 && i_track == track_sel_B)
-	    {
-	      pTrack_extrapolate[i_track] ->SetLineWidth(20);
-	      pTrack_extrapolate[i_track] ->SetLineColorAlpha(kCyan,1.0);
-	      pTrack_extrapolate[i_track] ->DrawClone("ogl");
-	    }
-
-	    // KStar extrapolation
-	    if(i_pid == 8 && i_track == track_Kstar_A)
-	    {
-	      pTrack_extrapolate[i_track] ->SetLineWidth(20);
-	      pTrack_extrapolate[i_track] ->SetLineColorAlpha(kRed,1.0);
-	      pTrack_extrapolate[i_track] ->DrawClone("ogl");
-	    }
-	    if(i_pid == 12 && i_track == track_Kstar_B)
-	    {
-	      pTrack_extrapolate[i_track] ->SetLineWidth(20);
-	      pTrack_extrapolate[i_track] ->SetLineColorAlpha(kCyan,1.0);
-	      pTrack_extrapolate[i_track] ->DrawClone("ogl");
-	    }
+	    // if(i_track == track_sel_A || i_track == track_sel_B || i_track == track_Kstar_A || i_track == track_Kstar_B) pTrack_extrapolate[i_track] ->DrawClone("ogl");
+	    if(i_track == track_sel_A || i_track == track_sel_B || i_track == track_Kstar_C || i_track == track_Kstar_D) pTrack_extrapolate[i_track] ->DrawClone("ogl");
 
             Float_t x,y,z;
             pTowerHit[i_track]->GetPosition(x,y,z);
@@ -699,7 +710,8 @@ void plotFig2_STAREventDisplay(Int_t Event, Int_t eBeamTime)
             pTofHit[i_track]->SetFillColor(kAzure+3);
             pTofHit[i_track]->SetLineColor(kAzure+3);
 
-
+	    // ToF Matching
+	    // phi candidate
             if(i_pid == 11 && i_track == track_sel_A)
             {
                 pTofHit[i_track]->SetFillColor(kMagenta);
@@ -713,6 +725,8 @@ void plotFig2_STAREventDisplay(Int_t Event, Int_t eBeamTime)
                 pTofHit[i_track]->SetSize(4.0,4.0,4.0);
             }
 
+	    /*
+	    // K*bar candidate
             if(i_pid == 8 && i_track == track_Kstar_A)
             {
                 pTofHit[i_track]->SetFillColor(kRed);
@@ -723,6 +737,21 @@ void plotFig2_STAREventDisplay(Int_t Event, Int_t eBeamTime)
             {
                 pTofHit[i_track]->SetFillColor(kCyan);
                 pTofHit[i_track]->SetLineColor(kCyan);
+                pTofHit[i_track]->SetSize(4.0,4.0,4.0);
+            }
+	    */
+
+	    // K* candidate
+            if(i_pid == 9 && i_track == track_Kstar_C)
+            {
+                pTofHit[i_track]->SetFillColor(kRed);
+                pTofHit[i_track]->SetLineColor(kRed);
+                pTofHit[i_track]->SetSize(4.0,4.0,4.0);
+            }
+            if(i_pid == 11 && i_track == track_Kstar_D)
+            {
+                pTofHit[i_track]->SetFillColor(kMagenta);
+                pTofHit[i_track]->SetLineColor(kMagenta);
                 pTofHit[i_track]->SetSize(4.0,4.0,4.0);
             }
 
