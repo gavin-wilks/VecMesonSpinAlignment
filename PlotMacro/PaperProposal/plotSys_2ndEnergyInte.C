@@ -14,61 +14,54 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotSys_Inte_EP(int energy = 2)
+void plotSys_2ndEnergyInte()
 {
-  const string mBeamEnergy[6] = {"11.5 GeV","19.6 GeV","27 GeV","39 GeV","62.4 GeV","200 GeV"};
-  const int mEnergy[6] = {11,19,27,39,62,200};
   const int mColor[3] = {1,4,6};
   const int mStyle[4] = {24,25,26,32};
   const string mMode[4] = {"Sigma_2_Inte","Sigma_0_Count","Sigma_1_Count","Sigma_2_Count"};
-  const float pt_shift[3] = {-0.1,0.1,0.2};
+  const double pt_shift[3] = {-0.1,0.1,0.2};
 
   const int dca_default = 0;
-  const float dca_center = 0.5;
+  const double dca_center = 0.5;
 
   const int sig_default = 1;
-  const float sig_center = 1.5;
+  const double sig_center = 1.5;
 
   const int norm_default = 0;
-  const float norm_center = 2.5;
+  const double norm_center = 2.5;
 
   const int eff_default = 0;
-  const float eff_center = 3.5;
+  const double eff_center = 3.5;
 
-  const float total_center = 4.5;
+  const double total_center = 4.5;
   // const int mode_default = 0;
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_EP.root",mEnergy[energy]);
-  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean_EP.root",mEnergy[energy]);
+  string inputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_2ndEnergyInte.root";
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
   //==============================================================
   //--------------------------------------------------------------
   // get default value
-  // const string HistName_Default = "EP_2_eff_0_Dca_0_Sig_1_Phi_Norm_0_Sigma_2_Inte";
-  const string HistName_Default = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_Sigma_2_Inte",eff_default,dca_default,sig_default,norm_default);
-  TH1F *h_rho_default = (TH1F*)File_InPut->Get(HistName_Default.c_str());
-  h_rho_default->SetMarkerColor(2);
-  h_rho_default->SetMarkerStyle(29);
-  h_rho_default->SetMarkerSize(2.0);
-  cout << "Default Histogram set to: " << HistName_Default.c_str() << endl;
+  // const string GraphName_Default = "EP_2_eff_0_Dca_0_Sig_1_Phi_Norm_0_Sigma_2_Inte";
+  const string GraphName_Default = Form("g_EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_Sigma_2_Inte",eff_default,dca_default,sig_default,norm_default);
+  TGraphAsymmErrors *g_rho_default = (TGraphAsymmErrors*)File_InPut->Get(GraphName_Default.c_str());
+  cout << "Default Graph set to: " << GraphName_Default.c_str() << endl;
 
-  float rho_def = 0.0;
+  double rho_def = 0.0;
   TGraphAsymmErrors *g_rhoDef_Dca = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_rhoDef_Sig = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_rhoDef_Norm = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_rhoDef_Eff = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_rhoDef_Total = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_rhoSys_Total = new TGraphAsymmErrors();
-  for(int i_point = 0; i_point < 1; ++i_point) // 1st point is pT-integrated value
+  for(int i_point = 0; i_point < 1; ++i_point)
   {
-    float pt = h_rho_default->GetBinCenter(i_point+1);
-    float rho = h_rho_default->GetBinContent(i_point+1);
-    rho_def = h_rho_default->GetBinContent(i_point+1);
-    float err = h_rho_default->GetBinError(i_point+1);
-    // float width = h_rho_default->GetBinWidth(i_point+1)/2.0;
-    float width = 0.0;
+    double pt, rho;
+    g_rho_default->GetPoint(i_point,pt,rho);
+    g_rho_default->GetPoint(i_point,pt,rho_def);
+    double err = g_rho_default->GetErrorYhigh(i_point);
+    double width = 0.0;
 
     g_rhoDef_Dca->SetPoint(i_point,dca_center,rho);
     g_rhoDef_Dca->SetPointError(i_point,width,width,err,err);
@@ -110,35 +103,28 @@ void plotSys_Inte_EP(int energy = 2)
 
   //--------------------------------------------------------------
   // dca sysmatic value
-  float rho_max_dca = rho_def;
-  float rho_min_dca = rho_def;
-  float rho_tmp_dca = 0.0;
-  TH1F *h_rhoSys_Dca[3][4]; // 0 for different Dca | 1 for different yields extraction
+  double rho_max_dca = rho_def;
+  double rho_min_dca = rho_def;
+  double rho_tmp_dca = 0.0;
   TGraphAsymmErrors *g_rhoSys_Dca[3][4];
   for(int i_dca = 0; i_dca < 3; ++i_dca)
   {
     if(i_dca == dca_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      // string HistName = Form("EP_2_eff_0_Dca_%d_Sig_1_Phi_Norm_0_%s",i_dca,mMode[i_mode].c_str());
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,i_dca,sig_default,norm_default,mMode[i_mode].c_str());
-      cout << "Read in Systematic Contribution from DCA Cut: " << HistName.c_str() << endl;
-      h_rhoSys_Dca[i_dca][i_mode] = (TH1F*)File_InPut->Get(HistName.c_str());
-      // h_rhoSys_Dca[i_dca][i_mode]->SetMarkerColor(mColor[i_dca]);
-      h_rhoSys_Dca[i_dca][i_mode]->SetMarkerColor(1);
-      h_rhoSys_Dca[i_dca][i_mode]->SetMarkerStyle(mStyle[i_mode]);
-      h_rhoSys_Dca[i_dca][i_mode]->SetMarkerSize(1.5);
+      string GraphName = Form("g_EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,i_dca,sig_default,norm_default,mMode[i_mode].c_str());
+      cout << "Read in Systematic Contribution from DCA Cut: " << GraphName.c_str() << endl;
 
-      g_rhoSys_Dca[i_dca][i_mode] = new TGraphAsymmErrors();
+      TGraphAsymmErrors *g_rhoSys_Temp = (TGraphAsymmErrors*)File_InPut->Get(GraphName.c_str());
+      g_rhoSys_Dca[i_dca][i_mode] = new TGraphAsymmErrors(); 
       for(int i_point = 0; i_point < 1; ++i_point) // 1st point is pT-integrated value
       {
-	float pt  = h_rhoSys_Dca[i_dca][i_mode]->GetBinCenter(i_point+1);
-	float rho = h_rhoSys_Dca[i_dca][i_mode]->GetBinContent(i_point+1);
-	float err = h_rhoSys_Dca[i_dca][i_mode]->GetBinError(i_point+1);
-	// g_rhoSys_Dca[i_dca][i_mode]->SetPoint(i_point,pt+pt_shift[i_dca],rho);
+	double pt, rho;
+	g_rhoSys_Temp->GetPoint(i_point,pt,rho);
+	double err = g_rhoSys_Temp->GetErrorYhigh(i_point);
 	g_rhoSys_Dca[i_dca][i_mode]->SetPoint(i_point,dca_center+pt_shift[i_dca],rho);
 	g_rhoSys_Dca[i_dca][i_mode]->SetPointError(i_point,0.0,0.0,err,err);
-	rho_tmp_dca = h_rhoSys_Dca[i_dca][i_mode]->GetBinContent(i_point+1);
+	rho_tmp_dca = rho;
       }
       g_rhoSys_Dca[i_dca][i_mode]->SetMarkerColor(mColor[i_dca]);
       g_rhoSys_Dca[i_dca][i_mode]->SetMarkerStyle(mStyle[i_mode]);
@@ -151,8 +137,8 @@ void plotSys_Inte_EP(int energy = 2)
       }
     }
   }
-  float delta_dca = rho_max_dca-rho_min_dca;
-  float sys_dca = delta_dca/TMath::Sqrt(12.0);
+  double delta_dca = rho_max_dca-rho_min_dca;
+  double sys_dca = delta_dca/TMath::Sqrt(12.0);
   // string leg_dca = Form("#Delta#rho_{00,sys}^{dca}: %1.2f (#times 100%%)", 100.0*sys_dca/rho_def);
   string leg_dca = Form("#Delta#rho_{00,sys}^{dca}: %1.2f%%", 100.0*sys_dca/rho_def);
   cout << "sys_dca = " << sys_dca << endl;
@@ -161,35 +147,28 @@ void plotSys_Inte_EP(int energy = 2)
   
   //--------------------------------------------------------------
   // sig sysmatic value
-  float rho_max_sig = rho_def;
-  float rho_min_sig = rho_def;
-  float rho_tmp_sig = 0.0;
-  TH1F *h_rhoSys_Sig[3][4]; // 0 for different Sig | 1 for different yields extraction
+  double rho_max_sig = rho_def;
+  double rho_min_sig = rho_def;
+  double rho_tmp_sig = 0.0;
   TGraphAsymmErrors *g_rhoSys_Sig[3][4];
   for(int i_sig = 0; i_sig < 3; ++i_sig)
   {
     if(i_sig == sig_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      // string HistName = Form("EP_2_eff_0_Dca_0_Sig_%d_Phi_Norm_0_%s",i_sig,mMode[i_mode].c_str());
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,i_sig,norm_default,mMode[i_mode].c_str());
-      cout << "Read in Systematic Contribution from nSigmaKaon Cut: " << HistName.c_str() << endl;
-      h_rhoSys_Sig[i_sig][i_mode] = (TH1F*)File_InPut->Get(HistName.c_str());
-      // h_rhoSys_Sig[i_sig][i_mode]->SetMarkerColor(mColor[i_sig]);
-      h_rhoSys_Sig[i_sig][i_mode]->SetMarkerColor(1);
-      h_rhoSys_Sig[i_sig][i_mode]->SetMarkerStyle(mStyle[i_mode]);
-      h_rhoSys_Sig[i_sig][i_mode]->SetMarkerSize(1.5);
+      string GraphName = Form("g_EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,i_sig,norm_default,mMode[i_mode].c_str());
+      cout << "Read in Systematic Contribution from nSigmaKaon Cut: " << GraphName.c_str() << endl;
 
+      TGraphAsymmErrors *g_rhoSys_Temp = (TGraphAsymmErrors*)File_InPut->Get(GraphName.c_str());
       g_rhoSys_Sig[i_sig][i_mode] = new TGraphAsymmErrors();
       for(int i_point = 0; i_point < 1; ++i_point) // 1st point is pT-integrated value
       {
-	float pt  = h_rhoSys_Sig[i_sig][i_mode]->GetBinCenter(i_point+1);
-	float rho = h_rhoSys_Sig[i_sig][i_mode]->GetBinContent(i_point+1);
-	float err = h_rhoSys_Sig[i_sig][i_mode]->GetBinError(i_point+1);
-	// g_rhoSys_Sig[i_sig][i_mode]->SetPoint(i_point,pt+pt_shift[i_sig],rho);
+	double pt, rho;
+	g_rhoSys_Temp->GetPoint(i_point,pt,rho);
+	double err = g_rhoSys_Temp->GetErrorYhigh(i_point);
 	g_rhoSys_Sig[i_sig][i_mode]->SetPoint(i_point,sig_center+pt_shift[i_sig],rho);
 	g_rhoSys_Sig[i_sig][i_mode]->SetPointError(i_point,0.0,0.0,err,err);
-	rho_tmp_sig = h_rhoSys_Sig[i_sig][i_mode]->GetBinContent(i_point+1);
+	rho_tmp_sig = rho;
       }
       g_rhoSys_Sig[i_sig][i_mode]->SetMarkerColor(mColor[i_sig]);
       g_rhoSys_Sig[i_sig][i_mode]->SetMarkerStyle(mStyle[i_mode]);
@@ -202,8 +181,8 @@ void plotSys_Inte_EP(int energy = 2)
       }
     }
   }
-  float delta_sig = rho_max_sig - rho_min_sig;
-  float sys_sig = delta_sig/TMath::Sqrt(12.0);
+  double delta_sig = rho_max_sig - rho_min_sig;
+  double sys_sig = delta_sig/TMath::Sqrt(12.0);
   cout << "sys_sig = " << sys_sig << endl;
   // string leg_sig = Form("#Delta#rho_{00,sys}^{sig}: %1.2f (#times 100%%)", 100.0*sys_sig/rho_def);
   string leg_sig = Form("#Delta#rho_{00,sys}^{sig}: %1.2f%%", 100.0*sys_sig/rho_def);
@@ -212,35 +191,28 @@ void plotSys_Inte_EP(int energy = 2)
   
   //--------------------------------------------------------------
   // norm sysmatic value
-  float rho_max_norm = rho_def;
-  float rho_min_norm = rho_def;
-  float rho_tmp_norm = 0.0;
-  TH1F *h_rhoSys_Norm[3][4]; // 0 for different Norm | 1 for different yields extraction
+  double rho_max_norm = rho_def;
+  double rho_min_norm = rho_def;
+  double rho_tmp_norm = 0.0;
   TGraphAsymmErrors *g_rhoSys_Norm[3][4];
   for(int i_norm = 0; i_norm < 3; ++i_norm)
   {
     if(i_norm == norm_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      // string HistName = Form("EP_2_eff_0_Dca_0_Sig_1_Phi_Norm_%d_%s",i_norm,mMode[i_mode].c_str());
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,sig_default,i_norm,mMode[i_mode].c_str());
-      cout << "Read in Systematic Contribution from Normalization region: " << HistName.c_str() << endl;
-      h_rhoSys_Norm[i_norm][i_mode] = (TH1F*)File_InPut->Get(HistName.c_str());
-      // h_rhoSys_Norm[i_norm][i_mode]->SetMarkerColor(mColor[i_norm]);
-      h_rhoSys_Norm[i_norm][i_mode]->SetMarkerColor(1);
-      h_rhoSys_Norm[i_norm][i_mode]->SetMarkerStyle(mStyle[i_mode]);
-      h_rhoSys_Norm[i_norm][i_mode]->SetMarkerSize(1.5);
+      string GraphName = Form("g_EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,sig_default,i_norm,mMode[i_mode].c_str());
+      cout << "Read in Systematic Contribution from Normalization region: " << GraphName.c_str() << endl;
 
+      TGraphAsymmErrors *g_rhoSys_Temp = (TGraphAsymmErrors*)File_InPut->Get(GraphName.c_str());
       g_rhoSys_Norm[i_norm][i_mode] = new TGraphAsymmErrors();
       for(int i_point = 0; i_point < 1; ++i_point) // 1st point is pT-integrated value
       {
-	float pt  = h_rhoSys_Norm[i_norm][i_mode]->GetBinCenter(i_point+1);
-	float rho = h_rhoSys_Norm[i_norm][i_mode]->GetBinContent(i_point+1);
-	float err = h_rhoSys_Norm[i_norm][i_mode]->GetBinError(i_point+1);
-	// g_rhoSys_Norm[i_norm][i_mode]->SetPoint(i_point,pt+pt_shift[i_norm],rho);
+	double pt, rho;
+	g_rhoSys_Temp->GetPoint(i_point,pt,rho);
+	double err = g_rhoSys_Temp->GetErrorYhigh(i_point);
 	g_rhoSys_Norm[i_norm][i_mode]->SetPoint(i_point,norm_center+pt_shift[i_norm],rho);
 	g_rhoSys_Norm[i_norm][i_mode]->SetPointError(i_point,0.0,0.0,err,err);
-	rho_tmp_norm = h_rhoSys_Norm[i_norm][i_mode]->GetBinContent(i_point+1);
+	rho_tmp_norm = rho;
       }
       g_rhoSys_Norm[i_norm][i_mode]->SetMarkerColor(mColor[i_norm]);
       g_rhoSys_Norm[i_norm][i_mode]->SetMarkerStyle(mStyle[i_mode]);
@@ -253,8 +225,8 @@ void plotSys_Inte_EP(int energy = 2)
       }
     }
   }
-  float delta_norm = rho_max_norm - rho_min_norm;
-  float sys_norm = delta_norm/TMath::Sqrt(12.0);
+  double delta_norm = rho_max_norm - rho_min_norm;
+  double sys_norm = delta_norm/TMath::Sqrt(12.0);
   // string leg_norm = Form("#Delta#rho_{00,sys}^{norm}: %1.2f (#times 100%%)", 100.0*sys_norm/rho_def);
   string leg_norm = Form("#Delta#rho_{00,sys}^{norm}: %1.2f%%", 100.0*sys_norm/rho_def);
   cout << "sys_norm = " << sys_norm << endl;
@@ -263,35 +235,28 @@ void plotSys_Inte_EP(int energy = 2)
   
   //--------------------------------------------------------------
   // eff sysmatic value
-  float rho_max_eff = rho_def;
-  float rho_min_eff = rho_def;
-  float rho_tmp_eff = 0.0;
-  TH1F *h_rhoSys_Eff[2][4]; // 0 for different Eff | 1 for different yields extraction
+  double rho_max_eff = rho_def;
+  double rho_min_eff = rho_def;
+  double rho_tmp_eff = 0.0;
   TGraphAsymmErrors *g_rhoSys_Eff[2][4];
   for(int i_eff = 0; i_eff < 2; ++i_eff)
   {
     if(i_eff == eff_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      // string HistName = Form("EP_2_eff_0_Dca_0_Sig_1_Phi_Eff_%d_%s",i_eff,mMode[i_mode].c_str());
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",i_eff,dca_default,sig_default,norm_default,mMode[i_mode].c_str());
-      cout << "Read in Systematic Contribution from Eff: " << HistName.c_str() << endl;
-      h_rhoSys_Eff[i_eff][i_mode] = (TH1F*)File_InPut->Get(HistName.c_str());
-      // h_rhoSys_Eff[i_eff][i_mode]->SetMarkerColor(mColor[i_eff]);
-      h_rhoSys_Eff[i_eff][i_mode]->SetMarkerColor(1);
-      h_rhoSys_Eff[i_eff][i_mode]->SetMarkerStyle(mStyle[i_mode]);
-      h_rhoSys_Eff[i_eff][i_mode]->SetMarkerSize(1.5);
+      string GraphName = Form("g_EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",i_eff,dca_default,sig_default,norm_default,mMode[i_mode].c_str());
+      cout << "Read in Systematic Contribution from Eff: " << GraphName.c_str() << endl;
 
+      TGraphAsymmErrors *g_rhoSys_Temp = (TGraphAsymmErrors*)File_InPut->Get(GraphName.c_str());
       g_rhoSys_Eff[i_eff][i_mode] = new TGraphAsymmErrors();
       for(int i_point = 0; i_point < 1; ++i_point) // 1st point is pT-integrated value
       {
-	float pt  = h_rhoSys_Eff[i_eff][i_mode]->GetBinCenter(i_point+1);
-	float rho = h_rhoSys_Eff[i_eff][i_mode]->GetBinContent(i_point+1);
-	float err = h_rhoSys_Eff[i_eff][i_mode]->GetBinError(i_point+1);
-	// g_rhoSys_Eff[i_eff][i_mode]->SetPoint(i_point,pt+pt_shift[i_eff],rho);
+	double pt, rho;
+	g_rhoSys_Temp->GetPoint(i_point,pt,rho);
+	double err = g_rhoSys_Temp->GetErrorYhigh(i_point);
 	g_rhoSys_Eff[i_eff][i_mode]->SetPoint(i_point,eff_center+pt_shift[i_eff],rho);
 	g_rhoSys_Eff[i_eff][i_mode]->SetPointError(i_point,0.0,0.0,err,err);
-	rho_tmp_eff = h_rhoSys_Eff[i_eff][i_mode]->GetBinContent(i_point+1);
+	rho_tmp_eff = rho;
       }
       g_rhoSys_Eff[i_eff][i_mode]->SetMarkerColor(mColor[i_eff]);
       g_rhoSys_Eff[i_eff][i_mode]->SetMarkerStyle(mStyle[i_mode]);
@@ -304,15 +269,15 @@ void plotSys_Inte_EP(int energy = 2)
       }
     }
   }
-  float delta_eff = rho_max_eff - rho_min_eff;
-  float sys_eff = delta_eff/TMath::Sqrt(12.0);
+  double delta_eff = rho_max_eff - rho_min_eff;
+  double sys_eff = delta_eff/TMath::Sqrt(12.0);
   // string leg_eff = Form("#Delta#rho_{00,sys}^{eff}: %1.2f (#times 100%%)", 100.0*sys_eff/rho_def);
   string leg_eff = Form("#Delta#rho_{00,sys}^{eff}: %1.2f%%", 100.0*sys_eff/rho_def);
   cout << "sys_eff = " << sys_eff << endl;
   // cout << "sys_eff = " << sys_eff << " = " << 100.0*sys_eff/rho_def << "%" << endl;
   //--------------------------------------------------------------
   
-  float sys_total = TMath::Sqrt(sys_dca*sys_dca + sys_sig*sys_sig + sys_norm*sys_norm + sys_eff*sys_eff);
+  double sys_total = TMath::Sqrt(sys_dca*sys_dca + sys_sig*sys_sig + sys_norm*sys_norm + sys_eff*sys_eff);
   // string leg_total = Form("#Delta#rho_{00,sys}^{total}: %1.2f (#times 100%%)", 100.0*sys_total/rho_def);
   string leg_total = Form("#Delta#rho_{00,sys}^{total}: %1.2f%%", 100.0*sys_total/rho_def);
   cout << "sys_total = " << sys_total << endl;
@@ -333,7 +298,8 @@ void plotSys_Inte_EP(int energy = 2)
   {
     h_frame->SetBinContent(bin_x,-10.0);
   }
-  string title_cuts = Form("Systematics @ AuAu %s",mBeamEnergy[energy].c_str());
+  // string title_cuts = Form("Systematics @ AuAu %s",mBeamEnergy[energy].c_str());
+  string title_cuts = "Systematics for Energy Integrated #rho_{00}";
   h_frame->SetTitle(title_cuts.c_str());
   h_frame->SetStats(0);
   h_frame->GetXaxis()->SetRangeUser(0.0,5.0);
@@ -349,9 +315,9 @@ void plotSys_Inte_EP(int energy = 2)
   // h_frame->GetXaxis()->SetTitleOffset(1.1);
   // h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.32,0.38);
+  h_frame->GetYaxis()->SetRangeUser(0.33,0.40);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
-  h_frame->GetYaxis()->SetTitle("#rho_{00} (In-Plane)");
+  h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
   h_frame->GetYaxis()->SetTitleSize(0.06);
   h_frame->GetYaxis()->SetTitleOffset(1.1);
   h_frame->GetYaxis()->SetLabelSize(0.04);
@@ -418,7 +384,7 @@ void plotSys_Inte_EP(int energy = 2)
   leg->AddEntry((TObject*)0,leg_total.c_str(),"");
   leg->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysInte_AuAu%dGeV_EP.eps",mEnergy[energy]);
+  string FigName = "/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysTotal_2ndEnergyInte.eps";
   c_sys->SaveAs(FigName.c_str());
 }
 

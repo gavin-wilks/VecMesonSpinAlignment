@@ -8,7 +8,7 @@
 #include "TF1.h"
 #include "TLegend.h"
 
-void cal2ndMeanRho()
+void cal1stMeanRho_27GeV()
 {
   const int mEpTotal = 2;
   const int mEffTotal = 2;
@@ -35,12 +35,12 @@ void cal2ndMeanRho()
   //==============================================================
   //--------------------------------------------------------------
   // get default value
-  string HistName_Default = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_Sigma_2_Inte",eff_default,dca_default,sig_default,norm_default);
+  string HistName_Default = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_Sigma_2_Inte",eff_default,dca_default,sig_default,norm_default);
   cout << "Default Histogram set to: " << HistName_Default.c_str() << endl;
   TH1F *h_rhoDef_Run11 = (TH1F*)File_Run11->Get(HistName_Default.c_str());
   TH1F *h_rhoDef_Run18 = (TH1F*)File_Run18->Get(HistName_Default.c_str());
 
-  HistName_Default = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_Sigma_2_Inte",eff_default,dca_default,sig_default,norm_default);
+  HistName_Default = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_Sigma_2_Inte",eff_default,dca_default,sig_default,norm_default);
   TH1F *h_rhoDef_Mean = (TH1F*)h_rhoDef_Run11->Clone(HistName_Default.c_str());
   h_rhoDef_Mean->Reset(); // get same histogram wo any bin content
   for(int i_pt = 0; i_pt < h_rhoDef_Run11->GetNbinsX(); ++i_pt) 
@@ -73,12 +73,12 @@ void cal2ndMeanRho()
     if(i_eff == eff_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",i_eff,dca_default,sig_default,norm_default,mMode[i_mode].c_str());
+      string HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",i_eff,dca_default,sig_default,norm_default,mMode[i_mode].c_str());
       cout << "Read in Systematic Contribution from Eff: " << HistName.c_str() << endl;
       h_rhoSys_Eff_Run11[i_eff][i_mode] = (TH1F*)File_Run11->Get(HistName.c_str());
       h_rhoSys_Eff_Run18[i_eff][i_mode] = (TH1F*)File_Run18->Get(HistName.c_str());
 
-      HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",i_eff,dca_default,sig_default,norm_default,mMode[i_mode].c_str());
+      HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",i_eff,dca_default,sig_default,norm_default,mMode[i_mode].c_str());
       h_rhoSys_Eff_Mean[i_eff][i_mode] = (TH1F*)h_rhoSys_Eff_Run11[i_eff][i_mode]->Clone(HistName.c_str());
       h_rhoSys_Eff_Mean[i_eff][i_mode]->Reset(); // get same histogram wo any bin content
       // h_rhoSys_Eff_Mean[i_eff][i_mode]->Sumw2(); 
@@ -116,12 +116,12 @@ void cal2ndMeanRho()
     if(i_dca == dca_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,i_dca,sig_default,norm_default,mMode[i_mode].c_str());
+      string HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,i_dca,sig_default,norm_default,mMode[i_mode].c_str());
       cout << "Read in Systematic Contribution from Dca: " << HistName.c_str() << endl;
       h_rhoSys_Dca_Run11[i_dca][i_mode] = (TH1F*)File_Run11->Get(HistName.c_str());
       h_rhoSys_Dca_Run18[i_dca][i_mode] = (TH1F*)File_Run18->Get(HistName.c_str());
 
-      HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,i_dca,sig_default,norm_default,mMode[i_mode].c_str());
+      HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,i_dca,sig_default,norm_default,mMode[i_mode].c_str());
       h_rhoSys_Dca_Mean[i_dca][i_mode] = (TH1F*)h_rhoSys_Dca_Run11[i_dca][i_mode]->Clone(HistName.c_str());
       h_rhoSys_Dca_Mean[i_dca][i_mode]->Reset(); // get same histogram wo any bin content
       // h_rhoSys_Dca_Mean[i_dca][i_mode]->Sumw2(); 
@@ -158,12 +158,12 @@ void cal2ndMeanRho()
     if(i_sig == sig_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,i_sig,norm_default,mMode[i_mode].c_str());
+      string HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,i_sig,norm_default,mMode[i_mode].c_str());
       cout << "Read in Systematic Contribution from Sig: " << HistName.c_str() << endl;
       h_rhoSys_Sig_Run11[i_sig][i_mode] = (TH1F*)File_Run11->Get(HistName.c_str());
       h_rhoSys_Sig_Run18[i_sig][i_mode] = (TH1F*)File_Run18->Get(HistName.c_str());
 
-      HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,i_sig,norm_default,mMode[i_mode].c_str());
+      HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,i_sig,norm_default,mMode[i_mode].c_str());
       h_rhoSys_Sig_Mean[i_sig][i_mode] = (TH1F*)h_rhoSys_Sig_Run11[i_sig][i_mode]->Clone(HistName.c_str());
       h_rhoSys_Sig_Mean[i_sig][i_mode]->Reset(); // get same histogram wo any bin content
       // h_rhoSys_Sig_Mean[i_sig][i_mode]->Sumw2(); 
@@ -200,12 +200,12 @@ void cal2ndMeanRho()
     if(i_norm == norm_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      string HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,sig_default,i_norm,mMode[i_mode].c_str());
+      string HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,sig_default,i_norm,mMode[i_mode].c_str());
       cout << "Read in Systematic Contribution from Norm: " << HistName.c_str() << endl;
       h_rhoSys_Norm_Run11[i_norm][i_mode] = (TH1F*)File_Run11->Get(HistName.c_str());
       h_rhoSys_Norm_Run18[i_norm][i_mode] = (TH1F*)File_Run18->Get(HistName.c_str());
 
-      HistName = Form("EP_2_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,sig_default,i_norm,mMode[i_mode].c_str());
+      HistName = Form("EP_1_eff_%d_Dca_%d_Sig_%d_Phi_Norm_%d_%s",eff_default,dca_default,sig_default,i_norm,mMode[i_mode].c_str());
       h_rhoSys_Norm_Mean[i_norm][i_mode] = (TH1F*)h_rhoSys_Norm_Run11[i_norm][i_mode]->Clone(HistName.c_str());
       h_rhoSys_Norm_Mean[i_norm][i_mode]->Reset(); // get same histogram wo any bin content
       // h_rhoSys_Norm_Mean[i_norm][i_mode]->Sumw2(); 
@@ -232,7 +232,7 @@ void cal2ndMeanRho()
   // norm sysmatic value
   //--------------------------------------------------------------
 
-  string outputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_27GeV_2ndMean.root";
+  string outputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_27GeV_1stMean.root";
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
 

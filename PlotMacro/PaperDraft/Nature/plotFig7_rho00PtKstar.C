@@ -26,7 +26,7 @@ void plotFig7_rho00PtKstar()
   float rho00_high[7] = {0.45,0.45,0.45,0.45,0.45,0.45,0.45};
   float pt_low = 0.54;
   float pt_high = 5.54;
-  float font_size = 0.08;
+  float font_size = 0.10;
   float leg_size = 0.07;
 
   string mBeanEnergy[7] = {"11.5 GeV","14.5 GeV","19.6 GeV","27 GeV","39 GeV","54.4 GeV","200 GeV"};
@@ -35,7 +35,7 @@ void plotFig7_rho00PtKstar()
   TGraphAsymmErrors *g_rho_2nd_stat[7];
   TGraphAsymmErrors *g_rho_2nd_sys[7];
 
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_pT.root");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_pT_July01_2020.root");
   for(int i_energy = 0; i_energy < 7; ++i_energy)
   {
     string GrapName_2nd_stat = Form("rho00_2ndEP_pt_stat_%d",mEnergy[i_energy]);
@@ -199,18 +199,18 @@ void plotFig7_rho00PtKstar()
       }
       if(x_pads == N_x_pads-1 && y_pads != 0)
       {
-	if(total_pad < 8) plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.15,0.055*scaling_factor,1,0.0,42,0);
+	if(total_pad < 8) plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.15,0.6875*font_size*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == N_x_pads-1 && y_pads == 0)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.15,0.055*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.15,0.6875*font_size*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == N_x_pads-1 && y_pads == N_y_pads-1)
       {
-	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 0.5)",1.2,0.33,font_size,1,0.0,42,0);
+	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 0.5)",0.65,0.33,0.6875*font_size*scaling_factor,1,0.0,42,0);
 
-	Draw_TGAE_Point_new_Symbol(1.5,0.28,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
-	plotTopLegend((char*)"K^{*0} (2^{nd}-order EP)",1.7,0.273,font_size,1,0.0,42,0);
+	Draw_TGAE_Point_new_Symbol(1.5,0.26,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
+	plotTopLegend((char*)"K^{*0} (2^{nd}-order EP)",1.7,0.25,0.6875*font_size*scaling_factor,1,0.0,42,0);
       }
 
       // if(x_pads == 0 && y_pads == N_y_pads-1) plotTopLegend("#font[12]{p}_{#font[132]{T}}",0.94,0.10,0.1,1,0.0,42,1);

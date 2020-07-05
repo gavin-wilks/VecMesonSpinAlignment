@@ -8,7 +8,7 @@
 #include "TF1.h"
 #include "TLegend.h"
 
-void cal2ndMeanRho_EP()
+void cal2ndMeanRho_27GeV_EP()
 {
   const int mEpTotal = 2;
   const int mEffTotal = 2;

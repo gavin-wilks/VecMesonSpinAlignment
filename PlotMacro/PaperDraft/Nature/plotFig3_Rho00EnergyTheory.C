@@ -51,7 +51,7 @@ void plotFig3_Rho00EnergyTheory()
   const int color_Kstr_ALICE = kGray+1;
 
   const float size_marker = 1.4;
-  const float size_font = 0.03;
+  const float size_font = 0.035;
   
   //----------------------------------------------------------
   // phi-meson STAR
@@ -78,7 +78,7 @@ void plotFig3_Rho00EnergyTheory()
   //----------------------------------------------------------
 
   //----------------------------------------------------------
-  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN.root");
+  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN_July01_2020.root");
   // K* STAR
   //beam-energy dependence of kstar rho00 from STAR, pT: 1.0 - 1.5 GeV/c, 20-60%
   TGraphAsymmErrors *g_rhoKstar_stat       = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoKstar_stat");
@@ -115,7 +115,7 @@ void plotFig3_Rho00EnergyTheory()
   h_frame->GetXaxis()->SetTitleOffset(1.1);
   h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.14,0.42);
+  h_frame->GetYaxis()->SetRangeUser(0.14,0.45);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
   // h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
   h_frame->GetYaxis()->SetTitle("#rho_{00}");
@@ -174,32 +174,34 @@ void plotFig3_Rho00EnergyTheory()
   f_rho00_plot->Draw("l same");
 
   // plot Legend
-  plotTopLegend((char*)"Au+Au",0.34,0.85,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"ALICE (Ref)",0.65,0.85,size_font+0.01,1,0.0,42,1);
+  // plotTopLegend((char*)"Au+Au",0.34,0.85,size_font,1,0.0,42,1);
+  // plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
+  // plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
+  // plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"filled:  Au+Au (20\% - 60\% Centrality)",0.35,0.25,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"open: Pb+Pb (10\% - 50\% Centrality)",0.35,0.20,size_font,1,0.0,42,1);
 
-  Draw_TGAE_Point_new_Symbol(52,0.20,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",75,0.1965,size_font,1,0.0,42,0);
-  // plotTopLegend((char*)"#phi (2^{nd}-Order EP)",40,0.2165,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(40,0.4335,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.43,size_font,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(52,0.18,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
-  plotTopLegend((char*)"K^{*0} (|y| < 0.5 & 1.0 < p_{T} < 1.5 GeV/c)",75,0.1765,size_font,1,0.0,42,0);
-  // plotTopLegend((char*)"K^{*0} (2^{nd}-Order EP)",550,0.2165,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(40,0.4145,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
+  plotTopLegend((char*)"K^{*0} (|y| < 0.5 & 1.0 < p_{T} < 1.5 GeV/c)",48,0.41,size_font,1,0.0,42,0);
+
 
   // theory
   string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
-  string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
-  string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
-  string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);
-  TLegend *leg = new TLegend(0.335,0.18,0.675,0.23);
-  leg->SetBorderSize(0);
-  leg->SetFillColor(10);
-  leg->SetFillStyle(0);
-  leg->AddEntry(f_rho00_Laxis,leg_current_Laxis.c_str(),"l");
+  // string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
+  // string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
+  // string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);
+  // TLegend *leg = new TLegend(0.335,0.18,0.675,0.23);
+  // leg->SetBorderSize(0);
+  // leg->SetFillColor(10);
+  // leg->SetFillStyle(0);
+  // leg->AddEntry(f_rho00_Laxis,leg_current_Laxis.c_str(),"l");
   // leg->AddEntry((TObject*)0,leg_stat_Laxis.c_str(),"");
-  leg->Draw("same");
+  // leg->Draw("same");
+  PlotLine(35,45,0.395,0.395,2,3,1);
+  plotTopLegend((char*)leg_current_Laxis.c_str(),48,0.39,size_font,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig3_rho00EnergyTheory.eps");
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig3_rho00EnergyTheory.png");
