@@ -178,7 +178,7 @@ void cal1stEnergyInteRho()
       double errSig = sqrt(errSumSig)/wgtSumSig;
       g_rhoSys_Sig[i_sig][i_mode]->SetPoint(0,0.0,rhoSig);
       g_rhoSys_Sig[i_sig][i_mode]->SetPointError(0,0.0,0.0,errSig,errSig);
-      cout << "Energy integrated rho00 with different Dca = " << rhoSig << " +/- " << errSig << endl;
+      cout << "Energy integrated rho00 with different Sig = " << rhoSig << " +/- " << errSig << endl;
       cout << endl;
     }
   }
@@ -219,7 +219,7 @@ void cal1stEnergyInteRho()
       double errNorm = sqrt(errSumNorm)/wgtSumNorm;
       g_rhoSys_Norm[i_norm][i_mode]->SetPoint(0,0.0,rhoNorm);
       g_rhoSys_Norm[i_norm][i_mode]->SetPointError(0,0.0,0.0,errNorm,errNorm);
-      cout << "Energy integrated rho00 with different Dca = " << rhoNorm << " +/- " << errNorm << endl;
+      cout << "Energy integrated rho00 with different Norm = " << rhoNorm << " +/- " << errNorm << endl;
       cout << endl;
     }
   }
