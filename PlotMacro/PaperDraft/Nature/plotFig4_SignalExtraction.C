@@ -27,17 +27,24 @@ void plotFig4_SignalExtraction()
 
   const float size_marker = 1.4;
 
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/invmass_27GeV.root");
-  TH1D *h_mMassPhi = (TH1D*)File_InputPhi->Get("imass_sig_after")->Clone("h_mMassPhi");
+  TFile *File_InputPhi_BeforeSub = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/fig_2ndEP_27GeV_Run18_BeforeSub.root");
+  TH1D *h_mMassPhi = (TH1D*)File_InputPhi_BeforeSub->Get("imass_all_pt2")->Clone("h_mMassPhi");
+
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/fig_2ndEP_27GeV_Run18.root");
+  TH1D *h_mYieldsPhi = (TH1D*)File_InputPhi->Get("fit_cos_pt2")->Clone("h_mYieldsPhi");
   float cos[7] = {1.0/14.0,3.0/14.0,5.0/14.0,7.0/14.0,9.0/14.0,11.0/14.0,13.0/14.0};
-  float yields[7] = {598.598, 596.721, 606.366, 606.203, 615.265, 626.465,  644.074};
-  float errors[7] = {4.06987, 4.06908, 4.12435, 4.1327, 4.1449, 4.2176, 4.26549};
+  // float yields[7] = {598.598, 596.721, 606.366, 606.203, 615.265, 626.465,  644.074};
+  // float errors[7] = {4.06987, 4.06908, 4.12435, 4.1327, 4.1449, 4.2176, 4.26549};
+
+  const long numOfEvent = 176995424;
+  const double binWidth = h_mMassPhi->GetBinWidth(1);
+  // cout << "phi-meson: numOfEvent = " << numOfEvent << ", binWidth = " << binWidth << endl;
 
   TGraphAsymmErrors *g_yieldsPhi = new TGraphAsymmErrors();
   for(int i_cos = 0; i_cos < 7; ++i_cos)
   {
-    g_yieldsPhi->SetPoint(i_cos,cos[i_cos],yields[i_cos]);
-    g_yieldsPhi->SetPointError(i_cos,1.0/14.0,1.0/14.0,errors[i_cos],errors[i_cos]);
+    g_yieldsPhi->SetPoint(i_cos,cos[i_cos],h_mYieldsPhi->GetBinContent(i_cos+1)/(numOfEvent*binWidth));
+    g_yieldsPhi->SetPointError(i_cos,1.0/14.0,1.0/14.0,h_mYieldsPhi->GetBinError(i_cos+1)/(numOfEvent*binWidth),h_mYieldsPhi->GetBinError(i_cos+1)/(numOfEvent*binWidth));
   }
 
   TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54.root");
@@ -70,6 +77,7 @@ void plotFig4_SignalExtraction()
 
   c_Signal->cd(1);
   {
+    h_mMassPhi->Scale(1.0/numOfEvent);
     h_mMassPhi->SetTitle("");
     h_mMassPhi->SetStats(0);
     h_mMassPhi->GetXaxis()->SetTitle("M(K^{+},K^{-}) (GeV/c^{2})");
@@ -99,7 +107,7 @@ void plotFig4_SignalExtraction()
     f_SigPhi->SetParLimits(0,vmsa::InvMass[0]-1.5*vmsa::Width[0],vmsa::InvMass[0]+1.5*vmsa::Width[0]);
     f_SigPhi->SetParameter(1,vmsa::Width[0]);
     f_SigPhi->SetParLimits(1,0.004,0.070);
-    f_SigPhi->SetParameter(2,1.0);
+    f_SigPhi->SetParameter(2,1.0/numOfEvent);
     f_SigPhi->SetParameter(3,-1.0);
     f_SigPhi->SetParameter(4,1.0);
     f_SigPhi->SetParameter(2,h_mMassPhi->GetMaximum()/f_SigPhi->GetMaximum());
@@ -208,7 +216,7 @@ void plotFig4_SignalExtraction()
     h_framePhi->GetYaxis()->SetTitleOffset(1.14);
     h_framePhi->GetYaxis()->SetTitleFont(42);
     h_framePhi->GetYaxis()->SetLabelSize(0.04);
-    h_framePhi->GetYaxis()->SetRangeUser(575.0,675.0);
+    h_framePhi->GetYaxis()->SetRangeUser(575.0/(numOfEvent*binWidth),675.0/(numOfEvent*binWidth));
     h_framePhi->SetNdivisions(505,"Y");
     h_framePhi->SetMarkerStyle(24);
     h_framePhi->SetMarkerColor(1);
@@ -221,7 +229,7 @@ void plotFig4_SignalExtraction()
     f_rhoPhi->ReleaseParameter(0);
     f_rhoPhi->ReleaseParameter(1);
     f_rhoPhi->SetParameter(0,0.33);
-    f_rhoPhi->SetParameter(1,1000);
+    f_rhoPhi->SetParameter(1,1000/(numOfEvent*binWidth));
     f_rhoPhi->SetRange(0.0,1.0);
     g_yieldsPhi->Fit(f_rhoPhi,"NQRI");
     f_rhoPhi->SetLineColor(2);
