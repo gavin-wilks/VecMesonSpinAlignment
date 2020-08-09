@@ -21,7 +21,8 @@
 
 void calTpcTrackEfficiency(int energy = 6, int pid = 0, int year = 0)
 {
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
+  // string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
+  string inputfile = Form("/star/data01/pwg/sunxuhit//AuAu%s/SpinAlignment/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   
   TH1D *h_FrameEta = (TH1D*)File_InPut->Get("h_FrameEta");
@@ -137,7 +138,8 @@ void calTpcTrackEfficiency(int energy = 6, int pid = 0, int year = 0)
   }
 
 
-  string outputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
+  // string outputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
+  string outputfile = Form("/star/data01/pwg/sunxuhit//AuAu%s/SpinAlignment/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
   // write histogram

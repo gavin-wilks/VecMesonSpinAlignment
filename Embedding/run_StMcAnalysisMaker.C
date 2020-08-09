@@ -5,17 +5,17 @@ void Load();
 
 using namespace std;
 
-void run_StMcAnalysisMaker(const char* file = "/projecta/projectdirs/starprod/embedding/AuAu39_production/Kplus_807_20103203/P10ik.SL10k_embed/2010/106/11106101/st_physics_adc_11106101_raw_3490001.event.root", std::string outFile = "test")
+void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_production_2011/Kplus_101_2012810/P11id.SL11d_embed/2011/163/12163020/st_physics_adc_12163020_raw_2520001.event.root", std::string outFile = "test")
 {
   //Check STAR Library. Please set SL_version to the original star library used
   // in the production from http://www.star.bnl.gov/devcgi/dbProdOptionRetrv.pl
 
-  // string SL_version = "SL11d_embed"; // 200 GeV
+  string SL_version = "SL11d_embed"; // 200 GeV
   // string SL_version = "SL10k_embed"; // 62.4 GeV
   // string SL_version = "SL10k_embed"; // 39 GeV
   // string SL_version = "SL11d_embed"; // 27 GeV
   // string SL_version = "SL11d_embed"; // 19.6 GeV
-  string SL_version = "SL10h_embed"; // 11.5 GeV
+  // string SL_version = "SL10h_embed"; // 11.5 GeV
   string env_SL = getenv("STAR");
   // cout << env_SL << endl;
 
