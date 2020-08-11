@@ -14,6 +14,7 @@
 #include "TVector3.h"
 #include "StEffHistManger.h"
 #include <string>
+#include <iostream>
 
 ClassImp(StEffKaon)
 
@@ -212,6 +213,10 @@ void StEffKaon::Make()
   long start_event_use = mStartEvent;
   long stop_event_use  = mStopEvent;
 
+  string outputId = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Embedding/%s/Efficiency/Id_%s_StMcEvent_%s.txt",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mParType[mPID].c_str(),vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mYear[0].c_str());
+  ofstream file_evtId;
+  file_evtId.open(outputId.c_str());
+
   mChain_Event->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
   long NMcTraks = 0;
   long McTraks_Start = 0;
@@ -258,6 +263,8 @@ void StEffKaon::Make()
     EventHeader.t3 = mT3;
     EventHeader.t4 = mT4;
     EventHeader.t5 = mT5;
+
+    file_evtId << (int)EventHeader.runId << "    " << (int)EventHeader.eventId << endl;
     if(!mEffCut->passEventCut(EventHeader)) continue;
     // NEvent++;
     for(int i_track = McTraks_Start; i_track < McTraks_Stop; ++i_track)
@@ -330,6 +337,8 @@ void StEffKaon::Make()
   cout << "." << flush;
   cout << " " << stop_event_use << "(" << 100 << "%)";
   cout << endl;
+
+  file_evtId.close();
   // cout << "Num of Events from Chain = " << mChain_Event->GetEntriesFast() << ", Num of Events: " << NEvent << ", Num of Tracks = " << NMcTraks << ", Num of Tracks from Chain = " << mChain_Track->GetEntries() << endl;
 }
 
