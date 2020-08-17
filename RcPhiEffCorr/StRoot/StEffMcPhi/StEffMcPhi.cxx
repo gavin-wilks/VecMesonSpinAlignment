@@ -216,7 +216,7 @@ void StEffMcPhi::Make()
     TVector3 nQ = QVector.Unit(); // direction of QVector
     float McCosThetaStar = vMcKP.Dot(nQ);
 
-    mEffHistManger->FillHistMc(McPhi.Centrality,McPhi.McPt,McPhi.McEta,McPhi.McPhi,McCosThetaStar);
+    mEffHistManger->FillHistMc(McPhi.Centrality,McPhi.McPt,McPhi.McEta,McPhi.McPhi,McCosThetaStar,McPhi.Psi2);
     // mEffHistManger->FillHistMc(McPhi.Centrality,McKP.McPt,McKP.McEta,McKP.McPhi,McCosThetaStar);
     // mEffHistManger->FillHistMc(McPhi.Centrality,McKM.McPt,McKM.McEta,McKM.McPhi,McCosThetaStar);
 
@@ -224,7 +224,7 @@ void StEffMcPhi::Make()
     if( !mEffCut->passTrackCut(RcKM) ) continue; // eta and TPC cuts for RcKminus
     // if( !mEffCut->passDipAngleCut(RcKP,RcKM) ) continue; // eta cut for McKminus
     if( !mEffCut->passTrackCutPhi(RcPhi) ) continue;  // eta cuts for RcPhi 
-    mEffHistManger->FillHistRc(McPhi.Centrality,McPhi.McPt,McPhi.McEta,McPhi.McPhi,McCosThetaStar);
+    mEffHistManger->FillHistRc(McPhi.Centrality,McPhi.McPt,McPhi.McEta,McPhi.McPhi,McCosThetaStar,McPhi.Psi2);
     // mEffHistManger->FillHistRc(McPhi.Centrality,McKP.McPt,McKP.McEta,McKP.McPhi,McCosThetaStar);
     // mEffHistManger->FillHistRc(McPhi.Centrality,McKM.McPt,McKM.McEta,McKM.McPhi,McCosThetaStar);
   }

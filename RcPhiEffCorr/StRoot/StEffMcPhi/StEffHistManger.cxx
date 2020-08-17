@@ -33,6 +33,11 @@ void StEffHistManger::InitHist()
       h_mMcEffCos[i_cent][i_pt] = new TH1D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0);
       HistName = Form("h_mRcEffCos_Cent_%d_Pt_%d",i_cent,i_pt);
       h_mRcEffCos[i_cent][i_pt] = new TH1D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0);
+
+      HistName = Form("h_mMcCosEP_Cent_%d_Pt_%d",i_cent,i_pt);
+      h_mMcCosEP[i_cent][i_pt] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
+      HistName = Form("h_mRcCosEP_Cent_%d_Pt_%d",i_cent,i_pt);
+      h_mRcCosEP[i_cent][i_pt] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     }
   }
   flag_eff = 0;
@@ -40,44 +45,69 @@ void StEffHistManger::InitHist()
   flag_eff_Cos = 0;
 }
 
-void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float cos)
+void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float cos, float Psi2)
 {
   h_mMcTracks[cent]->Fill(pt,eta,phi);
   if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
   {//20-60%
     h_mMcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
   }
+
+  float phi_shift = AngleShift(phi-Psi2);
   for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
   {
     if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= vmsa::pt_up[mEnergy][i_pt])
     {
       h_mMcEffCos[cent][i_pt]->Fill(cos);
+      h_mMcCosEP[cent][i_pt]->Fill(cos,phi_shift);
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
       {//20-60%
 	h_mMcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
+	h_mMcCosEP[9][i_pt]->Fill(cos,phi_shift,vmsa::weight[cent]);
       }
     }
   }
 }
 
-void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float cos)
+void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float cos, float Psi2)
 {
   h_mRcTracks[cent]->Fill(pt,eta,phi);
   if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
   {//20-60%
     h_mRcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
   }
+
+  float phi_shift = AngleShift(phi-Psi2);
   for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
   {
     if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= vmsa::pt_up[mEnergy][i_pt])
     {
       h_mRcEffCos[cent][i_pt]->Fill(cos);
+      h_mRcCosEP[cent][i_pt]->Fill(cos,phi_shift);
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
       {//20-60%
 	h_mRcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
+	h_mRcCosEP[9][i_pt]->Fill(cos,phi_shift,vmsa::weight[cent]);
       }
     }
   }
+}
+
+float StEffHistManger::AngleShift(float phi)
+{
+  double const Psi2_low[3] = {-3.0*TMath::Pi()/2.0,-1.0*TMath::Pi()/2.0,1.0*TMath::Pi()/2.0};
+  double const Psi2_up[3]  = {-1.0*TMath::Pi()/2.0, 1.0*TMath::Pi()/2.0,3.0*TMath::Pi()/2.0};
+
+  float phi_shift = -999.0;
+  for(int psi_bin = 0; psi_bin < 3; ++psi_bin)
+  {
+    if(phi >= Psi2_low[psi_bin] && phi < Psi2_up[psi_bin])
+    {
+      phi_shift = phi - (psi_bin-1)*2.0*TMath::Pi()/2.0;
+    }
+  }
+
+  return phi_shift;
 }
 
 TH1D* StEffHistManger::CalEffError(TH1D *h_Mc, TH1D *h_Rc, std::string HistName)
@@ -194,6 +224,9 @@ void StEffHistManger::WriteHist()
 	// h_mMcEffCos[i_cent][i_pt]->Write();
 	// h_mRcEffCos[i_cent][i_pt]->Write();
 	h_mEffCos[i_cent][i_pt]->Write();
+
+	h_mMcCosEP[i_cent][i_pt]->Write();
+	h_mRcCosEP[i_cent][i_pt]->Write();
       }
     }
   }

@@ -16,8 +16,9 @@ class StEffHistManger : public TObject
     StEffHistManger(int energy);
     virtual ~StEffHistManger();
     void InitHist();
-    void FillHistMc(int,float,float,float,float);
-    void FillHistRc(int,float,float,float,float);
+    void FillHistMc(int,float,float,float,float,float);
+    void FillHistRc(int,float,float,float,float,float);
+    float AngleShift(float);
     void CalEfficiency();
     void CalEffPtEtaPhi();
     void CalEffCosThetaStar();
@@ -47,6 +48,9 @@ class StEffHistManger : public TObject
     TH1D *h_mMcEffCos[10][vmsa::BinPt]; // efficiency vs CosThetaStar as a function of centrality and pt
     TH1D *h_mRcEffCos[10][vmsa::BinPt];
     TH1D *h_mEffCos[10][vmsa::BinPt];
+
+    TH2D *h_mMcCosEP[10][vmsa::BinPt]; // efficiency vs CosThetaStar & EP as a function of centrality and pt
+    TH2D *h_mRcCosEP[10][vmsa::BinPt];
 
     int mEnergy;
     int flag_eff;
