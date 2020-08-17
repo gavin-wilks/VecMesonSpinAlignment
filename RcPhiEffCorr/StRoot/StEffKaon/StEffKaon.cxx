@@ -71,6 +71,7 @@ void StEffKaon::SetStopEvent(const long StopEvent)
 
 void StEffKaon::Init()
 {
+  InitMap();
   mEffHistManger->InitHist();
 
   // initialize the TChain
@@ -208,6 +209,37 @@ void StEffKaon::Init()
   mFile_OutPut = new TFile(mOutPutFile.c_str(),"RECREATE");
 }
 
+void StEffKaon::InitMap()
+{ // only for 200GeV
+  TString InPutFile = "/star/data01/pwg/sunxuhit/AuAu200GeV/SpinAlignment/Phi/RunId/embedding_map_pico.txt"; // embedding map pico
+  cout << "Input mapping was set to: " << InPutFile.Data() << endl;
+  FILE *fp = fopen(InPutFile.Data(),"r");
+  if(fp == NULL)
+  {
+    perror("Error opening mapping file");
+  }
+  else
+  {
+    Int_t runId, eventId;
+    Float_t psiEast, psiWest;
+    char line[80];
+
+    Int_t line_counter = 0;
+    while(fgets(line,80,fp))
+    {
+      sscanf(&line[0],"%d %d %f %f", &runId, &eventId, &psiEast, &psiWest);
+      line_counter++;
+      // cout << "runId = " << runId << ", eventId = " << eventId << ", psiEast = " << psiEast << ", psiWest = " << psiWest << endl;
+      string KEY = Form("%d_%d",runId,eventId);
+      mEmbdRunId[KEY] = runId;
+      mEmbdEvtId[KEY] = eventId;
+      mPsiEast[KEY] = psiEast;
+      mPsiWest[KEY] = psiWest;
+      // cout << "runId = " << mEmbdRunId[KEY] << ", eventId = " << mEmbdEvtId[KEY] << ", psiEast = " << mPsiEast[KEY] << ", psiWest = " << mPsiWest[KEY] << endl;
+    }
+  }
+}
+
 void StEffKaon::Make()
 {
   long start_event_use = mStartEvent;
@@ -264,9 +296,15 @@ void StEffKaon::Make()
     EventHeader.t4 = mT4;
     EventHeader.t5 = mT5;
 
-    file_evtId << (int)EventHeader.runId << "    " << (int)EventHeader.eventId << endl;
     if(!mEffCut->passEventCut(EventHeader)) continue;
     // NEvent++;
+
+    file_evtId << (int)EventHeader.runId << "    " << (int)EventHeader.eventId << endl;
+    string KEY = Form("%d_%d",(int)EventHeader.runId,(int)EventHeader.eventId);
+    if(!mEmbdEvtId[KEY]) continue; // only use the event with a valid event plane
+    float Psi2East = mPsiEast[KEY];
+    float Psi2West = mPsiWest[KEY];
+
     for(int i_track = McTraks_Start; i_track < McTraks_Stop; ++i_track)
     {
       mChain_Track->GetEntry(i_track);
@@ -321,13 +359,13 @@ void StEffKaon::Make()
 
       //-------------------------McKaon-----------------------------------------------------
       if( !mEffCut->passTrackCut(McKaon) ) continue; // eta and momentum cuts for McKplus
-      mEffHistManger->FillHistMc(EventHeader.Centrality,McKaon.McPt,McKaon.McEta,McKaon.McPhi);
+      mEffHistManger->FillHistMc(EventHeader.Centrality,McKaon.McPt,McKaon.McEta,McKaon.McPhi,Psi2East,Psi2West);
       //-------------------------McKaon-----------------------------------------------------
 
       //-------------------------RcKaon-----------------------------------------------------
       if( !mEffCut->passTrackCut(RcKaon) ) continue; // track cuts for RcKplus
       // mEffHistManger->FillHistRc(RcKaon.RcPt,RcKaon.RcEta,RcKaon.RcPhi);
-      mEffHistManger->FillHistRc(EventHeader.Centrality,McKaon.McPt,McKaon.McEta,McKaon.McPhi);
+      mEffHistManger->FillHistRc(EventHeader.Centrality,McKaon.McPt,McKaon.McEta,McKaon.McPhi,Psi2East,Psi2West);
       mEffHistManger->FillHistPt(EventHeader.Centrality,McKaon.McPt,RcKaon.gRcPt,RcKaon.pRcPt);
       //-------------------------RcKaon-----------------------------------------------------
     }

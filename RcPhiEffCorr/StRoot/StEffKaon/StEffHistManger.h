@@ -18,8 +18,9 @@ class StEffHistManger : public TObject
     StEffHistManger();
     virtual ~StEffHistManger();
     void InitHist();
-    void FillHistMc(int,float,float,float);
-    void FillHistRc(int,float,float,float);
+    float AngleShift(float);
+    void FillHistMc(int,float,float,float,float,float);
+    void FillHistRc(int,float,float,float,float,float);
     void FillHistPt(int,float,float,float);
     void CalEfficiency();
     void CalEffPtEtaPhi();

@@ -23,30 +23,74 @@ void StEffHistManger::InitHist()
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
     std::string HistName = Form("h_mMcTracks_%d",i_cent);
-    h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    // h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     HistName = Form("h_mRcTracks_%d",i_cent);
-    h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    // h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     HistName = Form("h_mPtGl_%d",i_cent);
     h_mPtGl[i_cent] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinPt*10,0.0,24.0);
     HistName = Form("h_mPtPr_%d",i_cent);
     h_mPtPr[i_cent] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinPt*10,0.0,24.0);
   }
   h_FrameEta = new TH1D("h_FrameEta","h_FrameEta",vmsa::BinEta,-1.0,1.0);
-  h_FramePhi = new TH1D("h_FramePhi","h_FramePhi",vmsa::BinPhi,-TMath::Pi(),TMath::Pi());
+  // h_FramePhi = new TH1D("h_FramePhi","h_FramePhi",vmsa::BinPhi,-TMath::Pi(),TMath::Pi());
+  h_FramePhi = new TH1D("h_FramePhi","h_FramePhi",vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
   flag_eff = 0;
   flag_eff_PtEtaPhi = 0;
 }
 
-void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi)
+float StEffHistManger::AngleShift(float phi)
 {
-  h_mMcTracks[cent]->Fill(pt,eta,phi);
-  h_mMcTracks[9]->Fill(pt,eta,phi);
+  double const Psi2_low[3] = {-3.0*TMath::Pi()/2.0,-1.0*TMath::Pi()/2.0,1.0*TMath::Pi()/2.0};
+  double const Psi2_up[3]  = {-1.0*TMath::Pi()/2.0, 1.0*TMath::Pi()/2.0,3.0*TMath::Pi()/2.0};
+
+  float phi_shift = -999.0;
+  for(int psi_bin = 0; psi_bin < 3; ++psi_bin)
+  {
+    if(phi >= Psi2_low[psi_bin] && phi < Psi2_up[psi_bin])
+    {
+      phi_shift = phi - (psi_bin-1)*2.0*TMath::Pi()/2.0;
+    }
+  }
+
+  return phi_shift;
 }
 
-void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi)
+void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float psiEast, float psiWest)
 {
-  h_mRcTracks[cent]->Fill(pt,eta,phi);
-  h_mRcTracks[9]->Fill(pt,eta,phi);
+  // h_mMcTracks[cent]->Fill(pt,eta,phi);
+  // h_mMcTracks[9]->Fill(pt,eta,phi);
+  if(eta > -1.0*vmsa::mEtaMax && eta < 0.0)
+  { // east eta cut
+    float phi_shift = AngleShift(phi-psiWest);
+    h_mMcTracks[cent]->Fill(pt,eta,phi_shift);
+    h_mMcTracks[9]->Fill(pt,eta,phi_shift);
+  }
+  if(eta >= 0.0 && eta < vmsa::mEtaMax)
+  { // west eta cut
+    float phi_shift = AngleShift(phi-psiEast);
+    h_mMcTracks[cent]->Fill(pt,eta,phi_shift);
+    h_mMcTracks[9]->Fill(pt,eta,phi_shift);
+  }
+}
+
+void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float psiEast, float psiWest)
+{
+  // h_mRcTracks[cent]->Fill(pt,eta,phi);
+  // h_mRcTracks[9]->Fill(pt,eta,phi);
+  if(eta > -1.0*vmsa::mEtaMax && eta < 0.0)
+  { // east eta cut
+    float phi_shift = AngleShift(phi-psiWest);
+    h_mRcTracks[cent]->Fill(pt,eta,phi_shift);
+    h_mRcTracks[9]->Fill(pt,eta,phi_shift);
+  }
+  if(eta >= 0.0 && eta < vmsa::mEtaMax)
+  { // west eta cut
+    float phi_shift = AngleShift(phi-psiEast);
+    h_mRcTracks[cent]->Fill(pt,eta,phi_shift);
+    h_mRcTracks[9]->Fill(pt,eta,phi_shift);
+  }
 }
 
 void StEffHistManger::FillHistPt(int cent, float McPt, float gRcPt, float pRcPt)

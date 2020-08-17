@@ -25,6 +25,7 @@ class StEffKaon
     void SetStopEvent(long StopEvent);
 
     void Init();
+    void InitMap();
     void Make();
     void Finish();
   private:
@@ -38,6 +39,11 @@ class StEffKaon
 
     int mEnergy;
     int mPID;
+
+    std::map<std::string,Int_t> mEmbdRunId;
+    std::map<std::string,Int_t> mEmbdEvtId;
+    std::map<std::string,Float_t> mPsiEast;
+    std::map<std::string,Float_t> mPsiWest;
 
     StEffCut *mEffCut;
     StEffHistManger *mEffHistManger;

@@ -41,8 +41,7 @@ cd JOBS
 # for jobID in `seq 0 10` # 27 GeV
 # for jobID in `seq 0 24` # 39 GeV
 # for jobID in `seq 0 24` # 62.4 GeV
-# for jobID in `seq 0 80` # 200 GeV
-for jobID in `seq 0 10` # 200 GeV
+for jobID in `seq 0 80` # 200 GeV
 do
   # echo $jobID
   # echo $energy
