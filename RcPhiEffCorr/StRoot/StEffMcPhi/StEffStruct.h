@@ -1,6 +1,7 @@
 struct McVecMeson
 {
   float Centrality;
+  float Psi2;
   float McPt;
   float McP;
   float McEta;

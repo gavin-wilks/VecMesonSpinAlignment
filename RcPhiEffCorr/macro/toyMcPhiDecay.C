@@ -31,8 +31,9 @@ void getKinematics(TLorentzVector& lPhi, double const mass);
 void setDecayChannels(int const pid);
 void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters);
 void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus);
-bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon);
-void findHist(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
+bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector const& lKaon);
+void findHist(TLorentzVector const& lKaon, int iParticleIndex, float Psi2, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
+float AngleShift(float phi);
 void findHist_ToF(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
 void write();
 
@@ -54,7 +55,7 @@ TF1Map f_TofKminus;
 
 TFile *File_OutPut;
 
-void toyMcPhiDecay(const int energy = 4, const int pid = 0, const int year = 1, const int cut = 0, const int NMax = 50, const int jobID = 9)
+void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, const int cut = 0, const int NMax = 5000, const int jobID = 9)
 {
   TStopwatch* stopWatch = new TStopwatch();
   stopWatch->Start();
@@ -146,6 +147,8 @@ void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters)
 void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus)
 {
    int const centrality = floor(vmsa::NCentMax * gRandom->Rndm());
+   float const Psi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
+   // cout << "centrality = " << centrality << ", Psi2 = " << Psi2 << endl;
    // int const centrality = floor(2 * gRandom->Rndm());
    TLorentzVector lRcPhi = lKplus + lKminus; // phi meson reconstruction
    // cout << "lPhi.pt = " << lPhi->Pt() << ", lPhi.eta = " << lPhi->Eta() << ", lPhi.phi = " << lPhi->Phi() << ", lPhi.m = " << lPhi->M() << endl;
@@ -155,6 +158,7 @@ void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLor
    float arr[110];
    int iArr = 0;
    arr[iArr++] = centrality; // McPhi
+   arr[iArr++] = Psi2; 
    arr[iArr++] = lPhi->Pt();
    arr[iArr++] = lPhi->P();
    arr[iArr++] = lPhi->PseudoRapidity();
@@ -175,7 +179,7 @@ void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLor
    arr[iArr++] = lKplus.Rapidity();
    arr[iArr++] = lKplus.Phi();
    arr[iArr++] = lKplus.M();
-   arr[iArr++] = tpcReconstructed(0,centrality,lKplus);
+   arr[iArr++] = tpcReconstructed(0,centrality,Psi2,lKplus);
 
    arr[iArr++] = lKminus.Pt();
    arr[iArr++] = lKminus.PseudoRapidity();
@@ -189,7 +193,7 @@ void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLor
    arr[iArr++] = lKminus.Rapidity();
    arr[iArr++] = lKminus.Phi();
    arr[iArr++] = lKminus.M();
-   arr[iArr++] = tpcReconstructed(1,centrality,lKminus);
+   arr[iArr++] = tpcReconstructed(1,centrality,Psi2,lKminus);
 
    arr[iArr++] = lRcPhi.Pt();
    arr[iArr++] = lRcPhi.P();
@@ -202,14 +206,14 @@ void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLor
    // if(lRcPhi.Pt() < 10e-4) cout << "lPhi->Pt = " << lPhi->Pt() << ", lRcPhi.Pt = " << lRcPhi.Pt() << endl;
 }
 
-bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
+bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector const& lKaon)
 {
    if(fabs(lKaon.Eta()) >= 1.0) return false;
 
    TH1D *h_TPC = NULL;
    int EtaBin_TPC = -1;
    int PhiBin_TPC = -1;
-   findHist(lKaon,iParticleIndex,EtaBin_TPC,PhiBin_TPC);
+   findHist(lKaon,iParticleIndex,Psi2,EtaBin_TPC,PhiBin_TPC);
 
    TH1D *h_ToF = NULL;
    TF1 *f_ToF = NULL;
@@ -268,13 +272,31 @@ bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
    return is_TPC && is_ToF;
 }
 
-void findHist(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin)
+void findHist(TLorentzVector const& lKaon, int iParticleIndex, float Psi2, int& EtaBin, int& PhiBin)
 {
   float eta = lKaon.Eta();
   EtaBin = h_FrameEta[iParticleIndex]->FindBin(eta)-1;
   // cout << "eta = " << eta << ", EtaBin = " << EtaBin << endl;
-  float phi = lKaon.Phi();
-  PhiBin = h_FramePhi[iParticleIndex]->FindBin(phi)-1;
+  float phi = lKaon.Phi()-Psi2;
+  float phi_shift = AngleShift(phi);
+  PhiBin = h_FramePhi[iParticleIndex]->FindBin(phi_shift)-1;
+}
+
+float AngleShift(float phi)
+{
+  double const Psi2_low[3] = {-3.0*TMath::Pi()/2.0,-1.0*TMath::Pi()/2.0,1.0*TMath::Pi()/2.0};
+  double const Psi2_up[3]  = {-1.0*TMath::Pi()/2.0, 1.0*TMath::Pi()/2.0,3.0*TMath::Pi()/2.0};
+
+  float phi_shift = -999.0;
+  for(int psi_bin = 0; psi_bin < 3; ++psi_bin)
+  {
+    if(phi >= Psi2_low[psi_bin] && phi < Psi2_up[psi_bin])
+    {
+      phi_shift = phi - (psi_bin-1)*2.0*TMath::Pi()/2.0;
+    }
+  }
+
+  return phi_shift;
 }
 
 void findHist_ToF(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin)
@@ -327,7 +349,7 @@ void readEfficiency(int energy, int year, int cut, int jobID)
   int BufSize = (int)pow(2., 16.);
   // int Split = 1;
 
-  const char* varlist = "Centrality:McPt:McP:McEta:McY:McPhi:McInvMass:McPid:" // MC phi 
+  const char* varlist = "Centrality:Psi2:McPt:McP:McEta:McY:McPhi:McInvMass:McPid:" // MC phi 
                         "KpMcPt:KpMcEta:KpMcY:KpMcPhi:KpMcM:KpMcPid:" // MC K+ 
                         "KpRcPt:KpRcEta:KpRcY:KpRcPhi:KpRcM:KpRcTpc:" // RC K+
                         "KmMcPt:KmMcEta:KmMcY:KmMcPhi:KmMcM:KmMcPid:" // MC K-
@@ -379,12 +401,12 @@ void readTofEff(int energy)
 void readTofEffFit(int energy)
 {
   // string inputKplus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputKplus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_first_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKplus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_second_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kplus = TFile::Open(inputKplus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K+: " << inputKplus.c_str() << endl;
 
   // string inputKminus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputKminus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_first_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKminus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_second_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kminus = TFile::Open(inputKminus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K-: " << inputKminus.c_str() << endl;
 

@@ -24,20 +24,20 @@ codePath=/star/u/sunxuhit/STAR/VecMesonSpinAlignment
 # cut=0
 # outPath=/star/data01/pwg/sunxuhit/AuAu27GeV/
  
-energy=4  # 39GeV
-year=1
-cut=0
-outPath=/star/data01/pwg/sunxuhit/AuAu39GeV/
+# energy=4  # 39GeV
+# year=1
+# cut=0
+# outPath=/star/data01/pwg/sunxuhit/AuAu39GeV/
  
 # energy=5  # 62.4GeV
 # year=1
 # cut=0
 # outPath=/star/data01/pwg/sunxuhit/AuAu62GeV/
  
-# energy=6  # 200GeV
-# year=0
-# cut=0
-# outPath=/star/data01/pwg/sunxuhit/AuAu200GeV/
+energy=6  # 200GeV
+year=0
+cut=0
+outPath=/star/data01/pwg/sunxuhit/AuAu200GeV/
 ##########Energy Selection##########
 
 cd JOBS

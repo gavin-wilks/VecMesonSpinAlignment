@@ -21,7 +21,7 @@ StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int
   pid = PID;
 
   // string InPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
-  string InPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/eta/Eff_%s_SingleKaon_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
+  string InPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_%s_%s_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
 
   SetInPutFile(InPutFile); // set input list
 
@@ -29,7 +29,7 @@ StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int
   SetStopEvent(StopEvent); // set stop event
 
   // string OutPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string OutPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string OutPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   SetOutPutFile(OutPutFile); // set output file
 
   mEffCut = new StEffCut();
@@ -77,6 +77,7 @@ void StEffMcPhi::Init()
 
   // initialize Ntuple
   mNtuple->SetBranchAddress("Centrality",&mCentrality);
+  mNtuple->SetBranchAddress("Psi2",&mPsi2);
   mNtuple->SetBranchAddress("McPt",&mMcPt);
   mNtuple->SetBranchAddress("McP",&mMcP);
   mNtuple->SetBranchAddress("McEta",&mMcEta);
@@ -147,6 +148,7 @@ void StEffMcPhi::Make()
 
     McVecMeson McPhi; // initialize McPhi
     McPhi.Centrality = mCentrality;
+    McPhi.Psi2       = mPsi2;
     McPhi.McPt       = mMcPt;
     McPhi.McP        = mMcP;
     McPhi.McEta      = mMcEta;
@@ -208,9 +210,9 @@ void StEffMcPhi::Make()
     lMcKP.SetPtEtaPhiM(McKP.McPt,McKP.McEta,McKP.McPhi,vmsa::mMassKaon);
     lMcKP.Boost(vMcPhiBeta);
     TVector3 vMcKP = lMcKP.Vect().Unit(); // direction of K+ momentum in phi-meson rest frame
-    float Psi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
+    // float Psi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
     // float Psi2 = gRandom->Uniform(-TMath::Pi(),TMath::Pi()); // random event plane angle
-    TVector3 QVector(TMath::Sin(Psi2),-1.0*TMath::Cos(Psi2),0.0);
+    TVector3 QVector(TMath::Sin(McPhi.Psi2),-1.0*TMath::Cos(McPhi.Psi2),0.0);
     TVector3 nQ = QVector.Unit(); // direction of QVector
     float McCosThetaStar = vMcKP.Dot(nQ);
 

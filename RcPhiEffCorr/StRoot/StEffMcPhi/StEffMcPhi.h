@@ -44,6 +44,7 @@ class StEffMcPhi
 
     TNtuple *mNtuple; // event header
     float mCentrality;
+    float mPsi2;
     float mMcPt;
     float mMcP;
     float mMcEta;
