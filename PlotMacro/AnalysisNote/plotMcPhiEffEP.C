@@ -54,6 +54,7 @@ void plotMcPhiEffEP(int cent = 9, int ptBin = 2)
   c_eff->cd(1);
   c_eff->cd(1)->SetRightMargin(0.15);
   h_mEffCosEP[cent][ptBin]->SetStats(0);
+  h_mEffCosEP[cent][ptBin]->SetTitle("1.2 < p_{T} < 1.8 GeV/c");
   h_mEffCosEP[cent][ptBin]->GetXaxis()->SetTitle("cos(#theta*)");
   h_mEffCosEP[cent][ptBin]->GetXaxis()->SetTitleSize(0.06);
   h_mEffCosEP[cent][ptBin]->GetXaxis()->CenterTitle();
@@ -64,7 +65,7 @@ void plotMcPhiEffEP(int cent = 9, int ptBin = 2)
 
   c_eff->cd(2);
   string legEnergy = Form("AuAu %s 20%%-60%%",vmsa::mBeamEnergy[6].c_str());
-  h_mEffCos[cent][ptBin]->SetTitle("");
+  h_mEffCos[cent][ptBin]->SetTitle("#phi-meson");
   h_mEffCos[cent][ptBin]->SetStats(0);
   h_mEffCos[cent][ptBin]->GetXaxis()->SetTitle("cos(#theta*)");
   h_mEffCos[cent][ptBin]->GetXaxis()->SetTitleSize(0.06);
