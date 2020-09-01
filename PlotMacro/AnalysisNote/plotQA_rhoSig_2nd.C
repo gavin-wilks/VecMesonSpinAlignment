@@ -131,6 +131,9 @@ void plotQA_rhoSig_2nd(int energy = 6, int ptBin = 3)
       leg_order->SetFillColor(10);
       leg_order->AddEntry((TObject*)0,order[i_theta].c_str(),"");
       leg_order->Draw("same");
+
+      string leg_mass = Form("M(K^{+},K^{-}) = %4.2f #pm %4.2f (MeV)",mean*1000.0,sigma*1000.0);
+      plotTopLegend((char*)leg_mass.c_str(),0.20,0.45,0.05,1,0.0,42,1);
     }
   }
 
