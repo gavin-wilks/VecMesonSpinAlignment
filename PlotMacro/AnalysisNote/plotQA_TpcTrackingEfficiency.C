@@ -10,7 +10,7 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 
 using namespace std;
 
-void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 0, int year = 0)
+void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 1, int year = 0)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -95,7 +95,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 0, int year = 0)
   }
   leg->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/TPC/c_TpcEffCentCom_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/TPC/c_TpcEffCentCom_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
   c_play->SaveAs(FigName.c_str());
 
   int const eta_bin = 4;
@@ -135,12 +135,57 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 0, int year = 0)
     h_mEfficiency[HistName]->DrawCopy("HIST same");
 
     string phi_leg = Form("phi bin: %d",i_pad);
-    TLegend *leg_phi = new TLegend(0.5,0.2,0.8,0.5);
+    TLegend *leg_phi = new TLegend(0.3,0.2,0.8,0.3);
     leg_phi->SetFillColor(10);
     leg_phi->SetBorderSize(0);
     leg_phi->AddEntry(h_mEfficiency[HistName],phi_leg.c_str());
     leg_phi->Draw("same");
   }
-  FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/TPC/c_TpcEffDiffComEta_%d_%s%s.eps",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/TPC/c_TpcEffDiffComEta_%d_%s%s.eps",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
   c_diff->SaveAs(FigName.c_str());
+
+  int const phi_bin = 4;
+  TCanvas *c_diff_phi = new TCanvas("c_diff_phi","c_diff_phi",10,10,1000,500);
+  c_diff_phi->Divide(5,2);
+  for(int i_pad = 0; i_pad < 10; ++i_pad)
+  {
+    c_diff_phi->cd(i_pad+1)->SetLeftMargin(0.15);
+    c_diff_phi->cd(i_pad+1)->SetBottomMargin(0.15);
+    c_diff_phi->cd(i_pad+1)->SetGrid(0,0);
+    c_diff_phi->cd(i_pad+1)->SetTicks(1,1);
+    string HistName = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",i_pad,phi_bin);
+
+    string title = Form("%s @ Au+Au %s",mParTex[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+    h_mEfficiency[HistName]->SetTitle(title.c_str());
+    h_mEfficiency[HistName]->SetStats(0);
+
+    h_mEfficiency[HistName]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    h_mEfficiency[HistName]->GetXaxis()->CenterTitle();
+
+    h_mEfficiency[HistName]->GetYaxis()->SetTitle("Efficiency");
+    h_mEfficiency[HistName]->GetYaxis()->CenterTitle();
+    h_mEfficiency[HistName]->GetYaxis()->SetRangeUser(0.0,1.05);
+    h_mEfficiency[HistName]->SetLineColor(mPlotColor[9]);
+    h_mEfficiency[HistName]->SetLineWidth(2);
+    h_mEfficiency[HistName]->DrawCopy("HIST");
+
+    for(int i_cent = 2; i_cent <= 5; ++i_cent)
+    {
+      HistName = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",i_cent,i_pad,phi_bin);
+      h_mEfficiency[HistName]->SetLineColor(mPlotColor[i_cent]);
+      h_mEfficiency[HistName]->SetLineWidth(1);
+      h_mEfficiency[HistName]->DrawCopy("HIST same");
+    }
+    HistName = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",i_pad,phi_bin);
+    h_mEfficiency[HistName]->DrawCopy("HIST same");
+
+    string eta_leg = Form("#eta bin: %d",i_pad);
+    TLegend *leg_eta = new TLegend(0.3,0.2,0.8,0.3);
+    leg_eta->SetFillColor(10);
+    leg_eta->SetBorderSize(0);
+    leg_eta->AddEntry(h_mEfficiency[HistName],eta_leg.c_str());
+    leg_eta->Draw("same");
+  }
+  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/TPC/c_TpcEffDiffComPhi_%d_%s%s.eps",phi_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  c_diff_phi->SaveAs(FigName.c_str());
 }

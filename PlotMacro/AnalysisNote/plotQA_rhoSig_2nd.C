@@ -98,7 +98,7 @@ void plotQA_rhoSig_2nd(int energy = 6, int ptBin = 3)
       h_mMass_InteTheta->GetXaxis()->SetTitleOffset(1.2);
       h_mMass_InteTheta->GetXaxis()->CenterTitle();
 
-      h_mMass_InteTheta->GetYaxis()->SetRangeUser(h_mMass_InteTheta->GetMinimum(),1.1*h_mMass_InteTheta->GetMaximum());
+      h_mMass_InteTheta->GetYaxis()->SetRangeUser(h_mMass_InteTheta->GetMinimum(),1.2*h_mMass_InteTheta->GetMaximum());
       h_mMass_InteTheta->GetYaxis()->SetNdivisions(505,'N');
       h_mMass_InteTheta->GetYaxis()->SetTitle("Yields");
       h_mMass_InteTheta->GetYaxis()->SetTitleSize(0.05);
@@ -133,7 +133,7 @@ void plotQA_rhoSig_2nd(int energy = 6, int ptBin = 3)
       leg_order->Draw("same");
 
       string leg_mass = Form("M(K^{+},K^{-}) = %4.2f #pm %4.2f (MeV)",mean*1000.0,sigma*1000.0);
-      plotTopLegend((char*)leg_mass.c_str(),0.20,0.45,0.05,1,0.0,42,1);
+      plotTopLegend((char*)leg_mass.c_str(),0.20,0.82,0.05,1,0.0,42,1);
     }
   }
 
