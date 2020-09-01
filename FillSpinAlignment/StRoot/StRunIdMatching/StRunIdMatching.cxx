@@ -159,7 +159,7 @@ void StRunIdMatching::Init()
 
 void StRunIdMatching::InitMap()
 {
-  TString InPutFile = "/star/u/sunxuhit/AuAu200GeV/SpinAlignment/Phi/RunId/evtId.txt"; // embedded runId & evtId
+  TString InPutFile = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/RunId/evtId.txt",vmsa::mBeamEnergy[mEnergy].c_str()); // embedded runId & evtId
   cout << "Input mapping was set to: " << InPutFile.Data() << endl;
   FILE *fp = fopen(InPutFile.Data(),"r");
   if(fp == NULL)

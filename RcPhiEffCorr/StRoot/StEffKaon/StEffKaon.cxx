@@ -211,7 +211,7 @@ void StEffKaon::Init()
 
 void StEffKaon::InitMap()
 { // only for 200GeV
-  TString InPutFile = "/star/data01/pwg/sunxuhit/AuAu200GeV/SpinAlignment/Phi/RunId/embedding_map_pico.txt"; // embedding map pico
+  TString InPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/RunId/embedding_map_pico.txt",vmsa::mBeamEnergy[mEnergy].c_str()); // embedding map pico
   cout << "Input mapping was set to: " << InPutFile.Data() << endl;
   FILE *fp = fopen(InPutFile.Data(),"r");
   if(fp == NULL)
