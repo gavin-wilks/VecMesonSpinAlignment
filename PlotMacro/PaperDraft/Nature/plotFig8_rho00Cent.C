@@ -61,7 +61,7 @@ void plotFig8_rho00Cent()
   TGraphAsymmErrors *g_rhoKstarCent_2nd_sys[3];
   for(int i_energy = 0; i_energy < 3; ++i_energy)
   {
-    string inputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_Cent_July01_2020.root";
+    string inputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_Cent_Aug31_2020.root";
     File_InPutKstar = TFile::Open(inputfile.c_str());
 
     string GraName_2nd_stat = Form("g_rhoCent_%s_2nd_stat",mBeamEnergyKstar[i_energy].c_str());
@@ -310,7 +310,7 @@ void plotFig8_rho00Cent()
   // K* Legend
   // Draw_TGAE_Point_new_Symbol(5,0.26,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
   plotTopLegend((char*)"K^{*0}",10,0.26,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"|y| < 0.5",20,0.26,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"|y| < 1.0",20,0.26,size_font,1,0.0,42,0);
   plotTopLegend((char*)"1.0 < p_{T}< 1.5 GeV/c",20,0.24,size_font,1,0.0,42,0);
   pad_Bottom3->Update();
 

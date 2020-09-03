@@ -78,7 +78,7 @@ void plotFig3_Rho00EnergyTheory()
   //----------------------------------------------------------
 
   //----------------------------------------------------------
-  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN_July01_2020.root");
+  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN_Aug30_2020.root");
   // K* STAR
   //beam-energy dependence of kstar rho00 from STAR, pT: 1.0 - 1.5 GeV/c, 20-60%
   TGraphAsymmErrors *g_rhoKstar_stat       = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoKstar_stat");
@@ -185,7 +185,7 @@ void plotFig3_Rho00EnergyTheory()
   plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.43,size_font,1,0.0,42,0);
 
   Draw_TGAE_Point_new_Symbol(40,0.4145,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
-  plotTopLegend((char*)"K^{*0} (|y| < 0.5 & 1.0 < p_{T} < 1.5 GeV/c)",48,0.41,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"K^{*0} (|y| < 1.0 & 1.0 < p_{T} < 1.5 GeV/c)",48,0.41,size_font,1,0.0,42,0);
 
 
   // theory

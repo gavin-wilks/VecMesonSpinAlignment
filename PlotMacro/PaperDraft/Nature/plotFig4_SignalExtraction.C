@@ -47,7 +47,7 @@ void plotFig4_SignalExtraction()
     g_yieldsPhi->SetPointError(i_cos,1.0/14.0,1.0/14.0,h_mYieldsPhi->GetBinError(i_cos+1)/(numOfEvent*binWidth),h_mYieldsPhi->GetBinError(i_cos+1)/(numOfEvent*binWidth));
   }
 
-  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54.root");
+  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1.root");
   TH1D *h_mMassKstar = (TH1D*)File_InputKstar->Get("hSigIntgrE54_GeV_0")->Clone("h_mMassKstar");
   TF1 *f_SigKstar = (TF1*)File_InputKstar->Get("BWFunc_0")->Clone("f_SigKstar");
   TF1 *f_BkgKstar = (TF1*)File_InputKstar->Get("Func1")->Clone("f_BkgKstar");
@@ -180,7 +180,7 @@ void plotFig4_SignalExtraction()
 
     plotTopLegend((char*)"b) K^{*0}",0.20,0.87,0.05,1,0.0,42,1);
     plotTopLegend((char*)"Au+Au 54.4 GeV & 20-60%",0.20,0.80,0.05,1,0.0,42,1);
-    plotTopLegend((char*)"|y| < 0.5 & 1.0 < p_{T} < 1.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
+    plotTopLegend((char*)"|y| < 1.0 & 1.0 < p_{T} < 1.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
 
     TLegend *leg = new TLegend(0.18,0.20,0.55,0.35);
     leg->SetBorderSize(0);
@@ -273,7 +273,7 @@ void plotFig4_SignalExtraction()
     h_frameKstar->GetYaxis()->SetTitleSize(0.06);
     h_frameKstar->GetYaxis()->SetTitleFont(42);
     h_frameKstar->GetYaxis()->SetLabelSize(0.04);
-    h_frameKstar->GetYaxis()->SetRangeUser(0.04,0.06);
+    h_frameKstar->GetYaxis()->SetRangeUser(0.08,0.125);
     h_frameKstar->SetNdivisions(505,"Y");
     h_frameKstar->SetMarkerStyle(24);
     h_frameKstar->SetMarkerColor(1);
@@ -289,7 +289,7 @@ void plotFig4_SignalExtraction()
 
     plotTopLegend((char*)"d) K^{*0}",0.20,0.87,0.05,1,0.0,42,1);
     plotTopLegend((char*)"Au+Au 54.4 GeV & 20-60%",0.20,0.80,0.05,1,0.0,42,1);
-    plotTopLegend((char*)"|y| < 0.5 & 1.0 < p_{T} < 1.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
+    plotTopLegend((char*)"|y| < 1.0 & 1.0 < p_{T} < 1.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
 
     TLegend *leg = new TLegend(0.18,0.18,0.85,0.28);
     leg->SetBorderSize(0);
