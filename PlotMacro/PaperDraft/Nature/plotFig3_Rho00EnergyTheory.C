@@ -131,7 +131,7 @@ void plotFig3_Rho00EnergyTheory()
   plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
 
   // K* STAR
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,size_marker);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,size_marker-0.4);
   plotSysErrors(g_rhoKstar_sys,color_Kstr);
 
   // phi-meson ALICE
@@ -139,7 +139,7 @@ void plotFig3_Rho00EnergyTheory()
   plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
 
   // K* ALICE
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,size_marker);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,size_marker-0.4);
   plotSysErrors(g_rhoKstar_ALICE_sys,color_Kstr_ALICE);
 
   // plot theory curve
