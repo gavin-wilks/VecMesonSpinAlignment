@@ -12,7 +12,8 @@ using namespace std;
 void plotKaonEff(int energy = 6, int cent = 9)
 {
   gStyle->SetOptDate(0);
-  string inputKplus = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/Kplus/Efficiency/Eff_%s_StMcEvent_run11_pr_2060_EP.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string inputKplus = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/Kplus/Efficiency/Eff_%s_StMcEvent_run11_pr_2060_EP.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKplus = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/Kplus/Efficiency/Eff_%s_StMcEvent_run11_pr_EP.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kplus = TFile::Open(inputKplus.c_str());
   TH1D *h_mEffKplus[10];
   for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; ++i_cent)
@@ -21,7 +22,8 @@ void plotKaonEff(int energy = 6, int cent = 9)
     h_mEffKplus[i_cent] = (TH1D*)File_Kplus->Get(HistName.c_str());
   }
 
-  string inputKminus = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/Kminus/Efficiency/Eff_%s_StMcEvent_run11_pr_2060_EP.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  // string inputKminus = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/Kminus/Efficiency/Eff_%s_StMcEvent_run11_pr_2060_EP.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKminus = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/Kminus/Efficiency/Eff_%s_StMcEvent_run11_pr_EP.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kminus = TFile::Open(inputKminus.c_str());
   TH1D *h_mEffKminus[10];
   for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; ++i_cent)
@@ -56,7 +58,7 @@ void plotKaonEff(int energy = 6, int cent = 9)
   h_frame->GetYaxis()->SetLabelSize(0.04);
   h_frame->GetYaxis()->SetNdivisions(505);
   h_frame->GetYaxis()->SetTitleOffset(1.2);
-  h_frame->GetYaxis()->SetRangeUser(0.80,0.83);
+  h_frame->GetYaxis()->SetRangeUser(0.76,0.79);
   h_frame->Draw("pE");
 
   h_mEffKplus[cent]->SetMarkerStyle(20);
