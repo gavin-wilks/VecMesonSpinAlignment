@@ -14,8 +14,9 @@
 #include "TClonesArray.h"
 #include "TNtuple.h"
 #include "TF1.h"
-// #include "/global/homes/x/xusun/STAR/VecMesonSpinAlignment/Utility/StSpinAlignmentCons.h"
-// #include "/global/homes/x/xusun/STAR/VecMesonSpinAlignment/Utility/functions.h"
+#include "TH3F.h"
+#include "TH2F.h"
+#include "TGraphAsymmErrors.h"
 #include "../../Utility/StSpinAlignmentCons.h"
 #include "../../Utility/functions.h"
 
@@ -35,6 +36,8 @@ bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector c
 void findHist(TLorentzVector const& lKaon, int iParticleIndex, float Psi2, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
 float AngleShift(float phi);
 void findHist_ToF(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
+TF1* readv2(int energy, int pid);
+TF1* readspec(int energy, int pid);
 void write();
 
 TPythia6Decayer* pydecay;
@@ -53,9 +56,14 @@ TH1D *h_FramePhi_ToF[2];
 TF1Map f_TofKplus;
 TF1Map f_TofKminus;
 
+// sampling functions and histograms
+TF1 *f_v2, *f_spec, *f_flow;
+TH3F *h_Tracks;
+TH2F *h_phiRP;
+
 TFile *File_OutPut;
 
-void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, const int cut = 0, const int NMax = 5000, const int jobID = 9)
+void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, const int cut = 0, const int NMax = 500000, const int jobID = 9)
 {
   TStopwatch* stopWatch = new TStopwatch();
   stopWatch->Start();
@@ -63,6 +71,14 @@ void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, 
   readEfficiency(energy,year,cut,jobID);
   readTofEff(energy);
   readTofEffFit(energy);
+
+  // v2 & spectra implementation
+  f_v2   = readv2(energy,pid);
+  f_spec = readspec(energy,pid);
+  f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
+
+  h_Tracks = new TH3F("h_Tracks","h_Tracks",20,vmsa::ptMin,vmsa::ptMax,vmsa::BinY,-1.0,1.0,36,-TMath::Pi(),TMath::Pi());
+  h_phiRP = new TH2F("h_phiRP","h_phiRP",20,vmsa::ptMin,vmsa::ptMax,36,-TMath::Pi(),TMath::Pi()); // QA histogram for v2 sample
 
   pydecay = TPythia6Decayer::Instance();
   pydecay->Init();
@@ -92,16 +108,19 @@ void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, 
 
 void getKinematics(TLorentzVector& lPhi, double const mass)
 {
-   double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptEffMax);
-   // double const pt = gRandom->Uniform(0.8, 2.4);
-   double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
-   double const phi = TMath::TwoPi() * gRandom->Rndm();
+  double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptEffMax); // sample with flat distribution
+  // double const pt = f_spec->GetRandom(vmsa::ptMin, vmsa::ptMax); // sample with measured spectra
+  double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
+  // double const phi = TMath::TwoPi() * gRandom->Rndm(); // sample flat distribution
+  f_flow->ReleaseParameter(0);
+  f_flow->SetParameter(0,f_v2->Eval(pt));
+  double const phi = f_flow->GetRandom(); // sample with measured v2
 
-   double const mT = sqrt(mass * mass + pt * pt);
-   double const pz = mT * sinh(y);
-   double const E = mT * cosh(y);
+  double const mT = sqrt(mass * mass + pt * pt);
+  double const pz = mT * sinh(y);
+  double const E = mT * cosh(y);
 
-   lPhi.SetPxPyPzE(pt * cos(phi), pt * sin(phi) , pz, E);
+  lPhi.SetPxPyPzE(pt * cos(phi), pt * sin(phi) , pz, E);
 }
 
 void setDecayChannels(int const pid)
@@ -146,64 +165,68 @@ void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters)
 
 void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus)
 {
-   int const centrality = floor(vmsa::NCentMax * gRandom->Rndm());
-   float const Psi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
-   // cout << "centrality = " << centrality << ", Psi2 = " << Psi2 << endl;
-   // int const centrality = floor(2 * gRandom->Rndm());
-   TLorentzVector lRcPhi = lKplus + lKminus; // phi meson reconstruction
-   // cout << "lPhi.pt = " << lPhi->Pt() << ", lPhi.eta = " << lPhi->Eta() << ", lPhi.phi = " << lPhi->Phi() << ", lPhi.m = " << lPhi->M() << endl;
-   // cout << "lRcPhi.pt = " << lRcPhi.Pt() << ", lRcPhi.eta = " << lRcPhi.Eta() << ", lRcPhi.phi = " << lRcPhi.Phi() << ", lRcPhi.m = " << lRcPhi.M() << endl;
-   // cout << endl;
+  int const centrality = floor(vmsa::NCentMax * gRandom->Rndm());
+  // float const Psi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
+  float const Psi2 = 0.0; // fixed event plane angle
+  // cout << "centrality = " << centrality << ", Psi2 = " << Psi2 << endl;
+  // int const centrality = floor(2 * gRandom->Rndm());
+  TLorentzVector lRcPhi = lKplus + lKminus; // phi meson reconstruction
+  // cout << "lPhi.pt = " << lPhi->Pt() << ", lPhi.eta = " << lPhi->Eta() << ", lPhi.phi = " << lPhi->Phi() << ", lPhi.m = " << lPhi->M() << endl;
+  // cout << "lRcPhi.pt = " << lRcPhi.Pt() << ", lRcPhi.eta = " << lRcPhi.Eta() << ", lRcPhi.phi = " << lRcPhi.Phi() << ", lRcPhi.m = " << lRcPhi.M() << endl;
+  // cout << endl;
 
-   float arr[110];
-   int iArr = 0;
-   arr[iArr++] = centrality; // McPhi
-   arr[iArr++] = Psi2; 
-   arr[iArr++] = lPhi->Pt();
-   arr[iArr++] = lPhi->P();
-   arr[iArr++] = lPhi->PseudoRapidity();
-   arr[iArr++] = lPhi->Rapidity();
-   arr[iArr++] = lPhi->Phi();
-   arr[iArr++] = lPhi->M();
-   arr[iArr++] = kf;
+  float arr[110];
+  int iArr = 0;
+  arr[iArr++] = centrality; // McPhi
+  arr[iArr++] = Psi2; 
+  arr[iArr++] = lPhi->Pt();
+  arr[iArr++] = lPhi->P();
+  arr[iArr++] = lPhi->PseudoRapidity();
+  arr[iArr++] = lPhi->Rapidity();
+  arr[iArr++] = lPhi->Phi();
+  arr[iArr++] = lPhi->M();
+  arr[iArr++] = kf;
 
-   arr[iArr++] = lKplus.Pt();
-   arr[iArr++] = lKplus.PseudoRapidity();
-   arr[iArr++] = lKplus.Rapidity();
-   arr[iArr++] = lKplus.Phi();
-   arr[iArr++] = lKplus.M();
-   arr[iArr++] = 321;
+  arr[iArr++] = lKplus.Pt();
+  arr[iArr++] = lKplus.PseudoRapidity();
+  arr[iArr++] = lKplus.Rapidity();
+  arr[iArr++] = lKplus.Phi();
+  arr[iArr++] = lKplus.M();
+  arr[iArr++] = 321;
 
-   arr[iArr++] = lKplus.Pt();
-   arr[iArr++] = lKplus.PseudoRapidity();
-   arr[iArr++] = lKplus.Rapidity();
-   arr[iArr++] = lKplus.Phi();
-   arr[iArr++] = lKplus.M();
-   arr[iArr++] = tpcReconstructed(0,centrality,Psi2,lKplus);
+  arr[iArr++] = lKplus.Pt();
+  arr[iArr++] = lKplus.PseudoRapidity();
+  arr[iArr++] = lKplus.Rapidity();
+  arr[iArr++] = lKplus.Phi();
+  arr[iArr++] = lKplus.M();
+  arr[iArr++] = tpcReconstructed(0,centrality,Psi2,lKplus);
 
-   arr[iArr++] = lKminus.Pt();
-   arr[iArr++] = lKminus.PseudoRapidity();
-   arr[iArr++] = lKminus.Rapidity();
-   arr[iArr++] = lKminus.Phi();
-   arr[iArr++] = lKminus.M();
-   arr[iArr++] = -321;
+  arr[iArr++] = lKminus.Pt();
+  arr[iArr++] = lKminus.PseudoRapidity();
+  arr[iArr++] = lKminus.Rapidity();
+  arr[iArr++] = lKminus.Phi();
+  arr[iArr++] = lKminus.M();
+  arr[iArr++] = -321;
 
-   arr[iArr++] = lKminus.Pt();
-   arr[iArr++] = lKminus.PseudoRapidity();
-   arr[iArr++] = lKminus.Rapidity();
-   arr[iArr++] = lKminus.Phi();
-   arr[iArr++] = lKminus.M();
-   arr[iArr++] = tpcReconstructed(1,centrality,Psi2,lKminus);
+  arr[iArr++] = lKminus.Pt();
+  arr[iArr++] = lKminus.PseudoRapidity();
+  arr[iArr++] = lKminus.Rapidity();
+  arr[iArr++] = lKminus.Phi();
+  arr[iArr++] = lKminus.M();
+  arr[iArr++] = tpcReconstructed(1,centrality,Psi2,lKminus);
 
-   arr[iArr++] = lRcPhi.Pt();
-   arr[iArr++] = lRcPhi.P();
-   arr[iArr++] = lRcPhi.PseudoRapidity();
-   arr[iArr++] = lRcPhi.Rapidity();
-   arr[iArr++] = lRcPhi.Phi();
-   arr[iArr++] = lRcPhi.M();
+  arr[iArr++] = lRcPhi.Pt();
+  arr[iArr++] = lRcPhi.P();
+  arr[iArr++] = lRcPhi.PseudoRapidity();
+  arr[iArr++] = lRcPhi.Rapidity();
+  arr[iArr++] = lRcPhi.Phi();
+  arr[iArr++] = lRcPhi.M();
 
-   McPhiMeson->Fill(arr);
-   // if(lRcPhi.Pt() < 10e-4) cout << "lPhi->Pt = " << lPhi->Pt() << ", lRcPhi.Pt = " << lRcPhi.Pt() << endl;
+  McPhiMeson->Fill(arr);
+  // if(lRcPhi.Pt() < 10e-4) cout << "lPhi->Pt = " << lPhi->Pt() << ", lRcPhi.Pt = " << lRcPhi.Pt() << endl;
+
+  h_Tracks->Fill(lPhi->Pt(),lPhi->Rapidity(),lPhi->Phi()); // fill QA histograms
+  h_phiRP->Fill(lPhi->Pt(),lPhi->Phi());
 }
 
 bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector const& lKaon)
@@ -470,9 +493,105 @@ void readTofEffFit(int energy)
   }
 }
 
+TF1* readv2(int energy, int pid)
+{
+  string InPutV2 = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_v2 = TFile::Open(InPutV2.c_str());
+  TGraphAsymmErrors *g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
+  TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc,vmsa::ptMin,vmsa::ptMax,5);
+  f_v2->FixParameter(0,2);
+  f_v2->SetParameter(1,0.1);
+  f_v2->SetParameter(2,0.1);
+  f_v2->SetParameter(3,0.1);
+  f_v2->SetParameter(4,0.1);
+  f_v2->SetLineColor(2);
+  f_v2->SetLineWidth(2);
+  f_v2->SetLineStyle(2);
+  g_v2->Fit(f_v2,"N");
+
+  /*
+  TCanvas *c_v2 = new TCanvas("c_v2","c_v2",10,10,800,800);
+  c_v2->cd()->SetLeftMargin(0.15);
+  c_v2->cd()->SetBottomMargin(0.15);
+  c_v2->cd()->SetTicks(1,1);
+  c_v2->cd()->SetGrid(0,0);
+  TH1F *h_v2 = new TH1F("h_v2","h_v2",100,0.0,10.0);
+  for(int i_bin = 1; i_bin < 101; ++i_bin)
+  {
+    h_v2->SetBinContent(i_bin,-10.0);
+    h_v2->SetBinError(i_bin,1.0);
+  }
+  h_v2->SetTitle("");
+  h_v2->SetStats(0);
+  h_v2->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+  h_v2->GetXaxis()->CenterTitle();
+  h_v2->GetYaxis()->SetTitle("v_{2}");
+  h_v2->GetYaxis()->CenterTitle();
+  h_v2->GetYaxis()->SetRangeUser(0.0,0.2);
+  h_v2->Draw("pE");
+  g_v2->Draw("pE same");
+  f_v2->Draw("l same");
+  */
+
+  return f_v2;
+}
+
+TF1* readspec(int energy, int pid)
+{
+  string InPutSpec = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_Spec.root",vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_Spec = TFile::Open(InPutSpec.c_str());
+  TGraphAsymmErrors *g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
+  TF1 *f_Levy = new TF1("f_Levy",Levy,vmsa::ptMin,vmsa::ptMax,3);
+  f_Levy->SetParameter(0,1);
+  f_Levy->SetParameter(1,10);
+  f_Levy->SetParameter(2,0.1);
+  f_Levy->SetLineStyle(2);
+  f_Levy->SetLineColor(4);
+  f_Levy->SetLineWidth(2);
+  g_spec->Fit(f_Levy,"N");
+
+  TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
+  f_spec->SetParameter(0,f_Levy->GetParameter(0));
+  f_spec->SetParameter(1,f_Levy->GetParameter(1));
+  f_spec->SetParameter(2,f_Levy->GetParameter(2));
+  f_spec->SetLineStyle(2);
+  f_spec->SetLineColor(2);
+  f_spec->SetLineWidth(2);
+
+  /*
+  TCanvas *c_spec = new TCanvas("c_spec","c_spec",10,10,800,800);
+  c_spec->cd()->SetLeftMargin(0.15);
+  c_spec->cd()->SetBottomMargin(0.15);
+  c_spec->cd()->SetTicks(1,1);
+  c_spec->cd()->SetGrid(0,0);
+  c_spec->SetLogy();
+  TH1F *h_spec = new TH1F("h_spec","h_spec",100,0.0,10.0);
+  for(int i_bin = 1; i_bin < 101; ++i_bin)
+  {
+    h_spec->SetBinContent(i_bin,-10.0);
+    h_spec->SetBinError(i_bin,1.0);
+  }
+  h_spec->SetTitle("");
+  h_spec->SetStats(0);
+  h_spec->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+  h_spec->GetXaxis()->CenterTitle();
+  h_spec->GetYaxis()->SetTitle("dN/p_{T}dp_{T}");
+  h_spec->GetYaxis()->CenterTitle();
+  h_spec->GetYaxis()->SetRangeUser(1E-6,10);
+  h_spec->Draw("pE");
+  g_spec->Draw("pE same");
+  f_Levy->Draw("l same");
+  f_spec->Draw("l same");
+  */
+
+  return f_spec;
+}
+
 void write()
 {
   File_OutPut->cd();
   McPhiMeson->Write();
+  h_Tracks->Write();
+  h_phiRP->Write();
   File_OutPut->Close();
 }
