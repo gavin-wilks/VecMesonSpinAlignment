@@ -7,12 +7,16 @@
 #include "TF1.h"
 #include "../../Utility/StSpinAlignmentCons.h"
 #include "../../Utility/draw.h"
+#include "../../Utility/functions.h"
 
 using namespace std;
 
-void plotMcPhiEffEP(int cent = 9, int ptBin = 2)
+void plotMcPhiEffEP(int cent = 9, int ptBin = 2, bool isFlow = false)
 {
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu200GeV/Phi/Efficiency/Eff_200GeV_SingleKaon_2060.root");
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu200GeV/Phi/Efficiency/Eff_200GeV_SingleKaon_2060_withFlowSpecPtCut.root");
+  if(!isFlow) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu200GeV/Phi/Efficiency/Eff_200GeV_SingleKaon_2060_woFlowSpecPtCut.root");
+  // string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu200GeV/Phi/Efficiency/Eff_200GeV_SingleKaon_2060_withFlow.root");
+  // if(!isFlow) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu200GeV/Phi/Efficiency/Eff_200GeV_SingleKaon_2060_woFlow.root");
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   TH2D *h_mMcCosEP[10][vmsa::BinPt]; // efficiency vs CosThetaStar & EP as a function of centrality and pt
   TH2D *h_mRcCosEP[10][vmsa::BinPt];
@@ -54,7 +58,8 @@ void plotMcPhiEffEP(int cent = 9, int ptBin = 2)
   c_eff->cd(1);
   c_eff->cd(1)->SetRightMargin(0.15);
   h_mEffCosEP[cent][ptBin]->SetStats(0);
-  h_mEffCosEP[cent][ptBin]->SetTitle("1.2 < p_{T} < 1.8 GeV/c");
+  string title = Form("%1.1f < p_{T} < %1.1f GeV/c",vmsa::pt_low[6][ptBin],vmsa::pt_up[6][ptBin]);
+  h_mEffCosEP[cent][ptBin]->SetTitle(title.c_str());
   h_mEffCosEP[cent][ptBin]->GetXaxis()->SetTitle("cos(#theta*)");
   h_mEffCosEP[cent][ptBin]->GetXaxis()->SetTitleSize(0.06);
   h_mEffCosEP[cent][ptBin]->GetXaxis()->CenterTitle();
@@ -87,6 +92,20 @@ void plotMcPhiEffEP(int cent = 9, int ptBin = 2)
   h_mEffCos[cent][ptBin]->SetLineColor(kGray+2);
   h_mEffCos[cent][ptBin]->Draw("pE");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/phiMeson/c_effMcPhiEpAuAU%s.eps",vmsa::mBeamEnergy[6].c_str());
+  TF1 *f_rho = new TF1("f_rho",SpinDensity,0.0,1.0,2);
+  f_rho->SetParameter(0,0.33);
+  f_rho->SetParameter(1,h_mEffCos[cent][ptBin]->GetMaximum());
+  h_mEffCos[cent][ptBin]->Fit(f_rho,"NMRI");
+  f_rho->SetLineColor(2);
+  f_rho->SetLineStyle(2);
+  f_rho->Draw("l same");
+
+  string leg = Form("#rho_{00} = %1.3f #pm %1.3f",f_rho->GetParameter(0),f_rho->GetParError(0));
+  plotTopLegend((char*)leg.c_str(),0.25,0.75,0.05,1,0.0,42,1);
+
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/phiMeson/c_effMcPhiEpAuAu%sPt%d_withFlowSpecPtCut.eps",vmsa::mBeamEnergy[6].c_str(),ptBin);
+  if(!isFlow) FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/phiMeson/c_effMcPhiEpAuAu%sPt%d_woFlowSpecPtCut.eps",vmsa::mBeamEnergy[6].c_str(),ptBin);
+  // string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/phiMeson/c_effMcPhiEpAuAu%sPt%d_withFlow.eps",vmsa::mBeamEnergy[6].c_str(),ptBin);
+  // if(!isFlow) FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/phiMeson/c_effMcPhiEpAuAu%sPt%d_woFlow.eps",vmsa::mBeamEnergy[6].c_str(),ptBin);
   c_eff->SaveAs(FigName.c_str());
 }
