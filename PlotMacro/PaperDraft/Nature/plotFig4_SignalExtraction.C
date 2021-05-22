@@ -48,11 +48,11 @@ void plotFig4_SignalExtraction()
   }
 
   TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1.root");
-  TH1D *h_mMassKstar = (TH1D*)File_InputKstar->Get("hSigIntgrE54_GeV_0")->Clone("h_mMassKstar");
-  TF1 *f_SigKstar = (TF1*)File_InputKstar->Get("BWFunc_0")->Clone("f_SigKstar");
-  TF1 *f_BkgKstar = (TF1*)File_InputKstar->Get("Func1")->Clone("f_BkgKstar");
-  TH1F *h_mYieldsKstar = (TH1F*)File_InputKstar->Get("hFoldPhiYieldBW_EffCorr_pT0_54GeV")->Clone("h_mYieldsKstar");
-  TF1 *f_rhoKstar = (TF1*)File_InputKstar->Get("fRho000")->Clone("f_rhoKstar");
+  TH1D *h_mMassKstar = (TH1D*)File_InputKstar->Get("ThetaIntegratedSignal_54GeV_PtBin2")->Clone("h_mMassKstar");
+  TF1 *f_SigKstar = (TF1*)File_InputKstar->Get("BWFunc_54GeV_PtBin2")->Clone("f_SigKstar");
+  TF1 *f_BkgKstar = (TF1*)File_InputKstar->Get("Res_Func54GeV_PtBin2")->Clone("f_BkgKstar");
+  TH1F *h_mYieldsKstar = (TH1F*)File_InputKstar->Get("Yield_vs_Theta_54GeV_PtBin2")->Clone("h_mYieldsKstar");
+  TF1 *f_rhoKstar = (TF1*)File_InputKstar->Get("Rho00_Fit_Func_54GeV_PtBin2")->Clone("f_rhoKstar");
 
   TGraphAsymmErrors *g_yieldsKstar = new TGraphAsymmErrors();
   for(int i_cos = 0; i_cos < 5; ++i_cos)
@@ -180,7 +180,7 @@ void plotFig4_SignalExtraction()
 
     plotTopLegend((char*)"b) K^{*0}",0.20,0.87,0.05,1,0.0,42,1);
     plotTopLegend((char*)"Au+Au 54.4 GeV & 20-60%",0.20,0.80,0.05,1,0.0,42,1);
-    plotTopLegend((char*)"|y| < 1.0 & 1.0 < p_{T} < 1.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
+    plotTopLegend((char*)"|y| < 1.0 & 2.0 < p_{T} < 2.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
 
     TLegend *leg = new TLegend(0.18,0.20,0.55,0.35);
     leg->SetBorderSize(0);
@@ -273,7 +273,7 @@ void plotFig4_SignalExtraction()
     h_frameKstar->GetYaxis()->SetTitleSize(0.06);
     h_frameKstar->GetYaxis()->SetTitleFont(42);
     h_frameKstar->GetYaxis()->SetLabelSize(0.04);
-    h_frameKstar->GetYaxis()->SetRangeUser(0.08,0.125);
+    h_frameKstar->GetYaxis()->SetRangeUser(8.6e-3,10.6e-3);
     h_frameKstar->SetNdivisions(505,"Y");
     h_frameKstar->SetMarkerStyle(24);
     h_frameKstar->SetMarkerColor(1);
@@ -289,7 +289,7 @@ void plotFig4_SignalExtraction()
 
     plotTopLegend((char*)"d) K^{*0}",0.20,0.87,0.05,1,0.0,42,1);
     plotTopLegend((char*)"Au+Au 54.4 GeV & 20-60%",0.20,0.80,0.05,1,0.0,42,1);
-    plotTopLegend((char*)"|y| < 1.0 & 1.0 < p_{T} < 1.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
+    plotTopLegend((char*)"|y| < 1.0 & 2.0 < p_{T} < 2.5 GeV/c",0.20,0.73,0.05,1,0.0,42,1);
 
     TLegend *leg = new TLegend(0.18,0.18,0.85,0.28);
     leg->SetBorderSize(0);
