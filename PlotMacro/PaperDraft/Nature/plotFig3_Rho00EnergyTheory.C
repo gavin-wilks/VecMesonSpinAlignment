@@ -126,21 +126,21 @@ void plotFig3_Rho00EnergyTheory()
   h_frame->DrawCopy("pE");
   PlotLine(7.0,4996.0,1.0/3.0,1.0/3.0,1,2,2);
 
-  // phi-meson STAR
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
-
   // K* STAR
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,size_marker-0.4);
   plotSysErrors(g_rhoKstar_sys,color_Kstr);
 
-  // phi-meson ALICE
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_ALICE_stat,style_phi_ALICE,color_phi_ALICE,size_marker);
-  plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
-
   // K* ALICE
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,size_marker-0.4);
   plotSysErrors(g_rhoKstar_ALICE_sys,color_Kstr_ALICE);
+
+  // phi-meson STAR
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+
+  // phi-meson ALICE
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_ALICE_stat,style_phi_ALICE,color_phi_ALICE,size_marker);
+  plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
 
   // plot theory curve
   double ms = 450.0;

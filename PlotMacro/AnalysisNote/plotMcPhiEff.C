@@ -44,7 +44,7 @@ void plotMcPhiEff(int energy = 6, int cent = 9)
   h_frame->GetXaxis()->SetLabelSize(0.04);
   h_frame->GetXaxis()->SetNdivisions(505);
 
-  h_frame->GetYaxis()->SetTitle("acceptance*efficiency");
+  h_frame->GetYaxis()->SetTitle("efficiency");
   h_frame->GetYaxis()->SetTitleSize(0.04);
   h_frame->GetYaxis()->CenterTitle();
   h_frame->GetYaxis()->SetLabelSize(0.04);
