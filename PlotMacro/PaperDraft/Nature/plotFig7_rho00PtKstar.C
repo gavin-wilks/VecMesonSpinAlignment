@@ -18,7 +18,7 @@ void plotFig7_rho00PtKstar()
 {
   gStyle->SetOptDate(0);
   const int style_Kstr = 20;
-  const int color_Kstr = kAzure+2;
+  const int color_Kstr = kAzure-9;
 
   const float size_marker = 1.4;
   
@@ -26,8 +26,8 @@ void plotFig7_rho00PtKstar()
   float rho00_high[7] = {0.45,0.45,0.45,0.45,0.45,0.45,0.45};
   float pt_low = 0.54;
   float pt_high = 5.54;
-  float font_size = 0.10;
-  float leg_size = 0.07;
+  float font_size = 0.08;
+  float leg_size = 0.06;
 
   string mBeanEnergy[7] = {"11.5 GeV","14.5 GeV","19.6 GeV","27 GeV","39 GeV","54.4 GeV","200 GeV"};
   int mEnergy[7] = {11,14,19,27,39,54,200};
@@ -185,7 +185,7 @@ void plotFig7_rho00PtKstar()
       {
 	PlotLine(pt_low,pt_high,1.0/3.0,1.0/3.0,1,3,2);
 	Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_Kstr,color_Kstr,size_marker);
-	plotSysErrors(g_rho_2nd_sys[total_pad-1],color_Kstr);
+	plotSysErrors(g_rho_2nd_sys[total_pad-1],color_Kstr+2);
       }
 
       if(x_pads == 0 && y_pads != N_y_pads-1)
@@ -207,7 +207,7 @@ void plotFig7_rho00PtKstar()
       }
       if(x_pads == N_x_pads-1 && y_pads == N_y_pads-1)
       {
-	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1.0)",0.65,0.42,0.6875*font_size*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1.0)",0.80,0.42,0.6875*font_size*scaling_factor,1,0.0,42,0);
 
 	Draw_TGAE_Point_new_Symbol(1.5,0.35,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
 	plotTopLegend((char*)"K^{*0} (2^{nd}-order EP)",1.7,0.34,0.6875*font_size*scaling_factor,1,0.0,42,0);

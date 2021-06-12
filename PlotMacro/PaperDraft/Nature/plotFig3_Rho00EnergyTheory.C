@@ -41,12 +41,12 @@ void plotFig3_Rho00EnergyTheory()
   const int style_phi_1st = 21;
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
-  const int color_phi_2nd = kRed;
+  const int color_phi_2nd = kRed-4;
   const int style_phi_ALICE = 30;
   const int color_phi_ALICE = kGray+1;
 
   const int style_Kstr = 20;
-  const int color_Kstr = kAzure+2;
+  const int color_Kstr = kAzure-9;
   const int style_Kstr_ALICE = 24;
   const int color_Kstr_ALICE = kGray+1;
 
@@ -78,7 +78,7 @@ void plotFig3_Rho00EnergyTheory()
   //----------------------------------------------------------
 
   //----------------------------------------------------------
-  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN_May21_2021.root");
+  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN_June9_2021.root");
   // K* STAR
   //beam-energy dependence of kstar rho00 from STAR, pT: 1.0 - 1.5 GeV/c, 20-60%
   TGraphAsymmErrors *g_rhoKstar_stat       = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoKstar_stat");
@@ -115,7 +115,7 @@ void plotFig3_Rho00EnergyTheory()
   h_frame->GetXaxis()->SetTitleOffset(1.1);
   h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.20,0.45);
+  h_frame->GetYaxis()->SetRangeUser(0.24,0.42);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
   // h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
   h_frame->GetYaxis()->SetTitle("#rho_{00}");
@@ -128,7 +128,7 @@ void plotFig3_Rho00EnergyTheory()
 
   // K* STAR
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,size_marker-0.4);
-  plotSysErrors(g_rhoKstar_sys,color_Kstr);
+  plotSysErrors(g_rhoKstar_sys,color_Kstr+2);
 
   // K* ALICE
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,size_marker-0.4);
@@ -178,14 +178,14 @@ void plotFig3_Rho00EnergyTheory()
   // plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
   // plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
   // plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"filled:  Au+Au (20\% - 60\% Centrality)",0.20,0.30,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"open: Pb+Pb (10\% - 50\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"filled:  Au+Au (20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"open: Pb+Pb (10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
 
-  Draw_TGAE_Point_new_Symbol(40,0.4335,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.43,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(40,0.41,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.4075,size_font,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(40,0.4145,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
-  plotTopLegend((char*)"K^{*0} (|y| < 1.0 & 1.0 < p_{T} < 5.0 GeV/c)",48,0.41,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(40,0.395,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker-0.4);
+  plotTopLegend((char*)"K^{*0} (|y| < 1.0 & 1.0 < p_{T} < 5.0 GeV/c)",48,0.3925,size_font,1,0.0,42,0);
 
 
   // theory
@@ -200,8 +200,8 @@ void plotFig3_Rho00EnergyTheory()
   // leg->AddEntry(f_rho00_Laxis,leg_current_Laxis.c_str(),"l");
   // leg->AddEntry((TObject*)0,leg_stat_Laxis.c_str(),"");
   // leg->Draw("same");
-  PlotLine(35,45,0.395,0.395,2,3,1);
-  plotTopLegend((char*)leg_current_Laxis.c_str(),48,0.39,size_font,1,0.0,42,0);
+  PlotLine(35,45,0.38,0.38,2,3,1);
+  plotTopLegend((char*)leg_current_Laxis.c_str(),48,0.3775,size_font,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig3_rho00EnergyTheory.eps");
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig3_rho00EnergyTheory.png");

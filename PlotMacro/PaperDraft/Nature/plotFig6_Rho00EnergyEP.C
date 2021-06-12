@@ -37,12 +37,12 @@ void plotFig6_Rho00EnergyEP()
 {
   gStyle->SetOptDate(0);
   const int style_phi_2nd = 29;
-  const int color_phi_2nd = kRed;
+  const int color_phi_2nd = kRed-4;
   const int style_phi_EP  = 33;
   const int color_phi_EP  = 9;
 
   const float size_marker = 1.4;
-  const float size_font = 0.04;
+  const float size_font = 0.035;
 
   TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
   TGraphAsymmErrors *g_rhoPhi_2nd_stat_Laxis = (TGraphAsymmErrors*)File_Input->Get("rho00_2ndEP_energy_stat");
@@ -161,8 +161,8 @@ void plotFig6_Rho00EnergyEP()
 
   // plot legend
 
-  plotTopLegend((char*)"Au+Au 20-60%",10,0.41,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"|y| < 1 & 1.2 < p_{T}< 5.4 GeV/c",30,0.41,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"Au+Au 20-60%",11,0.41,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"|y| < 1.0 & 1.2 < p_{T}< 5.4 GeV/c",30,0.41,size_font,1,0.0,42,0);
 
   // normal
   Draw_TGAE_Point_new_Symbol(20,0.40,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);

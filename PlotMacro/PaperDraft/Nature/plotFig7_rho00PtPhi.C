@@ -20,7 +20,7 @@ void plotFig7_rho00PtPhi()
   const int style_phi_1st = 21;
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
-  const int color_phi_2nd = kRed;
+  const int color_phi_2nd = kRed-4;
 
   const float size_marker = 1.4;
   
@@ -30,8 +30,8 @@ void plotFig7_rho00PtPhi()
   // float rho00_high[6] = {0.50,0.52,0.64,0.40,0.40,0.35};
   float pt_low = 0.54;
   float pt_high = 5.54;
-  float font_size = 0.08;
-  float leg_size = 0.07;
+  float font_size = 0.07;
+  float leg_size = 0.06;
 
   string mBeanEnergy[6] = {"11.5 GeV","19.6 GeV","27 GeV","39 GeV","62.4 GeV","200 GeV"};
   int mEnergy[6] = {11,19,27,39,62,200};
@@ -228,23 +228,27 @@ void plotFig7_rho00PtPhi()
 	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,font_size*scaling_factor,1,0.0,42,0);
 	h_frame[total_pad-1]->SetTickLength(0.03);
       }
-      if(x_pads == N_x_pads-1 && y_pads != 0)
+      if(x_pads == N_x_pads-1 && y_pads == 1)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.055*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.050*scaling_factor,1,0.0,42,0);
+      }
+      if(x_pads == N_x_pads-1 && y_pads == N_y_pads-1)
+      {
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.060*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == N_x_pads-1 && y_pads == 0)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.055*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.05*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == 0 && y_pads == 0)
       {
-	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1)",1.5,0.48,leg_size*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1.0)",0.9,0.49,leg_size*scaling_factor,1,0.0,42,0);
 
-	Draw_TGAE_Point_new_Symbol(2.5,0.45,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
-	plotTopLegend((char*)"#phi (1^{st}-order EP)",2.7,0.443,leg_size*scaling_factor,1,0.0,42,0);
+	Draw_TGAE_Point_new_Symbol(1.0,0.47,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
+	plotTopLegend((char*)"#phi (1^{st}-order EP)",1.2,0.463,leg_size*scaling_factor,1,0.0,42,0);
 
-	Draw_TGAE_Point_new_Symbol(2.5,0.42,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-	plotTopLegend((char*)"#phi (2^{nd}-order EP)",2.7,0.413,leg_size*scaling_factor,1,0.0,42,0);
+	Draw_TGAE_Point_new_Symbol(1.0,0.44,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+	plotTopLegend((char*)"#phi (2^{nd}-order EP)",1.2,0.433,leg_size*scaling_factor,1,0.0,42,0);
       }
 
       // if(x_pads == 0 && y_pads == N_y_pads-1) plotTopLegend("#font[12]{p}_{#font[132]{T}}",0.94,0.10,0.1,1,0.0,42,1);

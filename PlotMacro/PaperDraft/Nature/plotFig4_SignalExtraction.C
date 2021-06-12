@@ -20,10 +20,10 @@ void plotFig4_SignalExtraction()
   const int style_phi_1st = 21;
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
-  const int color_phi_2nd = kRed;
+  const int color_phi_2nd = kRed-4;
 
   const int style_Kstr = 20;
-  const int color_Kstr = kAzure+2;
+  const int color_Kstr = kAzure-9;
 
   const float size_marker = 1.4;
 
@@ -232,7 +232,7 @@ void plotFig4_SignalExtraction()
     f_rhoPhi->SetParameter(1,1000/(numOfEvent*binWidth));
     f_rhoPhi->SetRange(0.0,1.0);
     g_yieldsPhi->Fit(f_rhoPhi,"NQRI");
-    f_rhoPhi->SetLineColor(2);
+    f_rhoPhi->SetLineColor(color_phi_2nd);
     f_rhoPhi->SetLineStyle(2);
     f_rhoPhi->SetLineWidth(4);
     f_rhoPhi->DrawCopy("l same");
@@ -282,7 +282,7 @@ void plotFig4_SignalExtraction()
 
     // g_yieldsKstar->Draw("pE same");
     Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,size_marker);
-    f_rhoKstar->SetLineColor(4);
+    f_rhoKstar->SetLineColor(color_Kstr);
     f_rhoKstar->SetLineStyle(2);
     f_rhoKstar->SetLineWidth(4);
     f_rhoKstar->Draw("l same");

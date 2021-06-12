@@ -19,7 +19,7 @@ void plotFig5_Rho00EnergyPhiOnly()
   const int style_phi_1st = 21;
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
-  const int color_phi_2nd = kRed;
+  const int color_phi_2nd = kRed-4;
 
   const float size_marker = 1.4;
   const float size_font = 0.04;
@@ -77,7 +77,7 @@ void plotFig5_Rho00EnergyPhiOnly()
   plotTopLegend((char*)"#phi (2^{nd}-order EP)",70,0.3785,size_font,1,0.0,42,0);
 
   plotTopLegend((char*)"Au+Au 20-60%",40,0.315,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"|y| < 1 & 1.2 < p_{T}< 5.4 GeV/c",26,0.308,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"|y| < 1.0 & 1.2 < p_{T}< 5.4 GeV/c",24,0.308,size_font,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.eps");
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.png");
