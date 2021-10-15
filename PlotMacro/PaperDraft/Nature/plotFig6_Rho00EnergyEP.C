@@ -178,7 +178,7 @@ void plotFig6_Rho00EnergyEP()
   string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
   string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);
 
-  string leg_current_Xaxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Xaxis->GetParameter(0),f_rho00_Xaxis->GetParError(0));
+  string leg_current_Xaxis = Form("C^{(x)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Xaxis->GetParameter(0),f_rho00_Xaxis->GetParError(0));
   string leg_chi2_Xaxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Xaxis);
   string leg_p_Xaxis = Form("p-value: %1.3f", p_Xaxis);
   string leg_stat_Xaxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Xaxis,p_Xaxis);

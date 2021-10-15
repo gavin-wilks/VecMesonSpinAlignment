@@ -47,12 +47,15 @@ void plotFig4_SignalExtraction()
     g_yieldsPhi->SetPointError(i_cos,1.0/14.0,1.0/14.0,h_mYieldsPhi->GetBinError(i_cos+1)/(numOfEvent*binWidth),h_mYieldsPhi->GetBinError(i_cos+1)/(numOfEvent*binWidth));
   }
 
-  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1.root");
+  // TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1.root");
+  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1_Oct2021.root");
   TH1D *h_mMassKstar = (TH1D*)File_InputKstar->Get("ThetaIntegratedSignal_54GeV_PtBin2")->Clone("h_mMassKstar");
   TF1 *f_SigKstar = (TF1*)File_InputKstar->Get("BWFunc_54GeV_PtBin2")->Clone("f_SigKstar");
   TF1 *f_BkgKstar = (TF1*)File_InputKstar->Get("Res_Func54GeV_PtBin2")->Clone("f_BkgKstar");
-  TH1F *h_mYieldsKstar = (TH1F*)File_InputKstar->Get("Yield_vs_Theta_54GeV_PtBin2")->Clone("h_mYieldsKstar");
-  TF1 *f_rhoKstar = (TF1*)File_InputKstar->Get("Rho00_Fit_Func_54GeV_PtBin2")->Clone("f_rhoKstar");
+  // TH1F *h_mYieldsKstar = (TH1F*)File_InputKstar->Get("Yield_vs_Theta_54GeV_PtBin2")->Clone("h_mYieldsKstar");
+  // TF1 *f_rhoKstar = (TF1*)File_InputKstar->Get("Rho00_Fit_Func_54GeV_PtBin2")->Clone("f_rhoKstar");
+  TH1F *h_mYieldsKstar = (TH1F*)File_InputKstar->Get("hist_Raw_Yield_theta_54GeV_Pt_2.00_2.50")->Clone("h_mYieldsKstar");
+  TF1 *f_rhoKstar = (TF1*)File_InputKstar->Get("fit_Raw_Yield_theta_54GeV_Pt_2.00_2.50")->Clone("f_rhoKstar");
 
   TGraphAsymmErrors *g_yieldsKstar = new TGraphAsymmErrors();
   for(int i_cos = 0; i_cos < 5; ++i_cos)
@@ -88,7 +91,7 @@ void plotFig4_SignalExtraction()
     h_mMassPhi->GetXaxis()->SetLabelSize(0.04);
     h_mMassPhi->SetNdivisions(505,"X");
 
-    h_mMassPhi->GetYaxis()->SetTitle("Yields");
+    h_mMassPhi->GetYaxis()->SetTitle("Raw Yields");
     h_mMassPhi->GetYaxis()->CenterTitle();
     h_mMassPhi->GetYaxis()->SetTitleOffset(1.14);
     h_mMassPhi->GetYaxis()->SetTitleSize(0.06);
@@ -153,7 +156,7 @@ void plotFig4_SignalExtraction()
     h_mMassKstar->GetXaxis()->SetLabelSize(0.04);
     h_mMassKstar->SetNdivisions(505,"X");
 
-    h_mMassKstar->GetYaxis()->SetTitle("Yields");
+    h_mMassKstar->GetYaxis()->SetTitle("Raw Yields");
     h_mMassKstar->GetYaxis()->CenterTitle();
     h_mMassKstar->GetYaxis()->SetTitleOffset(1.14);
     h_mMassKstar->GetYaxis()->SetTitleSize(0.06);
@@ -210,7 +213,7 @@ void plotFig4_SignalExtraction()
     h_framePhi->GetXaxis()->SetLabelSize(0.04);
     h_framePhi->SetNdivisions(505,"X");
 
-    h_framePhi->GetYaxis()->SetTitle("Yields");
+    h_framePhi->GetYaxis()->SetTitle("Raw Yields");
     h_framePhi->GetYaxis()->CenterTitle();
     h_framePhi->GetYaxis()->SetTitleSize(0.06);
     h_framePhi->GetYaxis()->SetTitleOffset(1.14);
@@ -235,7 +238,7 @@ void plotFig4_SignalExtraction()
     f_rhoPhi->SetLineColor(color_phi_2nd);
     f_rhoPhi->SetLineStyle(2);
     f_rhoPhi->SetLineWidth(4);
-    f_rhoPhi->DrawCopy("l same");
+    // f_rhoPhi->DrawCopy("l same");
 
     plotTopLegend((char*)"c) #phi",0.20,0.87,0.05,1,0.0,42,1);
     plotTopLegend((char*)"Au+Au 27 GeV & 20-60%",0.20,0.80,0.05,1,0.0,42,1);
@@ -246,7 +249,7 @@ void plotFig4_SignalExtraction()
     leg->SetFillColor(10);
     leg->SetFillStyle(0);
     leg->AddEntry(f_rhoPhi,"N#times[(1-#rho_{00})+(3#rho_{00}-1)cos^{2}#theta*]","l");
-    leg->Draw("same");
+    // leg->Draw("same");
   }
 
   c_Signal->cd(4);
@@ -267,13 +270,13 @@ void plotFig4_SignalExtraction()
     h_frameKstar->GetXaxis()->SetLabelSize(0.04);
     h_frameKstar->SetNdivisions(505,"X");
 
-    h_frameKstar->GetYaxis()->SetTitle("Yields");
+    h_frameKstar->GetYaxis()->SetTitle("Raw Yields");
     h_frameKstar->GetYaxis()->CenterTitle();
     h_frameKstar->GetYaxis()->SetTitleOffset(1.14);
     h_frameKstar->GetYaxis()->SetTitleSize(0.06);
     h_frameKstar->GetYaxis()->SetTitleFont(42);
     h_frameKstar->GetYaxis()->SetLabelSize(0.04);
-    h_frameKstar->GetYaxis()->SetRangeUser(8.6e-3,10.6e-3);
+    h_frameKstar->GetYaxis()->SetRangeUser(4.2e-3,5.0e-3);
     h_frameKstar->SetNdivisions(505,"Y");
     h_frameKstar->SetMarkerStyle(24);
     h_frameKstar->SetMarkerColor(1);
@@ -281,11 +284,11 @@ void plotFig4_SignalExtraction()
     h_frameKstar->DrawCopy("PE");
 
     // g_yieldsKstar->Draw("pE same");
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,size_marker);
+    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,size_marker-0.4);
     f_rhoKstar->SetLineColor(color_Kstr);
     f_rhoKstar->SetLineStyle(2);
     f_rhoKstar->SetLineWidth(4);
-    f_rhoKstar->Draw("l same");
+    // f_rhoKstar->Draw("l same");
 
     plotTopLegend((char*)"d) K^{*0}",0.20,0.87,0.05,1,0.0,42,1);
     plotTopLegend((char*)"Au+Au 54.4 GeV & 20-60%",0.20,0.80,0.05,1,0.0,42,1);
@@ -296,7 +299,7 @@ void plotFig4_SignalExtraction()
     leg->SetFillColor(10);
     leg->SetFillStyle(0);
     leg->AddEntry(f_rhoKstar,"N#times[(1-#rho_{00})+(3#rho_{00}-1)cos^{2}#theta*]","l");
-    leg->Draw("same");
+    // leg->Draw("same");
   }
 
   c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalExtraction.eps");

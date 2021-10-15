@@ -10,7 +10,7 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 
 using namespace std;
 
-void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 1, int year = 0)
+void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -64,6 +64,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 1, int year = 0)
 
   h_mEfficiency[HistNameEff]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h_mEfficiency[HistNameEff]->GetXaxis()->CenterTitle();
+  h_mEfficiency[HistNameEff]->GetXaxis()->SetRangeUser(0.0,5.00);
 
   h_mEfficiency[HistNameEff]->GetYaxis()->SetTitle("Efficiency");
   h_mEfficiency[HistNameEff]->GetYaxis()->CenterTitle();
@@ -116,6 +117,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 1, int year = 0)
 
     h_mEfficiency[HistName]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     h_mEfficiency[HistName]->GetXaxis()->CenterTitle();
+    h_mEfficiency[HistName]->GetXaxis()->SetRangeUser(0.0,5.00);
 
     h_mEfficiency[HistName]->GetYaxis()->SetTitle("Efficiency");
     h_mEfficiency[HistName]->GetYaxis()->CenterTitle();
@@ -161,6 +163,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 6, int mPID = 1, int year = 0)
 
     h_mEfficiency[HistName]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     h_mEfficiency[HistName]->GetXaxis()->CenterTitle();
+    h_mEfficiency[HistName]->GetXaxis()->SetRangeUser(0.0,5.00);
 
     h_mEfficiency[HistName]->GetYaxis()->SetTitle("Efficiency");
     h_mEfficiency[HistName]->GetYaxis()->CenterTitle();
