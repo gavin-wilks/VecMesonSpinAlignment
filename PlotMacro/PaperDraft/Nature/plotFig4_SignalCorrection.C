@@ -15,19 +15,23 @@
 
 using namespace std;
 
-double acptCorr(double *x_val, double *par)
-{
-  double x = x_val[0];
-  double Norm  = par[0];
-  double Aprim = par[3];
-  double Bprim = par[2];
-  double F     = par[1];
+double FuncAD(double *x_val, double *par) {
 
-  double dNdCosThetaStar = Norm*( (1.0+0.5*Bprim*F) + (Aprim+F)*x*x + (Aprim*F-0.5*Bprim*F)*x*x*x*x);
+  double CosTheta = x_val[0];
+  double N = par[0];
+  double rho = par[1];
+  double D = par[2];
+  double R = par[3];
 
-  return dNdCosThetaStar;
+  double A = (3.*rho-1.)/(1.-rho);
+  double As = A*(1.+3.*R)/(4.+A*(1.-R));
+  double Bs = A*(1.-R)/(4.+A*(1.-R));
+
+  double result = (1.+Bs*D/2.) + (As+D)*CosTheta*CosTheta + (As*D-Bs*D/2.)*CosTheta*CosTheta*CosTheta*CosTheta;
+
+  return N*result;
+
 }
-
 
 void plotFig4_SignalCorrection()
 {
@@ -43,14 +47,15 @@ void plotFig4_SignalCorrection()
   TGaxis::SetMaxDigits(3);
 
   // plot phi signal
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/ActualFit_27GeV_pT_2.root");
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/Second_ActualFit_27GeV_pT_2.root");
   TH1D *h_mYieldsPhi = (TH1D*)File_InputPhi->Get("PtCos")->Clone("h_mYieldsPhi");
   TF1 *f_rhoPhiInput = (TF1*)File_InputPhi->Get("Func_rho")->Clone("f_rhoPhiInput");
   float cos[7] = {1.0/14.0,3.0/14.0,5.0/14.0,7.0/14.0,9.0/14.0,11.0/14.0,13.0/14.0};
   // float yields[7] = {598.598, 596.721, 606.366, 606.203, 615.265, 626.465,  644.074};
   // float errors[7] = {4.06987, 4.06908, 4.12435, 4.1327, 4.1449, 4.2176, 4.26549};
 
-  const long numOfEvent = 176995424;
+  const long numOfEvent = 229186355;
+  // const long numOfEvent = 176995424;
   const double binWidth = 0.00035;
   // cout << "phi-meson: numOfEvent = " << numOfEvent << ", binWidth = " << binWidth << endl;
 
@@ -85,13 +90,13 @@ void plotFig4_SignalCorrection()
     h_framePhi->GetXaxis()->SetLabelSize(0.04);
     h_framePhi->SetNdivisions(505,"X");
 
-    h_framePhi->GetYaxis()->SetTitle("Yields");
+    h_framePhi->GetYaxis()->SetTitle("Yields (Efficiency Corr.)");
     h_framePhi->GetYaxis()->CenterTitle();
-    h_framePhi->GetYaxis()->SetTitleSize(0.06);
+    h_framePhi->GetYaxis()->SetTitleSize(0.05);
     h_framePhi->GetYaxis()->SetTitleOffset(1.14);
     h_framePhi->GetYaxis()->SetTitleFont(42);
     h_framePhi->GetYaxis()->SetLabelSize(0.04);
-    h_framePhi->GetYaxis()->SetRangeUser(1.5,1.8);
+    h_framePhi->GetYaxis()->SetRangeUser(575.0/(numOfEvent*binWidth),675.0/(numOfEvent*binWidth));
     h_framePhi->SetNdivisions(505,"Y");
     h_framePhi->SetMarkerStyle(24);
     h_framePhi->SetMarkerColor(1);
@@ -101,7 +106,7 @@ void plotFig4_SignalCorrection()
     Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsPhi,style_phi_2nd,color_phi_2nd,size_marker+0.2);
 
     float scale = f_rhoPhiInput->GetParameter(0)/(numOfEvent*binWidth);
-    TF1 *f_rhoPhi = new TF1("f_rhoPhi",acptCorr,0,1.0,4);
+    TF1 *f_rhoPhi = new TF1("f_rhoPhi",FuncAD,0,1.0,4);
     for(int i_par = 0; i_par < 4; ++i_par)
     {
       f_rhoPhi->ReleaseParameter(i_par);
@@ -125,6 +130,9 @@ void plotFig4_SignalCorrection()
     leg->SetFillStyle(0);
     leg->AddEntry(f_rhoPhi,"N#times[(1+#frac{B'F}{2})+(A'+F)cos^{2}#theta*+(A'F-#frac{B'F}{2})cos^{4}#theta*]","l");
     leg->Draw("same");
+
+    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionPhi.eps");
+    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionPhi.png");
   }
 
   // TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1.root");
@@ -164,10 +172,10 @@ void plotFig4_SignalCorrection()
     h_frameKstar->GetXaxis()->SetLabelSize(0.04);
     h_frameKstar->SetNdivisions(505,"X");
 
-    h_frameKstar->GetYaxis()->SetTitle("Yields");
+    h_frameKstar->GetYaxis()->SetTitle("Yields (Efficiency*Acceptance Corr.)");
     h_frameKstar->GetYaxis()->CenterTitle();
     h_frameKstar->GetYaxis()->SetTitleOffset(1.14);
-    h_frameKstar->GetYaxis()->SetTitleSize(0.06);
+    h_frameKstar->GetYaxis()->SetTitleSize(0.05);
     h_frameKstar->GetYaxis()->SetTitleFont(42);
     h_frameKstar->GetYaxis()->SetLabelSize(0.04);
     h_frameKstar->GetYaxis()->SetRangeUser(8.6e-3,10.6e-3);
@@ -194,5 +202,8 @@ void plotFig4_SignalCorrection()
     leg->SetFillStyle(0);
     leg->AddEntry(f_rhoKstar,"N#times[(1-#rho_{00})+(3#rho_{00}-1)cos^{2}#theta*]","l");
     leg->Draw("same");
+
+    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionKstar.eps");
+    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionKstar.png");
   }
 }
