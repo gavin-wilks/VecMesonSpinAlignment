@@ -103,7 +103,7 @@ void plotFig4_SignalCorrection()
     h_framePhi->SetMarkerSize(1.8);
     h_framePhi->DrawCopy("PE");
 
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsPhi,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsPhi,style_phi_2nd,color_phi_2nd,size_marker+0.6);
 
     float scale = f_rhoPhiInput->GetParameter(0)/(numOfEvent*binWidth);
     TF1 *f_rhoPhi = new TF1("f_rhoPhi",FuncAD,0,1.0,4);
@@ -186,7 +186,7 @@ void plotFig4_SignalCorrection()
     h_frameKstar->DrawCopy("PE");
 
     // g_yieldsKstar->Draw("pE same");
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,size_marker-0.4);
+    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,size_marker);
     f_rhoKstar->SetLineColor(color_Kstr);
     f_rhoKstar->SetLineStyle(2);
     f_rhoKstar->SetLineWidth(4);
