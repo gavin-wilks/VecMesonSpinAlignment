@@ -90,7 +90,8 @@ void plotFig4_SignalCorrection()
     h_framePhi->GetXaxis()->SetLabelSize(0.04);
     h_framePhi->SetNdivisions(505,"X");
 
-    h_framePhi->GetYaxis()->SetTitle("Yields (Efficiency Corr.)");
+    h_framePhi->GetYaxis()->SetTitle("Yields");
+    // h_framePhi->GetYaxis()->SetTitle("Yields (Efficiency Corr.)");
     h_framePhi->GetYaxis()->CenterTitle();
     h_framePhi->GetYaxis()->SetTitleSize(0.05);
     h_framePhi->GetYaxis()->SetTitleOffset(1.14);
@@ -129,7 +130,7 @@ void plotFig4_SignalCorrection()
     leg->SetFillColor(10);
     leg->SetFillStyle(0);
     leg->AddEntry(f_rhoPhi,"N#times[(1+#frac{B'F}{2})+(A'+F)cos^{2}#theta*+(A'F-#frac{B'F}{2})cos^{4}#theta*]","l");
-    leg->Draw("same");
+    // leg->Draw("same");
 
     c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionPhi.eps");
     c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionPhi.png");
@@ -172,7 +173,8 @@ void plotFig4_SignalCorrection()
     h_frameKstar->GetXaxis()->SetLabelSize(0.04);
     h_frameKstar->SetNdivisions(505,"X");
 
-    h_frameKstar->GetYaxis()->SetTitle("Yields (Efficiency*Acceptance Corr.)");
+    // h_frameKstar->GetYaxis()->SetTitle("Yields (Efficiency*Acceptance Corr.)");
+    h_frameKstar->GetYaxis()->SetTitle("Yields");
     h_frameKstar->GetYaxis()->CenterTitle();
     h_frameKstar->GetYaxis()->SetTitleOffset(1.14);
     h_frameKstar->GetYaxis()->SetTitleSize(0.05);
@@ -201,7 +203,7 @@ void plotFig4_SignalCorrection()
     leg->SetFillColor(10);
     leg->SetFillStyle(0);
     leg->AddEntry(f_rhoKstar,"N#times[(1-#rho_{00})+(3#rho_{00}-1)cos^{2}#theta*]","l");
-    leg->Draw("same");
+    // leg->Draw("same");
 
     c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionKstar.eps");
     c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionKstar.png");
