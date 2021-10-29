@@ -17,7 +17,7 @@ double tof_Kaon(double* x, double* par)
   return par[0]*(1.0 / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6]);
 }
 
-void plotQA_TofFit(int mEnergy = 6, int mPID = 0)
+void plotQA_TofFit(int mEnergy = 6, int mPID = 1)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -207,6 +207,46 @@ void plotQA_TofFit(int mEnergy = 6, int mPID = 0)
   KEY_second = Form("f_mToFMatch_%s_Cent_9_Eta_%d",mParType[mPID].c_str(),eta_bin);
   f_TofSecond[KEY_second]->Draw("l same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/c_TofEffDifFitEta%d_%s%s.eps",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
-  c_Efficiency->SaveAs(FigName.c_str());
+  // string FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/c_TofEffDifFitEta%d_%s%s.eps",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  // c_Efficiency->SaveAs(FigName.c_str());
+
+  TCanvas *c_EffEta = new TCanvas("c_EffEta","c_EffEta",10,10,800,800);
+  c_EffEta->cd()->SetLeftMargin(0.1);
+  c_EffEta->cd()->SetBottomMargin(0.1);
+  c_EffEta->cd()->SetGrid(0,0);
+  c_EffEta->cd()->SetTicks(1,1);
+  TLegend *legEta = new TLegend(0.3,0.7,0.8,0.9);
+  legEta->SetFillColor(10);
+  legEta->SetBorderSize(0);
+  legEta->SetNColumns(2);
+  for(int i_eta = 2; i_eta < 10; ++i_eta)
+  {
+    HistName = Form("h_mEfficiency_%s_Cent_9_Eta_%d",mParType[mPID].c_str(),i_eta);
+    title = Form("ToF Macthing efficiency for %s", mParTex[mPID].c_str());
+    h_mEfficiency[HistName]->SetTitle(title.c_str());
+    h_mEfficiency[HistName]->SetStats(0);
+    h_mEfficiency[HistName]->SetMarkerStyle(mStyle[i_eta]);
+    h_mEfficiency[HistName]->SetMarkerSize(1.6);
+    h_mEfficiency[HistName]->SetMarkerColor(mColor[i_eta]);
+    h_mEfficiency[HistName]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    h_mEfficiency[HistName]->GetXaxis()->CenterTitle();
+    h_mEfficiency[HistName]->GetYaxis()->SetTitle("Efficiency");
+    h_mEfficiency[HistName]->GetYaxis()->SetRangeUser(0.0,1.2);
+    if(i_eta == 2) h_mEfficiency[HistName]->DrawCopy("pE");
+    if(i_eta > 2) h_mEfficiency[HistName]->DrawCopy("pE same");
+    string Leg_eta = Form("%d #eta bin",i_eta-2);
+    legEta->AddEntry(h_mEfficiency[HistName],Leg_eta.c_str(),"p");
+
+    KEY_first = Form("f_mToFMatch_%s_Cent_9_Eta_%d",mParType[mPID].c_str(),i_eta);
+    f_TofFirst[KEY_first]->SetLineColor(mColor[i_eta]);
+    f_TofFirst[KEY_first]->SetLineWidth(4);
+    f_TofFirst[KEY_first]->SetLineStyle(mLineStyle[i_eta]);
+    f_TofFirst[KEY_first]->SetNpx(1000);
+    f_TofFirst[KEY_first]->SetRange(0.2,8.0);
+    f_TofFirst[KEY_first]->Draw("l same");
+  }
+  legEta->Draw("same");
+
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/ToF/c_TofEffFitEta_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  c_EffEta->SaveAs(FigName.c_str());
 }
