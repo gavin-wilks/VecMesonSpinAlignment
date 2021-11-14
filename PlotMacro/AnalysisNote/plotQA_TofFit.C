@@ -219,7 +219,7 @@ void plotQA_TofFit(int mEnergy = 6, int mPID = 1)
   legEta->SetFillColor(10);
   legEta->SetBorderSize(0);
   legEta->SetNColumns(2);
-  for(int i_eta = 2; i_eta < 10; ++i_eta)
+  for(int i_eta = 1; i_eta < 11; ++i_eta)
   {
     HistName = Form("h_mEfficiency_%s_Cent_9_Eta_%d",mParType[mPID].c_str(),i_eta);
     title = Form("ToF Macthing efficiency for %s", mParTex[mPID].c_str());
@@ -232,8 +232,8 @@ void plotQA_TofFit(int mEnergy = 6, int mPID = 1)
     h_mEfficiency[HistName]->GetXaxis()->CenterTitle();
     h_mEfficiency[HistName]->GetYaxis()->SetTitle("Efficiency");
     h_mEfficiency[HistName]->GetYaxis()->SetRangeUser(0.0,1.2);
-    if(i_eta == 2) h_mEfficiency[HistName]->DrawCopy("pE");
-    if(i_eta > 2) h_mEfficiency[HistName]->DrawCopy("pE same");
+    if(i_eta == 1) h_mEfficiency[HistName]->DrawCopy("pE");
+    if(i_eta > 1) h_mEfficiency[HistName]->DrawCopy("pE same");
     string Leg_eta = Form("%d #eta bin",i_eta-2);
     legEta->AddEntry(h_mEfficiency[HistName],Leg_eta.c_str(),"p");
 

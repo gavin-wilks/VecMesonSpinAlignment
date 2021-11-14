@@ -12,7 +12,7 @@ using namespace std;
 float pos_x[8] = {0.05,0.54,0.05,0.54,0.05,0.54,0.05,0.54};
 float pos_y[8] = {0.60,0.60,0.55,0.55,0.50,0.50,0.45,0.45};
 
-void plotMcPhiEff(int energy = 6, int cent = 9)
+void plotMcPhiEff(int energy = 1, int cent = 9)
 {
   gStyle->SetOptDate(0);
   string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/Efficiency/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
@@ -70,7 +70,7 @@ void plotMcPhiEff(int energy = 6, int cent = 9)
   }
   plotTopLegend((char*)legEnergy.c_str(),0.17,0.595,0.05,1,0.0,42,0,1);
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/Efficiency/c_effPtAuAu%s.eps",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/phiMeson/c_effPtAuAu%s.eps",vmsa::mBeamEnergy[energy].c_str());
   c_eff->SaveAs(FigName.c_str());
   // c_eff->SaveAs("../figures/effPt.png");
 }
