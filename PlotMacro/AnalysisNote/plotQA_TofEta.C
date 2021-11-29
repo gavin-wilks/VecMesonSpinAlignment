@@ -15,7 +15,7 @@
 #include "../../Utility/type.h"
 #include "../../ToFMatching/StRoot/StToFMatchMaker/StToFMatchCons.h"
 
-void plotQA_TofEta(int energy = 1)
+void plotQA_TofEta(int energy = 6)
 {
   // string inputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());

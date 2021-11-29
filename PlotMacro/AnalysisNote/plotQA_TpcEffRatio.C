@@ -24,7 +24,7 @@ double effFit(double *x_val, double *par)
   return y;
 }
 
-void plotQA_TpcEffRatio(int mEnergy = 1, int mPID = 0, int year = 1)
+void plotQA_TpcEffRatio(int mEnergy = 6, int mPID = 0, int year = 0)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -96,7 +96,7 @@ void plotQA_TpcEffRatio(int mEnergy = 1, int mPID = 0, int year = 1)
   f_eff->SetParameter(2,1.0);
   f_eff->SetRange(ptStart,ptStop);
   h_mEfficiency[HistNameEff]->Fit(f_eff,"NR");
-  f_eff->SetLineColor(2);
+  f_eff->SetLineColor(4);
   f_eff->SetLineStyle(2);
   f_eff->SetLineWidth(4);
   f_eff->Draw("l same");
@@ -124,6 +124,7 @@ void plotQA_TpcEffRatio(int mEnergy = 1, int mPID = 0, int year = 1)
     h_play->SetBinContent(i_bin+1,-10.0);
     h_play->SetBinError(i_bin+1,1.0);
   }
+  h_play->SetTitle("Ratio to Fit");
   h_play->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h_play->GetXaxis()->CenterTitle();
   h_play->GetXaxis()->SetRangeUser(ptStart,ptStop);
@@ -146,7 +147,7 @@ void plotQA_TpcEffRatio(int mEnergy = 1, int mPID = 0, int year = 1)
   h_mEffRatio[HistNameEff]->SetLineWidth(4);
   h_mEffRatio[HistNameEff]->DrawCopy("HIST same");
 
-  PlotLine(ptStart, ptStop, 1.0, 1.0, 2, 4, 2);
+  PlotLine(ptStart, ptStop, 1.0, 1.0, 4, 4, 2);
 
   string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/TPC/c_TpcEffRatio%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
   c_play->SaveAs(FigName.c_str());

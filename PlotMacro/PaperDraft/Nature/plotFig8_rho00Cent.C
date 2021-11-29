@@ -61,7 +61,7 @@ void plotFig8_rho00Cent()
   TGraphAsymmErrors *g_rhoKstarCent_2nd_sys[3];
   for(int i_energy = 0; i_energy < 3; ++i_energy)
   {
-    string inputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_Cent_May21_2021.root";
+    string inputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_Cent_Nov22_2021.root";
     File_InPutKstar = TFile::Open(inputfile.c_str());
 
     string GraName_2nd_stat = Form("g_rhoCent_%s_2nd_stat",mBeamEnergyKstar[i_energy].c_str());

@@ -132,7 +132,7 @@ void plotRho00SideBand_27GeV()
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->AddEntry(g_rhoData_27GeV,"STAR Signal","P");
-  leg->AddEntry(g_rhoData,"STAR Side Band (Sig+Bkg)","P");
+  leg->AddEntry(g_rhoData,"#rho_{00} from different Inv. Mass","P");
   leg->AddEntry(g_rhoSim,"Simulation with Kaon pairs from Data","P");
   // leg->AddEntry(g_rhoSimPt,"Simulation with published #phi spectra","P");
   // leg->AddEntry(g_rhoSimV2,"Simulation with v_{2} = 0","P");

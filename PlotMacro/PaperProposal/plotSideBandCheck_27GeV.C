@@ -212,8 +212,8 @@ void plotSideBandCheck_27GeV()
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->AddEntry(g_rhoData_27GeV,"STAR Signal","P");
-  leg->AddEntry(g_rhoData,"STAR Side Band (Sig+Bkg)","P");
-  leg->AddEntry(g_rhoBkg,"Bkg","P");
+  leg->AddEntry(g_rhoData,"#rho_{00} from different Inv. Mass","P");
+  leg->AddEntry(g_rhoBkg,"Projected Bkg","P");
   leg->AddEntry(g_rhoSigBkg,"Sig & Bkg Averaged","P");
   leg->Draw("same");
 
