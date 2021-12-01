@@ -33,7 +33,7 @@ double rho00_theory(double *x_var, double *par)
   return rho00;
 }
 
-void plotFig6_Rho00EnergyEP()
+void plotExtFig5_Rho00EnergyEP()
 {
   gStyle->SetOptDate(0);
   const int style_phi_2nd = 29;
@@ -196,8 +196,8 @@ void plotFig6_Rho00EnergyEP()
   // leg->AddEntry((TObject*)0,leg_p_Xaxis.c_str(),"");
   leg->Draw("same");
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig6_rho00EnergyEP.eps");
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig6_rho00EnergyEP.png");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig5_rho00EnergyEP.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig5_rho00EnergyEP.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

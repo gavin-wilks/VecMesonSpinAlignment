@@ -203,8 +203,8 @@ void plotFig3_Rho00EnergyTheory()
   PlotLine(35,45,0.38,0.38,2,3,1);
   plotTopLegend((char*)leg_current_Laxis.c_str(),48,0.3775,size_font,1,0.0,42,0);
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig3_rho00EnergyTheory.eps");
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig3_rho00EnergyTheory.png");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00EnergyTheory.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00EnergyTheory.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

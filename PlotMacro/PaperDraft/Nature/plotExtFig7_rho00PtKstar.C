@@ -14,69 +14,37 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotFig7_rho00PtPhi()
+void plotExtFig7_rho00PtKstar()
 {
   gStyle->SetOptDate(0);
-  const int style_phi_1st = 21;
-  const int color_phi_1st = kGray+2;
-  const int style_phi_2nd = 29;
-  const int color_phi_2nd = kRed-4;
+  const int style_Kstr = 20;
+  const int color_Kstr = kAzure-9;
 
   const float size_marker = 1.4;
   
-  float rho00_low[6] = {0.24,0.24,0.24,0.24,0.24,0.24}; // 11.5 -- 200 GeV
-  float rho00_high[6] = {0.52,0.52,0.54,0.52,0.52,0.52};
-  // float rho00_low[6] = {0.20,0.20,0.20,0.24,0.24,0.29}; // 11.5 -- 200 GeV
-  // float rho00_high[6] = {0.50,0.52,0.64,0.40,0.40,0.35};
+  float rho00_low[7]  = {0.10,0.1,0.10,0.10,0.10,0.10,0.10}; // 11.5 -- 200 GeV
+  float rho00_high[7] = {0.45,0.45,0.45,0.45,0.45,0.45,0.45};
   float pt_low = 0.54;
   float pt_high = 5.54;
-  float font_size = 0.07;
+  float font_size = 0.08;
   float leg_size = 0.06;
 
-  string mBeanEnergy[6] = {"11.5 GeV","19.6 GeV","27 GeV","39 GeV","62.4 GeV","200 GeV"};
-  int mEnergy[6] = {11,19,27,39,62,200};
+  string mBeanEnergy[7] = {"11.5 GeV","14.5 GeV","19.6 GeV","27 GeV","39 GeV","54.4 GeV","200 GeV"};
+  int mEnergy[7] = {11,14,19,27,39,54,200};
 
-  TGraphAsymmErrors *g_rho_1st_stat_temp[6];
-  TGraphAsymmErrors *g_rho_1st_sys_temp[6];
-  TGraphAsymmErrors *g_rho_1st_stat[6];
-  TGraphAsymmErrors *g_rho_1st_sys[6];
-  TGraphAsymmErrors *g_rho_2nd_stat[6];
-  TGraphAsymmErrors *g_rho_2nd_sys[6];
+  TGraphAsymmErrors *g_rho_2nd_stat[7];
+  TGraphAsymmErrors *g_rho_2nd_sys[7];
 
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
-  for(int i_energy = 0; i_energy < 6; ++i_energy)
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_pT_May21_2021.root");
+  for(int i_energy = 0; i_energy < 7; ++i_energy)
   {
-    string GrapName_1st_stat = Form("rho00_1stEP_pt_stat_%d",mEnergy[i_energy]);
-    g_rho_1st_stat_temp[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_1st_stat.c_str());
-    g_rho_1st_stat[i_energy] = new TGraphAsymmErrors();
-    for(int i_pt = 0; i_pt < g_rho_1st_stat_temp[i_energy]->GetN(); ++i_pt) // shift pT of 1st EP results by 0.1
-    {
-      double pt, rho;
-      g_rho_1st_stat_temp[i_energy]->GetPoint(i_pt,pt,rho);
-      double err = g_rho_1st_stat_temp[i_energy]->GetErrorYhigh(i_pt);
-      g_rho_1st_stat[i_energy]->SetPoint(i_pt,pt+0.1,rho);
-      g_rho_1st_stat[i_energy]->SetPointError(i_pt,0.0,0.0,err,err);
-    }
-
-    string GrapName_1st_sys = Form("rho00_1stEP_pt_sys_%d",mEnergy[i_energy]);
-    g_rho_1st_sys_temp[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_1st_sys.c_str());
-    g_rho_1st_sys[i_energy] = new TGraphAsymmErrors();
-    for(int i_pt = 0; i_pt < g_rho_1st_sys_temp[i_energy]->GetN(); ++i_pt) // shift pT of 1st EP results by 0.1
-    {
-      double pt, rho;
-      g_rho_1st_sys_temp[i_energy]->GetPoint(i_pt,pt,rho);
-      double err = g_rho_1st_sys_temp[i_energy]->GetErrorYhigh(i_pt);
-      g_rho_1st_sys[i_energy]->SetPoint(i_pt,pt+0.1,rho);
-      g_rho_1st_sys[i_energy]->SetPointError(i_pt,0.0,0.0,err,err);
-    }
-
     string GrapName_2nd_stat = Form("rho00_2ndEP_pt_stat_%d",mEnergy[i_energy]);
     g_rho_2nd_stat[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_2nd_stat.c_str());
-    for(int i_point = 0; i_point < g_rho_2nd_stat[i_energy]->GetN(); ++i_point)
-    {
-      g_rho_2nd_stat[i_energy]->SetPointEXlow(i_point,0.0);
-      g_rho_2nd_stat[i_energy]->SetPointEXhigh(i_point,0.0);
-    }
+    // for(int i_point = 0; i_point < g_rho_2nd_stat[i_energy]->GetN(); ++i_point)
+    // {
+    //   g_rho_2nd_stat[i_energy]->SetPointEXlow(i_point,0.0);
+    //   g_rho_2nd_stat[i_energy]->SetPointEXhigh(i_point,0.0);
+    // }
 
     string GrapName_2nd_sys = Form("rho00_2ndEP_pt_sys_%d",mEnergy[i_energy]);
     g_rho_2nd_sys[i_energy] = (TGraphAsymmErrors*)File_Input->Get(GrapName_2nd_sys.c_str());
@@ -84,7 +52,7 @@ void plotFig7_rho00PtPhi()
 
   //-----------------------------Set the Canvas---------------------------------
   const int N_x_pads = 2; //number of x-pads
-  const int N_y_pads = 3; //number of y-pads
+  const int N_y_pads = 4; //number of y-pads
   const int N_total_pads = N_x_pads*N_y_pads; //number of total pads
 
   TCanvas *c_rho00_double = new TCanvas("c_rho00_double","c_rho00_double",10,10,800,1000);
@@ -208,58 +176,54 @@ void plotFig7_rho00PtPhi()
       if(x_pads == 0 && y_pads == 1)
       {
 	// h_frame[total_pad-1]->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
-	h_frame[total_pad-1]->GetYaxis()->SetTitle("#rho_{00}");
+	// h_frame[total_pad-1]->GetYaxis()->SetTitle("#rho_{00}");
 	h_frame[total_pad-1]->GetYaxis()->CenterTitle();
 	h_frame[total_pad-1]->GetYaxis()->SetTitleSize(0.10*scaling_factor);
       }
       h_frame[total_pad-1]->DrawCopy("PE");
-      PlotLine(pt_low,pt_high,1.0/3.0,1.0/3.0,1,3,2);
-      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_1st_stat[total_pad-1],style_phi_1st,color_phi_1st,size_marker-0.2);
-      plotSysErrors(g_rho_1st_sys[total_pad-1],color_phi_1st);
-      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_phi_2nd,color_phi_2nd,size_marker+0.2);
-      plotSysErrors(g_rho_2nd_sys[total_pad-1],color_phi_2nd);
+      if(total_pad < 8)
+      {
+	PlotLine(pt_low,pt_high,1.0/3.0,1.0/3.0,1,3,2);
+	Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_Kstr,color_Kstr,size_marker);
+	plotSysErrors(g_rho_2nd_sys[total_pad-1],color_Kstr+2);
+      }
 
       if(x_pads == 0 && y_pads != N_y_pads-1)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,font_size*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.45,font_size*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == 0 && y_pads == N_y_pads-1)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,font_size*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.45,font_size*scaling_factor,1,0.0,42,0);
 	h_frame[total_pad-1]->SetTickLength(0.03);
       }
-      if(x_pads == N_x_pads-1 && y_pads == 1)
+      if(x_pads == N_x_pads-1 && y_pads != 0)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.050*scaling_factor,1,0.0,42,0);
-      }
-      if(x_pads == N_x_pads-1 && y_pads == N_y_pads-1)
-      {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.060*scaling_factor,1,0.0,42,0);
+	if(total_pad < 8) plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.45,0.6875*font_size*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == N_x_pads-1 && y_pads == 0)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.05*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.45,0.6875*font_size*scaling_factor,1,0.0,42,0);
       }
-      if(x_pads == 0 && y_pads == 0)
+      if(x_pads == N_x_pads-1 && y_pads == N_y_pads-1)
       {
-	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1.0)",0.9,0.49,leg_size*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)"Au+Au (20-60\% & |y| < 1.0)",0.80,0.42,0.6875*font_size*scaling_factor,1,0.0,42,0);
 
-	Draw_TGAE_Point_new_Symbol(1.0,0.47,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
-	plotTopLegend((char*)"#phi (1^{st}-order EP)",1.2,0.463,leg_size*scaling_factor,1,0.0,42,0);
-
-	Draw_TGAE_Point_new_Symbol(1.0,0.44,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-	plotTopLegend((char*)"#phi (2^{nd}-order EP)",1.2,0.433,leg_size*scaling_factor,1,0.0,42,0);
+	Draw_TGAE_Point_new_Symbol(1.5,0.35,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
+	plotTopLegend((char*)"K^{*0} (2^{nd}-order EP)",1.7,0.34,0.6875*font_size*scaling_factor,1,0.0,42,0);
       }
 
       // if(x_pads == 0 && y_pads == N_y_pads-1) plotTopLegend("#font[12]{p}_{#font[132]{T}}",0.94,0.10,0.1,1,0.0,42,1);
       // if(x_pads == 1 && y_pads == N_y_pads-1) plotTopLegend("#font[132]{(GeV}/#font[12]{c}#font[132]{)}",0.0,0.09,0.09,1,0.0,42,1);
       if(x_pads == 0 && y_pads == N_y_pads-1) plotTopLegend((char*)"p_{T}",0.94,0.10,0.1,1,0.0,42,1);
       if(x_pads == 1 && y_pads == N_y_pads-1) plotTopLegend((char*)"(GeV/c)",0.0,0.09,0.09,1,0.0,42,1);
+      if(x_pads == 0 && y_pads == 2) plotTopLegend((char*)"#rho",0.15,0.91,0.2,1,90.0,42,1);
+      if(x_pads == 0 && y_pads == 1) plotTopLegend((char*)"_{00}",0.15,0.00,0.19,1,90.0,42,1);
     }
   }
 
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig7_rho00PtPhi.eps");
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig7_rho00PtPhi.png");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig7_rho00PtKstar.eps");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig7_rho00PtKstar.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

@@ -13,7 +13,7 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotFig5_Rho00EnergyPhiOnly()
+void plotExtFig4_Rho00EnergyPhiOnly()
 {
   gStyle->SetOptDate(0);
   const int style_phi_1st = 21;
@@ -79,8 +79,8 @@ void plotFig5_Rho00EnergyPhiOnly()
   plotTopLegend((char*)"Au+Au 20-60%",40,0.315,size_font,1,0.0,42,0);
   plotTopLegend((char*)"|y| < 1.0 & 1.2 < p_{T}< 5.4 GeV/c",24,0.308,size_font,1,0.0,42,0);
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.eps");
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig5_rho00EnergyPhiOnly.png");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig4_rho00EnergyPhiOnly.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig4_rho00EnergyPhiOnly.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void plotFig4_SignalExtraction()
+void plotExtFig1_SignalExtraction()
 {
   const int style_phi_1st = 21;
   const int color_phi_1st = kGray+2;
@@ -298,6 +298,6 @@ void plotFig4_SignalExtraction()
     // leg->Draw("same");
   }
 
-  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalExtraction.eps");
-  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalExtraction.png");
+  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig1_SignalExtraction.eps");
+  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig1_SignalExtraction.png");
 }

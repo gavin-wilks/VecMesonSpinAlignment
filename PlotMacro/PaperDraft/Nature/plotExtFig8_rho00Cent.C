@@ -13,7 +13,7 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotFig8_rho00Cent()
+void plotExtFig8_rho00Cent()
 {
   gStyle->SetOptDate(0);
   const int style_phi_1st = 21;
@@ -322,8 +322,8 @@ void plotFig8_rho00Cent()
   plotTopLegend((char*)"Centrality (%)",0.46,0.4,0.8,1,0.0,42,1);
   pad_BottomMargin->Update();
 
-  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig8_rho00Centrality.eps");
-  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig8_rho00Centrality.png");
+  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig8_rho00Centrality.eps");
+  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig8_rho00Centrality.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

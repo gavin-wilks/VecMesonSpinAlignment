@@ -33,7 +33,7 @@ double FuncAD(double *x_val, double *par) {
 
 }
 
-void plotFig4_SignalCorrection()
+void plotExtFig23_SignalCorrection()
 {
   const int style_phi_1st = 21;
   const int color_phi_1st = kGray+2;
@@ -132,8 +132,8 @@ void plotFig4_SignalCorrection()
     leg->AddEntry(f_rhoPhi,"N#times[(1+#frac{B'F}{2})+(A'+F)cos^{2}#theta*+(A'F-#frac{B'F}{2})cos^{4}#theta*]","l");
     // leg->Draw("same");
 
-    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionPhi.eps");
-    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionPhi.png");
+    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig2_SignalCorrectionPhi.eps");
+    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig2_SignalCorrectionPhi.png");
   }
 
   // TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1.root");
@@ -205,7 +205,7 @@ void plotFig4_SignalCorrection()
     leg->AddEntry(f_rhoKstar,"N#times[(1-#rho_{00})+(3#rho_{00}-1)cos^{2}#theta*]","l");
     // leg->Draw("same");
 
-    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionKstar.eps");
-    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/Nature/fig4_SignalCorrectionKstar.png");
+    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig3_SignalCorrectionKstar.eps");
+    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig3_SignalCorrectionKstar.png");
   }
 }
