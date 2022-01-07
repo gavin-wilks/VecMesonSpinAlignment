@@ -177,7 +177,7 @@ void plotExtFig8_rho00Cent()
   plotTopLegend((char*)"a) #phi",5,0.415,size_font*scale_top0,1,0.0,42,0);
   Draw_TGAE_Point_new_Symbol(25,0.4195,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
   plotTopLegend((char*)"1^{st}-order EP",28,0.415,size_font*scale_top0,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyPhi[0].c_str(),35,0.25,size_font*scale_top0*1.1,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyPhi[0].c_str(),30,0.25,size_font*scale_top0*1.05,1,0.0,42,0);
   pad_Top0->Update();
 
   pad_Top1->cd();
@@ -196,7 +196,7 @@ void plotExtFig8_rho00Cent()
   plotTopLegend((char*)"b) #phi",5,0.415,size_font,1,0.0,42,0);
   Draw_TGAE_Point_new_Symbol(25,0.4195,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotTopLegend((char*)"2^{nd}-order EP",28,0.415,size_font*scale_top0,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyPhi[1].c_str(),35,0.25,size_font*1.05,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyPhi[1].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Top1->Update();
 
   pad_Top2->cd();
@@ -213,7 +213,7 @@ void plotExtFig8_rho00Cent()
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[2],style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotSysErrors(g_rhoPhiCent_2nd_sys[2],color_phi_2nd);
   plotTopLegend((char*)"c) #phi",5,0.415,size_font,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyPhi[2].c_str(),35,0.25,size_font*1.05,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyPhi[2].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Top2->Update();
 
   pad_Top3->cd();
@@ -230,7 +230,7 @@ void plotExtFig8_rho00Cent()
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[3],style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotSysErrors(g_rhoPhiCent_2nd_sys[3],color_phi_2nd);
   plotTopLegend((char*)"d) #phi",5,0.415,size_font,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyPhi[3].c_str(),35,0.25,size_font*1.05,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyPhi[3].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Top3->Update();
 
   // K*
@@ -252,7 +252,7 @@ void plotExtFig8_rho00Cent()
   plotTopLegend((char*)"e) K^{*0}",5,0.415,size_font*scale_bottom0,1,0.0,42,0);
   Draw_TGAE_Point_new_Symbol(25,0.420,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
   plotTopLegend((char*)"2^{nd}-order EP",28,0.415,size_font*scale_top0,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyKstar[0].c_str(),35,0.25,size_font*scale_bottom0,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyKstar[0].c_str(),30,0.25,size_font*scale_bottom0*1.05,1,0.0,42,0);
   pad_Bottom0->Update();
 
   pad_Bottom1->cd();
@@ -269,7 +269,7 @@ void plotExtFig8_rho00Cent()
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[1],style_Kstr,color_Kstr,size_marker);
   plotSysErrors(g_rhoKstarCent_2nd_sys[1],color_Kstr+2);
   plotTopLegend((char*)"f) K^{*0}",5,0.415,size_font,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyKstar[1].c_str(),35,0.25,size_font,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyKstar[1].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Bottom1->Update();
 
   pad_Bottom2->cd();
@@ -284,7 +284,7 @@ void plotExtFig8_rho00Cent()
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[2],style_Kstr,color_Kstr,size_marker);
   plotSysErrors(g_rhoKstarCent_2nd_sys[2],color_Kstr+2);
   plotTopLegend((char*)"g) K^{*0}",5,0.415,size_font,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyKstar[2].c_str(),35,0.25,size_font,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyKstar[2].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Bottom2->Update();
 
   pad_Bottom3->cd();

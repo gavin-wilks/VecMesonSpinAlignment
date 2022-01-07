@@ -230,11 +230,11 @@ void plotExtFig6_rho00PtPhi()
       }
       if(x_pads == N_x_pads-1 && y_pads == 1)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.050*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.048*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == N_x_pads-1 && y_pads == N_y_pads-1)
       {
-	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.060*scaling_factor,1,0.0,42,0);
+	plotTopLegend((char*)mBeanEnergy[total_pad-1].c_str(),3.6,0.28,0.048*scaling_factor,1,0.0,42,0);
       }
       if(x_pads == N_x_pads-1 && y_pads == 0)
       {

@@ -17,7 +17,7 @@ double tof_Kaon(double* x, double* par)
   return par[0]*(1.0 / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6]);
 }
 
-void plotQA_TofFit(int mEnergy = 6, int mPID = 1)
+void plotQA_TofFit(int mEnergy = 6, int mPID = 0)
 {
   string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -130,9 +130,10 @@ void plotQA_TofFit(int mEnergy = 6, int mPID = 1)
   string title;
   c_Efficiency->cd(1);
   string HistName = Form("h_mEfficiency_%s_Cent_9_Eta_%d",mParType[mPID].c_str(),eta_bin);
-  TLegend *leg = new TLegend(0.5,0.7,0.8,0.9);
+  TLegend *leg = new TLegend(0.2,0.7,0.6,0.9);
   leg->SetFillColor(10);
   leg->SetBorderSize(0);
+  leg->SetNColumns(3);
   title = Form("%s fit to peak",mParTex[mPID].c_str());
   h_mEfficiency[HistName]->SetTitle(title.c_str());
   h_mEfficiency[HistName]->SetStats(0);
@@ -207,8 +208,8 @@ void plotQA_TofFit(int mEnergy = 6, int mPID = 1)
   KEY_second = Form("f_mToFMatch_%s_Cent_9_Eta_%d",mParType[mPID].c_str(),eta_bin);
   f_TofSecond[KEY_second]->Draw("l same");
 
-  // string FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/c_TofEffDifFitEta%d_%s%s.eps",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
-  // c_Efficiency->SaveAs(FigName.c_str());
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/ToF/c_TofEffDifFitEta%d_%s%s.eps",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  c_Efficiency->SaveAs(FigName.c_str());
 
   TCanvas *c_EffEta = new TCanvas("c_EffEta","c_EffEta",10,10,800,800);
   c_EffEta->cd()->SetLeftMargin(0.1);
@@ -247,6 +248,6 @@ void plotQA_TofFit(int mEnergy = 6, int mPID = 1)
   }
   legEta->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/ToF/c_TofEffFitEta_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/AnalysisNote/Efficiency/ToF/c_TofEffFitEta_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
   c_EffEta->SaveAs(FigName.c_str());
 }
