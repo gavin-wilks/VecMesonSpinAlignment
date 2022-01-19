@@ -89,10 +89,10 @@ bool StZdcSmdCut::passEventCut(StPicoDst *pico)
   // refMult (0-80%) cut
   if(!isBES) mRefMultCorr->initEvent(refMult,vz,zdcX); // 200GeV
   if(isBES) mRefMultCorr->initEvent(refMult,vz); // BES
-  if(!mRefMultCorr->isRefMultOk())
-  {
-    return kFALSE;
-  }
+  //if(!mRefMultCorr->isRefMultOk())
+  //{
+  //  return kFALSE;
+  //}
 
   // ToF matched points cut
   Int_t nMatchedToF = 0;
