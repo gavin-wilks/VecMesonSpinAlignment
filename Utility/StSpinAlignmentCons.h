@@ -9,24 +9,24 @@ namespace vmsa
 {
   //--------------------------------------------------
   // used in TreeProduction and FillSpinAlginment
-  int const NumBeamEnergy = 7;
+  int const NumBeamEnergy = 5;
   // event cut
-  float const mVzMaxMap[NumBeamEnergy] = {70.0,50.0,70.0,70.0,40.0,40.0,30.0}; // 7.7 -- 200 GeV
+  float const mVzMaxMap[NumBeamEnergy] = {70.0,70.0,70.0,70.0,70.0}; // 7.7, 9.1, 11.5, 14.6, 19.6 (BES-II)
   float const mVrMax = 2.0;
-  float const mVzVpdDiffMax = 3.0;
+  float const mVzVpdDiffMax = 10.0;
   int const mMatchedToFMin = 2;
 
   // track cut
-  float const mSigScaleMap[NumBeamEnergy] = {1.0,1.0,1.0,1.9,1.0,1.0,1.0}; // 7.7 -- 200 GeV
-  float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0,1.0,3.0}; // for event plane reconstruction: 1.0 for BES, 3.0 for 200GeV
+  float const mSigScaleMap[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0};
+  float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0}; // for event plane reconstruction: 1.0 for BES-II
   float const mDcaTrMax = 1.0; // for pion, kaon, proton mDcaTrMax = 1.0 for flow
   float const mDcaTrMax_phi = 3.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
   int const mHitsDedxMin = 5;
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
-  float const mHitsRatioTPCMin = 0.51;
+  float const mHitsRatioTPCMin = 0.52;
   float const mEtaMax = 1.0;
-  float const mPrimPtMin[NumBeamEnergy] = {0.2,0.2,0.2,0.2,0.2,0.2,0.15}; // for event plane reconstruction and for pion, kaon, proton: 0.15 for 200 GeV, 0.2 for BES
+  float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
   float const mPrimPtWeight = 2.0;
@@ -78,13 +78,9 @@ namespace vmsa
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
-    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
-    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2}
   };
   float const pt_up[NumBeamEnergy][pt_rebin]  = { 
-    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
-    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
     {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
     {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
     {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
@@ -96,8 +92,6 @@ namespace vmsa
     {1,3,5, 8,11,14,17,20,24},
     {1,3,5, 8,11,14,17,20,24},
     {1,3,5, 8,11,14,17,20,24},
-    {1,3,5, 8,11,14,17,20,24},
-    {1,3,5, 8,11,14,17,20,24},
     {1,3,5, 8,11,14,17,20,24}
   };
   int const pt_rebin_stop[NumBeamEnergy][pt_rebin]  = {
@@ -105,14 +99,12 @@ namespace vmsa
     {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24},
-    {2,4,7,10,13,16,19,23,24},
-    {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24}
   };
-  int const pt_rebin_first[NumBeamEnergy] = {0,0,0,0,0,0,0};
-  int const pt_rebin_last[NumBeamEnergy]  = {8,6,6,6,6,6,8};
-  int const pt_QA[NumBeamEnergy]    = {1,1,2,2,3,3,0};
-  int const pt_RawQA[NumBeamEnergy]    = {2,4,6,3,10,12,14};
+  int const pt_rebin_first[NumBeamEnergy] = {0,0,0,0,0};
+  int const pt_rebin_last[NumBeamEnergy]  = {8,6,6,6,6};
+  int const pt_QA[NumBeamEnergy]    = {1,1,2,2,3};
+  int const pt_RawQA[NumBeamEnergy]    = {2,4,6,3,10};
 
   std::string const Centrality[9] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%"}; // Centrality bin
   int const Cent_Total = 10; // centrality: 9 = 20%-60%, 0-8 from RefMultCorr
@@ -170,9 +162,9 @@ namespace vmsa
   int const Func_QA    = 0;
 
   // shared constant
-  std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
-  float const mEnergyValue[NumBeamEnergy] = {7.7,11.5,19.6,27.0,39.0,62.4,200.0};
-  int const mBeamYear[NumBeamEnergy] = {2010,2010,2011,2011,2010,2010,2011};
+  std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV" "11GeV","14GeV","19GeV"};
+  float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6};
+  int const mBeamYear[NumBeamEnergy] = {2010,2010,2011,2011,2019};
 
   std::string const mPID[3]   = {"Phi","KStar","K0S"};
   float const Norm_Start[3][2]  = {{1.04,0.99},{0.41,0.30},{0.41,0.30}}; // normalise to right and left
