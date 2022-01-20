@@ -1,5 +1,5 @@
 #include "StRoot/StVecMesonAna/StVecMesonCorr.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 #include "TLorentzVector.h"
 #include "TProfile2D.h"
 #include "TMath.h"

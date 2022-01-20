@@ -12,12 +12,13 @@ class StAlexPhiMesonTrack;
 class StVecMesonCorr;
 class StVecMesonCut;
 class StVecMesonHistoManger;
-class StRunIdEventsDb;
+//class StRunIdEventsDb;
+class StUtility;
 
 class StVecMesonAna : public TObject
 {
   public:
-    StVecMesonAna(Int_t energy, Int_t X_flag, Int_t List, Long64_t start_event, Long64_t stop_event, Int_t mode); // X_flag: 0 for Same Event, 1 for Mixed Event | List: number of list to use | mode: 0 for phi, 1 for Kstar, 2 for K0S
+    StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode); // X_flag: 0 for Same Event, 1 for Mixed Event | List: number of list to use | mode: 0 for phi, 1 for Kstar, 2 for K0S
     ~StVecMesonAna();
 
     void setInputDir(const TString inputdir);
@@ -47,15 +48,17 @@ class StVecMesonAna : public TObject
     TChain *mInPut;
     Int_t mEnergy;
     Int_t mX_flag; // 0 for Same Event, 1 for Mixed Event
-    Int_t mList;
+    const Char_t *mList;
     Int_t mMode; // 0 for phi, 1 for Kstar
+    const Char_t *mJobId;
     StAlexPhiMesonEvent *mPhiMeson_event;
     StAlexPhiMesonTrack *mPhiMeson_track;
     StVecMesonCorr *mVecMesonCorr;
     StVecMesonCut *mVecMesonCut;
     StVecMesonHistoManger *mVecMesonHistoManger;
-    StRunIdEventsDb *mRunIdEventsDb;
-
+    //StRunIdEventsDb *mRunIdEventsDb;
+    StUtility *mUtility;  
+ 
     static StRefMultCorr *mRefMultCorr;
     static Int_t mInPut_flag;
     static char* VM_EVENT_TREE;

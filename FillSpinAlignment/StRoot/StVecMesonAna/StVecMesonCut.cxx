@@ -1,5 +1,5 @@
 #include "StRoot/StVecMesonAna/StVecMesonCut.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 #include "StMessMgr.h"
 
 ClassImp(StVecMesonCut)

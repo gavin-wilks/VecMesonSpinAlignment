@@ -1,7 +1,7 @@
 #include <TSystem>
 #include "TStopwatch.h"
 
-void FillSpinAlignment(const Int_t energy = 6, const Int_t X_flag = 1, const Int_t List = 0, const Long64_t start_event = 0, const Long64_t stop_event = 1024, const Int_t mode = 0)
+void FillSpinAlignment(const char* list, const char *jobId, cont Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 0)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // X_flag: 0 for Same Event, 1 for Mixed Event
@@ -21,7 +21,7 @@ void FillSpinAlignment(const Int_t energy = 6, const Int_t X_flag = 1, const Int
 
   cout << "Start to Read Trees!" << endl;
 
-  StVecMesonAna *mVecMesonAna = new StVecMesonAna(energy,X_flag,List,start_event,stop_event,mode);
+  StVecMesonAna *mVecMesonAna = new StVecMesonAna(list,jobId,energy,X_flag,mode);
   mVecMesonAna->Init();
   mVecMesonAna->Make();
   mVecMesonAna->Finish();

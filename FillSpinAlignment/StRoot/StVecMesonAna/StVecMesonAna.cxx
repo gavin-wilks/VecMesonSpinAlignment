@@ -2,11 +2,12 @@
 #include "StRoot/StVecMesonAna/StVecMesonCut.h"
 #include "StRoot/StVecMesonAna/StVecMesonCorr.h"
 #include "StRoot/StVecMesonAna/StVecMesonHistoManger.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
 #include "StRoot/StAlexPhiMesonEvent/StAlexPhiMesonEvent.h"
-#include "StRoot/StRunIdEventsDb/StRunIdEventsDb.h"
+//#include "StRoot/StRunIdEventsDb/StRunIdEventsDb.h"
+#include "StRoot/StVecMesonAna/StUtility.h"
 #include "StThreeVectorF.hh"
 #include "StMessMgr.h"
 #include "TFile.h"
@@ -24,13 +25,14 @@ char* StVecMesonAna::VM_EVENT_TREE = NULL;
 char* StVecMesonAna::VM_EVENT_BRANCH = NULL;
 
 //----------------------------------------------------
-StVecMesonAna::StVecMesonAna(Int_t energy, Int_t X_flag, Int_t List, Long64_t start_event, Long64_t stop_event, Int_t mode)
+StVecMesonAna::StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode)
 {
   mEnergy = energy;
   mX_flag = X_flag;
-  mList = List;
-  mStart_Event = start_event;
-  mStop_Event = stop_event;
+  mList = list;
+  mJobId = jobId;
+  //mStart_Event = start_event;
+  //mStop_Event = stop_event;
   mMode = mode;
   if(!mRefMultCorr)
   {
@@ -76,6 +78,9 @@ void StVecMesonAna::setStartEvent(const Long64_t StartEvent)
 // initial functions
 void StVecMesonAna::Init()
 {
+  mUtility = new StUtility(mEnergy);
+  mUtility->initRunIndex(); // initialize std::map for run index
+ 
   mVecMesonCorr->InitReCenterCorrection();
   mVecMesonCorr->InitShiftCorrection();
   mVecMesonCorr->InitResolutionCorr();
@@ -83,38 +88,38 @@ void StVecMesonAna::Init()
   mVecMesonHistoManger->InitSys_EP(mX_flag,mMode);
 
   // TString inputdir = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Forest/",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str());
-  TString inputdir = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Forest/",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str());
-  setInputDir(inputdir);
+  //TString inputdir = Form("/gpfs01/star/pwg/gwilks3/AuAu%s/SpinAlignment/%s/Forest/",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str());
+  //setInputDir(inputdir);
 
-  const Int_t list_start = vmsa::mList_Delta*mList + 1; // start list
-  const Int_t list_stop  = vmsa::mList_Delta*(mList+1); // stop list
+  //const Int_t list_start = vmsa::mList_Delta*mList + 1; // start list
+  //const Int_t list_stop  = vmsa::mList_Delta*(mList+1); // stop list
 
   // TString InPutList = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/List/Split_%s_%s_%d_%d.list",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),list_start,list_stop);
-  TString InPutList = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/List/Split_%s_%s_%d_%d.list",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),list_start,list_stop);
-  setInPutList(InPutList);
+  //TString InPutList = Form("/gpfs01/star/pwg/gwilks3/AuAu%s/SpinAlignment/%s/List/Split_%s_%s_%d_%d.list",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),list_start,list_stop);
+  //setInPutList(InPutList);
 
   // TString outputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Yields/Yields_%s_%s_%d.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),mList);
-  TString outputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Yields/Yields_%s_%s_%d.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),mList);
-  setOutputfile(outputfile);
+  TString outputfile = Form("Yields_%s_%s_%s_%s.root",vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),mJobId);
+  //setOutputfile(outputfile);
 
-  setStartEvent(Long64_t(mStart_Event));
-  setStopEvent(Long64_t(mStop_Event));
+  //setStartEvent(Long64_t(mStart_Event));
+  //setStopEvent(Long64_t(mStop_Event));
   //----------------------------------------------------------------------------------------------------
 
   TString Notification = Form("Initializing parameters and input/output for %s %s",vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data());
   cout << Notification.Data() << endl;
-  mFile_OutPut = new TFile(mOutputfile.Data(),"RECREATE");
+  mFile_OutPut = new TFile(outputfile.Data(),"RECREATE");
 
   VM_EVENT_TREE       = (char*)vmsa::vm_tree[mMode].Data();
   VM_EVENT_BRANCH     = (char*)vmsa::vm_branch[mMode].Data();
 
   //----------------------------------------------------------------------------------------------------
   // input
-  if (!mInPutList.IsNull())   // if input file is ok
+  if (mList != NULL)   // if input file is ok
   {
     TString InFo_List = Form("Open %s file list ",vmsa::MixEvent[mX_flag].Data());
     cout << InFo_List.Data() << endl;
-    ifstream in(mInPutList);  // input stream
+    ifstream in(mList);  // input stream
     if(in)
     {
       cout << "input file list is ok" << endl;
@@ -128,7 +133,7 @@ void StVecMesonAna::Init()
 	{
 	  TString addfile;
 	  addfile = str;
-	  addfile = mInputdir+addfile;
+	  //addfile = mInputdir+addfile;
 	  mInPut->AddFile(addfile.Data(),-1, VM_EVENT_TREE );
 	  Long64_t file_entries = mInPut->GetEntries();
 	  cout << "File added to data chain: " << addfile.Data() << " with " << (file_entries-entries_save) << " entries" << endl;
@@ -175,12 +180,13 @@ void StVecMesonAna::Make()
 // loop phi meson Same Event
 void StVecMesonAna::MakePhi()
 {
-  Long64_t start_event_use;
-  Long64_t stop_event_use;
+  //Long64_t start_event_use;
+  //Long64_t stop_event_use;
 
-  start_event_use = mStartEvent;
-  stop_event_use  = mStopEvent;
+  //start_event_use = mStartEvent;
+  //stop_event_use  = mStopEvent;
   mInPut->SetBranchAddress( VM_EVENT_BRANCH, &mPhiMeson_event);
+  long numOfEvents = (long)mInPut->GetEntries();
   mInPut->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
 
   // Initialise Event Head
@@ -207,11 +213,14 @@ void StVecMesonAna::MakePhi()
   Int_t   NumTrackFullEast = 0;
   Int_t   NumTrackFullWest = 0;
 
-  for(Long64_t counter = start_event_use; counter < stop_event_use; counter++)
+  //for(Long64_t counter = start_event_use; counter < stop_event_use; counter++)
+  //{
+  //  if (!mInPut->GetEntry( counter )) // take the event -> information is stored in event
+  //   break;  // end of data chunk
+  for(int i_event = 0; i_event < numOfEvents; ++i_event)
   {
-    if (!mInPut->GetEntry( counter )) // take the event -> information is stored in event
-      break;  // end of data chunk
-
+    if(i_event%1000==0) cout << "processing events:  " << i_event << "/" << numOfEvents << endl;
+ 
     // get Event Header
     PrimaryVertex    = mPhiMeson_event->getPrimaryVertex();
     RunId            = mPhiMeson_event->getRunId();
@@ -265,20 +274,23 @@ void StVecMesonAna::MakePhi()
     const Double_t reweight = mRefMultCorr->getWeight();
 
     // runIndex
-    mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
-    const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
+    //mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
+    //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
     // cout << runIndex << endl;
 
-    if (counter != 0  &&  counter % 1000 == 0)
-      cout << "." << flush;
-    if (counter != 0  &&  counter % 10000 == 0)
-    {
-      if((stop_event_use-start_event_use) > 0)
-      {
-	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
-	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
-      }
-    }
+    const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
+ 
+
+    //if (counter != 0  &&  counter % 1000 == 0)
+    //  cout << "." << flush;
+    //if (counter != 0  &&  counter % 10000 == 0)
+    //{
+    //  if((stop_event_use-start_event_use) > 0)
+    //  {
+    //	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
+    //	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
+    //  }
+    //}
 
     // get Track Information
     if(mVecMesonCorr->passTrackEtaNumCut(NumTrackEast,NumTrackWest))
@@ -390,8 +402,8 @@ void StVecMesonAna::MakePhi()
     }
   }
 
-  cout << "." << flush;
-  cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
+  //cout << "." << flush;
+  //cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
   cout << endl;
 }
 
