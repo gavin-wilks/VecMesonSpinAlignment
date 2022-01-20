@@ -1,8 +1,8 @@
 #include "StRoot/StVecMesonMaker/StVecMesonCorr.h"
 #include "../Utility/StSpinAlignmentCons.h"
-#include "StRoot/StPicoDstMaker/StPicoDst.h"
-#include "StRoot/StPicoDstMaker/StPicoEvent.h"
-#include "StRoot/StPicoDstMaker/StPicoTrack.h"
+#include "StRoot/StPicoEvent/StPicoDst.h"
+#include "StRoot/StPicoEvent/StPicoEvent.h"
+#include "StRoot/StPicoEvent/StPicoTrack.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
 #include "StMessMgr.h"
@@ -49,7 +49,7 @@ StVecMesonCorrection::~StVecMesonCorrection()
 
 void StVecMesonCorrection::InitReCenterCorrection()
 {
-  TString InPutFile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ReCenterParameter/file_%s_ReCenterPar.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamEnergy[mEnergy].c_str());
+  TString InPutFile = Form("StRoot/Utility/ReCenterParameter/file_%s_ReCenterPar.root",vmsa::mBeamEnergy[mEnergy].c_str());
 
   mInPutFile = TFile::Open(InPutFile.Data());
 
@@ -75,7 +75,7 @@ void StVecMesonCorrection::InitReCenterCorrection()
 
 void StVecMesonCorrection::InitShiftCorrection()
 {
-  TString InPutFile_Shift = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ShiftParameter/file_%s_ShiftPar.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamEnergy[mEnergy].c_str());
+  TString InPutFile_Shift = Form("StRoot/Utility/ShiftParameter/file_%s_ShiftPar.root",vmsa::mBeamEnergy[mEnergy].c_str());
   mInPutFile_Shift = TFile::Open(InPutFile_Shift.Data());
 }
 
@@ -83,7 +83,7 @@ void StVecMesonCorrection::InitShiftCorrection()
 
 bool StVecMesonCorrection::passTrackEtaEast(StPicoTrack *track) // neg
 {
-  Float_t eta = track->pMom().pseudoRapidity();
+  Float_t eta = track->pMom().PseudoRapidity();
 
   // eta cut
   // eta_gap between two sub event plane is 2*mEta_Gap
@@ -99,7 +99,7 @@ bool StVecMesonCorrection::passTrackEtaEast(StPicoTrack *track) // neg
 
 bool StVecMesonCorrection::passTrackEtaWest(StPicoTrack *track) // pos 
 {
-  Float_t eta = track->pMom().pseudoRapidity();
+  Float_t eta = track->pMom().PseudoRapidity();
 
   // eta cut
   // eta_gap between two sub event plane is 2*mEta_Gap
@@ -115,7 +115,7 @@ bool StVecMesonCorrection::passTrackEtaWest(StPicoTrack *track) // pos
 bool StVecMesonCorrection::passTrackFull(StPicoTrack *track) // Full Event Plane pt Cut
 {
   // pt cut 0.2 - 2.0 GeV/c
-  Float_t pt = track->pMom().perp();
+  Float_t pt = track->pMom().Perp();
   if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax))
   {
     return kFALSE;
@@ -127,7 +127,7 @@ bool StVecMesonCorrection::passTrackFull(StPicoTrack *track) // Full Event Plane
 //---------------------------------------------------------------------------------
 TVector2 StVecMesonCorrection::calq2Vector(StPicoTrack *track)
 {
-  const Float_t phi = track->pMom().phi();
+  const Float_t phi = track->pMom().Phi();
   TVector2 q2Vector(0.0,0.0);
 
   const Float_t q2x = TMath::Cos(2.0*phi);
@@ -139,7 +139,7 @@ TVector2 StVecMesonCorrection::calq2Vector(StPicoTrack *track)
 
 Float_t StVecMesonCorrection::getWeight(StPicoTrack *track)
 {
-  Float_t pt = track->pMom().perp();
+  Float_t pt = track->pMom().Perp();
   Float_t w;
   if(pt <= vmsa::mPrimPtWeight)
   {
@@ -271,7 +271,7 @@ void StVecMesonCorrection::addTrack_Full(StPicoTrack *track, Int_t Cent9, Int_t 
 
   mQCounter_Full++;
 
-  Float_t eta = track->pMom().pseudoRapidity();
+  Float_t eta = track->pMom().PseudoRapidity();
   if(eta >= 0.0)
   {
     mQCounter_Full_West++;
@@ -651,7 +651,7 @@ Float_t StVecMesonCorrection::calShiftAngle2Full_EP(Int_t runIndex, Int_t Cent9,
 
 void StVecMesonCorrection::InitResolutionCorr()
 {
-  TString InPutFile_Res = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Resolution/file_%s_Resolution.root",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamEnergy[mEnergy].c_str());
+  TString InPutFile_Res = Form("StRoot/Utility/Resolution/file_%s_Resolution.root",vmsa::mBeamEnergy[mEnergy].c_str());
   mInPutFile_Res = TFile::Open(InPutFile_Res.Data());
 }
 
@@ -691,18 +691,22 @@ Float_t StVecMesonCorrection::getResolution2_Full_EP(Int_t Cent9)
 //---------------------------------------------------------------------------------
 TVector2 StVecMesonCorrection::getQVector(Int_t l) // east/west
 {
+  TVector2 QVector(-99.9,-99.9);
   if(l == 0) return mQ2Vector_East_EP;
   if(l == 1) return mQ2Vector_West_EP;
   if(l == 2) return mQ2Vector_Full_EP;
   if(l == 3) return mQ2Vector_A_EP;
   if(l == 4) return mQ2Vector_B_EP;
+  return QVector;
 }
 
 TVector2 StVecMesonCorrection::getQVectorRaw(Int_t l) // east/west
 {
+  TVector2 QVector(-99.9,-99.9);
   if(l == 0) return mQ2Vector_EastRaw_EP;
   if(l == 1) return mQ2Vector_WestRaw_EP;
   if(l == 2) return mQ2Vector_FullRaw_EP;
+  return QVector;
 }
 
 Int_t StVecMesonCorrection::getNumTrack(Int_t l) // east/west
@@ -712,5 +716,6 @@ Int_t StVecMesonCorrection::getNumTrack(Int_t l) // east/west
   if(l == 2) return mQCounter_Full;
   if(l == 3) return mQCounter_Full_East;
   if(l == 4) return mQCounter_Full_West;
+  return -1; 
 }
 //---------------------------------------------------------------------------------

@@ -5,14 +5,15 @@
 #include "StRoot/StVecMesonMaker/StVecMesonHistoManger.h"
 #include "StRoot/StVecMesonMaker/StVecMesonTree.h"
 #include "../Utility/StSpinAlignmentCons.h"
-#include "StRoot/StPicoDstMaker/StPicoDst.h"
-#include "StRoot/StPicoDstMaker/StPicoEvent.h"
-#include "StRoot/StPicoDstMaker/StPicoTrack.h"
-#include "StRoot/StPicoDstMaker/StPicoV0.h"
+#include "StRoot/StPicoEvent/StPicoDst.h"
+#include "StRoot/StPicoEvent/StPicoEvent.h"
+#include "StRoot/StPicoEvent/StPicoTrack.h"
+//#include "StRoot/StPicoEvent/StPicoV0.h"
 #include "StRoot/StPicoDstMaker/StPicoDstMaker.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
 #include "StRoot/StRunIdEventsDb/StRunIdEventsDb.h"
+#include "StRoot/StVecMesonMaker/StUtility.h"
 #include "StThreeVectorF.hh"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -37,19 +38,19 @@ StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, co
 
   if(mMode == 0)
   {
-    mOutPut_ReCenterPar = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ReCenterParameter/file_%s_ReCenterPar_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),jobCounter);
+    mOutPut_ReCenterPar = Form("file_%s_ReCenterPar_%d.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter);
   }
   if(mMode == 1)
   {
-    mOutPut_ShiftPar = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ShiftParameter/file_%s_ShiftPar_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
+    mOutPut_ShiftPar = Form("file_%s_ShiftPar_%d.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
   }
   if(mMode == 2)
   {
-    mOutPut_Resolution = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Resolution/file_%s_Resolution_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
+    mOutPut_Resolution = Form("file_%s_Resolution_%d.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
   }
   if(mMode == 3)
   {
-    mOutPut_Phi = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Phi/Forest/file_%s_Phi_%s_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::MixEvent[mFlag_ME].Data(),jobCounter); 
+    mOutPut_Phi = Form("file_%s_Phi_%s_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::MixEvent[mFlag_ME].Data(),jobCounter); 
   }
 }
 
@@ -60,6 +61,9 @@ StVecMesonMaker::~StVecMesonMaker()
 //----------------------------------------------------------------------------- 
 Int_t StVecMesonMaker::Init() 
 {
+  mUtility = new StUtility(mEnergy);
+  mUtility->initRunIndex(); // initialize std::map for run index
+ 
   if(!mRefMultCorr)
   {
     mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
@@ -183,6 +187,8 @@ Int_t StVecMesonMaker::Make()
   // RefMult
   Int_t runId = mPicoEvent->runId();
   Int_t refMult = mPicoEvent->refMult();
+  Float_t vx = mPicoEvent->primaryVertex().x();
+  Float_t vy = mPicoEvent->primaryVertex().y();
   Float_t vz = mPicoEvent->primaryVertex().z();
   Float_t zdcX = mPicoEvent->ZDCx();
   mRefMultCorr->init(runId);
@@ -201,14 +207,21 @@ Int_t StVecMesonMaker::Make()
   }
 
   // runIndex
-  mRunIdEventsDb = StRunIdEventsDb::Instance((Float_t)mPicoEvent->energy(),(Float_t)mPicoEvent->year());
-  const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(runId); // expensive
+  //mRunIdEventsDb = StRunIdEventsDb::Instance((Float_t)mPicoEvent->energy(),(Float_t)mPicoEvent->year());
+  //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(runId); // expensive
 //  cout << runIndex << endl;
 //  cout << mRunIdEventsDb->getTotalNrRunIds() << endl;
 
   // Event Cut
   if(mVecMesonCut->passEventCut(mPicoDst)) // event cut
   {
+    const int runIndex = mUtility->findRunIndex(runId); // find run index for a specific run
+    if(runIndex < 0)
+    {
+      LOG_ERROR << "Could not find this run Index from StUtility! Skip!" << endm;
+      return kStErr;
+    }
+
     const Int_t nTracks = mPicoDst->numberOfTracks();
     const Int_t cent9 = mRefMultCorr->getCentralityBin9();
 //    if(cent9 < 0) cout << cent9 << endl;
@@ -221,20 +234,20 @@ Int_t StVecMesonMaker::Make()
 
       if(mMode == 0)
       {
-	Float_t eta = track->pMom().pseudoRapidity();
-	if(fabs(eta) < vmsa::mEtaMax && track->dca() < 3.0)
+	Float_t eta = track->pMom().PseudoRapidity();
+	if(fabs(eta) < vmsa::mEtaMax && track->gDCA(vx,vy,vz) < 3.0)
 	{
-	  Float_t Mass2 = mVecMesonCut->getMass2(track);
+	  Float_t Mass2 = mVecMesonCut->getPrimaryMass2(track, mPicoDst);
 	  Float_t dEdx = track->dEdx();
-	  Float_t p = track->pMom().mag();
+	  Float_t p = track->pMom().Mag();
 	  mVecMesonHistoManger->FillQA_Detector(dEdx,Mass2,p);
 	}
       }
-      if(mVecMesonCut->passTrackEP(track)) // track cut
+      if(mVecMesonCut->passTrackEP(track,mPicoEvent)) // track cut
       {
 	if(mMode == 0) // fill re-center parameter
 	{
-	  Float_t pt = track->pMom().perp();
+	  Float_t pt = track->pMom().Perp();
 
 	  if(mVecMesonCorrection->passTrackFull(track))
 	  {
@@ -335,7 +348,7 @@ Int_t StVecMesonMaker::Make()
       for(Int_t i = 0; i < nTracks; i++) // track loop
       {
 	StPicoTrack *track = (StPicoTrack*)mPicoDst->track(i);
-	if(mVecMesonCut->passTrackEP(track)) // track cut
+	if(mVecMesonCut->passTrackEP(track,mPicoEvent)) // track cut
 	{
 	  if(mVecMesonCorrection->passTrackFull(track))
 	  {

@@ -1,9 +1,9 @@
 #include "StRoot/StVecMesonMaker/StVecMesonTree.h"
 #include "StRoot/StVecMesonMaker/StVecMesonCut.h"
 #include "../Utility/StSpinAlignmentCons.h"
-#include "StRoot/StPicoDstMaker/StPicoDst.h"
-#include "StRoot/StPicoDstMaker/StPicoEvent.h"
-#include "StRoot/StPicoDstMaker/StPicoTrack.h"
+#include "StRoot/StPicoEvent/StPicoDst.h"
+#include "StRoot/StPicoEvent/StPicoEvent.h"
+#include "StRoot/StPicoEvent/StPicoTrack.h"
 #include "StRoot/StAlexPhiMesonEvent/StAlexPhiMesonEvent.h"
 #include <vector>
 #include "TLorentzVector.h"
@@ -377,7 +377,12 @@ void StVecMesonTree::MixEvent_Phi(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, F
   const Int_t nTracks = pico->numberOfTracks();
 
   // store Enent Information
-  mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<StThreeVectorF>(event->primaryVertex()));
+  StThreeVectorF primVer; 
+  primVer.setX(event->primaryVertex().x());
+  primVer.setY(event->primaryVertex().y());
+  primVer.setZ(event->primaryVertex().z());
+
+  mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<StThreeVectorF>(primVer));
   mRefMult[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->refMult()));
   mCentrality[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(cent9));
   mRunId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->runId()));
@@ -403,12 +408,12 @@ void StVecMesonTree::MixEvent_Phi(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, F
   {
     StPicoTrack *track = pico->track(i);
 
-    if(mVecMesonCut->passTrackPhi(track))
+    if(mVecMesonCut->passTrackPhi(track,event))
     {
-      Float_t Mass2 = mVecMesonCut->getMass2(track);
+      Float_t Mass2 = mVecMesonCut->getPrimaryMass2(track,pico);
       Float_t scale_nSigma_factor = vmsa::mSigScaleMap[mEnergy];
       Float_t Polarity = static_cast<Float_t>(track->charge());
-      Float_t momentum = track->pMom().mag();
+      Float_t momentum = track->pMom().Mag();
       Float_t Mass2_low = 0.1;
       Float_t Mass2_up = 0.4;
 
@@ -422,13 +427,21 @@ void StVecMesonTree::MixEvent_Phi(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, F
 	    || (momentum >= 0.65 && (Mass2 > Mass2_low && Mass2 < Mass2_up)) // dE/dx + ToF(always)
 	  )
 	{
+          StThreeVectorD primMom; 
+          primMom.setX(track->pMom().x());
+          primMom.setY(track->pMom().y());
+          primMom.setZ(track->pMom().z());
+          StThreeVectorD primVer; 
+          primVer.setX(event->primaryVertex().x());
+          primVer.setY(event->primaryVertex().y());
+          primVer.setZ(event->primaryVertex().z());
 	  MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
-	  mMass2[key].push_back(static_cast<Float_t>(mVecMesonCut->getMass2(track))); // mass2
-	  mDca[key].push_back(static_cast<Float_t>(track->dca()*track->charge())); // dca*charge 
+	  mMass2[key].push_back(static_cast<Float_t>(mVecMesonCut->getPrimaryMass2(track,pico))); // mass2
+	  mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*track->charge())); // dca*charge 
 	  mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
 	  mNSigmaKaon[key].push_back(static_cast<Float_t>((track->nSigmaKaon())*scale_nSigma_factor)); // nSigmaKaon
-	  mHelix_Kaon[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(track->pMom(),event->primaryVertex(),event->bField()*MAGFIELDFACTOR,track->charge())));// get helix from the pMom 
-	  mMomentum[key].push_back(static_cast<Float_t>(track->pMom().mag()));// get helix from the pMom 
+	  mHelix_Kaon[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,track->charge())));// get helix from the pMom 
+	  mMomentum[key].push_back(static_cast<Float_t>(track->pMom().Mag()));// get helix from the pMom 
 	}
       }
     }

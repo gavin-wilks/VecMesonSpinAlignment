@@ -15,6 +15,7 @@ class StVecMesonProManger;
 class StVecMesonCorrection;
 class StVecMesonHistoManger;
 class StVecMesonTree;
+class StUtility;
 
 class StVecMesonMaker : public StMaker {
   public:
@@ -31,7 +32,8 @@ class StVecMesonMaker : public StMaker {
     StPicoDst      *mPicoDst;
     StPicoEvent *mPicoEvent;
     static StRefMultCorr *mRefMultCorr;
-    StRunIdEventsDb *mRunIdEventsDb;
+    StUtility *mUtility;
+    //StRunIdEventsDb *mRunIdEventsDb;
     StVecMesonCut *mVecMesonCut;
     StVecMesonProManger *mVecMesonProManger;
     StVecMesonCorrection *mVecMesonCorrection;

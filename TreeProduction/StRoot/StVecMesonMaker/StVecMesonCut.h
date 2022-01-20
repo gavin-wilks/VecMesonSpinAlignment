@@ -5,27 +5,31 @@
 #include "TString.h"
 
 class StPicoDst;
+class StPicoEvent;
 class StPicoTrack;
 class StRefMultCorr;
 
 class StVecMesonCut : public TObject
 {
   public:
-    StVecMesonCut(Int_t energy);
+    StVecMesonCut(const int energy);
     virtual ~StVecMesonCut();
 
     bool passEventCut(StPicoDst*);
     bool passTrackBasic(StPicoTrack*);
-    bool passTrackEP(StPicoTrack*);
+    bool passTrackEP(StPicoTrack*, StPicoEvent*);
     bool passSigPionCut(StPicoTrack*, Float_t);
     bool passSigKaonCut(StPicoTrack*, Float_t);
     bool passSigProntonCut(StPicoTrack*, Float_t);
-    bool passTrackPhi(StPicoTrack*);
+    bool passTrackPhi(StPicoTrack*, StPicoEvent*);
+    bool isMinBias(StPicoEvent*);
+    bool isPileUpEvent(int, int);
     Int_t getMatchedToF();
     Int_t getNpirm();
     Int_t getNnonprim();
-    Float_t getMass2(StPicoTrack*);
-    Float_t getV0Mass2(StPicoTrack*);
+    Float_t getBeta(StPicoTrack*, StPicoDst*);
+    Float_t getPrimaryMass2(StPicoTrack*, StPicoDst*);
+    Float_t getV0Mass2(StPicoTrack*, StPicoDst*);
 
   private:
     static StRefMultCorr *mRefMultCorr;

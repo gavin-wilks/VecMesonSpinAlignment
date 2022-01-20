@@ -8,7 +8,7 @@ class StPicoDstMaker;
 
 
 StChain *chain;
-void VecMesonTree(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu27GeV/List/run_list/27GeV_140.list", const Int_t jobCounter = 140, const Int_t Mode = 2, const Int_t energy = 3, const Int_t flag_ME = 0)
+void VecMesonTree(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/pico_prod_random_test.list", const Int_t jobCounter = 1, const Int_t Mode = 3, const Int_t energy = 4, const Int_t flag_ME = 1)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // Mode: 0 for re-center correction, 1 for shift correction, 2 for resolution calculation, 3 for phi meson
@@ -16,13 +16,14 @@ void VecMesonTree(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xus
 
   TStopwatch *stopWatch = new TStopwatch();
   stopWatch->Start();
-  Int_t nEvents = 10000000;
-  // Int_t nEvents = 50000;
+  //Int_t nEvents = 10000000000;
+   Int_t nEvents = 1000;
 
   gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
   loadSharedLibraries();
 
   gSystem->Load("StRefMultCorr");
+  gSystem->Load("StPicoEvent");
   gSystem->Load("StPicoDstMaker");
   gSystem->Load("StAlexPhiMesonEvent");
   gSystem->Load("StVecMesonMaker");
@@ -30,7 +31,7 @@ void VecMesonTree(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xus
 
   chain = new StChain();
 
-  StPicoDstMaker *picoMaker = new StPicoDstMaker(0,inputFile,"picoDst");
+  StPicoDstMaker *picoMaker = new StPicoDstMaker(2,inputFile,"picoDst");
 
   StVecMesonMaker *VecMesonMaker = new StVecMesonMaker("VecMeson",picoMaker,jobCounter,Mode,energy,flag_ME);
 

@@ -1,93 +1,105 @@
+/**
+ * \brief Utility that performs calculations
+ *
+ * The StPicoUtilities allows one to calculate some usefule
+ * quantities on the flight and then store them in PicoDst
+ */
 
 #ifndef StPicoUtilities_h
 #define StPicoUtilities_h
 
-#include "StMuDSTMaker/COMMON/StMuTrack.h" 
-#include "StMuDSTMaker/COMMON/StMuDst.h" 
+// C++ headers
+#include <array>
+#include <string>
+#include <cmath>
 
+// MuDst headers
+#include "StMuDSTMaker/COMMON/StMuTrack.h"
+#include "StMuDSTMaker/COMMON/StMuDst.h"
+
+//_________________
 namespace StPicoUtilities {
 
-  //______________________________________________________________________________
-  // Reference multiplicity |eta|<0.5
-  inline UInt_t refMult(const UInt_t charge, const StMuDst& muDst)
-  {
-    // charge   0:negative, 1:positive
+  enum Charge_t  { Neg=0, Pos=1 };
+  enum TpcHalf_t { East=0, West=2 };
+  enum Mult_t    { refMult2=0, refMult3=4, refMult4=8, refMultHalf=12 };
 
-    size_t countedTracks = 0;
-    for (Int_t itrk=0; itrk<muDst.primaryTracks()->GetEntries(); itrk++){
-      StMuTrack* track = muDst.primaryTracks(itrk) ;
-      if(!track) continue;
+  enum RefMult_t {
+     RefMult2NegEast    = refMult2|Neg|East,
+     RefMult2NegWest    = refMult2|Neg|West,
+     RefMult2PosEast    = refMult2|Pos|East,
+     RefMult2PosWest    = refMult2|Pos|West,
+     RefMult3NegEast    = refMult3|Neg|East,
+     RefMult3NegWest    = refMult3|Neg|West,
+     RefMult3PosEast    = refMult3|Pos|East,
+     RefMult3PosWest    = refMult3|Pos|West,
+     RefMult4NegEast    = refMult4|Neg|East,
+     RefMult4NegWest    = refMult4|Neg|West,
+     RefMult4PosEast    = refMult4|Pos|East,
+     RefMult4PosWest    = refMult4|Pos|West,
+     RefMultHalfNegEast = refMultHalf|Neg|East,
+     RefMultHalfNegWest = refMultHalf|Neg|West,
+     RefMultHalfPosEast = refMultHalf|Pos|East,
+     RefMultHalfPosWest = refMultHalf|Pos|West
+  };
 
-      // these first 3 checks are easy, save time
-      const Bool_t isChargeOk = (charge==0&&track->charge()<0)||(charge==1&&track->charge()>0);
-      if (track->flag()<0 || !isChargeOk || track->nHitsFit(kTpcId)<10 ) continue; 
+  std::array<int, 16> calculateRefMult(const StMuDst& muDst) {
 
-      // check eta, a bit more elaborate
-      if (fabs(track->momentum().mag())<1.e-10) 		continue;
-      if (fabs(track->momentum().pseudoRapidity())>0.5) 	continue;
-      // finally, check dca, if a track satisfies gets inside the if, count it.
-      if (track->dca().mag()<3) ++countedTracks;
-    }
-    return countedTracks;
-  }
+    std::array<int, 16> custom_refMult = {};
 
-  //______________________________________________________________________________
-  // Reference multiplicity2 |eta|>0.5
-  inline UInt_t refMult2(const UInt_t charge, const UInt_t etaId, const StMuDst& muDst)
-  {
-    // charge   0:negative, 1:positive
-    // etaId    0:East(eta<-0.5), 1:West(eta>0.5)
+    // Loop over all primary tracks
+    for (Int_t iTrk = 0; iTrk < muDst.primaryTracks()->GetEntries(); ++iTrk) {
 
-    size_t countedTracks = 0;
-    for (Int_t itrk=0; itrk<muDst.primaryTracks()->GetEntries(); itrk++){
-      StMuTrack* track = muDst.primaryTracks(itrk) ;
-      if(!track) continue;
+      // Retrieve track
+      StMuTrack* track = muDst.primaryTracks(iTrk);
 
-      // these first 3 checks are easy, save time
-      const Bool_t isChargeOk = (charge==0&&track->charge()<0)||(charge==1&&track->charge()>0);
-      if (track->flag()<0 || !isChargeOk || track->nHitsFit(kTpcId)<10 ) continue; 
+      // Track must exist
+      if (!track) continue;
 
-      // check eta, a bit more elaborate
-      if (fabs(track->momentum().mag())<1.e-10) continue;
-      const Double_t eta = track->momentum().pseudoRapidity() ;
-      const Bool_t isEtaOk = (etaId==0&&(eta>-1.0&&eta<-0.5)) || (etaId==1&&(eta>0.5&&eta<1.0));
-      if (!isEtaOk) continue;
-      // finally, check dca, if a track satisfies gets inside the if, count it.
-      if (track->dca().mag()<3) ++countedTracks;
-    }
-    return countedTracks;
-  }
+      // These first 3 checks are used for all refMult
+      if( track->flag() < 0 ||
+	  fabs(track->momentum().mag()) < 1.e-10 ||
+	  track->dca().mag() > 3. ||
+	  fabs(track->momentum().pseudoRapidity()) > 1. ) continue;
 
-  //______________________________________________________________________________
-  // Reference multiplicity half eta<0 or eta>0
-  inline UInt_t refMultHalf(const UInt_t charge, const UInt_t etaId, const StMuDst& muDst)
-  {
-    // charge   0:negative, 1:positive
-    // etaId    0:East(eta<0), 1:West(eta>0)
+      double const eta = track->momentum().pseudoRapidity() ;
+      Charge_t  chargeName = (track->charge() > 0) ? Pos : Neg;
+      TpcHalf_t tpcHalfName = (eta > 0) ? West : East;
+      
+      double const beta = track->btofPidTraits().beta();
+      double const massSqr = (beta <= 1.e-5) ? -999. : track->momentum().mag2() * (std::pow(1. / beta, 2) - 1.);
 
-    size_t countedTracks = 0;
-    for (Int_t itrk=0; itrk<muDst.primaryTracks()->GetEntries(); itrk++){
-      StMuTrack* track = muDst.primaryTracks(itrk) ;
-      if(!track) continue;
+      // Define refMultHalf, refMult2 and refMult3
+      if (track->nHitsFit(kTpcId) >= 10) {
+	
+        // refMultHalf definition: pt> 0.1 && abs(dca) < 3 && nHitsTpc >= 10 && abs(eta) < 1
+        custom_refMult[refMultHalf | chargeName | tpcHalfName] += 1;
+	
+        // refMult2 definition: pt> 0.1 && abs(dca) < 3 && nHitsTpc >= 10 && abs(eta) > 0.5 && abs(eta) < 1
+        if (fabs(eta) > 0.5) {
+	  custom_refMult[refMult2 | chargeName | tpcHalfName] += 1;
+	}
+	
+        // refMult3 definition: pt> 0.1 && abs(dca) < 3 && nHitsTpc >= 10 && abs(eta) < 1 && Exclude protons
+        if (track->nSigmaProton() < -3. && massSqr < 0.4) {
+	  custom_refMult[refMult3 | chargeName | tpcHalfName] += 1;
+	}
+      } //if (track->nHitsFit(kTpcId) >= 10)
 
-      // these first 3 checks are easy, save time
-      const Bool_t isChargeOk = (charge==0&&track->charge()<0)||(charge==1&&track->charge()>0);
-      if (track->flag()<0 || !isChargeOk || track->nHitsFit(kTpcId)<10 ) continue; 
-
-      // check eta, a bit more elaborate
-      if (fabs(track->momentum().mag())<1.e-10) continue;
-      const Double_t eta = track->momentum().pseudoRapidity() ;
-      if (fabs(eta)>1.0) continue;
-
-      const Bool_t isEtaOk = (etaId==0&&eta<0)||(etaId==1&&eta>0) ;
-      if (!isEtaOk) continue ;
-      // finally, check dca, if a track satisfies gets inside the if, count it.
-      if (track->dca().mag()<3) ++countedTracks;
-    }
-    return countedTracks;
-  }
-
+      // Define refMult4
+      if (track->nHitsFit(kTpcId) >= 15) {
+	
+        // refMult4 definition: pt> 0.1 && abs(dca) < 3 && nHitsTpc >= 15 && abs(eta) < 1 && Exclude kaons
+        if( (massSqr <= -990. && fabs(track->nSigmaKaon()) > 3) ||    // tof is not available
+            (massSqr >  -990. && (massSqr > 0.6 || massSqr < 0.1)) ) {    // tof is available
+          custom_refMult[refMult4 | chargeName | tpcHalfName] += 1;
+	}
+      } // if (track->nHitsFit(kTpcId) >= 15)
+    } //for (Int_t iTrk = 0; iTrk < muDst.primaryTracks()->GetEntries(); ++iTrk)
+    
+    return custom_refMult;
+    
+  } //std::array<int, 16> calculateRefMult(const StMuDst& muDst)
 }
 
-#endif
-
+#endif // #define StPicoUtilities_h

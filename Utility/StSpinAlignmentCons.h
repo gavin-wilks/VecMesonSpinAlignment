@@ -162,7 +162,7 @@ namespace vmsa
   int const Func_QA    = 0;
 
   // shared constant
-  std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV" "11GeV","14GeV","19GeV"};
+  std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
   float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6};
   int const mBeamYear[NumBeamEnergy] = {2010,2010,2011,2011,2019};
 
