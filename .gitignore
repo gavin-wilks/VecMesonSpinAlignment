@@ -17,6 +17,11 @@ temp_gccflags.c
 */*_C.*
 */macro/*_C.*
 
+*/submit/*/JOBS/
+*/submit/*/Log/
+*/submit/*/sched*
+*/submit/*/*.session.xml
+
 TreeProduction/submit/List/*/failed*.list
 TreeProduction/submit/List/*/deleteROOT*.list
 TreeProduction/submit/slurm-*
