@@ -8,7 +8,7 @@ class StPicoDst;
 class StPicoDstMaker;
 class StPicoEvent;
 class StRefMultCorr;
-class StRunIdEventsDb;
+//class StRunIdEventsDb;
 class StCombPID;
 class StVecMesonCut;
 class StVecMesonProManger;
@@ -19,7 +19,7 @@ class StUtility;
 
 class StVecMesonMaker : public StMaker {
   public:
-    StVecMesonMaker(const char *name, StPicoDstMaker *picoMaker, const Int_t jobCounter, const Int_t Mode, const Int_t Energy, const Int_t Flag_ME);
+    StVecMesonMaker(const char *name, StPicoDstMaker *picoMaker, const char *jobCounter, const Int_t Mode, const Int_t Energy, const Int_t Flag_ME);
     virtual ~StVecMesonMaker();
     
     virtual Int_t Init();

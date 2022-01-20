@@ -11,9 +11,9 @@
 class StPicoDst;
 class StAlexPhiMesonEvent;
 class StAlexPhiMesonTrack;
-class StV0TofCorrection;
-class StV0Event;
-class StV0Track;
+//class StV0TofCorrection;
+//class StV0Event;
+//class StV0Track;
 class StVecMesonCut;
 class TH1F;
 class TH2F;
@@ -42,7 +42,7 @@ class StVecMesonTree
 
   private:
     StVecMesonCut *mVecMesonCut;
-    StV0TofCorrection *mTofCorr;
+    //StV0TofCorrection *mTofCorr;
     TH2F *h_Mass2;
     Int_t mEventCounter2[9][10][5]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
 

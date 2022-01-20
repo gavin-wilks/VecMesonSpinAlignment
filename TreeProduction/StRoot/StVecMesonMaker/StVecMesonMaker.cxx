@@ -4,7 +4,7 @@
 #include "StRoot/StVecMesonMaker/StVecMesonCorr.h"
 #include "StRoot/StVecMesonMaker/StVecMesonHistoManger.h"
 #include "StRoot/StVecMesonMaker/StVecMesonTree.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 #include "StRoot/StPicoEvent/StPicoDst.h"
 #include "StRoot/StPicoEvent/StPicoEvent.h"
 #include "StRoot/StPicoEvent/StPicoTrack.h"
@@ -12,7 +12,7 @@
 #include "StRoot/StPicoDstMaker/StPicoDstMaker.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
-#include "StRoot/StRunIdEventsDb/StRunIdEventsDb.h"
+//#include "StRoot/StRunIdEventsDb/StRunIdEventsDb.h"
 #include "StRoot/StVecMesonMaker/StUtility.h"
 #include "StThreeVectorF.hh"
 #include "TH1F.h"
@@ -27,7 +27,7 @@ ClassImp(StVecMesonMaker)
 
 StRefMultCorr* StVecMesonMaker::mRefMultCorr = NULL;
 //-----------------------------------------------------------------------------
-StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, const Int_t jobCounter, const Int_t Mode, const Int_t energy, const Int_t flag_ME)
+StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, const char *jobCounter, const Int_t Mode, const Int_t energy, const Int_t flag_ME)
   : StMaker(name)
 {
   mPicoDstMaker = picoMaker;
@@ -38,19 +38,19 @@ StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, co
 
   if(mMode == 0)
   {
-    mOutPut_ReCenterPar = Form("file_%s_ReCenterPar_%d.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter);
+    mOutPut_ReCenterPar = Form("file_%s_ReCenterPar_%s.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter);
   }
   if(mMode == 1)
   {
-    mOutPut_ShiftPar = Form("file_%s_ShiftPar_%d.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
+    mOutPut_ShiftPar = Form("file_%s_ShiftPar_%s.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
   }
   if(mMode == 2)
   {
-    mOutPut_Resolution = Form("file_%s_Resolution_%d.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
+    mOutPut_Resolution = Form("file_%s_Resolution_%s.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
   }
   if(mMode == 3)
   {
-    mOutPut_Phi = Form("file_%s_Phi_%s_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::MixEvent[mFlag_ME].Data(),jobCounter); 
+    mOutPut_Phi = Form("file_%s_Phi_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::MixEvent[mFlag_ME].Data(),jobCounter); 
   }
 }
 

@@ -1,6 +1,6 @@
 #include "StRoot/StVecMesonMaker/StVecMesonTree.h"
 #include "StRoot/StVecMesonMaker/StVecMesonCut.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 #include "StRoot/StPicoEvent/StPicoDst.h"
 #include "StRoot/StPicoEvent/StPicoEvent.h"
 #include "StRoot/StPicoEvent/StPicoTrack.h"
