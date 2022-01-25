@@ -127,7 +127,7 @@ void plotExtFig5_Rho00EnergyEP()
   f_rho00_Laxis->SetParameter(0,1000.0);
   f_rho00_Laxis->FixParameter(1,ms);
   f_rho00_Laxis->SetLineColor(kRed);
-  f_rho00_Laxis->SetLineStyle(kDashed);
+  f_rho00_Laxis->SetLineStyle(1);
   f_rho00_Laxis->SetLineWidth(4);
   f_rho00_Laxis->SetRange(19.0,200.0);
   g_rhoPhi_2nd_fit_Laxis->Fit(f_rho00_Laxis,"MNR");
