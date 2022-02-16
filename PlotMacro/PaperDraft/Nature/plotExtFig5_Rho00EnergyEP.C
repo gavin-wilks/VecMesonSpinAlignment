@@ -145,7 +145,7 @@ void plotExtFig5_Rho00EnergyEP()
   f_rho00_Xaxis->SetParameter(0,200.0);
   f_rho00_Xaxis->FixParameter(1,ms);
   f_rho00_Xaxis->SetLineColor(kBlue);
-  f_rho00_Xaxis->SetLineStyle(kDashed);
+  f_rho00_Xaxis->SetLineStyle(4);
   f_rho00_Xaxis->SetLineWidth(4);
   f_rho00_Xaxis->SetRange(19.0,200.0);
   g_rhoPhi_2nd_fit_Xaxis->Fit(f_rho00_Xaxis,"MNR");
