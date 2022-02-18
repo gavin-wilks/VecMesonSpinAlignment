@@ -487,7 +487,7 @@ void StVecMesonTree::doPhi(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_P
 	  h_Mass2->Fill(pt,InvMassAB);
 	}
       }
-      cout << "Number of tracks" << mMesonEvent->getNumTracks() << endl;
+      //cout << "Number of tracks" << mMesonEvent->getNumTracks() << endl;
     }
     mTree->Fill();
   }

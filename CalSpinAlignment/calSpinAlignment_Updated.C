@@ -44,13 +44,13 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
       //{
 	for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	{
-	  string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_SE[KEY_SE] = (TH1F*)File_SE->Get(KEY_SE.c_str())->Clone(); 
 	  int Norm_bin_start = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Start[pid][0]);
 	  int Norm_bin_stop  = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Stop[pid][0]);
 	  float Inte_SE = h_mMass_SE[KEY_SE]->Integral(Norm_bin_start,Norm_bin_stop);
 
-	  string KEY_ME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_ME",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_ME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_ME",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_ME[KEY_ME] = (TH1F*)File_ME->Get(KEY_ME.c_str())->Clone(); 
 	  float Inte_ME = h_mMass_ME[KEY_ME]->Integral(Norm_bin_start,Norm_bin_stop);
 	  h_mMass_ME[KEY_ME]->Scale(Inte_SE/Inte_ME);
@@ -67,10 +67,10 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
   // QA Plots for SE vs. ME
   TCanvas *cy6 = new TCanvas("cy6","cy6",10,10,800,600);
   cy6->cd();
-  string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_SE",6,9,3,vmsa::mPID[pid].c_str());
+  string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_SE",6,9,3,vmsa::mPID[pid].c_str());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_ME",6,9,3,vmsa::mPID[pid].c_str());
+  string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_ME",6,9,3,vmsa::mPID[pid].c_str());
   h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
@@ -85,10 +85,10 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
 
   TCanvas *cy7 = new TCanvas("cy7","cy7",10,10,800,600);
   cy7->cd();
-  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_SE",7,9,3,vmsa::mPID[pid].c_str());
+  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_SE",7,9,3,vmsa::mPID[pid].c_str());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_ME",7,9,3,vmsa::mPID[pid].c_str());
+  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_ME",7,9,3,vmsa::mPID[pid].c_str());
   h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
@@ -103,10 +103,10 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
 
   TCanvas *cy5 = new TCanvas("cy5","cy5",10,10,800,600);
   cy5->cd();
-  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_SE",5,9,3,vmsa::mPID[pid].c_str());
+  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_SE",5,9,3,vmsa::mPID[pid].c_str());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_ME",5,9,3,vmsa::mPID[pid].c_str());
+  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_ME",5,9,3,vmsa::mPID[pid].c_str());
   h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
@@ -131,10 +131,10 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
     c_pT->cd(i_pt+1)->SetBottomMargin(0.15);
     c_pT->cd(i_pt+1)->SetTicks(1,1);
     c_pT->cd(i_pt+1)->SetGrid(0,0);
-    string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_SE",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
+    string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_SE",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
     h_mMass_SE[KEY_SE_QA]->DrawCopy();
 
-    string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_1_%s_ME",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
+    string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_%s_ME",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
     h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
     h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
     h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
