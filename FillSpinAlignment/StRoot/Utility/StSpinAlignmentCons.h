@@ -63,11 +63,13 @@ namespace vmsa
   int const Bin_Centrality = 9;
   int const Bin_VertexZ = 10;
   int const Bin_Phi_Psi = 5;
+  int const Bin_Rho_Psi = 5;
+  int const Bin_KStar_Psi = 5;
   int const Buffer_depth = 5;
   TString const MixEvent[2] = {"SE","ME"};
 
-  TString const vm_tree[2]  = {"PhiMesonEvent","KStarEvent"};
-  TString const vm_branch[2] = {"phi_SpinAlignment_branch","KStar_SpinAlignment_branch"};
+  TString const vm_tree[3]  = {"PhiMesonEvent","RhoMesonEvent","KStarMesonEvent"};
+  TString const vm_branch[3] = {"phi_SpinAlignment_branch","rho_SpinAlignment_branch","KStar_SpinAlignment_branch"};
   int const mList_Delta = 20;
   //--------------------------------------------------
 
@@ -127,6 +129,9 @@ namespace vmsa
   int const nSigKaon_start = 0;
   int const nSigKaon_stop = 3;
   float const mNSigmaKaonSys[3] = {2.5,2.0,3.0}; // nSigKaon sys. errors
+  int const nSigPion_start = 0;
+  int const nSigPion_stop = 3;
+  float const mNSigmaPionSys[3] = {2.0,1.5,2.5}; // nSigPion sys. errors
 
   int const EtaGap_total = 4; // EtaGap bin
   int const Eta_start = 0; // EtaGap bin
@@ -166,7 +171,7 @@ namespace vmsa
   float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6};
   int const mBeamYear[NumBeamEnergy] = {2010,2010,2011,2011,2019};
 
-  std::string const mPID[3]   = {"Phi","KStar","K0S"};
+  std::string const mPID[3]   = {"Phi","Rho","KStar"};
   float const Norm_Start[3][2]  = {{1.04,0.99},{0.41,0.30},{0.41,0.30}}; // normalise to right and left
   float const Norm_Stop[3][2]   = {{1.05,1.00},{0.46,0.31},{0.46,0.31}};
   float const BW_Start[3]     = {0.994,1.0,1.0};

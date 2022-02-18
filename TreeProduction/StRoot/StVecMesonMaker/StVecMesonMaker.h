@@ -19,7 +19,7 @@ class StUtility;
 
 class StVecMesonMaker : public StMaker {
   public:
-    StVecMesonMaker(const char *name, StPicoDstMaker *picoMaker, const char *jobCounter, const Int_t Mode, const Int_t Energy, const Int_t Flag_ME);
+    StVecMesonMaker(const char *name, StPicoDstMaker *picoMaker, const char *jobCounter, const Int_t Mode, const Int_t Energy, const Int_t Flag_ME, const Int_t Flag_PID);
     virtual ~StVecMesonMaker();
     
     virtual Int_t Init();
@@ -43,18 +43,21 @@ class StVecMesonMaker : public StMaker {
     Int_t mMode;
     Int_t mEnergy;
     Int_t mFlag_ME;
+    Int_t mFlag_PID;
+ 
+    std::string mName_PID[3] = {"Phi","Rho","KStar"};
 
     TString mInPut_Corr_ReCenter;
 
     TString mOutPut_ReCenterPar;
     TString mOutPut_ShiftPar;
     TString mOutPut_Resolution;
-    TString mOutPut_Phi;
+    TString mOutPut_PID;
 
     TFile *mFile_ReCenterPar;
     TFile *mFile_ShiftPar;
     TFile *mFile_Resolution;
-    TFile *mFile_Phi;
+    TFile *mFile_PID;
 
     Int_t mUsedTrackCounter;
 

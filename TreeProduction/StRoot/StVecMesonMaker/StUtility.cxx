@@ -24,10 +24,12 @@ StUtility::~StUtility()
 
 
 void StUtility::initRunIndex()
-{
-  map_runIndex.clear();
+{ 
   bool isOpen_runIndex = read_in_runIndex();
   if(isOpen_runIndex) std::cout << "Run Index read in!" << std::endl;
+
+  bool isOpen_badRunList = read_in_badRunList(); // read in Bad Run List
+  if(isOpen_badRunList) std::cout << "Bad Run List read in!" << std::endl;
 }
 
 int StUtility::findRunIndex(int runId)
@@ -57,8 +59,9 @@ int StUtility::findRunIndex(int runId)
 
 bool StUtility::read_in_runIndex()
 {
+  map_runIndex.clear();
   // std::string inputfile = Form("StRoot/StEventPlaneMaker/runIndex_%s.txt",vmsa::mBeamEnergy[mEnergy].c_str());
-  std::string inputfile = Form("StRoot/Utility/RunIndex/runIndex_%s.txt",vmsa::mBeamEnergy[mEnergy].c_str());
+  std::string inputfile = Form("StRoot/Utility/RunIndex/runIndex_%s_%d.txt",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamYear[mEnergy]);
   std::cout << "inputfile = " << inputfile.c_str() << std::endl;
   std::ifstream file_runIndex ( inputfile.c_str() );
   if ( !file_runIndex.is_open() )
@@ -78,3 +81,48 @@ bool StUtility::read_in_runIndex()
 
   return true;
 }
+
+bool StUtility::read_in_badRunList()
+{
+  vec_badRunId.clear();
+
+  // std::string inputfile = Form("StRoot/StRunQAMaker/runIndex_%s.txt",runQA::mBeamEnergy[mEnergy].c_str());
+  std::string inputfile = Form("StRoot/Utility/RunIndex/badRunList_%s_%d.txt",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamYear[mEnergy]);
+  std::cout << "inputfile = " << inputfile.c_str() << std::endl;
+  std::ifstream file_badRunList ( inputfile.c_str() );
+  if ( !file_badRunList.is_open() )
+  {
+    std::cout << "Abort. Fail to read in bad Run List file: " << inputfile << std::endl;
+    return false;
+  }
+
+  int runId = 0;
+  std::cout << "reading bad Bun List: " << inputfile.c_str() << std::endl;
+  while (file_badRunList >> runId)
+  {
+    vec_badRunId.push_back(runId);
+  }
+  file_badRunList.close();
+
+  // print vec_badRunId content:
+  // for (std::vector<int>::iterator it=vec_badRunId.begin(); it!=vec_badRunId.end(); ++it)
+  // {
+  //   std::cout << (*it) << std::endl;;
+  // }
+
+  return true;
+}
+
+bool StUtility::isBadRun(int runId)
+{
+  // print vec_badRunId content:
+  // for (std::vector<int>::iterator it=vec_badRunId.begin(); it!=vec_badRunId.end(); ++it)
+  // {
+  //   std::cout << (*it) << std::endl;;
+  // }
+
+  std::vector<int>::iterator it_runId = std::find(vec_badRunId.begin(), vec_badRunId.end(), runId);
+
+  return ( it_runId != vec_badRunId.end() ); // true if can be found in bad run list
+}
+

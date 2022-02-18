@@ -91,7 +91,7 @@ class StVecMesonCorrection : public TObject
     TFile *mInPutFile_Shift;
     TFile *mInPutFile_Res;
 
-    static TString mVStr[2];
+    static TString mVStr[4];
     static TString mOrder;
 
   ClassDef(StVecMesonCorrection,1)

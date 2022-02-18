@@ -36,25 +36,25 @@ class StVecMesonProManger
 
   private:
     // ReCenter Correction | x axis is RunIndex, y axis is Centrality
-    TProfile2D *p_mq2x_East_EP[2]; // 0 = vertex pos/neg
-    TProfile2D *p_mq2y_East_EP[2]; // 0 = vertex pos/neg
-    TProfile2D *p_mq2x_West_EP[2]; // 0 = vertex pos/neg
-    TProfile2D *p_mq2y_West_EP[2]; // 0 = vertex pos/neg
-    TProfile2D *p_mq2x_Full_EP[2]; // 0 = vertex pos/neg
-    TProfile2D *p_mq2y_Full_EP[2]; // 0 = vertex pos/neg
+    TProfile2D *p_mq2x_East_EP[4]; // 0 = vertex pos/neg
+    TProfile2D *p_mq2y_East_EP[4]; // 0 = vertex pos/neg
+    TProfile2D *p_mq2x_West_EP[4]; // 0 = vertex pos/neg
+    TProfile2D *p_mq2y_West_EP[4]; // 0 = vertex pos/neg
+    TProfile2D *p_mq2x_Full_EP[4]; // 0 = vertex pos/neg
+    TProfile2D *p_mq2y_Full_EP[4]; // 0 = vertex pos/neg
 
     // Shift Correction | x axis is RunIndex, y axis is Centrality
-    TProfile2D *p_mcos2_East_EP[2][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
-    TProfile2D *p_msin2_East_EP[2][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
-    TProfile2D *p_mcos2_West_EP[2][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
-    TProfile2D *p_msin2_West_EP[2][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
-    TProfile2D *p_mcos2_Full_EP[2][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
-    TProfile2D *p_msin2_Full_EP[2][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
+    TProfile2D *p_mcos2_East_EP[4][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
+    TProfile2D *p_msin2_East_EP[4][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
+    TProfile2D *p_mcos2_West_EP[4][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
+    TProfile2D *p_msin2_West_EP[4][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
+    TProfile2D *p_mcos2_Full_EP[4][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
+    TProfile2D *p_msin2_Full_EP[4][5]; // 0 = vertex pos/neg, 1 = ShiftOrder
 
     TProfile *p_mRes2_Sub; // eta_sub event plane resolution
     TProfile *p_mRes2_Ran; // full event plane resolution <= random sub
 
-    static TString mVStr[2];
+    static TString mVStr[4];
 
     ClassDef(StVecMesonProManger,1)
 };

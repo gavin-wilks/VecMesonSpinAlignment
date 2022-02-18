@@ -15,31 +15,32 @@ codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignmen
 
 energy=4  # 19GeV
 library=SL21c
-listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction
+listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/PidFlow/FileList/19p6GeV_2019
 outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
 ##########Mode Selection##########
-mode=0
-outDir=ReCenterParameter
+#mode=0
+#outDir=ReCenterParameter
 
-# mode=1
-# outDir=ShiftParameter
+#mode=1
+#outDir=ShiftParameter
 
-# mode=2
-# outDir=Resolution
+#mode=2
+#outDir=Resolution
 
-# mode=3
-# outDir=Phi/Forest
+mode=3
+outDir=Phi/Forest
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-flag_ME=0 # 0 for SE | 1 for ME
-SM=SE
+flag_ME=1 # 0 for SE | 1 for ME
+SM=ME
 # flag_ME=1 # 0
 # SM=ME
 ##########Mixed Event Selection##########
 
+flag_PID=0 # 0 for phi | 1 for rho | 2 for kstar
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -49,7 +50,7 @@ mkdir -p ${outPath}/Log/SpinAlignment/${outDir}
 mkdir -p ${outPath}/OutPut/SpinAlignment/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template testProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -57,5 +58,6 @@ star-submit-template -template testProductionTemp.xml -entities mode=$mode,energ
 ##########Full Production##########
 
 ##########Re-Submit##########
-# star-submit-template -template resubmitTreeProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+
 ##########Re-Submit##########

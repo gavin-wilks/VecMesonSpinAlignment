@@ -9,8 +9,8 @@
 #include "TVector2.h"
 
 class StPicoDst;
-class StAlexPhiMesonEvent;
-class StAlexPhiMesonTrack;
+class StMesonEvent;
+class StMesonTrack;
 //class StV0TofCorrection;
 //class StV0Event;
 //class StV0Track;
@@ -26,14 +26,36 @@ class StVecMesonTree
     StVecMesonTree(Int_t energy);
     virtual ~StVecMesonTree();
 
+    //phi-meson specific functions
     void InitPhi();
 
     void doPhi(Int_t,Int_t,Int_t,Int_t);
     void MixEvent_Phi(Int_t,StPicoDst*,Int_t,Float_t,Float_t);
     void clear_phi(Int_t,Int_t,Int_t);
     void size_phi(Int_t,Int_t,Int_t);
+    ////////////////////////////////
+    //
+    //rho-meson specific functions
+    void InitRho();
 
-    void WritePhiMass2();
+    void doRho(Int_t,Int_t,Int_t,Int_t);
+    void MixEvent_Rho(Int_t,StPicoDst*,Int_t,Float_t,Float_t);
+    void clear_rho(Int_t,Int_t,Int_t);
+    void size_rho(Int_t,Int_t,Int_t);
+    ////////////////////////////////
+    //
+    //KStar-meson specific functions
+    void InitKStar();
+
+    void doKStar(Int_t,Int_t,Int_t,Int_t);
+    void MixEvent_KStar(Int_t,StPicoDst*,Int_t,Float_t,Float_t);
+    void clear_kstar(Int_t,Int_t,Int_t);
+    void size_kstar(Int_t,Int_t,Int_t);
+    /////////////////////////////////
+
+    void WriteMass2Phi();
+    void WriteMass2Rho();
+    void WriteMass2KStar();
 
     void clearEvent();
     void passEvent(Int_t,Int_t,Int_t); // N_prim,N_non_prim,N_Tof_match
@@ -44,19 +66,26 @@ class StVecMesonTree
     StVecMesonCut *mVecMesonCut;
     //StV0TofCorrection *mTofCorr;
     TH2F *h_Mass2;
+    TH2F *h_KdEdxRig;
+    TH2F *h_KM2Rig;
+    TH2F *h_KInvBetaRig;
+    TH2F *h_PidEdxRig;
+    TH2F *h_PiM2Rig;
+    TH2F *h_PiInvBetaRig;
     Int_t mEventCounter2[9][10][5]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
 
     // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin, 3 = mixed event bin, 4 = charge bin(0 for pos, 1 for neg) || push_back->track
-    vectorHelixMap mHelix_Kaon;
+    vectorHelixMap mHelix;
     vectorFloatMap mMomentum;
     vectorFloatMap mMass2;
     vectorFloatMap mDca;
     vectorFloatMap mNHitsFit;
-    vectorFloatMap mNSigmaKaon;
+    vectorFloatMap mNSigma;
+    vectorIntMap mCharge;
 
-    TTree *mTree_Phi;
-    StAlexPhiMesonEvent *mPhiMesonEvent;
-    StAlexPhiMesonTrack *mPhiMesonTrack;
+    TTree *mTree;
+    StMesonEvent *mMesonEvent;
+    StMesonTrack *mMesonTrack;
 
     // event information | 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin || push_back->event
     std::vector<StThreeVectorF> mPrimaryvertex[9][10][5];

@@ -40,26 +40,26 @@ void calSpinAlignment(int energy = 6, int pid = 0, int year = 0)
   {
     for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // Centrality loop
     {
-      for(int i_eta = vmsa::Eta_start; i_eta < vmsa::Eta_stop; i_eta++) // EtaGap loop
-      {
+    //  for(int i_eta = vmsa::Eta_start; i_eta < vmsa::Eta_stop; i_eta++) // EtaGap loop
+    //  {
 	for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	{
-	  string KEY_SE = Form("pt_%d_Centrality_%d_EtaGap_%d_CosThetaStar_%d_2nd_%s_SE",i_pt,i_cent,i_eta,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_SE = Form("pt_%d_Centrality_%d__CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_SE[KEY_SE] = (TH1F*)File_SE->Get(KEY_SE.c_str())->Clone(); 
 	  int Norm_bin_start = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Start[pid][0]);
 	  int Norm_bin_stop  = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Stop[pid][0]);
 	  float Inte_SE = h_mMass_SE[KEY_SE]->Integral(Norm_bin_start,Norm_bin_stop);
 
-	  string KEY_ME = Form("pt_%d_Centrality_%d_EtaGap_%d_CosThetaStar_%d_2nd_%s_ME",i_pt,i_cent,i_eta,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_ME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_%s_ME",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_ME[KEY_ME] = (TH1F*)File_ME->Get(KEY_ME.c_str())->Clone(); 
 	  float Inte_ME = h_mMass_ME[KEY_ME]->Integral(Norm_bin_start,Norm_bin_stop);
 	  h_mMass_ME[KEY_ME]->Scale(Inte_SE/Inte_ME);
 
-	  string KEY_SM = Form("pt_%d_Centrality_%d_EtaGap_%d_CosThetaStar_%d_2nd_%s_SM",i_pt,i_cent,i_eta,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_SM = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_SM[KEY_SM] = (TH1F*)h_mMass_SE[KEY_SE]->Clone();
 	  h_mMass_SM[KEY_SM]->Add(h_mMass_ME[KEY_ME],-1.0);
 	}
-      }
+      //}
     }
   }
 

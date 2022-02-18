@@ -29,7 +29,7 @@ Double_t Resolution_Full(Double_t *x_val, Double_t *par)
 
 ClassImp(StVecMesonCorrection)
 
-TString StVecMesonCorrection::mVStr[2] = {"pos","neg"};
+TString StVecMesonCorrection::mVStr[4] = {"neg70","neg30","pos30","pos70"};
 TString StVecMesonCorrection::mOrder = "2nd";
 //---------------------------------------------------------------------------------
 

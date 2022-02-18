@@ -33,9 +33,9 @@ StVecMesonCut::~StVecMesonCut()
 
 bool StVecMesonCut::isMinBias(StPicoEvent *picoEvent)
 {
-  // std::cout << "year: " << picoEvent->year() << std::endl;
-  // std::cout << "day: " << picoEvent->day() << std::endl;
-  // std::cout << "triggerIds: " << picoEvent->triggerIds()[0] << std::endl;  
+  //std::cout << "year: " << picoEvent->year() << std::endl;
+  //std::cout << "day: " << picoEvent->day() << std::endl;
+  //std::cout << "triggerIds: " << picoEvent->triggerIds()[0] << std::endl;  
   if(mEnergy == 0 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 7.7GeV_2019
   if(mEnergy == 1 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 9.1GeV_2019
   if(mEnergy == 2 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 11.5GeV_2019
@@ -44,7 +44,7 @@ bool StVecMesonCut::isMinBias(StPicoEvent *picoEvent)
   return true;
 }
 
-bool StVecMesonCut::isPileUpEvent(int refMult, int numOfBTofMatch)
+bool StVecMesonCut::isPileUpEvent(int refMult, int numOfBTofMatch, double vz)
 {
   if(mEnergy == 0 || mEnergy == 1 || mEnergy == 2 || mEnergy == 3)
   {        
@@ -53,30 +53,60 @@ bool StVecMesonCut::isPileUpEvent(int refMult, int numOfBTofMatch)
 
   if(mEnergy == 4)
   {
+    int vzbin = -1;
+    if(      vz >  -145 && vz < -87 ) vzbin = 0;
+    else if( vz >= -87  && vz < -29 ) vzbin = 1;
+    else if( vz >= -29  && vz <= 29 ) vzbin = 2;
+    else if( vz >   29  && vz <= 87 ) vzbin = 3;
+    else if( vz >   87  && vz <  145) vzbin = 4;
+
     if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kTRUE; 
         
-    // 5th order polynomial coefficients for lower cut, l
-    double p0l = -13.11    ;   
-    double p1l = 0.8207    ;   
-    double p2l = -4.241e-3 ;
-    double p3l = 2.81e-5   ;   
-    double p4l = -6.434e-8 ;
-    double p5l = 4.833e-11 ;
-    // 5th order polynomial coefficients for higher cut, h
-    double p0h = 10.07     ;   
-    double p1h = 1.417     ;   
-    double p2h = 1.979e-4  ;
-    double p3h = -4.87e-6  ;
-    double p4h = 1.109e-8  ;
-    double p5h = -1.111e-11;
-
-    double refLow  = p0l + p1l*numOfBTofMatch + p2l*pow(numOfBTofMatch,2) + p3l*pow(numOfBTofMatch,3) + p4l*pow(numOfBTofMatch,4) + p5l*pow(numOfBTofMatch,5);
-    double refHigh = p0h + p1h*numOfBTofMatch + p2h*pow(numOfBTofMatch,2) + p3h*pow(numOfBTofMatch,3) + p4h*pow(numOfBTofMatch,4) + p5h*pow(numOfBTofMatch,5); 
+    double refLow  = pl19[vzbin][0] + pl19[vzbin][1]*numOfBTofMatch + pl19[vzbin][2]*pow(numOfBTofMatch,2) + pl19[vzbin][3]*pow(numOfBTofMatch,3) + pl19[vzbin][4]*pow(numOfBTofMatch,4);
+    double refHigh = ph19[vzbin][0] + ph19[vzbin][1]*numOfBTofMatch + ph19[vzbin][2]*pow(numOfBTofMatch,2) + ph19[vzbin][3]*pow(numOfBTofMatch,3) + ph19[vzbin][4]*pow(numOfBTofMatch,4);
    
     if(refMult > refLow && refMult < refHigh) return kFALSE;
   }     
 
   return kTRUE;
+}
+
+double StVecMesonCut::getRefMultReweight(double vz, int refMult)
+{ 
+  if(vz > -5.0 && vz < 5.0) return refMult*vz_corr[14];
+
+  for(int ivz = 0; ivz < 14; ivz++)
+  {
+    if(vz <  5.0+(ivz+1)*10.0 && vz >=  5.0+ivz*10.0) return refMult*vz_corr[15+ivz];
+    if(vz > -5.0-(ivz+1)*10.0 && vz <= -5.0-ivz*10.0) return refMult*vz_corr[13-ivz];
+  }
+}
+
+int StVecMesonCut::getCentrality(double refMultCorr) // 9 Centrality bins 
+{
+  if(mEnergy == 4)
+  {
+    if(refMultCorr < 500 && refMultCorr >= 296) return 8; // 0-5%
+    if(refMultCorr < 296 && refMultCorr >= 243) return 7; // 5-10%
+    if(refMultCorr < 243 && refMultCorr >= 165) return 6; // 10-20%
+    if(refMultCorr < 165 && refMultCorr >= 110) return 5; // 20-30%
+    if(refMultCorr < 110 && refMultCorr >= 70 ) return 4; // 30-40%
+    if(refMultCorr < 70  && refMultCorr >= 43 ) return 3; // 40-50%
+    if(refMultCorr < 43  && refMultCorr >= 24 ) return 2; // 50-60%
+    if(refMultCorr < 24  && refMultCorr >= 13 ) return 1; // 60-70%
+    if(refMultCorr < 13  && refMultCorr >= 6  ) return 0; // 70-80%
+    return -1;
+  }
+}
+
+double StVecMesonCut::getEventWeight(int cent9, double refMult)
+{
+  if(cent9 >= 6) return 1.0;
+
+  if(cent9 >= 0 && cent9 < 6) 
+  {
+    return 1.04433e+00+-1.13957e-01/(4.54889e-01*refMult + -3.43209e-01) + -1.55692e-03*(4.54889e-01*refMult + -3.43209e-01) + 4.00872e+00/TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2) + 1.03440e-05*TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2);
+  }
 }
 
 bool StVecMesonCut::passEventCut(StPicoDst *pico)
@@ -100,19 +130,20 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
   const Float_t vy = event->primaryVertex().y();
   const Float_t vz = event->primaryVertex().z();
   //const Float_t zdcX = event->ZDCx();
-  const Float_t vzVpd = event->vzVpd();
+  //const Float_t vzVpd = event->vzVpd();
   //const Bool_t isBES = (event->energy() < 200.);
-  mRefMultCorr->init(runId);
+  //mRefMultCorr->init(runId);
 
   // StRefMultCorr bad run cut
-  if(mRefMultCorr->isBadRun(runId))
-  {
-    return kFALSE;
-  }
+  //if(mRefMultCorr->isBadRun(runId))
+  //{
+  //  return kFALSE;
+  //}
 
   // minBias event cut
-  if(isMinBias(event))
+  if(!isMinBias(event))
   {
+    //cout << "Not minbias: SKIP!" << endl;
     return kFALSE;
   }
 
@@ -130,16 +161,16 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
   // vz-vzVpd cut for 200 GeV
   //if(!isBES)
   //{
-  if(fabs(vz-vzVpd) > vmsa::mVzVpdDiffMax)
-  {
-    return kFALSE;
-  }
+  //if(fabs(vz-vzVpd) > vmsa::mVzVpdDiffMax)
+  //{
+  //  return kFALSE;
+  //}
   //}
 
   // refMult (0-80%) cut
   //if(!isBES) mRefMultCorr->initEvent(refMult,vz,zdcX); // 200GeV
   //if(isBES) 
-  mRefMultCorr->initEvent(refMult,vz); // BES
+  //mRefMultCorr->initEvent(refMult,vz); // BES
   //if(!mRefMultCorr->isRefMultOk())
   //{
   //  return kFALSE;
@@ -369,7 +400,7 @@ bool StVecMesonCut::passTrackEP(StPicoTrack *track, StPicoEvent *picoEvent)
 }
 
 //---------------------------------------------------------------------------------
-bool StVecMesonCut::passTrackPhi(StPicoTrack *track, StPicoEvent *picoEvent)
+bool StVecMesonCut::passTrackMeson(StPicoTrack *track, StPicoEvent *picoEvent)
 {
   if(!track) return kFALSE;
 

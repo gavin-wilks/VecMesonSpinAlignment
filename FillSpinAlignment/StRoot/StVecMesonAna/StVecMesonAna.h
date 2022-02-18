@@ -7,8 +7,8 @@
 class StRefMultCorr;
 class TFile;
 class TChain;
-class StAlexPhiMesonEvent;
-class StAlexPhiMesonTrack;
+class StMesonEvent;
+class StMesonTrack;
 class StVecMesonCorr;
 class StVecMesonCut;
 class StVecMesonHistoManger;
@@ -18,7 +18,7 @@ class StUtility;
 class StVecMesonAna : public TObject
 {
   public:
-    StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode); // X_flag: 0 for Same Event, 1 for Mixed Event | List: number of list to use | mode: 0 for phi, 1 for Kstar, 2 for K0S
+    StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode); // X_flag: 0 for Same Event, 1 for Mixed Event | List: number of list to use | mode: 0 for phi, 1 for rho, 2 for Kstar
     ~StVecMesonAna();
 
     void setInputDir(const TString inputdir);
@@ -32,6 +32,8 @@ class StVecMesonAna : public TObject
     void InitME();
     void Make();
     void MakePhi();
+    void MakeRho();
+    void MakeKStar();
     void Finish();
 
   private:
@@ -49,10 +51,10 @@ class StVecMesonAna : public TObject
     Int_t mEnergy;
     Int_t mX_flag; // 0 for Same Event, 1 for Mixed Event
     const Char_t *mList;
-    Int_t mMode; // 0 for phi, 1 for Kstar
+    Int_t mMode; // 0 for phi, 1 for rho, 2 for Kstar
     const Char_t *mJobId;
-    StAlexPhiMesonEvent *mPhiMeson_event;
-    StAlexPhiMesonTrack *mPhiMeson_track;
+    StMesonEvent *mMeson_event;
+    StMesonTrack *mMeson_track;
     StVecMesonCorr *mVecMesonCorr;
     StVecMesonCut *mVecMesonCut;
     StVecMesonHistoManger *mVecMesonHistoManger;

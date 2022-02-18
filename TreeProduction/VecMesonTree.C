@@ -9,7 +9,7 @@ class StPicoEvent;
 
 StChain *chain;
 
-void VecMesonTree(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/pico_prod_random_test.list", const Char_t *jobId = "1", const Int_t Mode = 3, const Int_t energy = 4, const Int_t flag_ME = 1)
+void VecMesonTree(const Char_t *inputFile="./submit/19GeV_2019/resubmit.list", const Char_t *jobId = "resubmit", const Int_t Mode = 2, const Int_t energy = 4, const Int_t flag_ME = 0, const Int_t flag_PID = 0)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // Mode: 0 for re-center correction, 1 for shift correction, 2 for resolution calculation, 3 for phi meson
@@ -18,7 +18,7 @@ void VecMesonTree(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/p
   TStopwatch *stopWatch = new TStopwatch();
   stopWatch->Start();
   Int_t nEvents = 10000000000;
-  //Int_t nEvents = 1000;
+  //Int_t nEvents = 10000;
 
   gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
   loadSharedLibraries();
@@ -26,7 +26,7 @@ void VecMesonTree(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/p
   gSystem->Load("StRefMultCorr");
   gSystem->Load("StPicoEvent");
   gSystem->Load("StPicoDstMaker");
-  gSystem->Load("StAlexPhiMesonEvent");
+  gSystem->Load("StMesonEvent");
   gSystem->Load("StVecMesonMaker");
   //gSystem->Load("StRunIdEventsDb");
 
@@ -34,13 +34,14 @@ void VecMesonTree(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/p
 
   StPicoDstMaker *picoMaker = new StPicoDstMaker(2,inputFile,"picoDst");
 
-  StVecMesonMaker *VecMesonMaker = new StVecMesonMaker("VecMeson",picoMaker,jobId,Mode,energy,flag_ME);
+  StVecMesonMaker *VecMesonMaker = new StVecMesonMaker("VecMeson",picoMaker,jobId,Mode,energy,flag_ME,flag_PID);
 
   chain->Init();
   cout<<"chain->Init();"<<endl;
   int total = picoMaker->chain()->GetEntries();
   cout << " Total entries = " << total << endl;
   if(nEvents>total) nEvents = total;
+  cout << " nEvents = " << nEvents << endl;
   for (Int_t i=0; i<nEvents; i++)
   {
     if(i != 0 && i%50 == 0)

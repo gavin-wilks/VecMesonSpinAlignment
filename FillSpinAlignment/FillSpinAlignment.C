@@ -1,7 +1,7 @@
 #include <TSystem>
 #include "TStopwatch.h"
 
-void FillSpinAlignment(const char* list, const char *jobId, cont Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 0)
+void FillSpinAlignment(const char* list = "../FileLists/19GeV_2019/Phi_SE_Forest.list", const char *jobId = "Final", const Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 0)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // X_flag: 0 for Same Event, 1 for Mixed Event
@@ -13,7 +13,7 @@ void FillSpinAlignment(const char* list, const char *jobId, cont Int_t energy = 
 
   gSystem->Load("StRefMultCorr");
   // gSystem->Load("StPicoDstMaker");
-  gSystem->Load("StAlexPhiMesonEvent");
+  gSystem->Load("StMesonEvent");
   gSystem->Load("StVecMesonAna");
   gSystem->Load("StRunIdEventsDb");
 

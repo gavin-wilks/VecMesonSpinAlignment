@@ -27,7 +27,7 @@ ClassImp(StVecMesonMaker)
 
 StRefMultCorr* StVecMesonMaker::mRefMultCorr = NULL;
 //-----------------------------------------------------------------------------
-StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, const char *jobCounter, const Int_t Mode, const Int_t energy, const Int_t flag_ME)
+StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, const char *jobCounter, const Int_t Mode, const Int_t energy, const Int_t flag_ME, const Int_t flag_PID)
   : StMaker(name)
 {
   mPicoDstMaker = picoMaker;
@@ -35,6 +35,7 @@ StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, co
   mMode = Mode;
   mEnergy = energy;
   mFlag_ME = flag_ME;
+  mFlag_PID = flag_PID;  
 
   if(mMode == 0)
   {
@@ -49,8 +50,8 @@ StVecMesonMaker::StVecMesonMaker(const char* name, StPicoDstMaker *picoMaker, co
     mOutPut_Resolution = Form("file_%s_Resolution_%s.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter); 
   }
   if(mMode == 3)
-  {
-    mOutPut_Phi = Form("file_%s_Phi_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::MixEvent[mFlag_ME].Data(),jobCounter); 
+  { 
+    mOutPut_PID = Form("file_%s_%s_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[mFlag_PID].c_str(),vmsa::MixEvent[mFlag_ME].Data(),jobCounter); 
   }
 }
 
@@ -62,7 +63,7 @@ StVecMesonMaker::~StVecMesonMaker()
 Int_t StVecMesonMaker::Init() 
 {
   mUtility = new StUtility(mEnergy);
-  mUtility->initRunIndex(); // initialize std::map for run index
+  mUtility->initRunIndex(); // initialize std::map for run index 
  
   if(!mRefMultCorr)
   {
@@ -83,7 +84,7 @@ Int_t StVecMesonMaker::Init()
 
   if(mMode == 1)
   {
-    mUsedTrackCounter = 0;
+    //mUsedTrackCounter = 0;
     mVecMesonCorrection->InitReCenterCorrection();
     mFile_ShiftPar = new TFile(mOutPut_ShiftPar.Data(),"RECREATE");
     mVecMesonProManger->InitShift();
@@ -91,6 +92,7 @@ Int_t StVecMesonMaker::Init()
 
   if(mMode == 2)
   {
+    mUsedTrackCounter = 0;
     mVecMesonCorrection->InitReCenterCorrection();
     mVecMesonCorrection->InitShiftCorrection();
     mVecMesonProManger->InitResolution();
@@ -101,9 +103,20 @@ Int_t StVecMesonMaker::Init()
   if(mMode == 3)
   {
     mVecMesonTree = new StVecMesonTree(mEnergy);
-    mFile_Phi = new TFile(mOutPut_Phi.Data(),"RECREATE");
-    mFile_Phi->cd();
-    mVecMesonTree->InitPhi();
+    mFile_PID = new TFile(mOutPut_PID.Data(),"RECREATE");
+    mFile_PID->cd();
+    if(mFlag_PID == 0)
+    {
+      mVecMesonTree->InitPhi();
+    }
+    if(mFlag_PID == 1)
+    {
+      mVecMesonTree->InitRho();
+    }
+    if(mFlag_PID == 2)
+    {
+      mVecMesonTree->InitKStar();
+    }
     mVecMesonCorrection->InitReCenterCorrection();
     mVecMesonCorrection->InitShiftCorrection();
     mVecMesonCorrection->InitResolutionCorr();
@@ -146,11 +159,13 @@ Int_t StVecMesonMaker::Finish()
   }
   if(mMode == 3)
   {
-    if(mOutPut_Phi != "")
+    if(mOutPut_PID != "")
     {
-      mFile_Phi->cd();
-      mVecMesonTree->WritePhiMass2();
-      mFile_Phi->Close();
+      mFile_PID->cd();
+      if(mFlag_PID == 0) mVecMesonTree->WriteMass2Phi();
+      if(mFlag_PID == 1) mVecMesonTree->WriteMass2Rho();
+      if(mFlag_PID == 2) mVecMesonTree->WriteMass2KStar();
+      mFile_PID->Close();
     }
   }
 
@@ -192,19 +207,18 @@ Int_t StVecMesonMaker::Make()
   Float_t vz = mPicoEvent->primaryVertex().z();
   Float_t zdcX = mPicoEvent->ZDCx();
   mRefMultCorr->init(runId);
-  if(mEnergy == 6) mRefMultCorr->initEvent(refMult,vz,zdcX); // for 200 GeV
-  if(mEnergy != 6) mRefMultCorr->initEvent(refMult,vz); // for BES Energy
+  mRefMultCorr->initEvent(refMult,vz,zdcX); 
 
   // vz sign
-  Int_t vz_sign;
-  if(vz > 0.0)
-  {
-    vz_sign = 0;
-  }
-  else
-  {
-    vz_sign = 1;
-  }
+  //Int_t vz_sign;
+  //if(vz > 0.0)
+  //{
+  //  vz_sign = 0;
+  //}
+  //else
+  //{
+  //  vz_sign = 1;
+  //}
 
   // runIndex
   //mRunIdEventsDb = StRunIdEventsDb::Instance((Float_t)mPicoEvent->energy(),(Float_t)mPicoEvent->year());
@@ -212,10 +226,25 @@ Int_t StVecMesonMaker::Make()
 //  cout << runIndex << endl;
 //  cout << mRunIdEventsDb->getTotalNrRunIds() << endl;
 
-  // Event Cut
-  if(mVecMesonCut->passEventCut(mPicoDst)) // event cut
+  if(mUtility->isBadRun(runId))
   {
+    LOG_ERROR << "Bad Run! Skip!" << endm;
+    return kStErr;
+  }
+
+  // Event Cut
+  const Int_t cent9 = mRefMultCorr->getCentralityBin9();
+  if(mVecMesonCut->passEventCut(mPicoDst) && cent9 > -0.5) // event cut
+  {
+    int vz_sign = 0;
+    if(vz > -70.0 && vz <= -30.0) vz_sign = 0;
+    if(vz > -30.0 && vz <= 0.0  ) vz_sign = 1;
+    if(vz > 0.0   && vz <= +30.0) vz_sign = 2;
+    if(vz < +70.0 && vz >  +30.0) vz_sign = 3;
+
+    //cout << "passed event cut" << endl;
     const int runIndex = mUtility->findRunIndex(runId); // find run index for a specific run
+    
     if(runIndex < 0)
     {
       LOG_ERROR << "Could not find this run Index from StUtility! Skip!" << endm;
@@ -223,11 +252,9 @@ Int_t StVecMesonMaker::Make()
     }
 
     const Int_t nTracks = mPicoDst->numberOfTracks();
-    const Int_t cent9 = mRefMultCorr->getCentralityBin9();
-//    if(cent9 < 0) cout << cent9 << endl;
+    //    if(cent9 < 0) cout << cent9 << endl;
     const Double_t reweight = mRefMultCorr->getWeight();
     const Int_t nToFMatched = mVecMesonCut->getMatchedToF();
-
     for(Int_t i = 0; i < nTracks; i++) // track loop
     {
       StPicoTrack *track = (StPicoTrack*)mPicoDst->track(i);
@@ -336,28 +363,38 @@ Int_t StVecMesonMaker::Make()
     if(mMode == 2) // calculate resolution for eta_sub and random sub event plane
     {
       // calculate Q vector after recentering for Random Sub Event
+      //cout << "Got to the make section" << endl;
+      //cout << mUsedTrackCounter << endl;
       Int_t iTrack[mUsedTrackCounter];
       Float_t ranCounter = (Float_t)mUsedTrackCounter/2.0 - 1;
+      //cout << "Loop over mUsedTrackCounter" << endl;
       for(Int_t i = 0; i < mUsedTrackCounter; i++)
       {
         iTrack[i] = i;
       }
+      //cout << "Randomly shuffle" << endl;
       std::srand(time(0));
       std::random_shuffle(iTrack,iTrack+mUsedTrackCounter);
+
       mUsedTrackCounter = 0;
+      //cout << "Loop over tracks" << endl;
       for(Int_t i = 0; i < nTracks; i++) // track loop
       {
 	StPicoTrack *track = (StPicoTrack*)mPicoDst->track(i);
 	if(mVecMesonCut->passTrackEP(track,mPicoEvent)) // track cut
 	{
+          //cout << "passtrackEP" << endl;
 	  if(mVecMesonCorrection->passTrackFull(track))
 	  {
+            //cout << "pass track full" << endl;
 	    if((Float_t)iTrack[mUsedTrackCounter] > ranCounter) // Sub Event A
 	    {
+              //cout << "Sub event A" << endl;
 	      mVecMesonCorrection->addTrack_A(track,cent9,runIndex,vz_sign);
 	    }
 	    else // Sub Event B
 	    {
+              //cout << "Sub event B" << endl;
 	      mVecMesonCorrection->addTrack_B(track,cent9,runIndex,vz_sign);
 	    }
 	    mUsedTrackCounter++;
@@ -365,7 +402,7 @@ Int_t StVecMesonMaker::Make()
 	}
       }
       mUsedTrackCounter = 0;
-
+      //cout << "Calculte resolution" << endl;
       // calculate resolution
       TVector2 QVecEast = mVecMesonCorrection->getQVector(0);
       Float_t Psi2East_ReCenter = 0.5*TMath::ATan2(QVecEast.Y(),QVecEast.X());
@@ -389,12 +426,14 @@ Int_t StVecMesonMaker::Make()
 
       if(mVecMesonCorrection->passTrackEtaNumCut())
       {
+        //cout << "pass eta num cut" << endl;
 	mVecMesonHistoManger->FillEP_Sub(Psi2East_ReCenter,Psi2East_Shift,Psi2West_ReCenter,Psi2West_Shift);
 	mVecMesonProManger->FillRes_Sub(cent9,Psi2East_Shift,Psi2West_Shift);
       }
 
       if(mVecMesonCorrection->passTrackFullNumCut())
       {
+        //cout << "pass track full num cut" << endl;
 	mVecMesonHistoManger->FillEP_Ran(Psi2RanA_ReCenter,Psi2RanA_Shift,Psi2RanB_ReCenter,Psi2RanB_Shift,Psi2Full_ReCenter,Psi2Full_Shift);
 	mVecMesonProManger->FillRes_Ran(cent9,Psi2RanA_Shift,Psi2RanB_Shift);
       }
@@ -415,7 +454,6 @@ Int_t StVecMesonMaker::Make()
 	Int_t NumTrackFullWest = mVecMesonCorrection->getNumTrack(4);
 
 	Float_t Psi2 = mVecMesonCorrection->calShiftAngle2Full_EP(runIndex,cent9,vz_sign);
-
 	// get N_prim, N_non_prim, N_Tof_match
 	Int_t N_prim = mVecMesonCut->getNpirm();
 	Int_t N_non_prim = mVecMesonCut->getNnonprim();
@@ -424,14 +462,23 @@ Int_t StVecMesonMaker::Make()
 	// pass the event information to StVecMesonTree
 	mVecMesonTree->clearEvent();
 	mVecMesonTree->passEvent(N_prim, N_non_prim, N_Tof_match);
-
 	// pass re-centered event plane to StVecMesonTree
 	mVecMesonTree->passEventPlane(Q2East,Q2West,Q2Full);
 
 	// pass NumOfTrack to StVecMesonTree
 	mVecMesonTree->passNumTrack(NumTrackEast,NumTrackWest,NumTrackFull,NumTrackFullEast,NumTrackFullWest);
-
-	mVecMesonTree->MixEvent_Phi(mFlag_ME,mPicoDst,cent9,vz,Psi2);
+        if(mFlag_PID == 0)
+        {
+	  mVecMesonTree->MixEvent_Phi(mFlag_ME,mPicoDst,cent9,vz,Psi2);
+        }
+        if(mFlag_PID == 1)
+        {
+	  mVecMesonTree->MixEvent_Rho(mFlag_ME,mPicoDst,cent9,vz,Psi2);
+        }
+        if(mFlag_PID == 2)
+        {
+	  mVecMesonTree->MixEvent_KStar(mFlag_ME,mPicoDst,cent9,vz,Psi2);
+        }
       }
     }
     mVecMesonCorrection->clear();

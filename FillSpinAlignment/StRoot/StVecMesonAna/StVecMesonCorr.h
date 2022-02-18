@@ -48,7 +48,7 @@ class StVecMesonCorr : public TObject
 
     Int_t mEnergy;
 
-    static TString mVStr[2];
+    static TString mVStr[4];
     static TString mOrder;
 
   ClassDef(StVecMesonCorr,1)

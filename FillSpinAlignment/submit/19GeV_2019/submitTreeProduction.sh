@@ -34,8 +34,8 @@ pid=Phi
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-flag_ME=0 # 0 for SE | 1 for ME
-SM=SE
+flag_ME=1 # 0 for SE | 1 for ME
+SM=ME
 # flag_ME=1 # 0
 # SM=ME
 ##########Mixed Event Selection##########
@@ -58,5 +58,5 @@ star-submit-template -template testProductionTemp.xml -entities pid=$pid,mode=$m
 ##########Full Production##########
 
 ##########Re-Submit##########
-# star-submit-template -template resubmitTreeProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template resubmitProductionTemp.xml -entities pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Re-Submit##########

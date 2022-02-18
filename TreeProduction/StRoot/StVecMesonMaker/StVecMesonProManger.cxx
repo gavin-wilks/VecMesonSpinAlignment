@@ -6,7 +6,7 @@
 
 ClassImp(StVecMesonProManger)
 
-TString StVecMesonProManger::mVStr[2] = {"pos","neg"};
+TString StVecMesonProManger::mVStr[4] = {"neg70","neg30","pos30","pos70"};
 
 //---------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ StVecMesonProManger::~StVecMesonProManger()
 
 void StVecMesonProManger::InitReCenter()
 {
-  for(Int_t i = 0; i < 2; i++) // vertex pos/neg
+  for(Int_t i = 0; i < 4; i++) // vertex pos/neg
   {
     TString ProName;
     ProName = Form("qx_2nd_Vertex_%s_East",mVStr[i].Data());
@@ -106,7 +106,7 @@ void StVecMesonProManger::FillTrackFull(TVector2 q2Vector, Int_t Cent9, Int_t Ru
 
 void StVecMesonProManger::WriteReCenter()
 {
-  for(Int_t i = 0; i < 2; i++) // vertex pos/neg
+  for(Int_t i = 0; i < 4; i++) // vertex pos/neg
   {
     p_mq2x_East_EP[i]->Write();
     p_mq2y_East_EP[i]->Write();
@@ -121,7 +121,7 @@ void StVecMesonProManger::WriteReCenter()
 
 void StVecMesonProManger::InitShift()
 {
-  for(Int_t i = 0; i < 2; i++) // vertex pos/neg
+  for(Int_t i = 0; i < 4; i++) // vertex pos/neg
   {
     for(Int_t k = 0; k < 5; k++) // Shift Order
     {
@@ -172,7 +172,7 @@ void StVecMesonProManger::FillEventFull_EP(TVector2 Psi2Vector, Int_t Cent9, Int
 
 void StVecMesonProManger::WriteShift()
 {
-  for(Int_t i = 0; i < 2; i++) // vertex pos/neg
+  for(Int_t i = 0; i < 4; i++) // vertex pos/neg
   {
     for(Int_t k = 0; k < 5; k++) // Shift Order
     {

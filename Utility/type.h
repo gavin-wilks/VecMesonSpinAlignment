@@ -14,6 +14,7 @@
 // #include "RooAddPdf.h"
 
 typedef std::map<std::string,TH1F*> TH1FMap;
+typedef std::pair<std::string,TH1F*> TH1FPair;
 typedef std::map<std::string,TH1D*> TH1DMap;
 typedef std::map<std::string,TProfile*> TProMap;
 typedef std::map<std::string,std::vector<float> > vecFMap;

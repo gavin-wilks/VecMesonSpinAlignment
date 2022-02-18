@@ -16,6 +16,9 @@
 #include "../Utility/draw.h"
 #include "../Utility/StSpinAlignmentCons.h"
 #include "../Utility/type.h"
+//#ifdef MAKECINT
+//#pragma link C++ class std::map<std::string,TH1F*>+;
+//#endif
 
 #ifndef _PlotQA_
 #define _PlotQA_  1
@@ -25,16 +28,18 @@
 #define _SaveQA_  0
 #endif
 
-void subBackGround(int energy = 3, int pid = 0, int year = 0)
+using namespace std;
+
+void subBackGround(int energy = 4, int pid = 0, int year = 0)
 {
   TGaxis::SetMaxDigits(4);
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);
 
-  string InPutFile_SE = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Yields/Yields_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string InPutFile_SE = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_%d/OutPut/SpinAlignment/%s/Yields/Yields_%s_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamYear[energy],vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   // string InPutFile_SE = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
   
-  string InPutFile_ME = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Yields/Yields_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string InPutFile_ME = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_%d/OutPut/SpinAlignment/%s/Yields/Yields_%s_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamYear[energy],vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   // string InPutFile_ME = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
 
@@ -53,8 +58,8 @@ void subBackGround(int energy = 3, int pid = 0, int year = 0)
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
 	    string KEY_InPutSE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
-	    h_mInPut_SE[KEY_InPutSE] = (TH1F*)File_SE->Get(KEY_InPutSE.c_str())->Clone(); 
-
+            h_mInPut_SE[KEY_InPutSE] = (TH1F*)File_SE->Get(KEY_InPutSE.c_str())->Clone(); 
+            //cout << "Worked" << endl;
 	    string KEY_InPutME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_ME",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
 	    h_mInPut_ME[KEY_InPutME] = (TH1F*)File_ME->Get(KEY_InPutME.c_str())->Clone(); 
 
