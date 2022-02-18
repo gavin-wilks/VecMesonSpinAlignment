@@ -22,10 +22,10 @@
 #endif
 
 
-void calSpinAlignmentSys(int energy = 3, int pid = 0, int year = 0)
+void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
 {
-  string inputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/rho00/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
-  // string inputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str());
+  //string inputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/rho00/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  string inputfile = "../output/InvMassSubBg/InvMassSubBg.root";
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   File_InPut->cd();
   TH1FMap h_mMass, h_mMass_InteTheta;
@@ -305,7 +305,7 @@ void calSpinAlignmentSys(int energy = 3, int pid = 0, int year = 0)
       f_rho->Draw("l same");
     }
   }
-  c_diff->SaveAs("../figures/c_diff_2.eps");
+  c_diff->SaveAs("../figures/c_diff_2.pdf");
 #endif
 
   TCanvas *c_rho = new TCanvas("c_rho","c_rho",10,10,800,800);
@@ -359,9 +359,9 @@ void calSpinAlignmentSys(int energy = 3, int pid = 0, int year = 0)
       }
     }
   }
-  c_rho->SaveAs("../figures/c_rho.eps");
+  c_rho->SaveAs("../figures/c_rho.pdf");
 
-  string outputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/rho00/RawRhoPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  string outputfile = "../output/RawPhiPt/RawPhiPtSys.root";
   // string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/RawRhoPtSys.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();

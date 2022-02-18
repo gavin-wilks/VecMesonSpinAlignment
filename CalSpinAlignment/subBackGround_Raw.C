@@ -16,43 +16,30 @@
 #include "../Utility/draw.h"
 #include "../Utility/StSpinAlignmentCons.h"
 #include "../Utility/type.h"
-//#ifdef MAKECINT
-//#pragma link C++ class std::map<std::string,TH1F*>+;
-//#endif
 
 #ifndef _PlotQA_
-#define _PlotQA_  1
+#define _PlotQA_  0
 #endif
 
 #ifndef _SaveQA_
 #define _SaveQA_  0
 #endif
 
-using namespace std;
-
-void subBackGround(int energy = 4, int pid = 0, int year = 0)
+void subBackGround_Raw(int energy = 4, int pid = 0, int year = 0)
 {
   TGaxis::SetMaxDigits(4);
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);
 
-<<<<<<< Updated upstream
-  string InPutFile_SE = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_%d/OutPut/SpinAlignment/%s/Yields/Yields_%s_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamYear[energy],vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
-=======
   //string InPutFile_SE = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Yields/Yields_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
->>>>>>> Stashed changes
   // string InPutFile_SE = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   string InPutFile_SE = "../data/Yields_Phi_SE_19GeV.root";
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
-<<<<<<< Updated upstream
-  
-  string InPutFile_ME = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_%d/OutPut/SpinAlignment/%s/Yields/Yields_%s_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamYear[energy],vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
-=======
    
   //string InPutFile_ME = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Yields/Yields_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
->>>>>>> Stashed changes
   // string InPutFile_ME = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   string InPutFile_ME = "../data/Yields_Phi_ME_19GeV.root";
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
+  std::cout << "Opened the files" << std::endl;
 
   // read in histogram for same event and mixed event
   // calculate SE - ME
@@ -64,13 +51,13 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
     {
       for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta++) // phi-psi bin
       {
-	for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+	for(Int_t i_dca = 0; i_dca < 1; i_dca++)
 	{
-	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+	  for(Int_t i_sig = 1; i_sig < 2; i_sig++)
 	  {
 	    string KEY_InPutSE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
-            h_mInPut_SE[KEY_InPutSE] = (TH1F*)File_SE->Get(KEY_InPutSE.c_str())->Clone(); 
-            //cout << "Worked" << endl;
+	    h_mInPut_SE[KEY_InPutSE] = (TH1F*)File_SE->Get(KEY_InPutSE.c_str())->Clone(); 
+
 	    string KEY_InPutME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_ME",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
 	    h_mInPut_ME[KEY_InPutME] = (TH1F*)File_ME->Get(KEY_InPutME.c_str())->Clone(); 
 
@@ -82,6 +69,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 	      h_mMass_ME[KEY_ME] = (TH1F*)h_mInPut_ME[KEY_InPutME]->Clone(KEY_ME.c_str());
 	      string KEY_SM = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SM",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	      h_mMass_SM[KEY_SM] = (TH1F*)h_mMass_SE[KEY_SE]->Clone();
+              std::cout << "Got here 1" << std::endl;
 	      if(i_norm < 2)
 	      {
 		int Norm_bin_start = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Start[pid][i_norm]);
@@ -92,6 +80,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 
 		h_mMass_ME[KEY_ME]->Scale(Inte_SE/Inte_ME);
 		h_mMass_SM[KEY_SM]->Add(h_mMass_ME[KEY_ME],-1.0);
+                std::cout << "Got here 2" << std::endl;
 	      }
 	      else
 	      {
@@ -108,6 +97,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 
 		h_mMass_ME[KEY_ME]->Scale(Inte_SE/Inte_ME);
 		h_mMass_SM[KEY_SM]->Add(h_mMass_ME[KEY_ME],-1.0);
+                std::cout << "Got here 3" << std::endl;
 	      }
 	    }
 	  }
@@ -115,7 +105,8 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
       }
     }
   }
-
+  
+ std::cout << "Got Here 4" << std::endl;
 #if _PlotQA_
   // QA Plots for SE vs. ME
   TCanvas *c_peak = new TCanvas("c_peak","c_peak",10,10,800,800);
@@ -201,9 +192,9 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
   {
     for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
     {
-      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+      for(Int_t i_dca = 0; i_dca < 1; i_dca++)
       {
-	for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+	for(Int_t i_sig = 1; i_sig < 2; i_sig++)
 	{
 	  for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	  {
@@ -263,9 +254,9 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
     {
       for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // Centrality loop
       {
-	for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+	for(Int_t i_dca = 0; i_dca < 1; i_dca++)
 	{
-	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+	  for(Int_t i_sig = 1; i_sig < 2; i_sig++)
 	  {
 	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	    {
@@ -351,9 +342,9 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
     {
       for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // Centrality loop
       {
-	for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+	for(Int_t i_dca = 0; i_dca < 1; i_dca++)
 	{
-	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+	  for(Int_t i_sig = 1; i_sig < 2; i_sig++)
 	  {
 	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	    {
@@ -424,9 +415,9 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
   {
     for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // Centrality loop
     {
-      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+      for(Int_t i_dca = 0; i_dca < 1; i_dca++)
       {
-	for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+	for(Int_t i_sig = 1; i_sig < 2; i_sig++)
 	{
 	  for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	  {
