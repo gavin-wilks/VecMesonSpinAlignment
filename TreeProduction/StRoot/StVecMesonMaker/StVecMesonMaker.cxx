@@ -206,8 +206,8 @@ Int_t StVecMesonMaker::Make()
   Float_t vy = mPicoEvent->primaryVertex().y();
   Float_t vz = mPicoEvent->primaryVertex().z();
   Float_t zdcX = mPicoEvent->ZDCx();
-  mRefMultCorr->init(runId);
-  mRefMultCorr->initEvent(refMult,vz,zdcX); 
+  //mRefMultCorr->init(runId);
+  //mRefMultCorr->initEvent(refMult,vz,zdcX); 
 
   // vz sign
   //Int_t vz_sign;
@@ -233,7 +233,8 @@ Int_t StVecMesonMaker::Make()
   }
 
   // Event Cut
-  const Int_t cent9 = mRefMultCorr->getCentralityBin9();
+  const  double refMultCorr = mVecMesonCut->getRefMultReweight(vz, refMult);
+  const Int_t cent9 = mVecMesonCut->getCentrality(refMultCorr);;
   if(mVecMesonCut->passEventCut(mPicoDst) && cent9 > -0.5) // event cut
   {
     int vz_sign = 0;
@@ -253,7 +254,7 @@ Int_t StVecMesonMaker::Make()
 
     const Int_t nTracks = mPicoDst->numberOfTracks();
     //    if(cent9 < 0) cout << cent9 << endl;
-    const Double_t reweight = mRefMultCorr->getWeight();
+    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
     const Int_t nToFMatched = mVecMesonCut->getMatchedToF();
     for(Int_t i = 0; i < nTracks; i++) // track loop
     {

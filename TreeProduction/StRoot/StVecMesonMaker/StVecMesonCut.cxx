@@ -53,17 +53,17 @@ bool StVecMesonCut::isPileUpEvent(int refMult, int numOfBTofMatch, double vz)
 
   if(mEnergy == 4)
   {
+    if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kTRUE; 
+
     int vzbin = -1;
     if(      vz >  -145 && vz < -87 ) vzbin = 0;
     else if( vz >= -87  && vz < -29 ) vzbin = 1;
     else if( vz >= -29  && vz <= 29 ) vzbin = 2;
     else if( vz >   29  && vz <= 87 ) vzbin = 3;
     else if( vz >   87  && vz <  145) vzbin = 4;
-
-    if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kTRUE; 
-        
-    double refLow  = pl19[vzbin][0] + pl19[vzbin][1]*numOfBTofMatch + pl19[vzbin][2]*pow(numOfBTofMatch,2) + pl19[vzbin][3]*pow(numOfBTofMatch,3) + pl19[vzbin][4]*pow(numOfBTofMatch,4);
-    double refHigh = ph19[vzbin][0] + ph19[vzbin][1]*numOfBTofMatch + ph19[vzbin][2]*pow(numOfBTofMatch,2) + ph19[vzbin][3]*pow(numOfBTofMatch,3) + ph19[vzbin][4]*pow(numOfBTofMatch,4);
+ 
+    double refLow  = vmsa::pl19[vzbin][0] + vmsa::pl19[vzbin][1]*numOfBTofMatch + vmsa::pl19[vzbin][2]*pow(numOfBTofMatch,2) + vmsa::pl19[vzbin][3]*pow(numOfBTofMatch,3) + vmsa::pl19[vzbin][4]*pow(numOfBTofMatch,4);
+    double refHigh = vmsa::ph19[vzbin][0] + vmsa::ph19[vzbin][1]*numOfBTofMatch + vmsa::ph19[vzbin][2]*pow(numOfBTofMatch,2) + vmsa::ph19[vzbin][3]*pow(numOfBTofMatch,3) + vmsa::ph19[vzbin][4]*pow(numOfBTofMatch,4);
    
     if(refMult > refLow && refMult < refHigh) return kFALSE;
   }     
@@ -72,13 +72,16 @@ bool StVecMesonCut::isPileUpEvent(int refMult, int numOfBTofMatch, double vz)
 }
 
 double StVecMesonCut::getRefMultReweight(double vz, int refMult)
-{ 
-  if(vz > -5.0 && vz < 5.0) return refMult*vz_corr[14];
+{
+  if(mEnergy == 4)
+  { 
+    if(vz > -5.0 && vz < 5.0) return refMult*vmsa::vz_corr[14];
 
-  for(int ivz = 0; ivz < 14; ivz++)
-  {
-    if(vz <  5.0+(ivz+1)*10.0 && vz >=  5.0+ivz*10.0) return refMult*vz_corr[15+ivz];
-    if(vz > -5.0-(ivz+1)*10.0 && vz <= -5.0-ivz*10.0) return refMult*vz_corr[13-ivz];
+    for(int ivz = 0; ivz < 14; ivz++)
+    {
+      if(vz <  5.0+(ivz+1)*10.0 && vz >=  5.0+ivz*10.0) return refMult*vmsa::vz_corr[15+ivz];
+      if(vz > -5.0-(ivz+1)*10.0 && vz <= -5.0-ivz*10.0) return refMult*vmsa::vz_corr[13-ivz];
+    }
   }
 }
 
@@ -97,16 +100,21 @@ int StVecMesonCut::getCentrality(double refMultCorr) // 9 Centrality bins
     if(refMultCorr < 13  && refMultCorr >= 6  ) return 0; // 70-80%
     return -1;
   }
+  return -1;
 }
 
 double StVecMesonCut::getEventWeight(int cent9, double refMult)
 {
-  if(cent9 >= 6) return 1.0;
-
-  if(cent9 >= 0 && cent9 < 6) 
+  if(mEnergy == 4)
   {
-    return 1.04433e+00+-1.13957e-01/(4.54889e-01*refMult + -3.43209e-01) + -1.55692e-03*(4.54889e-01*refMult + -3.43209e-01) + 4.00872e+00/TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2) + 1.03440e-05*TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2);
+    if(cent9 >= 6) return 1.0;
+
+    if(cent9 >= 0 && cent9 < 6) 
+    {
+      return 1.04433e+00+-1.13957e-01/(4.54889e-01*refMult + -3.43209e-01) + -1.55692e-03*(4.54889e-01*refMult + -3.43209e-01) + 4.00872e+00/TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2) + 1.03440e-05*TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2);
+    }
   }
+  return 1.0;
 }
 
 bool StVecMesonCut::passEventCut(StPicoDst *pico)
@@ -218,7 +226,7 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
   }
   */
   // pileUpEvent cut
-  if(isPileUpEvent(refMult,numOfBTofMatch))
+  if(isPileUpEvent(refMult,numOfBTofMatch,vz))
   {
     return kFALSE;
   }
