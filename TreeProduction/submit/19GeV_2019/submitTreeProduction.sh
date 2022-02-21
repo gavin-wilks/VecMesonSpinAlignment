@@ -34,8 +34,8 @@ outDir=Phi/Forest
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-flag_ME=1 # 0 for SE | 1 for ME
-SM=ME
+flag_ME=0 # 0 for SE | 1 for ME
+SM=SE
 # flag_ME=1 # 0
 # SM=ME
 ##########Mixed Event Selection##########
@@ -50,7 +50,7 @@ mkdir -p ${outPath}/Log/SpinAlignment/${outDir}
 mkdir -p ${outPath}/OutPut/SpinAlignment/${outDir}
 
 ##########Test Production##########
-#star-submit-template -template testProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -58,6 +58,6 @@ mkdir -p ${outPath}/OutPut/SpinAlignment/${outDir}
 ##########Full Production##########
 
 ##########Re-Submit##########
-star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 
 ##########Re-Submit##########

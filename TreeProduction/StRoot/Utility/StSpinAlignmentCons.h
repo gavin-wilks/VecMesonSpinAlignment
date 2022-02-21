@@ -112,6 +112,7 @@ namespace vmsa
   int const Bin_Rho_Psi = 5;
   int const Bin_KStar_Psi = 5;
   int const Buffer_depth = 5;
+  int const Buffer_depth_KStar = 3; 
   TString const MixEvent[2] = {"SE","ME"};
 
   TString const vm_tree[3]  = {"PhiMesonEvent","RhoMesonEvent","KStarMesonEvent"};

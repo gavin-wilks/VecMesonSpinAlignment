@@ -186,9 +186,9 @@ class StMesonEvent : public TObject
     {
       if (fNumTracks == fTracks->GetSize())
 	fTracks->Expand( fNumTracks + 10 );
-      if (fNumTracks >= 10000)
+      if (fNumTracks >= 50000)
       {
-	Fatal( "StMesonEvent::createTrack()", "ERROR: Too many tracks (>10000)!" );
+	Fatal( "StMesonEvent::createTrack()", "ERROR: Too many tracks (>50000)!" );
 	exit( 2 );
       }
 

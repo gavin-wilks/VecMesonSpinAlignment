@@ -881,7 +881,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	  Double_t pt = trackAB.Perp();
 
 	  // fill phi candidate into mTree
-	  if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	  //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	  if(InvMassAB > 0.74 && InvMassAB < 1.05) 
 	  {
 	    mMesonTrack = mMesonEvent->createTrack();
 	    mMesonTrack->setMass2A(mMass2[key_kplus][n_kplus]); // K+
@@ -890,6 +891,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	    mMesonTrack->setNSigB(mNSigma[key_piminus][n_piminus]); // pi-
 	    mMesonTrack->setDcaA(mDca[key_kplus][n_kplus]); // K+
 	    mMesonTrack->setDcaB(mDca[key_piminus][n_piminus]); // pi-
+	    mMesonTrack->setChargeA(mCharge[key_kplus][n_kplus]); // K+
+	    mMesonTrack->setChargeB(mCharge[key_piminus][n_piminus]); // pi-
 	    mMesonTrack->setTrackA(ltrackA); // K+
 	    mMesonTrack->setTrackB(ltrackB); // pi-
 	    mMesonTrack->setFlagA(Bin_Event); // K+
@@ -916,7 +919,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	  Double_t pt = trackAB.Perp();
 
 	  // fill phi candidate into mTree
-	  if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	  //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	  if(InvMassAB > 0.74 && InvMassAB < 1.05) 
 	  {
 	    mMesonTrack = mMesonEvent->createTrack();
 	    mMesonTrack->setMass2B(mMass2[key_piplus][n_piplus]); // pi+
@@ -925,6 +929,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	    mMesonTrack->setNSigA(mNSigma[key_kminus][n_kminus]); // K-
 	    mMesonTrack->setDcaB(mDca[key_piplus][n_piplus]); // pi+
 	    mMesonTrack->setDcaA(mDca[key_kminus][n_kminus]); // K-
+	    mMesonTrack->setChargeB(mCharge[key_piplus][n_piplus]); // pi+
+	    mMesonTrack->setChargeA(mCharge[key_kminus][n_kminus]); // K-
 	    mMesonTrack->setTrackB(ltrackA); // pi+
 	    mMesonTrack->setTrackA(ltrackB); // K-
 	    mMesonTrack->setFlagB(Bin_Event); // pi+
@@ -1006,7 +1012,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	    Double_t pt = trackAB.Perp();
 
 	    // fill phi candidate background into mTree
-	    if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    if(InvMassAB > 0.74 && InvMassAB < 1.05) 
 	    {
 	      mMesonTrack = mMesonEvent->createTrack();
 	      mMesonTrack->setMass2A(mMass2[key_A_kplus][n_kplus]); // K+
@@ -1046,7 +1053,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	    Double_t pt = trackAB.Perp();
 
 	    // fill phi candidate background into mTree
-	    if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    if(InvMassAB > 0.74 && InvMassAB < 1.05) 
 	    {
 	      mMesonTrack = mMesonEvent->createTrack();
 	      mMesonTrack->setMass2B(mMass2[key_A_piplus][n_piplus]); // pi+
@@ -1085,7 +1093,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	    Double_t pt = trackAB.Perp();
 
 	    // fill phi candidate background into mTree
-	    if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    if(InvMassAB > 0.74 && InvMassAB < 1.05) 
 	    {
 	      mMesonTrack = mMesonEvent->createTrack();
 	      mMesonTrack->setMass2B(mMass2[key_B_piplus][n_piplus]); // pi+
@@ -1124,7 +1133,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	    Double_t pt = trackAB.Perp();
 
 	    // fill phi candidate background into mTree
-	    if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
+	    if(InvMassAB > 0.74 && InvMassAB < 1.05) 
 	    {
 	      mMesonTrack = mMesonEvent->createTrack();
 	      mMesonTrack->setMass2A(mMass2[key_B_kplus][n_kplus]); // K+
@@ -1487,13 +1497,15 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
       Float_t momentum = track->pMom().Mag();
       Float_t Mass2K_low = 0.1;
       Float_t Mass2K_up = 0.4;
-      Float_t Mass2Pi_low = -0.2;
-      Float_t Mass2Pi_up = 0.2;
+      Float_t Mass2Pi_low = -0.20;
+      Float_t Mass2Pi_up = 0.15;
       
       Int_t charge = 0; // +
       if(Polarity < 0) charge = 1; // -
      
-      if(mVecMesonCut->passSigKaonCut(track,scale_nSigma_factor))
+      Float_t nSigmaKaon = track->nSigmaKaon();
+      if(fabs(nSigmaKaon*scale_nSigma_factor) < 2.5)
+      //if(mVecMesonCut->passSigKaonCut(track,scale_nSigma_factor))
       {
 	if(
 	    (momentum < 0.65 && ((Mass2 > Mass2K_low && Mass2 < Mass2K_up) || Mass2 < -10.0)) // dE/dx + ToF
@@ -1523,7 +1535,9 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
           h_KInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
 	}
       }
-      if(mVecMesonCut->passSigPionCut(track,scale_nSigma_factor))
+      Float_t nSigmaPion = track->nSigmaPion();
+      if(fabs(nSigmaPion*scale_nSigma_factor) < 2.5)
+      //if(mVecMesonCut->passSigPionCut(track,scale_nSigma_factor))
       {
         charge += 2; // changes id to pi+ and pi-
 	if(
@@ -1569,7 +1583,7 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
 
   if(Flag_ME == 1) // mix event
   {
-    if(mEventCounter2[cent9][Bin_vz][Bin_Psi2] == vmsa::Buffer_depth)
+    if(mEventCounter2[cent9][Bin_vz][Bin_Psi2] == vmsa::Buffer_depth_KStar)
     {
       doKStar(Flag_ME,cent9,Bin_vz,Bin_Psi2);
       clear_kstar(cent9,Bin_vz,Bin_Psi2);
