@@ -281,6 +281,7 @@ void StVecMesonTree::clear_kstar(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
       mDca[key].clear();
       mNHitsFit[key].clear();
       mNSigma[key].clear();
+      mCharge[key].clear();
     }
   }
   mEventCounter2[cent9][Bin_vz][Bin_Psi2] = 0;
