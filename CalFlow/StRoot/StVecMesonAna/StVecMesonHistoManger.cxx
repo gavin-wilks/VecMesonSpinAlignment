@@ -18,19 +18,19 @@ StVecMesonHistoManger::~StVecMesonHistoManger()
 
 void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 for Mixed Event
 {
-  // spin alignment analysis
+  // flow analysis
   for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin 
   {
     for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
     {
-      for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta++) // phi-psi bin
+      for(Int_t i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta++) // phi-psi bin
       {
 	for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
 	    TString Mode[2] = {"SE","ME"};
-	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2] = new TH1F(KEY_Mass2.Data(),KEY_Mass2.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
 	    h_mMass2[KEY_Mass2]->Sumw2();
 	  }
@@ -40,7 +40,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
   }
 
   // raw pt spectra 
-  for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
+  /*for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
   {
     for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
     {
@@ -59,10 +59,10 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
 	}
       }
     }
-  }
+  }*/
   
   // Yields
-  for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
+  /*for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
   {
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     {
@@ -74,10 +74,10 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
 	h_mMass_Yields[KEY_Mass2_Yields]->Sumw2();
       }
     }
-  }
+  }*/
 
   // Dca QA
-  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+  /*for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
   {
     for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
     {
@@ -86,10 +86,10 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
       h_mDca[KEY_Dca] = new TH1F(KEY_Dca.Data(),KEY_Dca.Data(),100,-5.0,5.0);
       h_mDca[KEY_Dca]->Sumw2();
     }
-  }
+  }*/
 
   // nSigKaon QA
-  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+  /*for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
   {
     for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
     {
@@ -98,7 +98,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
       h_mSigKaon[KEY_nSigKaon] = new TH1F(KEY_nSigKaon.Data(),KEY_nSigKaon.Data(),100,-5.0,5.0);
       h_mSigKaon[KEY_nSigKaon]->Sumw2();
     }
-  }
+  }*/
 }
 //-------------------------------------------------------------
 void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
@@ -126,7 +126,7 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaSta
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,reweight);
 	    }
 	    // raw pt spectra
-	    if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
+	   /* if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
 	    {
 	      TString KEY_Mass2_Spec = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
@@ -145,15 +145,15 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaSta
 		TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_high_Centrality_9_Dca_%d_Sig_%d_%s_%s",i_pt,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 		h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
 	      }
-	    }
+	    }*/
 	  }
 	}
       }
     }
   }
 
-  TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-  h_mMass_Yields[KEY_Mass2_Yields]->Fill(InvMass,reweight);
+  //TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //h_mMass_Yields[KEY_Mass2_Yields]->Fill(InvMass,reweight);
 }
 
 void StVecMesonHistoManger::FillDcaSys(Float_t dcaA, Float_t dcaB, Int_t dcaSys)
@@ -196,7 +196,7 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
   }
 
   // Yields
-  for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
+  /*for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
   {
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     {
@@ -247,7 +247,7 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
       TString KEY_nSigKaon = Form("TracksSig%s_%d",Charge[i_charge].Data(),i_sig);
       h_mSigKaon[KEY_nSigKaon]->Write();
     }
-  }
+  }*/
 }
 
 //-----------------------EP Direction----------------------------

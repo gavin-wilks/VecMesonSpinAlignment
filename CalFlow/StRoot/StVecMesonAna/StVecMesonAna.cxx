@@ -6,7 +6,6 @@
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
 #include "StRoot/StMesonEvent/StMesonEvent.h"
-//#include "StRoot/StRunIdEventsDb/StRunIdEventsDb.h"
 #include "StRoot/StVecMesonAna/StUtility.h"
 #include "StThreeVectorF.hh"
 #include "StMessMgr.h"
@@ -216,12 +215,12 @@ void StVecMesonAna::MakePhi()
     if(PrimaryVertex.z() > -70.0 && PrimaryVertex.z() <= -30.0) vz_sign = 0;
     if(PrimaryVertex.z() > -30.0 && PrimaryVertex.z() <= 0.0  ) vz_sign = 1;
     if(PrimaryVertex.z() > 0.0   && PrimaryVertex.z() <= +30.0) vz_sign = 2;
-    if(PrimaryVertex.z() < +70.0 && PrimaryVertex.z() >  +30.0) vz_sign = 3;
+    if(PrimaryVertex.z() > +30.0 && PrimaryVertex.z() <  +70.0) vz_sign = 3;
     // Centrality
-    mRefMultCorr->init(RunId);
-    mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); 
+    //mRefMultCorr->init(RunId);
+    //mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); 
     const Int_t cent9 = Centrality;
-    const Double_t reweight = mRefMultCorr->getWeight();
+    const Double_t reweight = mVecMesonCut->getEventWeight();
     // runIndex
 
     const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
@@ -278,7 +277,10 @@ void StVecMesonAna::MakePhi()
 		}
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
-                Float_t v2 = TMath::Cos(2.0*(lTrack.Phi()-Psi2_west))/Res2;
+		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_west;
+                if(PhiMinusPsi < -TMath::Pi()) PhiMinusPsi += (2.0*TMath::Pi());
+                if(PhiMinusPsi > +TMath::Pi()) PhiMinusPsi -= (2.0*TMath::Pi());
+                mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
 	      if(mVecMesonCut->passEtaWest(lTrackA)) // K+ pos eta (west)
@@ -294,7 +296,10 @@ void StVecMesonAna::MakePhi()
 		}
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
-                Float_t v2 = TMath::Cos(2.0*(lTrack.Phi()-Psi2_east))/Res2;
+                if(PhiMinusPsi < -TMath::Pi()) PhiMinusPsi += (2.0*TMath::Pi());
+                if(PhiMinusPsi > +TMath::Pi()) PhiMinusPsi -= (2.0*TMath::Pi());
+		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_east;
+                mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }
 	  }
