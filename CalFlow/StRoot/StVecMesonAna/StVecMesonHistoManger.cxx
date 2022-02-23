@@ -101,7 +101,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
   }*/
 }
 //-------------------------------------------------------------
-void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
+void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t PhiPsi, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
 {
   TString Mode[2] = {"SE","ME"};
   if(Res2 > 0.0)
@@ -110,19 +110,19 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaSta
     {
       if(pt >= vmsa::ptRawStart[i_pt] && pt < vmsa::ptRawStop[i_pt])
       {
-	for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta++) // phi-psi2 bin
+	for(Int_t i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta++) // phi-psi2 bin
 	{
-	  if(TMath::Abs(CosThetaStar) >= vmsa::CTS_low[i_theta] && TMath::Abs(CosThetaStar) < vmsa::CTS_up[i_theta])
+	  if(PhiPsi >= vmsa::PhiPsi_low[i_theta] && PhiPsi < vmsa::PhiPsi_up[i_theta])
 	  {
 	    // spin alignment
-	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,cent9,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,cent9,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2]->Fill(InvMass,reweight);
             //if (cent9) cout << "Fill Centrality 0" << endl;
             //cout << "Fill h_mMass2" << endl;
             //cout << "pt = " << i_pt << "  Cent = " << cent9 << "  CosThetaStar = " << i_theta << endl;
 	    if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
 	    {
-	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,reweight);
 	    }
 	    // raw pt spectra
@@ -181,13 +181,13 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
   {
     for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
     {
-      for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta ++) // cos(theta*) bin
+      for(Int_t i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta ++) // cos(theta*) bin
       {
 	for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
-	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2]->Write();
 	  }
 	}
