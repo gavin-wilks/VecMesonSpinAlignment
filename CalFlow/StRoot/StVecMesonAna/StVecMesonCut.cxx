@@ -18,6 +18,35 @@ StVecMesonCut::~StVecMesonCut()
 }
 
 //---------------------------------------------------------------------------------
+double StVecMesonCut::getRefMultReweight(double vz, int refMult)
+{
+  if(mEnergy == 4)
+  { 
+    if(vz > -5.0 && vz < 5.0) return refMult*vmsa::vz_corr[14];
+
+    for(int ivz = 0; ivz < 14; ivz++)
+    {
+      if(vz <  5.0+(ivz+1)*10.0 && vz >=  5.0+ivz*10.0) return refMult*vmsa::vz_corr[15+ivz];
+      if(vz > -5.0-(ivz+1)*10.0 && vz <= -5.0-ivz*10.0) return refMult*vmsa::vz_corr[13-ivz];
+    }
+  }
+}
+
+double StVecMesonCut::getEventWeight(int cent9, double refMult)
+{
+  if(mEnergy == 4)
+  {
+    if(cent9 >= 6) return 1.0;
+
+    if(cent9 >= 0 && cent9 < 6) 
+    {
+      return 1.04433e+00+-1.13957e-01/(4.54889e-01*refMult + -3.43209e-01) + -1.55692e-03*(4.54889e-01*refMult + -3.43209e-01) + 4.00872e+00/TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2) + 1.03440e-05*TMath::Power(4.54889e-01*refMult+-3.43209e-01 ,2);
+    }
+  }
+  return 1.0;
+}
+
+
 bool StVecMesonCut::passTrackEP(TLorentzVector lTrack, Float_t dca)
 {
   // only used for primary track

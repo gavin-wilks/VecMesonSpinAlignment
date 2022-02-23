@@ -165,13 +165,11 @@ namespace vmsa
   int const cent_up[5]  = {5,8,8,6,3}; // 0 = 20%-60%, 1 = 0-80%, 2 = 0-10%, 3 = 10-40%, 4 = 40-80%
   int const Cent_QA    = 0;
 
-  float const Pi = TMath::Pi();
-  float const PiOver10 = Pi/10.0;
+  double const Pi = TMath::Pi();
+  double const PiOver10 = Pi/10.0;
   int const PhiPsi_total = 20;
-  float const PhiPsi_low[20] = {-Pi,-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,
-                                 1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10};
-  float const PhiPsi_up[20]  = {-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,
-                                 1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10, Pi };
+  double const PhiPsi_low[20] = {-Pi,-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10};
+  double const PhiPsi_up[20]  = {-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10, Pi };
 
   int const CTS_total = 7; // cos(theta*) bin
   int const CTS_start = 0;

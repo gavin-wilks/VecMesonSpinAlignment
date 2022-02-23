@@ -220,7 +220,8 @@ void StVecMesonAna::MakePhi()
     //mRefMultCorr->init(RunId);
     //mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); 
     const Int_t cent9 = Centrality;
-    const Double_t reweight = mVecMesonCut->getEventWeight();
+    const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
+    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
     // runIndex
 
     const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
@@ -296,9 +297,9 @@ void StVecMesonAna::MakePhi()
 		}
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
+		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_east;
                 if(PhiMinusPsi < -TMath::Pi()) PhiMinusPsi += (2.0*TMath::Pi());
                 if(PhiMinusPsi > +TMath::Pi()) PhiMinusPsi -= (2.0*TMath::Pi());
-		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_east;
                 mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }
