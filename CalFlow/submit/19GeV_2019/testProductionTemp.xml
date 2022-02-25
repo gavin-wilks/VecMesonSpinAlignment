@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="1" filesPerHour="50" maxFilesPerProcess="1" fileListSyntax="paths" simulateSubmission="false">
+<job minFilesPerProcess="1" filesPerHour="20" maxFilesPerProcess="3" fileListSyntax="paths" simulateSubmission="false">
 
   <command>
     starver &library;
-    root4star -l -b -q FillSpinAlignment.C\(\"$FILELIST\",\"$JOBID\",&energy;,&flag_ME;,&mode;\)
+    root4star -l -b -q FillFlow.C\(\"$FILELIST\",\"$JOBID\",&energy;,&flag_ME;,&mode;\)
   </command>
 
   <SandBox installer="ZIP">
     <Package>
-      <File>file:&codePath;/FillSpinAlignment.C</File>
+      <File>file:&codePath;/FillFlow.C</File>
       <File>file:&codePath;/StRoot</File>
       <File>file:&codePath;/.sl73_gcc485</File>
     </Package>
   </SandBox>
 
   <input URL="filelist:&listPath;/&pid;_&SM;_Forest.list" />
-  <stdout URL="file:&outPath;/Log/SpinAlignmentYields/&outDir;/&SM;_$JOBID.out"/>
-  <stderr URL="file:&outPath;/Log/SpinAlignmentYields/&outDir;/&SM;_$JOBID.err"/>
+  <stdout URL="file:&outPath;/Log/FlowYields/&outDir;/&SM;_$JOBID.out"/>
+  <stderr URL="file:&outPath;/Log/FlowYields/&outDir;/&SM;_$JOBID.err"/>
 
   <Generator>
     <ReportLocation>./JOBS/report/</ReportLocation>
@@ -25,7 +25,7 @@
     <ListLocation>./JOBS/list/</ListLocation>
   </Generator>
 
-  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/SpinAlignmentYields/&outDir;/" />
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/FlowYields/&outDir;/" />
 
 </job>
 

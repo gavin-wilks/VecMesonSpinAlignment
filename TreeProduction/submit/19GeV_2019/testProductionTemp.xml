@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="5" filesPerHour="100" maxFilesPerProcess="15" fileListSyntax="xrootd" simulateSubmission="false">
+<job minFilesPerProcess="50" filesPerHour="100" maxFilesPerProcess="100" fileListSyntax="xrootd" simulateSubmission="false">
 
   <command>
     starver &library;

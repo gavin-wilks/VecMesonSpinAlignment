@@ -11,6 +11,8 @@ class StVecMesonCut : public TObject
     StVecMesonCut(Int_t energy);
     ~StVecMesonCut();
 
+    double getEventWeight(int, double);
+    double getRefMultReweight(double, int);
     bool passTrackEP(TLorentzVector, Float_t);
     bool passTrackEtaEast(TLorentzVector); // different eta_gap
     bool passTrackEtaWest(TLorentzVector);

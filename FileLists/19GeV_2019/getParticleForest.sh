@@ -9,4 +9,5 @@ then
   rm ${filename}
 
   ls -d -1 /gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/SpinAlignment/${pid}/Forest/*_${pid}_${flag}_${jobid}*.root > ${filename}
+  #ls -d -1 /gpfs01/star/scratch/gwilks3/${pid}/Forest/*_${pid}_${flag}*.root > ${filename}
 fi

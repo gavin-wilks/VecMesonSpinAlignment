@@ -1,6 +1,6 @@
 #!/bin/sh
 
-codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/FillSpinAlignment
+codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/CalFlow
 
 ##########Energy Selection##########
 # energy=0  # 200GeV
@@ -34,10 +34,10 @@ pid=Phi
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-flag_ME=1 # 0 for SE | 1 for ME
+#flag_ME=0 # 0 for SE | 1 for ME
+#SM=SE
+flag_ME=1 # 0
 SM=ME
-# flag_ME=1 # 0
-# SM=ME
 ##########Mixed Event Selection##########
 
 outDir=${pid}${SM}
@@ -46,8 +46,8 @@ mkdir -p JOBS/report
 mkdir -p JOBS/csh
 mkdir -p JOBS/list
 
-mkdir -p ${outPath}/Log/SpinAlignmentYields/${outDir}
-mkdir -p ${outPath}/OutPut/SpinAlignmentYields/${outDir}
+mkdir -p ${outPath}/Log/FlowYields/${outDir}
+mkdir -p ${outPath}/OutPut/FlowYields/${outDir}
 
 ##########Test Production##########
 star-submit-template -template testProductionTemp.xml -entities pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir

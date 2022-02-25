@@ -34,10 +34,10 @@ StVecMesonAna::StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t ener
   //mStart_Event = start_event;
   //mStop_Event = stop_event;
   mMode = mode;
-  if(!mRefMultCorr)
-  {
-    mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
-  }
+  //if(!mRefMultCorr)
+  //{
+  //  mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
+  //}
   mVecMesonCorr = new StVecMesonCorr(mEnergy);
   mVecMesonCut = new StVecMesonCut(mEnergy);
   mVecMesonHistoManger = new StVecMesonHistoManger();
@@ -265,29 +265,12 @@ void StVecMesonAna::MakePhi()
     if(PrimaryVertex.z() > 0.0   && PrimaryVertex.z() <= +30.0) vz_sign = 2;
     if(PrimaryVertex.z() < +70.0 && PrimaryVertex.z() >  +30.0) vz_sign = 3;
     // Centrality
-    mRefMultCorr->init(RunId);
-    mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); 
     const Int_t cent9 = Centrality;
-    //std::cout << "Centrality = " << cent9 << std::endl;
-    const Double_t reweight = mRefMultCorr->getWeight();
-    // runIndex
-    //mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
-    //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
-    // cout << runIndex << endl;
+    const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
+    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
 
     const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
     
-    //if (counter != 0  &&  counter % 1000 == 0)
-    //  cout << "." << flush;
-    //if (counter != 0  &&  counter % 10000 == 0)
-    //{
-    //  if((stop_event_use-start_event_use) > 0)
-    //  {
-    //	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
-    //	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
-    //  }
-    //}
-    //cout << "Before eta num cut" << endl;
     // get Track Information
     if(mVecMesonCorr->passTrackEtaNumCut(NumTrackEast,NumTrackWest))
     {

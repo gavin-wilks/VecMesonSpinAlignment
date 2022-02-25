@@ -279,8 +279,11 @@ void StVecMesonAna::MakePhi()
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
 		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_west;
-                if(PhiMinusPsi < -TMath::Pi()) PhiMinusPsi += (2.0*TMath::Pi());
-                if(PhiMinusPsi > +TMath::Pi()) PhiMinusPsi -= (2.0*TMath::Pi());
+                std::cout << "RawDiff = " << PhiMinusPsi; 
+                if(PhiMinusPsi >= -(3.0/2.0)*TMath::Pi() && PhiMinusPsi < -(1.0/2.0)*TMath::Pi()) PhiMinusPsi += TMath::Pi();
+                if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
+                PhiMinusPsi = TMath::Abs(PhiMinusPsi);
+                std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
                 mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
@@ -298,8 +301,11 @@ void StVecMesonAna::MakePhi()
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
 		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_east;
-                if(PhiMinusPsi < -TMath::Pi()) PhiMinusPsi += (2.0*TMath::Pi());
-                if(PhiMinusPsi > +TMath::Pi()) PhiMinusPsi -= (2.0*TMath::Pi());
+                std::cout << "RawDiff = " << PhiMinusPsi; 
+                if(PhiMinusPsi >= -(3.0/2.0)*TMath::Pi() && PhiMinusPsi < -(1.0/2.0)*TMath::Pi()) PhiMinusPsi += TMath::Pi();
+                if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
+                PhiMinusPsi = TMath::Abs(PhiMinusPsi);
+                std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
                 mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }

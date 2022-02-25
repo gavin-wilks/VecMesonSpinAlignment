@@ -34,8 +34,8 @@ pid=Phi
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-flag_ME=1 # 0 for SE | 1 for ME
-SM=ME
+flag_ME=0 # 0 for SE | 1 for ME
+SM=SE
 # flag_ME=1 # 0
 # SM=ME
 ##########Mixed Event Selection##########
