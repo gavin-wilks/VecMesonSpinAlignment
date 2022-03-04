@@ -310,7 +310,9 @@ void StVecMesonAna::MakePhi()
 	  // Float_t eta_lTrack = lTrack.Eta();
 	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
-	  if(TMath::Abs(rapidity_lTrack) > 1.0) continue;
+	  if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
+	  if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
+	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
           //cout << "pass rapidity cut" << endl;
 	  Float_t InvMass_lTrack = lTrack.M();
 	  TVector3 vBetaPhi = -1.0*lTrack.BoostVector(); // get phi beta
@@ -543,7 +545,9 @@ void StVecMesonAna::MakeRho()
 	  // Float_t eta_lTrack = lTrack.Eta();
 	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
-	  if(TMath::Abs(rapidity_lTrack) > 1.0) continue;
+	  if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
+	  if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
+	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
 
 	  Float_t InvMass_lTrack = lTrack.M();
 	  TVector3 vBetaRho = -1.0*lTrack.BoostVector(); // get phi beta
@@ -773,7 +777,9 @@ void StVecMesonAna::MakeKStar()
 	  // Float_t eta_lTrack = lTrack.Eta();
 	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
-	  if(TMath::Abs(rapidity_lTrack) > 1.0) continue;
+	  if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
+	  if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
+	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
 
 	  Float_t InvMass_lTrack = lTrack.M();
 	  TVector3 vBetaKStar = -1.0*lTrack.BoostVector(); // get phi beta

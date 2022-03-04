@@ -252,17 +252,17 @@ void StVecMesonAna::MakePhi()
 	  )
 	{
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
+	  if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
+	  if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
 	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
 	  Float_t InvMass_lTrack = lTrack.M();
 	  TVector3 vBetaPhi = -1.0*lTrack.BoostVector(); // get phi beta
 	  TLorentzVector lKpRest = lTrackA;
 
-	  //for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
-          Int_t i_dca = 0;
+	  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
 	  {
 	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
-	    //for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigmaKaon
-            Int_t i_sig = 0;
+	    for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigmaKaon
 	    {
 	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
 	      if(mVecMesonCut->passEtaEast(lTrackA)) // K+ neg eta(east)
@@ -279,11 +279,11 @@ void StVecMesonAna::MakePhi()
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
 		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_west;
-                std::cout << "RawDiff = " << PhiMinusPsi; 
+                //std::cout << "RawDiff = " << PhiMinusPsi; 
                 if(PhiMinusPsi >= -(3.0/2.0)*TMath::Pi() && PhiMinusPsi < -(1.0/2.0)*TMath::Pi()) PhiMinusPsi += TMath::Pi();
                 if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
                 PhiMinusPsi = TMath::Abs(PhiMinusPsi);
-                std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
+                //std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
                 mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
@@ -301,11 +301,11 @@ void StVecMesonAna::MakePhi()
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
 		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
 		Float_t PhiMinusPsi = lTrack.Phi() - Psi2_east;
-                std::cout << "RawDiff = " << PhiMinusPsi; 
+                //std::cout << "RawDiff = " << PhiMinusPsi; 
                 if(PhiMinusPsi >= -(3.0/2.0)*TMath::Pi() && PhiMinusPsi < -(1.0/2.0)*TMath::Pi()) PhiMinusPsi += TMath::Pi();
                 if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
                 PhiMinusPsi = TMath::Abs(PhiMinusPsi);
-                std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
+                //std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
                 mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }

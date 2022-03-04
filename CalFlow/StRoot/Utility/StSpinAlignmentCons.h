@@ -27,7 +27,7 @@ namespace vmsa
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
   float const mHitsRatioTPCMin = 0.52;
-  float const mEtaMax = 1.5;
+  float const mEtaMax = 1.0;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
