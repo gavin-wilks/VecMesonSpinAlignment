@@ -82,7 +82,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
     c_diff->cd(i_theta+1)->SetGrid(0,0);
     if(i_theta < vmsa::CTS_stop)
     {
-      string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],vmsa::Cent_start,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+      string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],9,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
       h_mMass[KEY_QA]->SetTitle("");
       h_mMass[KEY_QA]->GetXaxis()->SetNdivisions(505,'N');
       h_mMass[KEY_QA]->GetXaxis()->SetLabelSize(0.03);
@@ -106,7 +106,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
     }
     if(i_theta == vmsa::CTS_stop)
     {
-      string KEY_InteTheta_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+      string KEY_InteTheta_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
       h_mMass_InteTheta[KEY_InteTheta_QA]->SetTitle("");
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetNdivisions(505,'N');
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetLabelSize(0.03);
@@ -249,7 +249,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
   for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; ++i_theta)
   {
     c_diff->cd(i_theta+1);
-    string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],vmsa::Cent_start,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_QA[energy],9,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
     f_bw->SetParameter(0,Par[KEY_QA][0]);
     f_bw->SetParameter(1,Par[KEY_QA][1]);
@@ -265,7 +265,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
   {
     for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
     {
-      string KEY_counts_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",vmsa::pt_QA[energy],vmsa::Cent_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,i_sigma,vmsa::mInteMethod[i_method].c_str());
+      string KEY_counts_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",vmsa::pt_QA[energy],9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,i_sigma,vmsa::mInteMethod[i_method].c_str());
       if(i_sigma == vmsa::Sig_start && i_method == vmsa::Method_start)
       {
 	h_mCounts[KEY_counts_QA];

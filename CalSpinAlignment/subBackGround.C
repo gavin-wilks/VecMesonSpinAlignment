@@ -35,23 +35,10 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
   TGaxis::SetMaxDigits(4);
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);
 
-<<<<<<< Updated upstream
-  string InPutFile_SE = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_%d/OutPut/SpinAlignment/%s/Yields/Yields_%s_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamYear[energy],vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
-=======
-  //string InPutFile_SE = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Yields/Yields_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
->>>>>>> Stashed changes
-  // string InPutFile_SE = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string InPutFile_SE = "../data/Yields_Phi_SE_19GeV.root";
+  string InPutFile_SE = "../data/Yields_Phi_SE_19GeV_Eta1p5.root";
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
-<<<<<<< Updated upstream
   
-  string InPutFile_ME = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_%d/OutPut/SpinAlignment/%s/Yields/Yields_%s_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamYear[energy],vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
-=======
-   
-  //string InPutFile_ME = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Yields/Yields_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
->>>>>>> Stashed changes
-  // string InPutFile_ME = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string InPutFile_ME = "../data/Yields_Phi_ME_19GeV.root";
+  string InPutFile_ME = "../data/Yields_Phi_ME_19GeV_Eta1p5.root";
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
 
   // read in histogram for same event and mixed event
