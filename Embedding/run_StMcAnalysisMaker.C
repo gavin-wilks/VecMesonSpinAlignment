@@ -10,14 +10,8 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
   //Check STAR Library. Please set SL_version to the original star library used
   // in the production from http://www.star.bnl.gov/devcgi/dbProdOptionRetrv.pl
 
-  string SL_version = "SL11d_embed"; // 200 GeV
-  // string SL_version = "SL10k_embed"; // 62.4 GeV
-  // string SL_version = "SL10k_embed"; // 39 GeV
-  // string SL_version = "SL11d_embed"; // 27 GeV
-  // string SL_version = "SL11d_embed"; // 19.6 GeV
-  // string SL_version = "SL10h_embed"; // 11.5 GeV
+  string SL_version = "SL21c_embed"; // 19.6 GeV
   string env_SL = getenv("STAR");
-  // cout << env_SL << endl;
 
   if (env_SL.find(SL_version) == string::npos)
   {
@@ -49,10 +43,10 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
     mudstfile = getenv(mudstfile.Data());
   }
 
-  mudstfile.ReplaceAll(".event.root", ".MuDst.root");
-  mudstfile.ReplaceAll(".geant.root", ".MuDst.root");
-  cout << "Reading MuDst file " << mudstfile << endl;
-  StMuDstMaker* muDstMaker = new StMuDstMaker(0, 0, "", mudstfile.Data(), "", 100000, "MuDst");
+  mudstfile.ReplaceAll(".event.root", ".PicoDst.root");
+  mudstfile.ReplaceAll(".geant.root", ".PicoDst.root");
+  cout << "Reading PicoDst file " << picodstfile << endl;
+  StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, 0, "", picodstfile.Data(), "", 100000, "PicoDst");
 
   StMcEventMaker *mcEventMaker = new StMcEventMaker();
   mcEventMaker->doPrintEventInfo = false;
@@ -67,16 +61,16 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
   // St_db_Maker* dbMk = new St_db_Maker("StarDb", "MySQL:StarDb");
   //dbMk->SetMaxEntryTime(20100301,0);
   //dbMk->SetDateTime(20080101,000001);
-  int refMultCorrLoad = gSystem->Load("StRefMultCorr");
-  StRefMultCorr* grefmultCorrUtil = NULL;
+  //int refMultCorrLoad = gSystem->Load("StRefMultCorr");
+  //StRefMultCorr* grefmultCorrUtil = NULL;
 
-  if (refMultCorrLoad == -1)
-  {
-    cout << "StRefMultCorr library is not available" << endl;
-  }
-  else
-  {
-    grefmultCorrUtil = CentralityMaker::instance()->getRefMultCorr();
+  //if (refMultCorrLoad == -1)
+  //{
+  //  cout << "StRefMultCorr library is not available" << endl;
+  //}
+  //else
+  //{
+  //  grefmultCorrUtil = CentralityMaker::instance()->getRefMultCorr();
     // grefmultCorrUtil = CentralityMaker::instance()->getgRefMultCorr();
     // grefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
     // grefmultCorrUtil->readScaleForWeight("StRoot/StRefMultCorr/macros/weight_grefmult_vpd30_vpd5_Run14.txt");
@@ -85,16 +79,16 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
     // {
     //   cout << i << " " << grefmultCorrUtil->get(i, 0) << endl;
     // }
-  }
+  //}
 
   // Monte Carlo event maker
   StMcAnalysisMaker* analysis = new StMcAnalysisMaker;
   analysis->setOutFileName(outFile);
-  analysis->setRefMultCorr(grefmultCorrUtil);
+  //analysis->setRefMultCorr(grefmultCorrUtil);
 
   // Initialize chain
   chain->Init();
-  chain->EventLoop(1e6);
+  chain->EventLoop(1e7);
   // chain->EventLoop(100);
   chain->Finish();
 
@@ -103,7 +97,7 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
 
 void Load()
 {
-   gROOT->Macro("loadMuDst.C");
+   gROOT->Macro("loadPicoDst.C");
    gROOT->Macro("LoadLogger.C");
    gSystem->Load("StMcEvent");
    gSystem->Load("StMcEventMaker");

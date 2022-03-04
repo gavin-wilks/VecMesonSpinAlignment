@@ -21,10 +21,11 @@
 #include "StEvent/StEvent.h"
 #include "StEvent/StTpcDedxPidAlgorithm.h"
 #include "StEventUtilities/StuRefMult.hh"
-#include "StMuDSTMaker/COMMON/StMuDstMaker.h"
-#include "StMuDSTMaker/COMMON/StMuDst.h"
-#include "StMuDSTMaker/COMMON/StMuEvent.h"
-#include "StMuDSTMaker/COMMON/StMuPrimaryVertex.h"
+
+#include "StRoot/StPicoEvent/StPicoDst.h"
+#include "StRoot/StPicoEvent/StPicoEvent.h"
+#include "StRoot/StPicoEvent/StPicoTrack.h"
+#include "StRoot/StPicoDstMaker/StPicoDstMaker.h"
 
 #include "StMcEvent/StMcEventTypes.hh"
 #include "StMcEvent/StMcContainers.hh"
@@ -41,7 +42,7 @@
 ClassImp(StMcAnalysisMaker);
 
 StMcAnalysisMaker::StMcAnalysisMaker(const char *name, const char *title): StMaker(name),
-   mRefMultCorrUtil(NULL), mMuDst(NULL), mField(-999), mCentrality(-999), 
+   mRefMultCorrUtil(NULL), mPicoDst(NULL), mField(-999), mCentrality(-999), 
    mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
 {
    LOG_INFO << "StMcAnalysisMaker() - DONE" << endm;
@@ -63,7 +64,7 @@ int StMcAnalysisMaker::Init()
          mOutfileName = gSystem->BaseName(mOutfileName.Data());
          mOutfileName = mOutfileName.ReplaceAll(".event.root", "");
          mOutfileName = mOutfileName.ReplaceAll(".geant.root", "");
-         mOutfileName = mOutfileName.ReplaceAll(".MuDst.root", "");
+         mOutfileName = mOutfileName.ReplaceAll(".PicoDst.root", "");
       }
       else
       {
@@ -106,22 +107,22 @@ int StMcAnalysisMaker::Init()
 //__________________________________
 int StMcAnalysisMaker::Make()
 {
-   StMuDstMaker* muDstMaker = (StMuDstMaker*)GetMaker("MuDst");
+   StPicoDstMaker* picoDstMaker = (StPicoDstMaker*)GetMaker("PicoDst");
 
-   if (!muDstMaker)
+   if (!picoDstMaker)
    {
-      LOG_WARN << " No MuDstMaker, will try to take all event information from StEvent" << endm;
-      mMuDst = NULL;
+      LOG_WARN << " No PicoDstMaker, will try to take all event information from StEvent" << endm;
+      mPicoDst = NULL;
    }
    else
    {
-     mMuDst = (StMuDst*)muDstMaker->muDst();
+     mPicoDst = (StPicoDst*)picoDstMaker->picoDst();
    }
 
-   if(!mMuDst || !mMuDst->event())
+   if(!mPicoDst || !mPicoDst->event())
    {
-     LOG_WARN << "MuDst or mMuDst->event() is missing, will try to take all event information from StEvent" << endm;
-     mMuDst = NULL;
+     LOG_WARN << "PicoDst or mPicoDst->event() is missing, will try to take all event information from StEvent" << endm;
+     mPicoDst = NULL;
    }
 
    mMcEvent = (StMcEvent*)GetDataSet("StMcEvent");
@@ -141,12 +142,12 @@ int StMcAnalysisMaker::Make()
 
    mField = (float)mEvent->summary()->magneticField();
 
-   if(mRefMultCorrUtil && mMuDst)
+   if(mRefMultCorrUtil && mPicoDst)
    {
      mRefMultCorrUtil->init(mEvent->runId());
 
-     mRefMultCorrUtil->initEvent(mMuDst->event()->refMult(),
-     // mRefMultCorrUtil->initEvent(mMuDst->event()->grefmult(),
+     mRefMultCorrUtil->initEvent(mPicoDst->event()->refMult(),
+     // mRefMultCorrUtil->initEvent(mPicoDst->event()->grefmult(),
                                   mEvent->primaryVertex()->position().z(), 
                                   mEvent->runInfo()->zdcCoincidenceRate());
 
@@ -367,8 +368,8 @@ int StMcAnalysisMaker::fillEventCounts(float nRcTracks, float nMcTracks)
    vars[iVar++] = (float)mEvent->primaryVertex()->position().z();
    vars[iVar++] = vpdVz;
    vars[iVar++] = mCentrality;
-   vars[iVar++] = mMuDst? mMuDst->event()->grefmult() : -999;
-   vars[iVar++] = mMuDst? mMuDst->event()->refMult() : -999;
+   vars[iVar++] = mPicoDst? mPicoDst->event()->grefmult() : -999;
+   vars[iVar++] = mPicoDst? mPicoDst->event()->refMult() : -999;
    vars[iVar++] = (float)uncorrectedNumberOfPositivePrimaries(*mEvent);
    vars[iVar++] = (float)uncorrectedNumberOfNegativePrimaries(*mEvent);
    vars[iVar++] = (float)mEvent->runInfo()->zdcCoincidenceRate();
