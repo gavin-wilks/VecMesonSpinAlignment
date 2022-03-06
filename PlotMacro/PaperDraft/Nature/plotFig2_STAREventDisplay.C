@@ -116,8 +116,8 @@ void Draw_STAR_3D()
     // TGeoVolume *outer_field_tube       = geom->MakeTube("outer_field_tube",Me_outer_tube,199.5,201.5,200.0);  // r_min, r_max, dz (half of total length)
     // TGeoVolume *outer_field_cap        = geom->MakeTube("outer_field_cap",Me_outer_cap,199.5,201.5,2.0);  // r_min, r_max, dz (half of total length)
     TGeoVolume *inner_field_tube       = geom->MakeTube("inner_field_tube",Iron,49.5,50.0,200.0);  // r_min, r_max, dz (half of total length)
-    TGeoVolume *outer_field_tube       = geom->MakeTube("outer_field_tube",Me_outer_tube,199.5,220.0,200.0);  // r_min, r_max, dz (half of total length)
-    TGeoVolume *outer_field_cap        = geom->MakeTube("outer_field_cap",Me_outer_cap,199.5,220.0,2.0);  // r_min, r_max, dz (half of total length)
+    TGeoVolume *outer_field_tube       = geom->MakeTube("outer_field_tube",Me_outer_tube,199.5,209.0,200.0);  // r_min, r_max, dz (half of total length)
+    TGeoVolume *outer_field_cap        = geom->MakeTube("outer_field_cap",Me_outer_cap,199.5,209.0,2.0);  // r_min, r_max, dz (half of total length)
     // TGeoVolume *outer_field_tube       = geom->MakeTube("outer_field_tube",Me_outer_tube,219.5,220.0,200.0);  // r_min, r_max, dz (half of total length)
     TGeoVolume *IDS_central_part       = geom->MakeTube("IDS_central_part",Me_IDS,42.8/2.0,43.0/2.0,56.0);  // r_min, r_max, dz (half of total length)
     TGeoVolume *IDS_side_parts         = geom->MakeTube("IDS_side_parts",Me_IDS,79.3/2.0,79.5/2.0,(222.7-64.0)/2.0);  // r_min, r_max, dz (half of total length)
@@ -134,7 +134,7 @@ void Draw_STAR_3D()
     inner_field_tube       ->SetLineColor(4);
     // outer_field_tube       ->SetLineColor(kRed-8);
     outer_field_tube       ->SetLineColor(4);
-    outer_field_cap        ->SetLineColor(4);
+    outer_field_cap        ->SetLineColor(kBlue-4);
     IDS_central_part       ->SetLineColor(2);  // Inner Detector Support (IDS)
     IDS_side_parts         ->SetLineColor(2);  // Inner Detector Support (IDS)
     IDS_connection_parts_R ->SetLineColor(2);  // Inner Detector Support (IDS)
@@ -380,7 +380,7 @@ Float_t Get_Radius_from_eta_z(Float_t eta, Float_t z)
 
 
 //----------------------------------------------------------------------------------------
-void plotFig2_STAREventDisplay(Int_t Event, Int_t eBeamTime)
+void plotFig2_STAREventDisplay(Int_t Event = 0, Int_t eBeamTime = 5)
 {
     cout << "Plot_STAR_Event macro started" << endl;
 

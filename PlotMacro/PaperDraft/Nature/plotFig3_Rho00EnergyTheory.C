@@ -13,6 +13,7 @@
 using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 double rho00_theory(double *x_var, double *par)
 {
@@ -128,19 +129,21 @@ void plotFig3_Rho00EnergyTheory()
 
   // K* STAR
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,size_marker-0.4);
-  plotSysErrors(g_rhoKstar_sys,color_Kstr+2);
+  // plotSysErrors(g_rhoKstar_sys,color_Kstr+2);
+  plotSysErrorsBox(g_rhoKstar_sys,color_Kstr+2);
 
   // K* ALICE
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,size_marker-0.4);
-  plotSysErrors(g_rhoKstar_ALICE_sys,color_Kstr_ALICE);
+  // plotSysErrors(g_rhoKstar_ALICE_sys,color_Kstr_ALICE);
 
   // phi-meson STAR
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+  // plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+  plotSysErrorsBox(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
 
   // phi-meson ALICE
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_ALICE_stat,style_phi_ALICE,color_phi_ALICE,size_marker);
-  plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
+  // plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
 
   // plot theory curve
   double ms = 450.0;
@@ -221,5 +224,26 @@ void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
     PlotLine(energy*0.95,energy*1.05,rho-err,rho-err,plot_color,2,1);
     PlotLine(energy*0.95,energy*0.95,rho-err+0.001,rho-err,plot_color,2,1);
     PlotLine(energy*1.05,energy*1.05,rho-err+0.001,rho-err,plot_color,2,1);
+  }
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nEnergy = g_rho->GetN();
+  TBox *bSys[nEnergy];
+  for(int i_energy = 0; i_energy < g_rho->GetN(); ++i_energy) // plot sys errors
+  {
+    double energy, rho;
+    g_rho->GetPoint(i_energy,energy,rho);
+    double err = g_rho->GetErrorYhigh(i_energy);
+
+    bSys[i_energy] = new TBox(energy/1.08,rho-err,energy*1.08,rho+err);
+    // bSys[i_energy] = new TBox(energy-1.5,rho-err,energy+1.5,rho+err);
+    bSys[i_energy]->SetFillColor(0);
+    bSys[i_energy]->SetFillStyle(0);
+    bSys[i_energy]->SetLineStyle(1);
+    bSys[i_energy]->SetLineWidth(1);
+    bSys[i_energy]->SetLineColor(plot_color);
+    bSys[i_energy]->Draw("l Same");
   }
 }

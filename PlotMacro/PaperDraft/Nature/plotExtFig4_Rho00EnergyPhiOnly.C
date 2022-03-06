@@ -12,6 +12,7 @@
 using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 void plotExtFig4_Rho00EnergyPhiOnly()
 {
@@ -65,10 +66,12 @@ void plotExtFig4_Rho00EnergyPhiOnly()
   PlotLine(9.0,240.0,1.0/3.0,1.0/3.0,1,3,2);
 
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_1st_stat_Laxis,style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotSysErrors(g_rhoPhi_1st_sys_Laxis,color_phi_1st);
+  // plotSysErrors(g_rhoPhi_1st_sys_Laxis,color_phi_1st);
+  plotSysErrorsBox(g_rhoPhi_1st_sys_Laxis,color_phi_1st);
 
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+  // plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+  plotSysErrorsBox(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
 
   Draw_TGAE_Point_new_Symbol(65,0.39,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
   plotTopLegend((char*)"#phi (1^{st}-order EP)",70,0.3885,size_font,1,0.0,42,0);
@@ -97,5 +100,26 @@ void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
     PlotLine(energy*0.95,energy*1.05,rho-err,rho-err,plot_color,2,1);
     PlotLine(energy*0.95,energy*0.95,rho-err+0.001,rho-err,plot_color,2,1);
     PlotLine(energy*1.05,energy*1.05,rho-err+0.001,rho-err,plot_color,2,1);
+  }
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nEnergy = g_rho->GetN();
+  TBox *bSys[nEnergy];
+  for(int i_energy = 0; i_energy < g_rho->GetN(); ++i_energy) // plot sys errors
+  {
+    double energy, rho;
+    g_rho->GetPoint(i_energy,energy,rho);
+    double err = g_rho->GetErrorYhigh(i_energy);
+
+    bSys[i_energy] = new TBox(energy/1.05,rho-err,energy*1.05,rho+err);
+    // bSys[i_energy] = new TBox(energy-1.5,rho-err,energy+1.5,rho+err);
+    bSys[i_energy]->SetFillColor(0);
+    bSys[i_energy]->SetFillStyle(0);
+    bSys[i_energy]->SetLineStyle(1);
+    bSys[i_energy]->SetLineWidth(1);
+    bSys[i_energy]->SetLineColor(plot_color);
+    bSys[i_energy]->Draw("l Same");
   }
 }

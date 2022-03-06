@@ -13,6 +13,7 @@
 using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 void plotExtFig7_rho00PtKstar()
 {
@@ -185,7 +186,8 @@ void plotExtFig7_rho00PtKstar()
       {
 	PlotLine(pt_low,pt_high,1.0/3.0,1.0/3.0,1,3,2);
 	Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_Kstr,color_Kstr,size_marker);
-	plotSysErrors(g_rho_2nd_sys[total_pad-1],color_Kstr+2);
+	// plotSysErrors(g_rho_2nd_sys[total_pad-1],color_Kstr+2);
+	plotSysErrorsBox(g_rho_2nd_sys[total_pad-1],color_Kstr+2);
       }
 
       if(x_pads == 0 && y_pads != N_y_pads-1)
@@ -240,5 +242,25 @@ void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
     PlotLine(pt-0.1,pt+0.1,rho-err,rho-err,plot_color,2,1);
     PlotLine(pt-0.1,pt-0.1,rho-err+0.005,rho-err,plot_color,2,1);
     PlotLine(pt+0.1,pt+0.1,rho-err+0.005,rho-err,plot_color,2,1);
+  }
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nPt = g_rho->GetN();
+  TBox *bSys[nPt];
+  for(int i_pt = 0; i_pt < g_rho->GetN(); ++i_pt) // plot sys errors
+  {
+    double pt, rho;
+    g_rho->GetPoint(i_pt,pt,rho);
+    double err = g_rho->GetErrorYhigh(i_pt);
+
+    bSys[i_pt] = new TBox(pt-0.15,rho-err,pt+0.15,rho+err);
+    bSys[i_pt]->SetFillColor(0);
+    bSys[i_pt]->SetFillStyle(0);
+    bSys[i_pt]->SetLineStyle(1);
+    bSys[i_pt]->SetLineWidth(1);
+    bSys[i_pt]->SetLineColor(plot_color);
+    bSys[i_pt]->Draw("l Same");
   }
 }

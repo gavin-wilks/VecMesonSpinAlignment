@@ -12,6 +12,7 @@
 using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 double rho00_theory(double *x_var, double *par)
 {
@@ -112,11 +113,13 @@ void plotExtFig5_Rho00EnergyEP()
 
   // plot 2nd EP rho00 in normal direction
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+  // plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+  plotSysErrorsBox(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
 
   // plot 2nd EP rho00 in tangent direction
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Xaxis,style_phi_EP,color_phi_EP,size_marker+0.4);
-  plotSysErrors(g_rhoPhi_2nd_sys_Xaxis,color_phi_EP);
+  // plotSysErrors(g_rhoPhi_2nd_sys_Xaxis,color_phi_EP);
+  plotSysErrorsBox(g_rhoPhi_2nd_sys_Xaxis,color_phi_EP);
 
   // plot theory curve
   double scurrent[3] = {400.0,600.0,1000.0};
@@ -214,5 +217,26 @@ void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
     PlotLine(energy*0.95,energy*1.05,rho-err,rho-err,plot_color,2,1);
     PlotLine(energy*0.95,energy*0.95,rho-err+0.001,rho-err,plot_color,2,1);
     PlotLine(energy*1.05,energy*1.05,rho-err+0.001,rho-err,plot_color,2,1);
+  }
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nEnergy = g_rho->GetN();
+  TBox *bSys[nEnergy];
+  for(int i_energy = 0; i_energy < g_rho->GetN(); ++i_energy) // plot sys errors
+  {
+    double energy, rho;
+    g_rho->GetPoint(i_energy,energy,rho);
+    double err = g_rho->GetErrorYhigh(i_energy);
+
+    bSys[i_energy] = new TBox(energy/1.05,rho-err,energy*1.05,rho+err);
+    // bSys[i_energy] = new TBox(energy-1.5,rho-err,energy+1.5,rho+err);
+    bSys[i_energy]->SetFillColor(0);
+    bSys[i_energy]->SetFillStyle(0);
+    bSys[i_energy]->SetLineStyle(1);
+    bSys[i_energy]->SetLineWidth(1);
+    bSys[i_energy]->SetLineColor(plot_color);
+    bSys[i_energy]->Draw("l Same");
   }
 }
