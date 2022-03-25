@@ -3,6 +3,9 @@
 #include "TNtuple.h"
 #include "TSystem.h"
 
+#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "StRoot/StMcAnalysisMaker/StUtility.h"
+
 #include "StarClassLibrary/StParticleDefinition.hh"
 #include "StarClassLibrary/SystemOfUnits.h"
 #include "StarClassLibrary/StParticleTypes.hh"
@@ -41,15 +44,18 @@
 
 ClassImp(StMcAnalysisMaker);
 
-StMcAnalysisMaker::StMcAnalysisMaker(const char *name, const char *title): StMaker(name),
-   mRefMultCorrUtil(NULL), mPicoDst(NULL), mField(-999), mCentrality(-999), 
-   mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
+StMcAnalysisMaker::StMcAnalysisMaker(const char *name, const char *title, const int energy): StMaker(name),
+   mRefMultCorrUtil(NULL), mPicoDst(NULL), mUtility(NULL), mField(-999), mCentrality(-999), 
+   mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mEnergy(energy), mAssoc(NULL)
 {
    LOG_INFO << "StMcAnalysisMaker() - DONE" << endm;
 }
 //__________________________________
 int StMcAnalysisMaker::Init()
-{
+{  
+   mUtility = new StUtility(mEnergy);
+   mUtility->initRunIndex(); // initialize std::map for run index 
+
    if (!mOutfileName.Length())
    {
       // StBFChain* bfChain = (StBFChain *) StMaker::GetChain();
@@ -64,7 +70,7 @@ int StMcAnalysisMaker::Init()
          mOutfileName = gSystem->BaseName(mOutfileName.Data());
          mOutfileName = mOutfileName.ReplaceAll(".event.root", "");
          mOutfileName = mOutfileName.ReplaceAll(".geant.root", "");
-         mOutfileName = mOutfileName.ReplaceAll(".PicoDst.root", "");
+         mOutfileName = mOutfileName.ReplaceAll(".picoDst.root", "");
       }
       else
       {
@@ -107,7 +113,7 @@ int StMcAnalysisMaker::Init()
 //__________________________________
 int StMcAnalysisMaker::Make()
 {
-   StPicoDstMaker* picoDstMaker = (StPicoDstMaker*)GetMaker("PicoDst");
+   StPicoDstMaker* picoDstMaker = (StPicoDstMaker*)GetMaker("picoDst");
 
    if (!picoDstMaker)
    {
@@ -142,22 +148,25 @@ int StMcAnalysisMaker::Make()
 
    mField = (float)mEvent->summary()->magneticField();
 
-   if(mRefMultCorrUtil && mPicoDst)
+   if(mPicoDst)
    {
-     mRefMultCorrUtil->init(mEvent->runId());
+     const double refMultCorr = McAnaCuts::getRefMultReweight(mEvent->primaryVertex()->position().z(), mPicoDst->event()->refMult(), mEnergy);
+     mCentrality = McAnaCuts::getCentrality(refMultCorr, mEnergy);
 
-     mRefMultCorrUtil->initEvent(mPicoDst->event()->refMult(),
-     // mRefMultCorrUtil->initEvent(mPicoDst->event()->grefmult(),
-                                  mEvent->primaryVertex()->position().z(), 
-                                  mEvent->runInfo()->zdcCoincidenceRate());
-
-     mCentrality  = mRefMultCorrUtil->getCentralityBin9();
-
-     if (mRefMultCorrUtil->isBadRun(mEvent->runId()))
+     //cout << "passed event cut" << endl;
+     const int runIndex = mUtility->findRunIndex(mEvent->runId()); // find run index for a specific run
+    
+     if(runIndex < 0)
      {
-       LOG_INFO << "This is a bad run from mRefMultCorrUtil! Skip! " << endm;
+       LOG_ERROR << "Could not find this run Index from StUtility! Skip!" << endm;
+       return kStErr;
+     }
 
-       return kStSkip;
+     if (mUtility->isBadRun(runIndex))
+     {
+       LOG_INFO << "This is a bad run from StUtilility! Skip! " << endm;
+
+       return kStErr;
      }
    }
    else
@@ -368,7 +377,7 @@ int StMcAnalysisMaker::fillEventCounts(float nRcTracks, float nMcTracks)
    vars[iVar++] = (float)mEvent->primaryVertex()->position().z();
    vars[iVar++] = vpdVz;
    vars[iVar++] = mCentrality;
-   vars[iVar++] = mPicoDst? mPicoDst->event()->grefmult() : -999;
+   vars[iVar++] = mPicoDst? mPicoDst->event()->grefMult() : -999;
    vars[iVar++] = mPicoDst? mPicoDst->event()->refMult() : -999;
    vars[iVar++] = (float)uncorrectedNumberOfPositivePrimaries(*mEvent);
    vars[iVar++] = (float)uncorrectedNumberOfNegativePrimaries(*mEvent);

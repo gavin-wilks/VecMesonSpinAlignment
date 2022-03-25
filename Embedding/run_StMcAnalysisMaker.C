@@ -5,12 +5,12 @@ void Load();
 
 using namespace std;
 
-void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_production_2011/Kplus_101_2012810/P11id.SL11d_embed/2011/163/12163020/st_physics_adc_12163020_raw_2520001.event.root", std::string outFile = "test")
+void run_StMcAnalysisMaker(const char* file = "/star/embed/embedding/production_19GeV_2019/Kplus_200_20214203/P21ic.SL21c/2019/057/20057003/st_physics_adc_20057003_raw_4000002.geant.root", std::string outFile = "test", int energy = 4)
 {
   //Check STAR Library. Please set SL_version to the original star library used
   // in the production from http://www.star.bnl.gov/devcgi/dbProdOptionRetrv.pl
 
-  string SL_version = "SL21c_embed"; // 19.6 GeV
+  string SL_version = "SL21c"; // 19.6 GeV
   string env_SL = getenv("STAR");
 
   if (env_SL.find(SL_version) == string::npos)
@@ -35,19 +35,20 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
   ioMaker->SetBranch("geantBranch", 0, "r");
   ioMaker->SetBranch("eventBranch", 0, "r");
 
-  TString mudstfile = file;
+  TString picodstfile = file;
 
-  if(mudstfile.First("$") != -1)
+  if(picodstfile.First("$") != -1)
   {
-    mudstfile.ReplaceAll("$","");
-    mudstfile = getenv(mudstfile.Data());
+    picodstfile.ReplaceAll("$","");
+    picodstfile = getenv(picodstfile.Data());
   }
 
-  mudstfile.ReplaceAll(".event.root", ".PicoDst.root");
-  mudstfile.ReplaceAll(".geant.root", ".PicoDst.root");
+  picodstfile.ReplaceAll(".event.root", ".picoDst.root");
+  picodstfile.ReplaceAll(".geant.root", ".picoDst.root");
   cout << "Reading PicoDst file " << picodstfile << endl;
-  StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, 0, "", picodstfile.Data(), "", 100000, "PicoDst");
+  //StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, 0, "", picodstfile.Data(), "", 100000, "PicoDst");
 
+  StPicoDstMaker *picoDstMaker = new StPicoDstMaker(2,picodstfile.Data(),"picoDst");
   StMcEventMaker *mcEventMaker = new StMcEventMaker();
   mcEventMaker->doPrintEventInfo = false;
   mcEventMaker->doPrintMemoryInfo = false;
@@ -84,6 +85,7 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
   // Monte Carlo event maker
   StMcAnalysisMaker* analysis = new StMcAnalysisMaker;
   analysis->setOutFileName(outFile);
+  analysis->setEnergy(energy);
   //analysis->setRefMultCorr(grefmultCorrUtil);
 
   // Initialize chain
@@ -97,8 +99,15 @@ void run_StMcAnalysisMaker(const char* file = "/star/data18/embedding/AuAu200_pr
 
 void Load()
 {
-   gROOT->Macro("loadPicoDst.C");
+   
    gROOT->Macro("LoadLogger.C");
+   gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
+   loadSharedLibraries();
+   gSystem->Load("StChain");
+   gSystem->Load("StPicoEvent");
+   gSystem->Load("StPicoDstMaker");
+   gSystem->Load("StIOMaker");
+   gSystem->Load("StTreeMaker");
    gSystem->Load("StMcEvent");
    gSystem->Load("StMcEventMaker");
    gSystem->Load("StAssociationMaker");

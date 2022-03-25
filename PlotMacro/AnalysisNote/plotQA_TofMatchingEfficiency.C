@@ -16,16 +16,16 @@ double tof_Kaon(double* x, double* par)
   return par[0]*(1.0 / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6]);
 }
 
-void plotQA_TofMatchingEfficiency(int mEnergy = 6, int mPID = 0)
+void plotQA_TofMatchingEfficiency(int mEnergy = 4, int mPID = 0)
 {
-  string const mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
+  string const mBeamEnergy[5] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
   string const mParTex[2] = {"K^{+}","K^{-}"};
   string const Centrality[10] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%","20%-60%"}; // Centrality bin
   int const mPlotStyle[10] = {0,0,1,1,1,1,0,0,0,1};
   int const mPlotColor[10] = {0,0,kGray+3,kAzure+4,kOrange+1,kCyan+1,0,0,0,kRed};
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch_2060.root",mBeamEnergy[mEnergy].c_str(),mBeamEnergy[mEnergy].c_str());
+  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/file_%s_ToFMatching.root",mBeamEnergy[mEnergy].c_str(),mBeamEnergy[mEnergy].c_str());
   cout << "open input file: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -36,7 +36,7 @@ void plotQA_TofMatchingEfficiency(int mEnergy = 6, int mPID = 0)
     HistName = Form("h_mEfficiency_%s_Cent_%d",mParType[mPID].c_str(),i_cent);
     h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str());
     cout << "read in => " << HistName.c_str() << endl;
-    for(int i_eta = 0; i_eta < 12; ++i_eta)
+    for(int i_eta = 0; i_eta < 15; ++i_eta)
     {
       HistName = Form("h_mEfficiency_%s_Cent_%d_Eta_%d",mParType[mPID].c_str(),i_cent,i_eta);
       h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str());
@@ -113,6 +113,6 @@ void plotQA_TofMatchingEfficiency(int mEnergy = 6, int mPID = 0)
     leg->Draw("same");
   }
 
-  // string FigName = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/c_TofEffCentCom_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
-  // c_play->SaveAs(FigName.c_str());
+  string FigName = Form("figures/Efficiency/ToF/c_TofEffCentCom_%s%s.eps",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  c_play->SaveAs(FigName.c_str());
 }

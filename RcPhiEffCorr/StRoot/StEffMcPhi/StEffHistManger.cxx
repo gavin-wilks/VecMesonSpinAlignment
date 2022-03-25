@@ -24,9 +24,9 @@ void StEffHistManger::InitHist()
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
     std::string HistName = Form("h_mMcTracks_%d",i_cent);
-    h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
     HistName = Form("h_mRcTracks_%d",i_cent);
-    h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
     for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
     {
       HistName = Form("h_mMcEffCos_Cent_%d_Pt_%d",i_cent,i_pt);
@@ -113,15 +113,15 @@ float StEffHistManger::AngleShift(float phi)
 TH1D* StEffHistManger::CalEffError(TH1D *h_Mc, TH1D *h_Rc, std::string HistName)
 {
   TH1D* h_ratio = (TH1D*)h_Rc->Clone();
-  h_ratio->Divide(h_Mc);
-  for(int i_bin = 1; i_bin < h_ratio->GetNbinsX()+1; ++i_bin)
-  {
-    double n = h_Mc->GetBinContent(i_bin);
-    double k = h_Rc->GetBinContent(i_bin);
-    double variance = (k+1.0)*(k+2.0)/((n+2.0)*(n+3.0))-(k+1.0)*(k+1.0)/((n+2.0)*(n+2.0));
-    double sigma = TMath::Sqrt(variance);
-    if(n > 0.0 && k > 0.0) h_ratio->SetBinError(i_bin,sigma);
-  }
+  h_ratio->Divide(h_Rc,h_Mc,1,1,"B");
+  //for(int i_bin = 1; i_bin < h_ratio->GetNbinsX()+1; ++i_bin)
+  //{
+  //  double n = h_Mc->GetBinContent(i_bin);
+  //  double k = h_Rc->GetBinContent(i_bin);
+  //  double variance = (k+1.0)*(k+2.0)/((n+2.0)*(n+3.0))-(k+1.0)*(k+1.0)/((n+2.0)*(n+2.0));
+  //  double sigma = TMath::Sqrt(variance);
+  //  if(n > 0.0 && k > 0.0) h_ratio->SetBinError(i_bin,sigma);
+  //}
   h_ratio->SetName(HistName.c_str());
 
   return h_ratio;
@@ -221,8 +221,8 @@ void StEffHistManger::WriteHist()
     {
       for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt)
       {
-	// h_mMcEffCos[i_cent][i_pt]->Write();
-	// h_mRcEffCos[i_cent][i_pt]->Write();
+	h_mMcEffCos[i_cent][i_pt]->Write();
+	h_mRcEffCos[i_cent][i_pt]->Write();
 	h_mEffCos[i_cent][i_pt]->Write();
 
 	h_mMcCosEP[i_cent][i_pt]->Write();

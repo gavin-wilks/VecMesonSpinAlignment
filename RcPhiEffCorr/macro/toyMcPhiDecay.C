@@ -63,7 +63,7 @@ TH2F *h_phiRP;
 
 TFile *File_OutPut;
 
-void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, const int cut = 0, const int NMax = 500000, const int jobID = 9)
+void toyMcPhiDecay(const int energy = 4, const int pid = 0, const int year = 0, const int cut = 0, const int NMax = 500000, const int jobID = 1)
 {
   TStopwatch* stopWatch = new TStopwatch();
   stopWatch->Start();
@@ -73,11 +73,11 @@ void toyMcPhiDecay(const int energy = 6, const int pid = 0, const int year = 0, 
   readTofEffFit(energy);
 
   // v2 & spectra implementation
-  f_v2   = readv2(energy,pid);
-  f_spec = readspec(energy,pid);
-  f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
+  //f_v2   = readv2(energy,pid);
+  //f_spec = readspec(energy,pid);
+  //f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
 
-  h_Tracks = new TH3F("h_Tracks","h_Tracks",20,vmsa::ptMin,vmsa::ptMax,vmsa::BinY,-1.0,1.0,36,-TMath::Pi(),TMath::Pi());
+  h_Tracks = new TH3F("h_Tracks","h_Tracks",20,vmsa::ptMin,vmsa::ptMax,vmsa::BinY,-1.5,1.5,36,-TMath::Pi(),TMath::Pi());
   h_phiRP = new TH2F("h_phiRP","h_phiRP",20,vmsa::ptMin,vmsa::ptMax,36,-TMath::Pi(),TMath::Pi()); // QA histogram for v2 sample
 
   pydecay = TPythia6Decayer::Instance();
@@ -112,9 +112,10 @@ void getKinematics(TLorentzVector& lPhi, double const mass)
   // double const pt = f_spec->GetRandom(vmsa::ptMin, vmsa::ptMax); // sample with measured spectra
   double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
   // double const phi = TMath::TwoPi() * gRandom->Rndm(); // sample flat distribution
-  f_flow->ReleaseParameter(0);
-  f_flow->SetParameter(0,f_v2->Eval(pt));
-  double const phi = f_flow->GetRandom(); // sample with measured v2
+  double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
+  //f_flow->ReleaseParameter(0);
+  //f_flow->SetParameter(0,f_v2->Eval(pt));
+  //double const phi = f_flow->GetRandom(); // sample with measured v2
 
   double const mT = sqrt(mass * mass + pt * pt);
   double const pz = mT * sinh(y);
@@ -231,7 +232,7 @@ void fill(int const kf, TLorentzVector* lPhi, TLorentzVector const& lKplus, TLor
 
 bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector const& lKaon)
 {
-   if(fabs(lKaon.Eta()) >= 1.0) return false;
+   if(fabs(lKaon.Eta()) >= 1.5) return false;
 
    TH1D *h_TPC = NULL;
    int EtaBin_TPC = -1;
@@ -300,9 +301,11 @@ void findHist(TLorentzVector const& lKaon, int iParticleIndex, float Psi2, int& 
   float eta = lKaon.Eta();
   EtaBin = h_FrameEta[iParticleIndex]->FindBin(eta)-1;
   // cout << "eta = " << eta << ", EtaBin = " << EtaBin << endl;
-  float phi = lKaon.Phi()-Psi2;
-  float phi_shift = AngleShift(phi);
-  PhiBin = h_FramePhi[iParticleIndex]->FindBin(phi_shift)-1;
+  float phi = lKaon.Phi();
+  //float phi = lKaon.Phi()-Psi2;
+  //float phi_shift = AngleShift(phi);
+  //PhiBin = h_FramePhi[iParticleIndex]->FindBin(phi_shift)-1;
+  PhiBin = h_FramePhi[iParticleIndex]->FindBin(phi)-1;
 }
 
 float AngleShift(float phi)
@@ -335,12 +338,12 @@ void findHist_ToF(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, 
 void readEfficiency(int energy, int year, int cut, int jobID)
 {
   // string inputKplus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[0].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
-  string inputKplus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_%s_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[0].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
+  string inputKplus = Form("/star/data01/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/TPC/Eff_%s_%s.root",vmsa::mParType[0].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kplus = TFile::Open(inputKplus.c_str());
   cout << "OPEN Efficiency File for K+: " << inputKplus.c_str() << endl;
 
   // string inputKminus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[1].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
-  string inputKminus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_%s_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[1].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
+  string inputKminus = Form("/star/data01/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/TPC/Eff_%s_%s.root",vmsa::mParType[1].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kminus = TFile::Open(inputKminus.c_str());
   cout << "OPEN Efficiency File for K-: " << inputKminus.c_str() << endl;
 
@@ -364,7 +367,7 @@ void readEfficiency(int energy, int year, int cut, int jobID)
   }
 
   // string outputfile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_%s_%s_%d.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str(),jobID);
-  string outputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon_%s_%s_%d_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str(),jobID);
+  string outputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/Eff_%s_SingleKaon_%d_2060.root",vmsa::mBeamEnergy[energy].c_str(),jobID);
   cout << "OutPut File set to: " << outputfile.c_str() << endl;
   File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
@@ -385,13 +388,13 @@ void readEfficiency(int energy, int year, int cut, int jobID)
 void readTofEff(int energy)
 {
   // string inputfile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/Eff_%s_ToFMatch_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/ToF/Eff_%s_ToFMatch_2060.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   cout << "OPEN Efficiency File for K+ and K-: " << inputfile.c_str() << endl;
 
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
-    for(int i_eta = 0; i_eta < vmsa::BinEta+2; ++i_eta)
+    for(int i_eta = 0; i_eta < vmsa::BinEta; ++i_eta)
     {
       string KEY;
       KEY = Form("h_mEfficiency_Kplus_Cent_%d_Eta_%d",i_cent,i_eta);
@@ -424,16 +427,16 @@ void readTofEff(int energy)
 void readTofEffFit(int energy)
 {
   // string inputKplus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputKplus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kplus_second_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKplus = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/ToF/FitPar_AuAu%s_Kplus_2060.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kplus = TFile::Open(inputKplus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K+: " << inputKplus.c_str() << endl;
 
   // string inputKminus = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_first.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputKminus = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/ToFMatch/FitPar_AuAu%s_Kminus_second_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputKminus = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/ToF/FitPar_AuAu%s_Kminus_2060.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_Kminus = TFile::Open(inputKminus.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File for K-: " << inputKminus.c_str() << endl;
 
-  for(int i_eta = 0; i_eta < vmsa::BinEta+2; ++i_eta) // eta
+  for(int i_eta = 0; i_eta < vmsa::BinEta; ++i_eta) // eta
   {
     TH1D *h_Kplus = NULL;
     string KEY;
@@ -461,7 +464,7 @@ void readTofEffFit(int energy)
     }
   }
 
-  for(int i_eta = 0; i_eta < vmsa::BinEta+2; ++i_eta) // eta & phi
+  for(int i_eta = 0; i_eta < vmsa::BinEta; ++i_eta) // eta & phi
   {
     for(int i_phi = 0; i_phi < vmsa::BinPhi; ++i_phi)
     {

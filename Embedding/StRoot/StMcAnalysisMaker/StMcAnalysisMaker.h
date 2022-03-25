@@ -10,6 +10,7 @@ class TFile;
 class TNtuple;
 class TH3F;
 
+class StUtility;
 class StMcTrack;
 class StTrack;
 class StGlobalTrack;
@@ -31,6 +32,9 @@ private:
    double mField; //.. magnetic field
    int    mCentrality;
    bool mFillTpcHitsNtuple;
+   int mEnergy;
+
+   StUtility* mUtility;
 
    TFile* mFile;
    TNtuple* mTracks;
@@ -61,7 +65,7 @@ private:
    bool isGoodMcTrack(StMcTrack const*) const;
 
 public:
-   StMcAnalysisMaker (const char *name="StMcAnalysisMaker", const char *title="event/StMcAnalysisMaker");
+   StMcAnalysisMaker (const char *name="StMcAnalysisMaker", const char *title="event/StMcAnalysisMaker", const int energy = 4);
 
    int Init();
    int Make();
@@ -70,6 +74,7 @@ public:
    void setOutFileName(std::string);
    void fillTpcHitsNtuple(bool t=false);
    void setRefMultCorr(StRefMultCorr*);
+   void setEnergy(int energy) {mEnergy = energy;}
 
    ClassDef(StMcAnalysisMaker, 0)
 };
