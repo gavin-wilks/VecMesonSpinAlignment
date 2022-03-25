@@ -72,7 +72,7 @@ void StVecMesonAna::Init()
   mVecMesonCorr->InitShiftCorrection();
   mVecMesonCorr->InitResolutionCorr();
   mVecMesonHistoManger->InitSys(mX_flag,mMode);
-  mVecMesonHistoManger->InitSys_EP(mX_flag,mMode);
+  //mVecMesonHistoManger->InitSys_EP(mX_flag,mMode);
 
   TString outputfile = Form("Yields_%s_%s_%s_%s.root",vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),mJobId);
 
@@ -269,6 +269,13 @@ void StVecMesonAna::MakePhi()
 	      { // Below is West Only
 		TVector2 Q2Vector = Q2West;
 		// subtract auto-correlation from pos eta(west) event plane
+		if(flagA == 0 && mVecMesonCut->passTrackEP(lTrackA,dcaA) && mVecMesonCut->passTrackEtaWest(lTrackA)) // trackB
+		{
+		  Float_t  w = mVecMesonCorr->getWeight(lTrackA);
+		  TVector2 q2VectorA = mVecMesonCorr->calq2Vector(lTrackA);
+		  TVector2 q2CorrA   = mVecMesonCorr->getReCenterPar_West(cent9,runIndex,vz_sign);
+		  Q2Vector = Q2Vector - w*(q2VectorA-q2CorrA);
+		}
 		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
 		{
 		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
@@ -291,6 +298,13 @@ void StVecMesonAna::MakePhi()
 	      { // Below is East Only
 		TVector2 Q2Vector = Q2East;
 		// subtract auto-correlation from pos eta(west) event plane
+		if(flagA == 0 && mVecMesonCut->passTrackEP(lTrackA,dcaA) && mVecMesonCut->passTrackEtaEast(lTrackA)) // trackB
+		{
+		  Float_t  w = mVecMesonCorr->getWeight(lTrackA);
+		  TVector2 q2VectorA = mVecMesonCorr->calq2Vector(lTrackA);
+		  TVector2 q2CorrA   = mVecMesonCorr->getReCenterPar_East(cent9,runIndex,vz_sign);
+		  Q2Vector = Q2Vector - w*(q2VectorA-q2CorrA);
+		}
 		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
 		{
 		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
@@ -509,7 +523,7 @@ void StVecMesonAna::MakeRho()
 		TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
 		TVector3 nQ_EP = nQ_West_EP.Unit();
 		Double_t CosThetaStar_EP = vPipRest.Dot(nQ_EP);
-		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
 	      if(mVecMesonCut->passEtaWest(lTrackA)) // Pi+ pos eta (west)
@@ -534,7 +548,7 @@ void StVecMesonAna::MakeRho()
 		TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
 		TVector3 nQ_EP = nQ_East_EP.Unit();
 		Double_t CosThetaStar_EP = vPipRest.Dot(nQ_EP);
-		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }
 	  }
@@ -739,7 +753,7 @@ void StVecMesonAna::MakeKStar()
 		TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
 		TVector3 nQ_EP = nQ_West_EP.Unit();
 		Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
-		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
 	      if(mVecMesonCut->passEtaWest(lTrackA)) // Pi+ pos eta (west)
@@ -764,7 +778,7 @@ void StVecMesonAna::MakeKStar()
 		TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
 		TVector3 nQ_EP = nQ_East_EP.Unit();
 		Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
-		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }
 	  }
@@ -782,6 +796,6 @@ void StVecMesonAna::Finish()
 {
   mFile_OutPut->cd();
   mVecMesonHistoManger->WriteSys(mX_flag,mMode);
-  mVecMesonHistoManger->WriteSys_EP(mX_flag,mMode);
+  //mVecMesonHistoManger->WriteSys_EP(mX_flag,mMode);
   mFile_OutPut->Close();
 }

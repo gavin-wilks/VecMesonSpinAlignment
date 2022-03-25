@@ -21,7 +21,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
   // flow analysis
   for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin 
   {
-    for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
+    for(Int_t i_cent = vmsa::Cent_start; i_cent < 13; i_cent++) // centrality bin
     {
       for(Int_t i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta++) // phi-psi bin
       {
@@ -62,7 +62,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
   }*/
   
   // Yields
-  /*for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
+  for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
   {
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     {
@@ -74,7 +74,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
 	h_mMass_Yields[KEY_Mass2_Yields]->Sumw2();
       }
     }
-  }*/
+  }
 
   // Dca QA
   /*for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
@@ -120,11 +120,25 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t PhiPsi, Int
             //if (cent9) cout << "Fill Centrality 0" << endl;
             //cout << "Fill h_mMass2" << endl;
             //cout << "pt = " << i_pt << "  Cent = " << cent9 << "  CosThetaStar = " << i_theta << endl;
-	    if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
-	    {
-	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+          
+	    TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	    h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
+	    if(cent9 == 8 || cent9 == 7)
+            {
+	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_10_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
-	    }
+            }
+	    if(cent9 <= 6 && cent9 >= 4 )
+            {
+	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_11_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
+            }
+	    if(cent9 <= 3 && cent9 >= 0)
+            {
+	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_12_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
+            }
+     
 	    // raw pt spectra
 	   /* if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
 	    {
@@ -152,8 +166,8 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t PhiPsi, Int
     }
   }
 
-  //TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-  //h_mMass_Yields[KEY_Mass2_Yields]->Fill(InvMass,reweight);
+  TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  h_mMass_Yields[KEY_Mass2_Yields]->Fill(InvMass,reweight);
 }
 
 void StVecMesonHistoManger::FillDcaSys(Float_t dcaA, Float_t dcaB, Int_t dcaSys)
@@ -179,7 +193,7 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
   // flow
   for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
   {
-    for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
+    for(Int_t i_cent = vmsa::Cent_start; i_cent < 13; i_cent++) // centrality bin
     {
       for(Int_t i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta ++) // cos(theta*) bin
       {
@@ -196,7 +210,7 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
   }
 
   // Yields
-  /*for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
+  for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
   {
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     {
@@ -207,7 +221,7 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
       }
     }
   }
-
+  /*
   // raw pt spectra
   for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
   {
