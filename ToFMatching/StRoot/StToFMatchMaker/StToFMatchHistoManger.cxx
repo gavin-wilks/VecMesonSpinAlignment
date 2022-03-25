@@ -1,5 +1,6 @@
 #include "StRoot/StToFMatchMaker/StToFMatchHistoManger.h"
 #include "StRoot/StToFMatchMaker/StToFMatchCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "TH3D.h"
 #include "TH2F.h"
 #include "TH1F.h"

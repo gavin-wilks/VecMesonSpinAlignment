@@ -9,20 +9,23 @@
 #include "TMath.h"
 #include "TLegend.h"
 #include "TStyle.h"
-// #include "../../Utility/functions.h"
+#include "../../Utility/functions.h"
 #include "../../Utility/draw.h"
 #include "../../Utility/StSpinAlignmentCons.h"
-#include "../../Utility/type.h"
+//#include "../../Utility/type.h"
 #include "../StRoot/StToFMatchMaker/StToFMatchCons.h"
+
+
+typedef std::map<std::string,TH1D*> TH1DMap;
 
 #ifndef _PlotQA_
 #define _PlotQA_  1
 #endif
 
-void calToFMatchEfficiency_2060(int energy = 6)
+void calToFMatchEfficiency_2060(int energy = 4)
 {
   // string inputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  std::string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/file_%s_ToFMatching.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
   TH1D *h_FrameEta_ToF = (TH1D*)File_InPut->Get("h_FrameEta_ToF");
@@ -151,7 +154,7 @@ void calToFMatchEfficiency_2060(int energy = 6)
 
   //---------------output------------------------
   // string outputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string outputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string outputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/ToF/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
   for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)

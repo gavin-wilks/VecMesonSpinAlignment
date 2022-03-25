@@ -11,10 +11,11 @@ class StRefMultCorr;
 class StCombPID;
 class StToFMatchCut;
 class StToFMatchHistoManger;
+class StUtility;
 
 class StToFMatchMaker : public StMaker {
   public:
-    StToFMatchMaker(const char *name, StPicoDstMaker *picoMaker, const int jobCounter, const int Energy);
+    StToFMatchMaker(const char *name, StPicoDstMaker *picoMaker, const char *jobCounter, const int Energy);
     virtual ~StToFMatchMaker();
     
     virtual Int_t Init();
@@ -30,6 +31,8 @@ class StToFMatchMaker : public StMaker {
     StToFMatchCut *mToFMatchCut;
     StToFMatchHistoManger *mToFMatchHistoManger;
     
+    StUtility *mUtility;
+
     int mEnergy;
 
     TString mOutPut_ToFMatch;

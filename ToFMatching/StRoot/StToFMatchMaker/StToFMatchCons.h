@@ -18,17 +18,17 @@ namespace tof
   float const ptMin = 0.2;
   float const ptMax = 8.0;
 
-  int const BinEta = 12;
+  int const BinEta = 10;
   // int const BinEta = 1;
-  float const etaMin = -1.2;
-  float const etaMax = 1.2;
+  float const etaMin = -1.0;
+  float const etaMax = 1.0;
   int const etaQA = 5;
 
   int const BinPhi = 12;
   // int const BinPhi = 1;
   float const phiMin = -1.0*TMath::Pi();
   float const phiMax = 1.0*TMath::Pi();
-  int const phiQA = 5;
+  int const phiQA = 4;
 
   int const NCentMax = 9; 
   float const weight[NCentMax] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.5,0.5};

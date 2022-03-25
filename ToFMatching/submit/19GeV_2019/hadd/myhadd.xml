@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="50" filesPerHour="10" maxFilesPerProcess="100" fileListSyntax="paths" simulateSubmission="false">
+
+  <command>
+    root -l -b -q myhadd.C\(\"$FILELIST\",\"$JOBID\",\"&outFile;\"\)&gt;&amp; ${JOBID}.log
+  </command>
+
+  <SandBox installer="ZIP">
+    <Package>
+      <File>file:./myhadd.C</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:&listPath;/hadd.list" />
+
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/hadd/Log/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/hadd/OutPut/&outDir;/" />
+  <output fromScratch="*.log" toURL="file:&outPath;/hadd/Log/&outDir;/" />
+</job>

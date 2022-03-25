@@ -39,7 +39,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   int const mLineStyle[12] = {3,2,3,2,3,2,3,2,3,2,3,2};
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(10000);
 
-  std::string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  std::string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/file_%s_ToFMatching.root",mBeamEnergy[mEnergy].c_str(),mBeamEnergy[mEnergy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
   TH1DMap h_mEffCent;
