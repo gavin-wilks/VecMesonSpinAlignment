@@ -5,7 +5,7 @@
 #include "TCanvas.h"
 #include "../../Utility/StSpinAlignmentCons.h"
 
-void plotQA_InvMass(int energy = 4, int flag_ME = 1, int flag_PID = 0, int flag_dPID = 0)
+void plotQA_InvMass(int energy = 4, int flag_ME = 0, int flag_PID = 0, int flag_dPID = 0)
 {
   TString dPID[2]={"K","pi"};
   string inputlist = Form("../../FileLists/%s_%d/%s_%s_Forest.list",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamYear[energy],vmsa::mPID[flag_PID].c_str(),vmsa::MixEvent[flag_ME].Data());

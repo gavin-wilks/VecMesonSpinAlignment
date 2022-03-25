@@ -4,7 +4,7 @@
 #include "StRoot/StVecMesonMaker/StVecMesonCorr.h"
 #include "StRoot/StVecMesonMaker/StVecMesonHistoManger.h"
 #include "StRoot/StVecMesonMaker/StVecMesonTree.h"
-#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "StRoot/StPicoEvent/StPicoDst.h"
 #include "StRoot/StPicoEvent/StPicoEvent.h"
 #include "StRoot/StPicoEvent/StPicoTrack.h"
@@ -64,11 +64,11 @@ Int_t StVecMesonMaker::Init()
 {
   mUtility = new StUtility(mEnergy);
   mUtility->initRunIndex(); // initialize std::map for run index 
- 
-  if(!mRefMultCorr)
-  {
-    mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
-  }
+  mRefMultCorr = new StRefMultCorr("refmult"); 
+  //if(!mRefMultCorr)
+  //{
+  //  mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
+  //}
   mVecMesonCut = new StVecMesonCut(mEnergy);
   mVecMesonProManger = new StVecMesonProManger();
   mVecMesonCorrection = new StVecMesonCorrection(mEnergy);
@@ -206,7 +206,8 @@ Int_t StVecMesonMaker::Make()
   Float_t vy = mPicoEvent->primaryVertex().y();
   Float_t vz = mPicoEvent->primaryVertex().z();
   Float_t zdcX = mPicoEvent->ZDCx();
-  //mRefMultCorr->init(runId);
+  const unsigned short nBTofMatched = mPicoEvent->nBTOFMatch();
+  mRefMultCorr->init(runId);
   //mRefMultCorr->initEvent(refMult,vz,zdcX); 
 
   // vz sign
@@ -226,22 +227,32 @@ Int_t StVecMesonMaker::Make()
 //  cout << runIndex << endl;
 //  cout << mRunIdEventsDb->getTotalNrRunIds() << endl;
 
-  if(mUtility->isBadRun(runId))
+  if(mRefMultCorr->isBadRun( runId ))
   {
     LOG_ERROR << "Bad Run! Skip!" << endm;
     return kStErr;
   }
 
+
+  bool isPileUpEvent = false;
+  // IMPORTANT: vertex position is needed for Au+Au 19.6 GeV 2019
+  if (mRefMultCorr->isPileUpEvent( refMult, nBTofMatched, vz ) ) isPileUpEvent = true;
+  mRefMultCorr->initEvent(refMult,vz,zdcX); 
+
+  const Int_t cent9 = mRefMultCorr->getCentralityBin9();       // 0: 70-80%, 1: 60-70%, ..., 6: 10-20%, 7: 5-10%, 8: 0-5%
+
   // Event Cut
-  const  double refMultCorr = mVecMesonCut->getRefMultReweight(vz, refMult);
-  const Int_t cent9 = mVecMesonCut->getCentrality(refMultCorr);;
-  if(mVecMesonCut->passEventCut(mPicoDst) && cent9 > -0.5) // event cut
+  //const  double refMultCorr = mVecMesonCut->getRefMultReweight(vz, refMult);
+  //const Int_t cent9 = mVecMesonCut->getCentrality(refMultCorr);
+  if(!isPileUpEvent && mVecMesonCut->passEventCut(mPicoDst) && cent9 > -0.5) // event cut
   {
     int vz_sign = 0;
     if(vz > -70.0 && vz <= -30.0) vz_sign = 0;
     if(vz > -30.0 && vz <= 0.0  ) vz_sign = 1;
     if(vz > 0.0   && vz <= +30.0) vz_sign = 2;
     if(vz < +70.0 && vz >  +30.0) vz_sign = 3;
+
+    const Double_t reweight = mRefMultCorr->getWeight();           // Retrieve weight
 
     //cout << "passed event cut" << endl;
     const int runIndex = mUtility->findRunIndex(runId); // find run index for a specific run
@@ -254,8 +265,8 @@ Int_t StVecMesonMaker::Make()
 
     const Int_t nTracks = mPicoDst->numberOfTracks();
     //    if(cent9 < 0) cout << cent9 << endl;
-    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
-    const Int_t nToFMatched = mVecMesonCut->getMatchedToF();
+    //const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
+    //const Int_t nToFMatched = mVecMesonCut->getMatchedToF();
     for(Int_t i = 0; i < nTracks; i++) // track loop
     {
       StPicoTrack *track = (StPicoTrack*)mPicoDst->track(i);
