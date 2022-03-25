@@ -41,6 +41,7 @@ void plotExtFig5_Rho00EnergyEP()
   const int color_phi_2nd = kRed-4;
   const int style_phi_EP  = 33;
   const int color_phi_EP  = 9;
+  const int colorDiff_phi = 0;
 
   const float size_marker = 1.4;
   const float size_font = 0.035;
@@ -112,12 +113,12 @@ void plotExtFig5_Rho00EnergyEP()
   PlotLine(9.0,240.0,1.0/3.0,1.0/3.0,1,3,2);
 
   // plot 2nd EP rho00 in normal direction
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
   // plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
   plotSysErrorsBox(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
 
   // plot 2nd EP rho00 in tangent direction
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Xaxis,style_phi_EP,color_phi_EP,size_marker+0.4);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Xaxis,style_phi_EP,color_phi_EP,colorDiff_phi,size_marker+0.4);
   // plotSysErrors(g_rhoPhi_2nd_sys_Xaxis,color_phi_EP);
   plotSysErrorsBox(g_rhoPhi_2nd_sys_Xaxis,color_phi_EP);
 

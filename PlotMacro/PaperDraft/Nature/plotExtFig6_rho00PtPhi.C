@@ -22,6 +22,7 @@ void plotExtFig6_rho00PtPhi()
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
   const int color_phi_2nd = kRed-4;
+  const int colorDiff_phi = 0;
 
   const float size_marker = 1.4;
   
@@ -215,10 +216,10 @@ void plotExtFig6_rho00PtPhi()
       }
       h_frame[total_pad-1]->DrawCopy("PE");
       PlotLine(pt_low,pt_high,1.0/3.0,1.0/3.0,1,3,2);
-      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_1st_stat[total_pad-1],style_phi_1st,color_phi_1st,size_marker-0.2);
+      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_1st_stat[total_pad-1],style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
       // plotSysErrors(g_rho_1st_sys[total_pad-1],color_phi_1st);
       plotSysErrorsBox(g_rho_1st_sys[total_pad-1],color_phi_1st);
-      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_phi_2nd,color_phi_2nd,size_marker+0.2);
+      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
       // plotSysErrors(g_rho_2nd_sys[total_pad-1],color_phi_2nd);
       plotSysErrorsBox(g_rho_2nd_sys[total_pad-1],color_phi_2nd);
 

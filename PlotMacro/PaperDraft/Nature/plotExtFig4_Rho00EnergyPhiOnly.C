@@ -21,6 +21,7 @@ void plotExtFig4_Rho00EnergyPhiOnly()
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
   const int color_phi_2nd = kRed-4;
+  const int colorDiff_phi = 0;
 
   const float size_marker = 1.4;
   const float size_font = 0.04;
@@ -65,11 +66,11 @@ void plotExtFig4_Rho00EnergyPhiOnly()
   h_frame->DrawCopy("pE");
   PlotLine(9.0,240.0,1.0/3.0,1.0/3.0,1,3,2);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_1st_stat_Laxis,style_phi_1st,color_phi_1st,size_marker-0.2);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_1st_stat_Laxis,style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
   // plotSysErrors(g_rhoPhi_1st_sys_Laxis,color_phi_1st);
   plotSysErrorsBox(g_rhoPhi_1st_sys_Laxis,color_phi_1st);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
   // plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
   plotSysErrorsBox(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
 

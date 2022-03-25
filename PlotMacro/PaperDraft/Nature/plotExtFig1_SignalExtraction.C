@@ -21,9 +21,11 @@ void plotExtFig1_SignalExtraction()
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
   const int color_phi_2nd = kRed-4;
+  const int colorDiff_phi = 0;
 
   const int style_Kstr = 20;
   const int color_Kstr = kAzure-9;
+  const int colorDiff_Kstr = 2;
 
   const float size_marker = 1.4;
 
@@ -201,7 +203,7 @@ void plotExtFig1_SignalExtraction()
     }
     h_framePhi->SetTitle("");
     h_framePhi->SetStats(0);
-    h_framePhi->GetXaxis()->SetTitle("cos(#theta*)");
+    h_framePhi->GetXaxis()->SetTitle("#left|cos(#theta*)#right|");
     h_framePhi->GetXaxis()->CenterTitle();
     h_framePhi->GetXaxis()->SetTitleSize(0.06);
     h_framePhi->GetXaxis()->SetTitleOffset(0.9);
@@ -222,7 +224,7 @@ void plotExtFig1_SignalExtraction()
     h_framePhi->SetMarkerSize(1.8);
     h_framePhi->DrawCopy("PE");
 
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsPhi,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsPhi,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
 
     TF1 *f_rhoPhi = new TF1("f_rhoPhi",SpinDensity,0.0,1.0,2);
     f_rhoPhi->ReleaseParameter(0);
@@ -258,7 +260,7 @@ void plotExtFig1_SignalExtraction()
     }
     h_frameKstar->SetTitle("");
     h_frameKstar->SetStats(0);
-    h_frameKstar->GetXaxis()->SetTitle("cos(#theta*)");
+    h_frameKstar->GetXaxis()->SetTitle("#left|cos(#theta*)#right|");
     h_frameKstar->GetXaxis()->CenterTitle();
     h_frameKstar->GetXaxis()->SetTitleSize(0.06);
     h_frameKstar->GetXaxis()->SetTitleOffset(0.9);
@@ -280,7 +282,7 @@ void plotExtFig1_SignalExtraction()
     h_frameKstar->DrawCopy("PE");
 
     // g_yieldsKstar->Draw("pE same");
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,size_marker-0.4);
+    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,colorDiff_Kstr,size_marker-0.4);
     f_rhoKstar->SetLineColor(color_Kstr);
     f_rhoKstar->SetLineStyle(2);
     f_rhoKstar->SetLineWidth(4);

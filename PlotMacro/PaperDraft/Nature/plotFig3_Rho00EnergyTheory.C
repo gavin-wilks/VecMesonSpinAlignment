@@ -45,11 +45,13 @@ void plotFig3_Rho00EnergyTheory()
   const int color_phi_2nd = kRed-4;
   const int style_phi_ALICE = 30;
   const int color_phi_ALICE = kGray+1;
+  const int colorDiff_phi = 0;
 
   const int style_Kstr = 20;
   const int color_Kstr = kAzure-9;
   const int style_Kstr_ALICE = 24;
   const int color_Kstr_ALICE = kGray+1;
+  const int colorDiff_Kstr = 2;
 
   const float size_marker = 1.4;
   const float size_font = 0.035;
@@ -128,21 +130,21 @@ void plotFig3_Rho00EnergyTheory()
   PlotLine(7.0,4996.0,1.0/3.0,1.0/3.0,1,2,2);
 
   // K* STAR
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,size_marker-0.4);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,colorDiff_Kstr,size_marker-0.4);
   // plotSysErrors(g_rhoKstar_sys,color_Kstr+2);
   plotSysErrorsBox(g_rhoKstar_sys,color_Kstr+2);
 
   // K* ALICE
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,size_marker-0.4);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,0,size_marker-0.4);
   // plotSysErrors(g_rhoKstar_ALICE_sys,color_Kstr_ALICE);
 
   // phi-meson STAR
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
   // plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
   plotSysErrorsBox(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
 
   // phi-meson ALICE
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_ALICE_stat,style_phi_ALICE,color_phi_ALICE,size_marker);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_ALICE_stat,style_phi_ALICE,color_phi_ALICE,0,size_marker);
   // plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
 
   // plot theory curve

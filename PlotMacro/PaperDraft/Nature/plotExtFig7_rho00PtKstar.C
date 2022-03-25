@@ -20,6 +20,7 @@ void plotExtFig7_rho00PtKstar()
   gStyle->SetOptDate(0);
   const int style_Kstr = 20;
   const int color_Kstr = kAzure-9;
+  const int colorDiff_Kstr = 2;
 
   const float size_marker = 1.4;
   
@@ -185,7 +186,7 @@ void plotExtFig7_rho00PtKstar()
       if(total_pad < 8)
       {
 	PlotLine(pt_low,pt_high,1.0/3.0,1.0/3.0,1,3,2);
-	Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_Kstr,color_Kstr,size_marker);
+	Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_Kstr,color_Kstr,colorDiff_Kstr,size_marker);
 	// plotSysErrors(g_rho_2nd_sys[total_pad-1],color_Kstr+2);
 	plotSysErrorsBox(g_rho_2nd_sys[total_pad-1],color_Kstr+2);
       }

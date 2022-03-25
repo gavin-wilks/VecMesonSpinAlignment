@@ -6,7 +6,7 @@
 #include <TLegend.h>
 #include "../../Utility/draw.h"
 
-void plotQA_rho00Sys(int energy = 4)
+void plotQA_rho00Sys(int energy = 3)
 {
   string mBeamEnergy[7] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Phi/rho00/RawRhoPtSys.root",mBeamEnergy[energy].c_str());
