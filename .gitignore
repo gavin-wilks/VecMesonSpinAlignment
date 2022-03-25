@@ -28,6 +28,10 @@ temp_gccflags.c
 */submit/*/hadd/*.session.xml
 
 */AutoDict*
+*/*/AutoDict*
+*/*/*/AutoDict*
+*/*/*/*/AutoDict*
+*/*/*/*/*/AutoDict*
 
 */*.list
 */*/*.list
@@ -60,7 +64,11 @@ CalSpinAlignment/figures/*.eps
 CalSpinAlignment/figures/*.pdf
 CalSpinAlignment/*_C.*
 
-
+*/figures/*
+*/*/figures/*
+*/*/*/figures/*
+*/*/*/*/figures/*
+*/*/*/*/*/figures/*
 
 Utility/compareHistograms/*.root*
 Utility/compareHistograms/compareHistograms.o
