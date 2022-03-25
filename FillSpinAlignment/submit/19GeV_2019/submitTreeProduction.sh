@@ -16,15 +16,15 @@ codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignmen
 energy=4  # 19GeV
 library=SL21c
 listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/FileLists/19GeV_2019
-outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
+outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
 ##########Mode Selection##########
-mode=0
-pid=Phi
+#mode=0
+#pid=Phi
 
-# mode=1
-# outDir=KStar
+mode=2
+pid=KStar
 
 # mode=2
 # outDir=Resolution
@@ -36,8 +36,8 @@ pid=Phi
 ##########Mixed Event Selection##########
 flag_ME=0 # 0 for SE | 1 for ME
 SM=SE
-# flag_ME=1 # 0
-# SM=ME
+#flag_ME=1 # 0
+#SM=ME
 ##########Mixed Event Selection##########
 
 outDir=${pid}${SM}

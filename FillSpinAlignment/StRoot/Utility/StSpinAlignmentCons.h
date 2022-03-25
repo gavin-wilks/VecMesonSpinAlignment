@@ -23,6 +23,7 @@ namespace vmsa
   float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0}; // for event plane reconstruction: 1.0 for BES-II
   float const mDcaTrMax = 1.0; // for pion, kaon, proton mDcaTrMax = 1.0 for flow
   float const mDcaTrMax_phi = 3.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
+  float const mDcaTrMax_KStar = 2.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
   int const mHitsDedxMin = 5;
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
@@ -86,7 +87,7 @@ namespace vmsa
   float const mToFYLocalMax = 1.8;
   float const mToFZLocalMax = 1.8;
   float const mNSigmaElectronMax = 2.5;
-  float const mNSigmaPionMax = 2.5;
+  float const mNSigmaPionMax = 2.0;
   float const mNSigmaKaonMax = 3.0;
   float const mNSigmaProtonMax = 2.5;
   float const mMassPion = 0.13957;
@@ -177,13 +178,21 @@ namespace vmsa
   float const CTS_low[7] = {0.0/7.0,1.0/7.0,2.0/7.0,3.0/7.0,4.0/7.0,5.0/7.0,6.0/7.0};
   float const CTS_up[7]  = {1.0/7.0,2.0/7.0,3.0/7.0,4.0/7.0,5.0/7.0,6.0/7.0,7.0/7.0};
 
+  int const CTS_total_KS = 5; // cos(theta*) bin
+  int const CTS_start_KS = 0;
+  int const CTS_stop_KS  = 5;
+  float const CTS_low_KS[5] = {0.0/5.0,1.0/5.0,2.0/5.0,3.0/5.0,4.0/5.0};
+  float const CTS_up_KS[5]  = {1.0/5.0,2.0/5.0,3.0/5.0,4.0/5.0,5.0/5.0};
+
   int const Dca_start = 0;
   int const Dca_stop = 3;
   float const mDcaSys[3] = {2.0,2.5,3.0}; // dca sys. errors
+  float const mDcaSysKS[3] = {2.0,1.8,1.6}; // dca sys. errors
 
   int const nSigKaon_start = 0;
   int const nSigKaon_stop = 3;
   float const mNSigmaKaonSys[3] = {2.5,2.0,3.0}; // nSigKaon sys. errors
+  float const mNSigmaKaonSysKStar[3] = {2.0,1.8,1.6}; // nSigKaon sys. errors
   int const nSigPion_start = 0;
   int const nSigPion_stop = 3;
   float const mNSigmaPionSys[3] = {2.0,1.5,2.5}; // nSigPion sys. errors
@@ -233,8 +242,8 @@ namespace vmsa
   // float const BW_Start[3]     = {0.99,1.0,1.0}; // for RooFit
   float const BW_Stop[3]      = {1.050,1.0,1.0};
   float const Width[3]        = {0.00426,0.0487,0.0487};
-  float const InvMass_low[3]  = {0.98,0.4,0.4};
-  float const InvMass_high[3] = {1.05,0.6,0.6};
+  float const InvMass_low[3]  = {0.98,0.4,0.74};
+  float const InvMass_high[3] = {1.05,0.6,1.05};
   float const nSigVec = 2.0;
 
   float const ptEffMax = 8.0;

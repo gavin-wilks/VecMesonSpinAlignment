@@ -1,5 +1,5 @@
 #include "StRoot/StVecMesonAna/StVecMesonHistoManger.h"
-#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "TString.h"
 #include "TMath.h"
 #include "TH1F.h"

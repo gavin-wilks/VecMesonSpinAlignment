@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="5" filesPerHour="20" maxFilesPerProcess="10" fileListSyntax="paths" simulateSubmission="false">
+<job minFilesPerProcess="1" filesPerHour="10" maxFilesPerProcess="10" fileListSyntax="paths" simulateSubmission="false">
 
   <command>
     starver &library;
@@ -16,7 +16,7 @@
   </SandBox>
 
   <input URL="filelist:&listPath;/&pid;_&SM;_Forest.list" />
-  <stdout URL="file:&outPath;/Log/SpinAlignmentYields/&outDir;/&SM;_$JOBID.out"/>
+  <stdout discard="true"/>
   <stderr URL="file:&outPath;/Log/SpinAlignmentYields/&outDir;/&SM;_$JOBID.err"/>
 
   <Generator>

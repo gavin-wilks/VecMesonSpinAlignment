@@ -2,7 +2,7 @@
 #include "StRoot/StVecMesonAna/StVecMesonCut.h"
 #include "StRoot/StVecMesonAna/StVecMesonCorr.h"
 #include "StRoot/StVecMesonAna/StVecMesonHistoManger.h"
-#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
 #include "StRoot/StMesonEvent/StMesonEvent.h"
@@ -80,6 +80,7 @@ void StVecMesonAna::Init()
 {
   mUtility = new StUtility(mEnergy);
   mUtility->initRunIndex(); // initialize std::map for run index
+  mRefMultCorr = new StRefMultCorr("refmult");
  
   mVecMesonCorr->InitReCenterCorrection();
   mVecMesonCorr->InitShiftCorrection();
@@ -156,11 +157,11 @@ void StVecMesonAna::Init()
       << VM_EVENT_BRANCH << "'in tree!" << endl;
   }
 
-  if(mMode == 0) mMeson_event = new StMesonEvent();
+  mMeson_event = new StMesonEvent();
 
   if(mInPut_flag == 1)
   {
-    if(mMode == 0) mInPut->SetBranchAddress( VM_EVENT_BRANCH, &mMeson_event );
+    mInPut->SetBranchAddress( VM_EVENT_BRANCH, &mMeson_event );
 
     Int_t num_events = mInPut->GetEntriesFast();
     cout << "Number of events in file(s) = " << num_events << endl;
@@ -258,6 +259,20 @@ void StVecMesonAna::MakePhi()
     Int_t flagA = -1;
     Int_t flagB = -1;
 
+    mRefMultCorr->init(RunId);
+
+    if(mRefMultCorr->isBadRun( RunId ))
+    {
+      LOG_ERROR << "Bad Run! Skip!" << endm;
+      continue;
+    }
+
+    //bool isPileUpEvent = false;
+    // IMPORTANT: vertex position is needed for Au+Au 19.6 GeV 2019
+    //if (mRefMultCorr->isPileUpEvent( RefMult, N_Tof_match, PrimaryVertex.z() ) ) isPileUpEvent = true;
+    mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx);
+ 
+
     // vz sign 
     int vz_sign = 0;
     if(PrimaryVertex.z() > -70.0 && PrimaryVertex.z() <= -30.0) vz_sign = 0;
@@ -266,8 +281,8 @@ void StVecMesonAna::MakePhi()
     if(PrimaryVertex.z() < +70.0 && PrimaryVertex.z() >  +30.0) vz_sign = 3;
     // Centrality
     const Int_t cent9 = Centrality;
-    const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
-    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
+    //const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
+    const Double_t reweight = mRefMultCorr->getWeight();
 
     const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
     
@@ -303,8 +318,7 @@ void StVecMesonAna::MakePhi()
 	    //  ((m2A < -10 && nsA < 3.0 && nsA > -1.5) || (m2A > 0.16 && m2A < 0.36)) &&
 	    //  ((m2B < -10 && nsB < 3.0 && nsB > -1.5) || (m2B > 0.16 && m2B < 0.36))
 	    //
-	    (m2A > 0.16 && m2A < 0.36) && (m2B > 0.16 && m2B < 0.36)
-	  )
+	    (m2A > 0.16 && m2A < 0.36) && (m2B > 0.16 && m2B < 0.36) 	  )
 	{
           //cout << "pass mass cut" << endl;
 	  // Float_t eta_lTrack = lTrack.Eta();
@@ -704,42 +718,18 @@ void StVecMesonAna::MakeKStar()
     Int_t flagA = -1;
     Int_t flagB = -1;
 
-    // vz sign
-    Int_t vz_sign;
-    if(PrimaryVertex.z() > 0.0)
-    {
-      vz_sign = 0;
-    }
-    else
-    {
-      vz_sign = 1;
-    }
-
+    // vz sign 
+    int vz_sign = 0;
+    if(PrimaryVertex.z() > -70.0 && PrimaryVertex.z() <= -30.0) vz_sign = 0;
+    if(PrimaryVertex.z() > -30.0 && PrimaryVertex.z() <= 0.0  ) vz_sign = 1;
+    if(PrimaryVertex.z() > 0.0   && PrimaryVertex.z() <= +30.0) vz_sign = 2;
+    if(PrimaryVertex.z() < +70.0 && PrimaryVertex.z() >  +30.0) vz_sign = 3;
     // Centrality
-    mRefMultCorr->init(RunId);
-    if(mEnergy == 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); // 200 GeV
-    if(mEnergy != 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z());
     const Int_t cent9 = Centrality;
-    const Double_t reweight = mRefMultCorr->getWeight();
-
-    // runIndex
-    //mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
-    //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
-    // cout << runIndex << endl;
+    const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
+    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
 
     const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
- 
-
-    //if (counter != 0  &&  counter % 1000 == 0)
-    //  cout << "." << flush;
-    //if (counter != 0  &&  counter % 10000 == 0)
-    //{
-    //  if((stop_event_use-start_event_use) > 0)
-    //  {
-    //	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
-    //	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
-    //  }
-    //}
 
     // get Track Information
     if(mVecMesonCorr->passTrackEtaNumCut(NumTrackEast,NumTrackWest))
@@ -763,19 +753,10 @@ void StVecMesonAna::MakeKStar()
 	TLorentzVector lTrack = lTrackA + lTrackB; // KStar-meson
 	Float_t pt_lTrack = lTrack.Perp();
 
-	if(
-	    // ((fabs(pA) <= 0.65 && m2A < -10) || (m2A > 0 && ((fabs(pA) < 1.5 && m2A > 0.16 && m2A < 0.36) || (fabs(pA) >= 1.5 && m2A > 0.125 && m2A < 0.36)) )) &&
-	    // ((fabs(pB) <= 0.65 && m2B < -10) || (m2B > 0 && ((fabs(pB) < 1.5 && m2B > 0.16 && m2B < 0.36) || (fabs(pB) >= 1.5 && m2B > 0.125 && m2B < 0.36)) )) &&
-	    // // (pt_lTrack < 0.8 || (pt_lTrack >= 0.8 && ( (m2A > 0.16 && m2A < 0.36) || (m2B > 0.16 && m2B < 0.36)))) &&
-	    // (
-	    //  ((m2A < -10 && nsA < 3.0 && nsA > -1.5) || (m2A > 0.16 && m2A < 0.36)) &&
-	    //  ((m2B < -10 && nsB < 3.0 && nsB > -1.5) || (m2B > 0.16 && m2B < 0.36))
-	    // )
-	    (m2A > 0.16 && m2A < 0.36) && (m2B > -0.2 && m2B < 0.15)
-	  )
+	//if(
+	//    ((m2A > 0.16 && m2A < 0.36) && (m2B > -0.2 && m2B < 0.15))
+	//  )
 	{
-	  // Float_t eta_lTrack = lTrack.Eta();
-	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
 	  if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
 	  if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
@@ -784,20 +765,20 @@ void StVecMesonAna::MakeKStar()
 	  Float_t InvMass_lTrack = lTrack.M();
 	  TVector3 vBetaKStar = -1.0*lTrack.BoostVector(); // get phi beta
 	  TLorentzVector lKRest = lTrackA;
-	  lKRest.Boost(vBetaKStar); // boost pi+ back to phi rest frame
-	  TVector3 vKRest = lKRest.Vect().Unit(); // pi+ momentum direction in phi rest frame
+	  lKRest.Boost(vBetaKStar); // boost kaon back to phi rest frame
+	  TVector3 vKRest = lKRest.Vect().Unit(); // kaon momentum direction in phi rest frame
 
 	  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
 	  {
 	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
 	    mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
 
-	    for(Int_t i_sig = vmsa::nSigPion_start; i_sig < vmsa::nSigPion_stop; i_sig++) // systematic loop for nSigmaPion
+	    for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigma
 	    {
 	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
 	      mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
 
-	      if(mVecMesonCut->passEtaEast(lTrackA)) // Pi+ neg eta(east)
+	      if(mVecMesonCut->passEtaEast(lTrackA)) // K+/- neg eta(east)
 	      { // Below is West Only
 		TVector2 Q2Vector = Q2West;
 		// subtract auto-correlation from pos eta(west) event plane
@@ -822,7 +803,7 @@ void StVecMesonAna::MakeKStar()
 		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
-	      if(mVecMesonCut->passEtaWest(lTrackA)) // Pi+ pos eta (west)
+	      if(mVecMesonCut->passEtaWest(lTrackA)) // K+/- pos eta (west)
 	      { // Below is East Only
 		TVector2 Q2Vector = Q2East;
 		// subtract auto-correlation from pos eta(west) event plane
@@ -855,7 +836,7 @@ void StVecMesonAna::MakeKStar()
 
   //cout << "." << flush;
   //cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
-  cout << endl;
+  std::cout << endl;
 }
 //-------------------------------------------------------------------
 void StVecMesonAna::Finish()

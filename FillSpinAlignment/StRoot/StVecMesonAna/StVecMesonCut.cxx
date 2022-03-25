@@ -1,5 +1,5 @@
 #include "StRoot/StVecMesonAna/StVecMesonCut.h"
-#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "StMessMgr.h"
 
 ClassImp(StVecMesonCut)
@@ -141,7 +141,7 @@ bool StVecMesonCut::passTrackSigSys(Float_t nsA, Float_t nsB, Int_t sigSys, Int_
 {
   if( mMode == 0 && !(fabs(nsA) <= vmsa::mNSigmaKaonSys[sigSys] && fabs(nsB) <= vmsa::mNSigmaKaonSys[sigSys]) ) return kFALSE; // phi-meson  
   if( mMode == 1 && !(fabs(nsA) <= vmsa::mNSigmaPionSys[sigSys] && fabs(nsB) <= vmsa::mNSigmaPionSys[sigSys]) ) return kFALSE; // rho-meson
-  if( mMode == 2 && !(fabs(nsA) <= vmsa::mNSigmaKaonSys[sigSys] && fabs(nsB) <= vmsa::mNSigmaPionSys[sigSys]) ) return kFALSE; // Kstar-meson
+  if( mMode == 2 && !(fabs(nsA) <= vmsa::mNSigmaKaonSysKStar[sigSys] && fabs(nsB) <= vmsa::mNSigmaPionSys[sigSys]) ) return kFALSE; // Kstar-meson
   
   return kTRUE;
 }
