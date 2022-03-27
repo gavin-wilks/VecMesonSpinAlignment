@@ -57,7 +57,7 @@ void plotRho00EnergyCentInte()
   h_frame->DrawCopy("pE");
   PlotLine(9.0,240.0,1.0/3.0,1.0/3.0,1,3,2);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_1st_stat,20,kAzure+2,1.4);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_1st_stat,20,kAzure+2,0,1.4);
   Draw_TGAE_Point_new_Symbol(80,0.39,0.0,0.0,0.0,0.0,20,kAzure+2,1.4);
   plotTopLegend((char*)"1^{st}-order EP",90,0.3885,0.04,1,0.0,42,0);
 
@@ -75,7 +75,7 @@ void plotRho00EnergyCentInte()
     PlotLine(energy*1.05,energy*1.05,rho-err+0.001,rho-err,kAzure+2,2,1);
   }
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat,29,kRed,1.8);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat,29,kRed,0,1.8);
   Draw_TGAE_Point_new_Symbol(80,0.38,0.0,0.0,0.0,0.0,29,kRed,1.8);
   plotTopLegend((char*)"2^{nd}-order EP",90,0.3785,0.04,1,0.0,42,0);
   for(int i_energy = 0; i_energy < g_rho_2nd_sys->GetN(); ++i_energy) // plot sys errors
@@ -92,9 +92,9 @@ void plotRho00EnergyCentInte()
     PlotLine(energy*1.05,energy*1.05,rho-err+0.001,rho-err,kRed+2,2,1);
   }
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCentInte_1st,24,kAzure+2,1.4);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCentInte_1st,24,kAzure+2,0,1.4);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCentInte_2nd,30,kRed,1.8);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCentInte_2nd,30,kRed,0,1.8);
 
   // plotTopLegend((char*)"#rho_{00} = 1/3",100,0.328,0.04,1,0.0,42,0);
 

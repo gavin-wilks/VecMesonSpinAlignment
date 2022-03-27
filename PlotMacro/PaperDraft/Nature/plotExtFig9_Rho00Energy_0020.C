@@ -36,7 +36,7 @@ double rho00_theory(double *x_var, double *par)
 }
 
 
-void plotFig3_Rho00Energy()
+void plotExtFig9_Rho00Energy_0020()
 {
   gStyle->SetOptDate(0);
   const int style_phi_1st = 21;
@@ -58,41 +58,20 @@ void plotFig3_Rho00Energy()
   
   //----------------------------------------------------------
   // phi-meson STAR
-  //beam-energy dependence of phi-meson rho00 from STAR, pT: 1.2 - 5.4 GeV/c, 20-60%
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
-  TGraphAsymmErrors *g_rhoPhi_2nd_stat_Laxis = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_stat");
-  TGraphAsymmErrors *g_rhoPhi_2nd_sys_Laxis = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_sys");
-  TGraphAsymmErrors *g_rho_2nd_fit_Laxis  = new TGraphAsymmErrors();
-  for(int i_energy = 0; i_energy < g_rhoPhi_2nd_stat_Laxis->GetN(); ++i_energy) // combine stat & sys for fit
-  {
-    double energy, rho;
-    g_rhoPhi_2nd_stat_Laxis->GetPoint(i_energy,energy,rho);
-    double err_stat = g_rhoPhi_2nd_stat_Laxis->GetErrorYhigh(i_energy);
-    double err_sys = g_rhoPhi_2nd_sys_Laxis->GetErrorYhigh(i_energy);
-    double err_fit = TMath::Sqrt(err_stat*err_stat+err_sys*err_sys);
-
-    g_rho_2nd_fit_Laxis->SetPoint(i_energy,energy,rho);
-    g_rho_2nd_fit_Laxis->SetPointError(i_energy,0.0,0.0,err_fit,err_fit);
-  }
-
-  // TFile *File_InputPhi_EP = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/rho00_stat_sys_Xaxis.root");
-  // TGraphAsymmErrors *g_rhoPhi_2nd_stat_Xaxis = (TGraphAsymmErrors*)File_InputPhi_EP->Get("rho00_2ndEP_energy_stat");
-  // TGraphAsymmErrors *g_rhoPhi_2nd_sys_Xaxis = (TGraphAsymmErrors*)File_InputPhi_EP->Get("rho00_2ndEP_energy_sys");
+  //beam-energy dependence of phi-meson rho00 from STAR, pT: 1.2 - 5.4 GeV/c, 0-20%
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rhoCent_0020_LXaxis.root");
+  TGraphAsymmErrors *g_rhoPhi_1st_stat = (TGraphAsymmErrors*)File_InputPhi->Get("g_rho1st_0020_stat");
+  TGraphAsymmErrors *g_rhoPhi_1st_sys = (TGraphAsymmErrors*)File_InputPhi->Get("g_rho1st_0020_sys");
+  TGraphAsymmErrors *g_rhoPhi_2nd_stat = (TGraphAsymmErrors*)File_InputPhi->Get("g_rho2nd_0020_stat");
+  TGraphAsymmErrors *g_rhoPhi_2nd_sys = (TGraphAsymmErrors*)File_InputPhi->Get("g_rho2nd_0020_sys");
   //----------------------------------------------------------
 
   //----------------------------------------------------------
-  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN_June9_2021.root");
+  TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_Cent_0020.root");
   // K* STAR
-  //beam-energy dependence of kstar rho00 from STAR, pT: 1.0 - 1.5 GeV/c, 20-60%
-  TGraphAsymmErrors *g_rhoKstar_stat       = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoKstar_stat");
-  TGraphAsymmErrors *g_rhoKstar_sys        = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoKstar_sys");
-  //data points from ALICE
-  //K* ALICE pT: 0.8 - 1.2 GeV/c
-  TGraphAsymmErrors *g_rhoKstar_ALICE_stat = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoKstar_ALICE_stat");
-  TGraphAsymmErrors *g_rhoKstar_ALICE_sys  = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoKstar_ALICE_sys");
-  //Phi ALICE pT: 1.0 - 5.0 GeV/c
-  TGraphAsymmErrors *g_rhoPhi_ALICE_stat   = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoPhi_ALICE_stat");
-  TGraphAsymmErrors *g_rhoPhi_ALICE_sys    = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoPhi_ALICE_sys");
+  //beam-energy dependence of kstar rho00 from STAR, pT: 1.0 - 1.5 GeV/c, 0-20%
+  TGraphAsymmErrors *g_rhoKstar_stat       = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoCentKstar_0020_stat");
+  TGraphAsymmErrors *g_rhoKstar_sys        = (TGraphAsymmErrors*)File_InputKstar->Get("g_rhoCentKstar_0020_sys");
   //----------------------------------------------------------
 
   TH1F *h_frame = new TH1F("h_frame","h_frame",5000,0,5000);
@@ -131,38 +110,31 @@ void plotFig3_Rho00Energy()
 
   // K* STAR
   Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_stat,style_Kstr,color_Kstr,colorDiff_Kstr,size_marker-0.4);
-  // plotSysErrors(g_rhoKstar_sys,color_Kstr+2);
   plotSysErrorsBox(g_rhoKstar_sys,color_Kstr+2);
 
-  // K* ALICE
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstar_ALICE_stat,style_Kstr_ALICE,color_Kstr_ALICE,0,size_marker-0.4);
-  // plotSysErrors(g_rhoKstar_ALICE_sys,color_Kstr_ALICE);
-
   // phi-meson STAR
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat_Laxis,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
-  // plotSysErrors(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
-  plotSysErrorsBox(g_rhoPhi_2nd_sys_Laxis,color_phi_2nd);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_1st_stat,style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
+  plotSysErrorsBox(g_rhoPhi_1st_sys,color_phi_1st);
 
-  // phi-meson ALICE
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_ALICE_stat,style_phi_ALICE,color_phi_ALICE,0,size_marker);
-  // plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhi_2nd_stat,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
+  plotSysErrorsBox(g_rhoPhi_2nd_sys,color_phi_2nd);
 
-  // plot Legend
-  // plotTopLegend((char*)"Au+Au",0.34,0.85,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"filled:  Au+Au (20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"open: Pb+Pb (10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
+  Draw_TGAE_Point_new_Symbol(10,0.41,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
+  plotTopLegend((char*)"#phi",12,0.4075,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"1^{st}-order EP (1.2 < p_{T} < 5.4 GeV/c)",19,0.4075,size_font,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(40,0.41,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.4075,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(10,0.395,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotTopLegend((char*)"#phi",12,0.3925,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"2^{nd}-order EP (1.2 < p_{T} < 5.4 GeV/c)",19,0.3925,size_font,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(40,0.395,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker-0.4);
-  plotTopLegend((char*)"K^{*0} (|y| < 1.0 & 1.0 < p_{T} < 5.0 GeV/c)",48,0.3925,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(10,0.380,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker-0.4);
+  plotTopLegend((char*)"K^{*0}",12,0.3775,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"2^{nd}-order EP (1.0 < p_{T} < 5.0 GeV/c)",19,0.3775,size_font,1,0.0,42,0);
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00Energy.eps");
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00Energy.png");
+  plotTopLegend((char*)"Au+Au (0-20\% & |y| < 1.0)",0.50,0.20,size_font,1,0.0,42,1);
+
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig9_rho00Energy_0020.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig9_rho00Energy_0020.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
