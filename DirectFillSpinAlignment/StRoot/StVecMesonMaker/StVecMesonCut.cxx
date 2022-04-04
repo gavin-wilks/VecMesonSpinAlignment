@@ -1,5 +1,5 @@
 #include "StRoot/StVecMesonMaker/StVecMesonCut.h"
-#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "StRoot/StPicoEvent/StPicoDst.h"
 #include "StRoot/StPicoEvent/StPicoEvent.h"
 #include "StRoot/StPicoEvent/StPicoBTofPidTraits.h"
@@ -16,10 +16,10 @@ StRefMultCorr* StVecMesonCut::mRefMultCorr = NULL;
 StVecMesonCut::StVecMesonCut(const int energy)
 {
   mEnergy = energy;
-  //if(!mRefMultCorr)
-  //{
-  //  mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
-  //}
+  if(!mRefMultCorr)
+  {
+    mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
+  }
 }
 
 //---------------------------------------------------------------------------------
@@ -46,27 +46,27 @@ bool StVecMesonCut::isMinBias(StPicoEvent *picoEvent)
 
 bool StVecMesonCut::isPileUpEvent(int refMult, int numOfBTofMatch, double vz)
 {
-  if(mEnergy == 0 || mEnergy == 1 || mEnergy == 2 || mEnergy == 3)
+  if(mEnergy == 0 || mEnergy == 1 || mEnergy == 2 || mEnergy == 3 || mEnergy == 4)
   {        
     if(numOfBTofMatch > vmsa::mMatchedToFMin) return kFALSE;         
   }
 
-  if(mEnergy == 4)
-  {
-    if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kTRUE; 
+  //if(mEnergy == 4)
+  //{
+  //  if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kTRUE; 
 
-    int vzbin = -1;
-    if(      vz >  -145 && vz < -87 ) vzbin = 0;
-    else if( vz >= -87  && vz < -29 ) vzbin = 1;
-    else if( vz >= -29  && vz <= 29 ) vzbin = 2;
-    else if( vz >   29  && vz <= 87 ) vzbin = 3;
-    else if( vz >   87  && vz <  145) vzbin = 4;
+  //  int vzbin = -1;
+  //  if(      vz >  -145 && vz < -87 ) vzbin = 0;
+  //  else if( vz >= -87  && vz < -29 ) vzbin = 1;
+  //  else if( vz >= -29  && vz <= 29 ) vzbin = 2;
+  //  else if( vz >   29  && vz <= 87 ) vzbin = 3;
+  //  else if( vz >   87  && vz <  145) vzbin = 4;
  
-    double refLow  = vmsa::pl19[vzbin][0] + vmsa::pl19[vzbin][1]*numOfBTofMatch + vmsa::pl19[vzbin][2]*pow(numOfBTofMatch,2) + vmsa::pl19[vzbin][3]*pow(numOfBTofMatch,3) + vmsa::pl19[vzbin][4]*pow(numOfBTofMatch,4);
-    double refHigh = vmsa::ph19[vzbin][0] + vmsa::ph19[vzbin][1]*numOfBTofMatch + vmsa::ph19[vzbin][2]*pow(numOfBTofMatch,2) + vmsa::ph19[vzbin][3]*pow(numOfBTofMatch,3) + vmsa::ph19[vzbin][4]*pow(numOfBTofMatch,4);
-   
-    if(refMult > refLow && refMult < refHigh) return kFALSE;
-  }     
+  //  double refLow  = vmsa::pl19[vzbin][0] + vmsa::pl19[vzbin][1]*numOfBTofMatch + vmsa::pl19[vzbin][2]*pow(numOfBTofMatch,2) + vmsa::pl19[vzbin][3]*pow(numOfBTofMatch,3) + vmsa::pl19[vzbin][4]*pow(numOfBTofMatch,4);
+  //  double refHigh = vmsa::ph19[vzbin][0] + vmsa::ph19[vzbin][1]*numOfBTofMatch + vmsa::ph19[vzbin][2]*pow(numOfBTofMatch,2) + vmsa::ph19[vzbin][3]*pow(numOfBTofMatch,3) + vmsa::ph19[vzbin][4]*pow(numOfBTofMatch,4);
+  // 
+  //  if(refMult > refLow && refMult < refHigh) return kFALSE;
+  //}     
 
   return kTRUE;
 }
@@ -83,6 +83,7 @@ double StVecMesonCut::getRefMultReweight(double vz, int refMult)
       if(vz > -5.0-(ivz+1)*10.0 && vz <= -5.0-ivz*10.0) return refMult*vmsa::vz_corr[13-ivz];
     }
   }
+  return 1.0;
 }
 
 int StVecMesonCut::getCentrality(double refMultCorr) // 9 Centrality bins 
@@ -131,8 +132,8 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
   }
 
   // initialize StRefMultCorr
-  const Int_t runId = event->runId();
-  const Int_t refMult = event->refMult();
+  //const Int_t runId = event->runId();
+  //const Int_t refMult = event->refMult();
   const unsigned short numOfBTofMatch = event->nBTOFMatch();
   const Float_t vx = event->primaryVertex().x();
   const Float_t vy = event->primaryVertex().y();
@@ -147,7 +148,7 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
   //{
   //  return kFALSE;
   //}
-  //cout << "Before minbias cut" << endl;
+
   // minBias event cut
   if(!isMinBias(event))
   {
@@ -155,22 +156,12 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
     return kFALSE;
   }
 
-  //cout << "Before vz cut" << endl;
   // event vertex cut
   // vz cut
-  //cout << fabs(vz) << endl;
-  //cout << vmsa::mVzMaxMap[0] << endl;
-  //cout << vmsa::mVzMaxMap[1] << endl;
-  //cout << vmsa::mVzMaxMap[2] << endl;
-  //cout << vmsa::mVzMaxMap[3] << endl;
-  //cout << vmsa::mVzMaxMap[4] << endl;
-  //cout << mEnergy << endl;
   if(fabs(vz) > vmsa::mVzMaxMap[mEnergy])
   {
     return kFALSE;
   }
-
-  //cout << "Before vr cut" << endl;
   // vr cut
   if(sqrt(vx*vx+vy*vy) > vmsa::mVrMax)
   {
@@ -235,12 +226,12 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
     return kFALSE;
   }
   */
-  //cout << "before pileupevent cut" << endl;
   // pileUpEvent cut
-  if(isPileUpEvent(refMult,numOfBTofMatch,vz))
-  {
-    return kFALSE;
-  }
+  //if(isPileUpEvent(refMult,numOfBTofMatch,vz))
+  //{
+  //  return kFALSE;
+  //}
+  if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kFALSE;
 
   return kTRUE;
 }
@@ -331,35 +322,26 @@ Float_t StVecMesonCut::getV0Mass2(StPicoTrack *picoTrack, StPicoDst *picoDst)
   return mass2;
 }
 
-bool StVecMesonCut::passSigPionCut(StPicoTrack* track, Float_t scale_nSigma_factor)
+bool StVecMesonCut::passSigPionCut(StPicoTrack* track, Int_t pid)
 {
   Float_t nSigmaPion = track->nSigmaPion();
-  if(fabs(nSigmaPion*scale_nSigma_factor) > vmsa::mNSigmaPionMax)
+  if(fabs(nSigmaPion) > vmsa::mNSigmaPionMax[pid])
   {
     return kFALSE;
   }
   return kTRUE;
 }
 
-bool StVecMesonCut::passSigKaonCut(StPicoTrack* track, Float_t scale_nSigma_factor)
+bool StVecMesonCut::passSigKaonCut(StPicoTrack* track, Int_t pid)
 {
   Float_t nSigmaKaon = track->nSigmaKaon();
-  if(fabs(nSigmaKaon*scale_nSigma_factor) > vmsa::mNSigmaKaonMax)
+  if(fabs(nSigmaKaon) > vmsa::mNSigmaKaonMax[pid])
   {
     return kFALSE;
   }
   return kTRUE;
 }
 
-bool StVecMesonCut::passSigProntonCut(StPicoTrack* track, Float_t scale_nSigma_factor)
-{
-  Float_t nSigmaProton = track->nSigmaProton();
-  if(fabs(nSigmaProton*scale_nSigma_factor) > vmsa::mNSigmaProtonMax)
-  {
-    return kFALSE;
-  }
-  return kTRUE;
-}
 
 //---------------------------------------------------------------------------------
 
@@ -407,7 +389,7 @@ bool StVecMesonCut::passTrackEP(StPicoTrack *track, StPicoEvent *picoEvent)
     return kFALSE;
   }  
 
-  // pt cut 0.2 - 2.0 GeV/c
+  // pt cut 0.15 - 2.0 GeV/c
   Float_t pt = track->pMom().Perp();
   Float_t p  = track->pMom().Mag();
   if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax && p < vmsa::mPrimMomMax))
@@ -418,7 +400,6 @@ bool StVecMesonCut::passTrackEP(StPicoTrack *track, StPicoEvent *picoEvent)
   return kTRUE;
 }
 
- 
 bool StVecMesonCut::passTrackEP(TLorentzVector lTrack, Float_t dca)
 {
   // only used for primary track
@@ -447,7 +428,7 @@ bool StVecMesonCut::passTrackEP(TLorentzVector lTrack, Float_t dca)
 }
 
 //---------------------------------------------------------------------------------
-bool StVecMesonCut::passTrackPhi(StPicoTrack *track, StPicoEvent *picoEvent)
+bool StVecMesonCut::passTrackMeson(StPicoTrack *track, StPicoEvent *picoEvent, Int_t pid)
 {
   if(!track) return kFALSE;
 
@@ -458,32 +439,7 @@ bool StVecMesonCut::passTrackPhi(StPicoTrack *track, StPicoEvent *picoEvent)
   const double vz = picoEvent->primaryVertex().z();
 
   // dca cut for phi
-  if(track->gDCA(vx,vy,vz) > vmsa::mDcaTrMax_phi)
-  {
-    return kFALSE;
-  }
-
-  // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
-  {
-    return kFALSE;
-  }
-
-  return kTRUE;
-}
-
-bool StVecMesonCut::passTrackKStar(StPicoTrack *track, StPicoEvent *picoEvent)
-{
-  if(!track) return kFALSE;
-
-  if(!passTrackBasic(track)) return kFALSE;
-
-  const double vx = picoEvent->primaryVertex().x(); // x works for both TVector3 and StThreeVectorF
-  const double vy = picoEvent->primaryVertex().y();
-  const double vz = picoEvent->primaryVertex().z();
-
-  // dca cut for kstar
-  if(track->gDCA(vx,vy,vz) > vmsa::mDcaTrMax_KStar)
+  if(track->gDCA(vx,vy,vz) > vmsa::mDcaTrMax_pid[pid])
   {
     return kFALSE;
   }
@@ -555,18 +511,21 @@ bool StVecMesonCut::passEtaWest(TLorentzVector lTrack) // pos
 //---------------------------------------------------------------------------------
 bool StVecMesonCut::passTrackDcaSys(Float_t dcaA, Float_t dcaB, Int_t dcaSys, Int_t mMode) 
 {
-  if( mMode == 0 && !(fabs(dcaA) <= vmsa::mDcaSys[dcaSys] && fabs(dcaB) <= vmsa::mDcaSys[dcaSys]) ) return kFALSE;
-  if( mMode == 1 && !(fabs(dcaA) <= vmsa::mDcaSys[dcaSys] && fabs(dcaB) <= vmsa::mDcaSys[dcaSys]) ) return kFALSE;
-  if( mMode == 2 && !(fabs(dcaA) <= vmsa::mDcaSysKS[dcaSys] && fabs(dcaB) <= vmsa::mDcaSysKS[dcaSys]) ) return kFALSE;
+  if( !(fabs(dcaA) <= vmsa::mDcaSys_pid[mMode][dcaSys] && fabs(dcaB) <= vmsa::mDcaSys_pid[mMode][dcaSys]) ) return kFALSE;
 
   return kTRUE;
 }
 
 bool StVecMesonCut::passTrackSigSys(Float_t nsA, Float_t nsB, Int_t sigSys, Int_t mMode) 
 {
-  if( mMode == 0 && !(fabs(nsA) <= vmsa::mNSigmaKaonSys[sigSys] && fabs(nsB) <= vmsa::mNSigmaKaonSys[sigSys]) ) return kFALSE; // phi-meson  
-  if( mMode == 1 && !(fabs(nsA) <= vmsa::mNSigmaPionSys[sigSys] && fabs(nsB) <= vmsa::mNSigmaPionSys[sigSys]) ) return kFALSE; // rho-meson
-  if( mMode == 2 && !(fabs(nsA) <= vmsa::mNSigmaKaonSysKStar[sigSys] && fabs(nsB) <= vmsa::mNSigmaPionSysKStar[sigSys]) ) return kFALSE; // Kstar-meson
+  if( !(fabs(nsA) <= vmsa::mNSigmaSys_pid[mMode][sigSys] && fabs(nsB) <= vmsa::mNSigmaSys_pid[mMode][sigSys]) ) return kFALSE; // phi-meson  
   
+  return kTRUE;
+}
+
+bool StVecMesonCut::passTrackNHitSys(Float_t nA, Float_t nB, Int_t nSys, Int_t mMode) 
+{
+  if( !(fabs(nA) >= vmsa::mNHitSys_pid[mMode][nSys] && fabs(nB) >= vmsa::mNHitSys_pid[mMode][nSys]) ) return kFALSE;
+
   return kTRUE;
 }

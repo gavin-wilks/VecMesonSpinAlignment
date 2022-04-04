@@ -22,13 +22,14 @@ namespace vmsa
   float const mSigScaleMap[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0};
   float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0}; // for event plane reconstruction: 1.0 for BES-II
   float const mDcaTrMax = 1.0; // for pion, kaon, proton mDcaTrMax = 1.0 for flow
-  float const mDcaTrMax_phi = 3.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
+  float const mDcaTrMax_pid[3] = {3.0,2.0,2.0}; // cuts for daughter pions and kaons to make mother particles
+  float const mDcaTrMax_phi = 3.0;
   float const mDcaTrMax_KStar = 2.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
   int const mHitsDedxMin = 5;
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
   float const mHitsRatioTPCMin = 0.52;
-  float const mEtaMax = 1.5;
+  float const mEtaMax = 1.0;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
@@ -87,16 +88,17 @@ namespace vmsa
   float const mToFYLocalMax = 1.8;
   float const mToFZLocalMax = 1.8;
   float const mNSigmaElectronMax = 2.5;
-  float const mNSigmaPionMax = 2.0;
-  float const mNSigmaKaonMax = 3.0;
+  float const mNSigmaPionMax[3] = {0.0,2.0,2.0};
+  float const mNSigmaKaonMax[3] = {3.0,0.0,2.0};
   float const mNSigmaProtonMax = 2.5;
+  float const mNSigmaMax[3] = {3.0,2.0,2.0};
   float const mMassPion = 0.13957;
   float const mMassKaon = 0.49368;
   float const mMassProton = 0.93827;
   float const mSigKaon = 2.5;
   float const mNSigmaToF = 0.6;
 
-  // used constant
+  // used constapt
   // float const mEta_Gap[4] = {0.05,0.10,0.20,0.50};
   float const mEta_Gap = 0.05;
   float const mShiftOrder[5] = {2.0, 4.0, 6.0, 8.0, 10.0};
@@ -168,9 +170,9 @@ namespace vmsa
 
   double const Pi = TMath::Pi();
   double const PiOver10 = Pi/10.0;
-  int const PhiPsi_total = 20;
-  double const PhiPsi_low[20] = {-Pi,-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10};
-  double const PhiPsi_up[20]  = {-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10, Pi };
+  int const PhiPsi_total = 10;
+  double const PhiPsi_low[10] = {0.0,1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0};
+  double const PhiPsi_up[10]  = {1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0, Pi/2.0 };
 
   int const CTS_total = 7; // cos(theta*) bin
   int const CTS_start = 0;
@@ -187,16 +189,33 @@ namespace vmsa
   int const Dca_start = 0;
   int const Dca_stop = 3;
   float const mDcaSys[3] = {2.0,2.5,3.0}; // dca sys. errors
-  float const mDcaSysKS[3] = {2.0,1.8,1.6}; // dca sys. errors
+  float const mDcaSysKS[3] = {2.0,1.6,1.8}; // dca sys. errors
+  float const mDcaSys_pid[3][3] = {{2.0,2.5,3.0},
+                                   {2.0,1.6,1.8},
+                                   {2.0,1.6,1.8}};
+  
+  int const mNHit_start = 0;
+  int const mNHit_stop = 3;
+  int const mNHitSys[3] = {15,16,18};
+  
+  int const mNHitSys_pid[3][3] = {{15,15,15},
+                                  {15,16,18},
+                                  {15,16,18}};
 
   int const nSigKaon_start = 0;
   int const nSigKaon_stop = 3;
   float const mNSigmaKaonSys[3] = {2.5,2.0,3.0}; // nSigKaon sys. errors
-  float const mNSigmaKaonSysKStar[3] = {2.0,1.8,1.6}; // nSigKaon sys. errors
+  float const mNSigmaKaonSysKStar[3] = {2.0,1.6,1.8}; // nSigKaon sys. errors
+
+  float const mNSig_start = 0;
+  float const mNSig_stop = 3;
+  float const mNSigmaSys_pid[3][3] = {{2.5,2.0,3.0},
+                                      {2.0,1.6,1.8},
+                                      {2.0,1.6,1.8}};
+
   int const nSigPion_start = 0;
   int const nSigPion_stop = 3;
-  float const mNSigmaPionSys[3] = {2.0,1.8,1.6}; // nSigPion sys. errors
-  float const mNSigmaPionSysKStar[3] = {2.0,1.8,1.6}; // nSigPion sys. errors
+  float const mNSigmaPionSys[3] = {2.0,1.6,1.8}; // nSigPion sys. errors
 
   int const EtaGap_total = 4; // EtaGap bin
   int const Eta_start = 0; // EtaGap bin
@@ -234,7 +253,7 @@ namespace vmsa
   // shared constant
   std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
   float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6};
-  int const mBeamYear[NumBeamEnergy] = {2010,2010,2011,2011,2019};
+  int const mBeamYear[NumBeamEnergy] = {2019,2019,2019,2019,2019};
 
   std::string const mPID[3]   = {"Phi","Rho","KStar"};
   float const Norm_Start[3][2]  = {{1.04,0.99},{0.41,0.30},{0.41,0.30}}; // normalise to right and left
@@ -243,8 +262,8 @@ namespace vmsa
   // float const BW_Start[3]     = {0.99,1.0,1.0}; // for RooFit
   float const BW_Stop[3]      = {1.050,1.0,1.0};
   float const Width[3]        = {0.00426,0.0487,0.0487};
-  float const InvMass_low[3]  = {0.98,0.4,0.74};
-  float const InvMass_high[3] = {1.05,0.6,1.05};
+  float const InvMass_low[3]  = {0.98,0.4,0.6};
+  float const InvMass_high[3] = {1.05,0.6,1.20};
   float const nSigVec = 2.0;
 
   float const ptEffMax = 8.0;
@@ -253,7 +272,7 @@ namespace vmsa
   int const BinPt  = 80; // for efficiency
   // int const BinPt  = 20;
   int const BinEta = 10;
-  int const BinY = 20;
+  int const BinY = 30;
   int const BinPhi = 12;
   int const BinCos = 7;
 

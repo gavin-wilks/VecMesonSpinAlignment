@@ -1,12 +1,11 @@
 #!/bin/bash
 
-if [ $# -eq 4 ]
+if [ $# -eq 3 ]
 then
-  jobid=$1
-  energy=$2 #19
-  year=$3 #2019
-  step=$4 #recenter, shift, resolution, chargedflow
+  location=$1
+  pid=$2
+  SM=$3
   rm EventPlane_hadd.list
 
-  ls -d -1 /gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu${energy}GeV_${year}/OutPut/SpinAlignment/${step}/*${jobid}*.root > EventPlane_hadd.list
+  find /gpfs01/star/${location}/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/DirectFill/${pid}/Forest/${SM}/ -name "*.root" -size +1k > EventPlane_hadd.list
 fi

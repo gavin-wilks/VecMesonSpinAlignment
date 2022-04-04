@@ -13,6 +13,7 @@
 class StPicoDst;
 class StMesonEvent;
 class StMesonTrack;
+class StRefMultCorr;
 //class StV0TofCorrection;
 //class StV0Event;
 //class StV0Track;
@@ -24,6 +25,7 @@ class TH2F;
 class TTree;
 class TVector2;
 class StVecMesonHist;
+class StVecMesonHistoFlow;
 class TLorentzVector;
 
 class StVecMesonTree
@@ -54,7 +56,7 @@ class StVecMesonTree
     void InitKStar();
     void doKStar(Int_t,Int_t,Int_t,Int_t);
     void MixEvent_KStar(Int_t,StPicoDst*,Int_t,Float_t,Float_t);
-    void FillKStar(StMesonEvent*);
+    void FillKStar(StMesonTrack*);
     void clear_kstar(Int_t,Int_t,Int_t);
     void size_kstar(Int_t,Int_t,Int_t);
     /////////////////////////////////
@@ -67,12 +69,15 @@ class StVecMesonTree
     void passEvent(Int_t,Int_t,Int_t); // N_prim,N_non_prim,N_Tof_match
     void passEventPlane(TVector2,TVector2,TVector2); // qVector ater re-center: east, west, full
     void passNumTrack(Int_t,Int_t,Int_t,Int_t,Int_t); // Number of Tracks: east, west, full, full_east, full_west
+    void passExtraEvent(Int_t,Int_t,Int_t,Double_t);    
 
   private:
     StUtility *mUtility;
     StVecMesonFillCorr *mVecMesonCorr;
     StVecMesonCut *mVecMesonCut;
     StVecMesonHist *mVecMesonHistoManger;
+    StVecMesonHistoFlow *mVecMesonHistoFlow;
+    StRefMultCorr *mRefMultCorr;
     //StV0TofCorrection *mTofCorr;
     TH2F *h_Mass2;
     TH2F *h_KdEdxRig;
@@ -125,6 +130,8 @@ class StVecMesonTree
     Int_t mNumber_prim, mNumber_non_prim, mNumber_Tof_match;
     TVector2 mQVector2East, mQVector2West, mQVector2Full;
     Int_t mTrackEtaEast, mTrackEtaWest, mTrackFull, mTrackFullEast, mTrackFullWest;
+    Int_t mRunIndex, mCent, mVzSign;
+    Double_t mReweight;
     Int_t mEnergy;
     Int_t mX_flag;
 

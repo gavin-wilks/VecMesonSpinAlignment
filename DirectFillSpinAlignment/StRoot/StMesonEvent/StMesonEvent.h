@@ -23,6 +23,8 @@ class StMesonTrack : public TObject
     Float_t mNSigB;
     Float_t mDcaA; // distance of closest approach of particle A * charge
     Float_t mDcaB;
+    Int_t mNHitA; // number of TPC hits
+    Int_t mNHitB;
     Int_t mChargeA; // charge, 0 => + | 1 => -
     Int_t mChargeB; 
     TLorentzVector mTrackA; // Lorentz Vector for track A (px, py, pz, mass2)
@@ -32,7 +34,7 @@ class StMesonTrack : public TObject
 
   public:
     StMesonTrack() :
-      mMass2A(-999.9),mMass2B(-999.9),mNSigA(-999.9),mNSigB(-999.9),mDcaA(-999.9),mDcaB(-999.9),mTrackA(0,0,0,0),mTrackB(0,0,0,0),mFlagA(-1),mFlagB(-1)
+      mMass2A(-999.9),mMass2B(-999.9),mNSigA(-999.9),mNSigB(-999.9),mDcaA(-999.9),mDcaB(-999.9),mNHitA(-1),mNHitB(-1),mTrackA(0,0,0,0),mTrackB(0,0,0,0),mFlagA(-1),mFlagB(-1)
   {
   }
     ~StMesonTrack() {}
@@ -40,10 +42,12 @@ class StMesonTrack : public TObject
     // setters
     void setMass2A(Float_t f)                  { mMass2A = f;       }
     void setMass2B(Float_t f)                  { mMass2B = f;       }
-    void setNSigA(Float_t f)                   { mNSigA = f;    }
-    void setNSigB(Float_t f)                   { mNSigB = f;    }
+    void setNSigA(Float_t f)                   { mNSigA = f;        }
+    void setNSigB(Float_t f)                   { mNSigB = f;        }
     void setDcaA(Float_t f)                    { mDcaA = f;         }
     void setDcaB(Float_t f)                    { mDcaB = f;         }
+    void setNHitA(Float_t f)                   { mNHitA = f;         }
+    void setNHitB(Float_t f)                   { mNHitB = f;         }
     void setChargeA(Int_t f)                   { mChargeA = f;      }
     void setChargeB(Int_t f)                   { mChargeB = f;      }
     void setTrackA(TLorentzVector f)           { mTrackA = f;       }
@@ -54,10 +58,12 @@ class StMesonTrack : public TObject
     // getters
     Float_t getMass2A() const                  { return mMass2A;    }
     Float_t getMass2B() const                  { return mMass2B;    }
-    Float_t getNSigA() const                   { return mNSigA; }
-    Float_t getNSigB() const                   { return mNSigB; }
+    Float_t getNSigA() const                   { return mNSigA;     }
+    Float_t getNSigB() const                   { return mNSigB;     }
     Float_t getDcaA() const                    { return mDcaA;      }
     Float_t getDcaB() const                    { return mDcaB;      }
+    Int_t getNHitA() const                     { return mNHitA;     }
+    Int_t getNHitB() const                     { return mNHitB;     }
     Int_t getChargeA() const                   { return mChargeA;   }
     Int_t getChargeB() const                   { return mChargeB;   }
     TLorentzVector getTrackA() const           { return mTrackA;    }

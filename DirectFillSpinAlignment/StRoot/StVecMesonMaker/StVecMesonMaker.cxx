@@ -4,7 +4,7 @@
 #include "StRoot/StVecMesonMaker/StVecMesonCorr.h"
 #include "StRoot/StVecMesonMaker/StVecMesonHistoManger.h"
 #include "StRoot/StVecMesonMaker/StVecMesonTree.h"
-#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "../Utility/StSpinAlignmentCons.h"
 #include "StRoot/StPicoEvent/StPicoDst.h"
 #include "StRoot/StPicoEvent/StPicoEvent.h"
 #include "StRoot/StPicoEvent/StPicoTrack.h"
@@ -64,7 +64,7 @@ Int_t StVecMesonMaker::Init()
 {
   mUtility = new StUtility(mEnergy);
   mUtility->initRunIndex(); // initialize std::map for run index 
- 
+  mRefMultCorr = new StRefMultCorr("refmult"); 
   //if(!mRefMultCorr)
   //{
   //  mRefMultCorr = CentralityMaker::instance()->getRefMultCorr();
@@ -102,9 +102,7 @@ Int_t StVecMesonMaker::Init()
 
   if(mMode == 3)
   {
-    //cout << "Init Mode 3" << endl;
     mVecMesonTree = new StVecMesonTree(mEnergy,mFlag_ME);
-    //cout << "Initialized StVecMesonTree" << endl;
     mFile_PID = new TFile(mOutPut_PID.Data(),"RECREATE");
     mFile_PID->cd();
     if(mFlag_PID == 0)
@@ -118,14 +116,11 @@ Int_t StVecMesonMaker::Init()
     if(mFlag_PID == 2)
     {
       mVecMesonTree->InitKStar();
-      //cout << "Init KStar" << endl;
     }
     mVecMesonCorrection->InitReCenterCorrection();
     mVecMesonCorrection->InitShiftCorrection();
     mVecMesonCorrection->InitResolutionCorr();
   }
-
-  cout << "Finished Init" << endl;
 
   return kStOK;
 }
@@ -184,7 +179,6 @@ void StVecMesonMaker::Clear(Option_t *opt) {
 //----------------------------------------------------------------------------- 
 Int_t StVecMesonMaker::Make() 
 {
-  //cout << "we are in make" << endl;
   if(!mPicoDstMaker) 
   {
     LOG_WARN << " No PicoDstMaker! Skip! " << endm;
@@ -212,7 +206,8 @@ Int_t StVecMesonMaker::Make()
   Float_t vy = mPicoEvent->primaryVertex().y();
   Float_t vz = mPicoEvent->primaryVertex().z();
   Float_t zdcX = mPicoEvent->ZDCx();
-  //mRefMultCorr->init(runId);
+  const unsigned short nBTofMatched = mPicoEvent->nBTOFMatch();
+  mRefMultCorr->init(runId);
   //mRefMultCorr->initEvent(refMult,vz,zdcX); 
 
   // vz sign
@@ -232,28 +227,32 @@ Int_t StVecMesonMaker::Make()
 //  cout << runIndex << endl;
 //  cout << mRunIdEventsDb->getTotalNrRunIds() << endl;
 
-  //cout << "Before bad run cut" << endl;
-
-  if(mUtility->isBadRun(runId))
+  if(mRefMultCorr->isBadRun( runId ))
   {
     LOG_ERROR << "Bad Run! Skip!" << endm;
     return kStErr;
   }
 
-  //cout << "Before centrality" << endl;
-  // Event Cut
-  const  double refMultCorr = mVecMesonCut->getRefMultReweight(vz, refMult);
-  const Int_t cent9 = mVecMesonCut->getCentrality(refMultCorr);;
 
-  //cout << "Before event cut" << endl;
-  if(mVecMesonCut->passEventCut(mPicoDst) && cent9 > -0.5) // event cut
+  bool isPileUpEvent = false;
+  // IMPORTANT: vertex position is needed for Au+Au 19.6 GeV 2019
+  if (mRefMultCorr->isPileUpEvent( refMult, nBTofMatched, vz ) ) isPileUpEvent = true;
+  mRefMultCorr->initEvent(refMult,vz,zdcX); 
+
+  const Int_t cent9 = mRefMultCorr->getCentralityBin9();       // 0: 70-80%, 1: 60-70%, ..., 6: 10-20%, 7: 5-10%, 8: 0-5%
+
+  // Event Cut
+  //const  double refMultCorr = mVecMesonCut->getRefMultReweight(vz, refMult);
+  //const Int_t cent9 = mVecMesonCut->getCentrality(refMultCorr);
+  if(!isPileUpEvent && mVecMesonCut->passEventCut(mPicoDst) && cent9 > -0.5) // event cut
   {
-    //cout << "Passed event cut" << endl;
     int vz_sign = 0;
     if(vz > -70.0 && vz <= -30.0) vz_sign = 0;
     if(vz > -30.0 && vz <= 0.0  ) vz_sign = 1;
     if(vz > 0.0   && vz <= +30.0) vz_sign = 2;
     if(vz < +70.0 && vz >  +30.0) vz_sign = 3;
+
+    const Double_t reweight = mRefMultCorr->getWeight();           // Retrieve weight
 
     //cout << "passed event cut" << endl;
     const int runIndex = mUtility->findRunIndex(runId); // find run index for a specific run
@@ -263,16 +262,15 @@ Int_t StVecMesonMaker::Make()
       LOG_ERROR << "Could not find this run Index from StUtility! Skip!" << endm;
       return kStErr;
     }
-    //cout << "Found the run index" << endl;
 
     const Int_t nTracks = mPicoDst->numberOfTracks();
     //    if(cent9 < 0) cout << cent9 << endl;
-    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
-    const Int_t nToFMatched = mVecMesonCut->getMatchedToF();
+    //const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
+    //const Int_t nToFMatched = mVecMesonCut->getMatchedToF();
     for(Int_t i = 0; i < nTracks; i++) // track loop
     {
       StPicoTrack *track = (StPicoTrack*)mPicoDst->track(i);
-      //cout << "Before any track cuts" << endl;
+
       if(mMode == 0)
       {
 	Float_t eta = track->pMom().PseudoRapidity();
@@ -286,7 +284,6 @@ Int_t StVecMesonMaker::Make()
       }
       if(mVecMesonCut->passTrackEP(track,mPicoEvent)) // track cut
       {
-        //cout << "passTrackEP" << endl;
 	if(mMode == 0) // fill re-center parameter
 	{
 	  Float_t pt = track->pMom().Perp();
@@ -456,7 +453,6 @@ Int_t StVecMesonMaker::Make()
 
     if(mMode == 3)
     { // phi meson
-      //cout << "make mode 3" << endl;
       if(mVecMesonCorrection->passTrackFullNumCut())
       {
 	// get QVector of sub event
@@ -478,6 +474,7 @@ Int_t StVecMesonMaker::Make()
 	// pass the event information to StVecMesonTree
 	mVecMesonTree->clearEvent();
 	mVecMesonTree->passEvent(N_prim, N_non_prim, N_Tof_match);
+        mVecMesonTree->passExtraEvent(runIndex,cent9,vz_sign,reweight);
 	// pass re-centered event plane to StVecMesonTree
 	mVecMesonTree->passEventPlane(Q2East,Q2West,Q2Full);
 
@@ -493,9 +490,7 @@ Int_t StVecMesonMaker::Make()
         }
         if(mFlag_PID == 2)
         {
-          //cout << "About to mix the event" << endl;
 	  mVecMesonTree->MixEvent_KStar(mFlag_ME,mPicoDst,cent9,vz,Psi2);
-          //cout << "Mixed the event" << endl;
         }
       }
     }

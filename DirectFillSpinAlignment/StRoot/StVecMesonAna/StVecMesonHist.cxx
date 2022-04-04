@@ -29,10 +29,15 @@ void StVecMesonHist::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 fo
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
-	    TString Mode[2] = {"SE","ME"};
-	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	    h_mMass2[KEY_Mass2] = new TH1F(KEY_Mass2.Data(),KEY_Mass2.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
-	    h_mMass2[KEY_Mass2]->Sumw2();
+            if(i_dca != 0 && i_sig != 0) continue;
+            for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+            {
+              if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+	      TString Mode[2] = {"SE","ME"};
+	      TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass2[KEY_Mass2] = new TH1F(KEY_Mass2.Data(),KEY_Mass2.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
+	      h_mMass2[KEY_Mass2]->Sumw2();
+            }
 	  }
 	}
       }
@@ -40,26 +45,31 @@ void StVecMesonHist::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 fo
   }
 
   // raw pt spectra 
-  //for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
-  //{
-  //  for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
-  //  {
-  //    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
-  //    {
-  //      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
-  //      {
-  //        for(Int_t i_pT = 0; i_pT < 2; i_pT++)
-  //        {
-  //          TString Mode[2] = {"SE","ME"};
-  //          TString pT[2] = {"low","high"};
-  //          TString KEY_Mass2_Spec = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_pt,pT[i_pT].Data(),i_cent,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-  //          h_mMass_Spec[KEY_Mass2_Spec] = new TH1F(KEY_Mass2_Spec.Data(),KEY_Mass2_Spec.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
-  //          h_mMass_Spec[KEY_Mass2_Spec]->Sumw2();
-  //        }
-  //      }
-  //    }
-  //  }
-  //}
+  for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
+  {
+    for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
+    {
+      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+      {
+        for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+        {
+          if(i_dca != 0 && i_sig != 0) continue;
+          for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+          {
+            if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+            for(Int_t i_pT = 0; i_pT < 2; i_pT++)
+            {
+              TString Mode[2] = {"SE","ME"};
+              TString pT[2] = {"low","high"};
+              TString KEY_Mass2_Spec = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,pT[i_pT].Data(),i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+              h_mMass_Spec[KEY_Mass2_Spec] = new TH1F(KEY_Mass2_Spec.Data(),KEY_Mass2_Spec.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
+              h_mMass_Spec[KEY_Mass2_Spec]->Sumw2();
+            }
+          }
+        }
+      }
+    }
+  }
   
   // Yields
   for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
@@ -68,10 +78,15 @@ void StVecMesonHist::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 fo
     {
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
-	TString Mode[2] = {"SE","ME"};
-	TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_cent,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	h_mMass_Yields[KEY_Mass2_Yields] = new TH1F(KEY_Mass2_Yields.Data(),KEY_Mass2_Yields.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
-	h_mMass_Yields[KEY_Mass2_Yields]->Sumw2();
+        if(i_dca != 0 && i_sig != 0) continue;
+        for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+        {
+          if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+	  TString Mode[2] = {"SE","ME"};
+	  TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	  h_mMass_Yields[KEY_Mass2_Yields] = new TH1F(KEY_Mass2_Yields.Data(),KEY_Mass2_Yields.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
+	  h_mMass_Yields[KEY_Mass2_Yields]->Sumw2();
+        }
       }
     }
   }
@@ -94,14 +109,26 @@ void StVecMesonHist::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 fo
     for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
     {
       TString Charge[2] = {"A","B"};
-      TString KEY_nSigKaon = Form("TracksSig%s_%d",Charge[i_charge].Data(),i_sig);
+      TString KEY_nSigKaon = Form("Tracks_Sig%s_%d",Charge[i_charge].Data(),i_sig);
       h_mSigKaon[KEY_nSigKaon] = new TH1F(KEY_nSigKaon.Data(),KEY_nSigKaon.Data(),100,-5.0,5.0);
       h_mSigKaon[KEY_nSigKaon]->Sumw2();
     }
   }
+  
+  // nHit QA
+  for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+  {
+    for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
+    {
+      TString Charge[2] = {"A","B"};
+      TString KEY_NHit = Form("Tracks_nHit%s_%d",Charge[i_charge].Data(),i_nhit);
+      h_mNHit[KEY_NHit] = new TH1F(KEY_NHit.Data(),KEY_NHit.Data(),100,10,80);
+      h_mNHit[KEY_NHit]->Sumw2();
+    }
+  }
 }
 //-------------------------------------------------------------
-void StVecMesonHist::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
+void StVecMesonHist::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Int_t nHitSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
 {
   TString Mode[2] = {"SE","ME"};
   if(Res2 > 0.0)
@@ -115,44 +142,40 @@ void StVecMesonHist::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_
 	  if(TMath::Abs(CosThetaStar) >= vmsa::CTS_low_KS[i_theta] && TMath::Abs(CosThetaStar) < vmsa::CTS_up_KS[i_theta])
 	  {
 	    // spin alignment
-	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,cent9,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,i_theta,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2]->Fill(InvMass,reweight);
-            //if (cent9) cout << "Fill Centrality 0" << endl;
-            //cout << "Fill h_mMass2" << endl;
-            //cout << "pt = " << i_pt << "  Cent = " << cent9 << "  CosThetaStar = " << i_theta << endl;
 	    if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
 	    {
-	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,reweight);
 	    }
 	    // raw pt spectra
-	    //if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
-	    //{
-	    //  TString KEY_Mass2_Spec = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	    //  h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
-	    //  if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
-	    //  {
-	    //    TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_low_Centrality_9_Dca_%d_Sig_%d_%s_%s",i_pt,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	    //    h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
-	    //  }
-	    //}
-	    //else
-	    //{
-	    //  TString KEY_Mass2_Spec = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	    //  h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
-	    //  if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
-	    //  {
-	    //    TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_high_Centrality_9_Dca_%d_Sig_%d_%s_%s",i_pt,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	    //    h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
-	    //  }
-	    //}
+	    if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
+	    {
+	      TString KEY_Mass2_Spec = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
+	      if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
+	      {
+	        TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_low_Centrality_9_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	        h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
+	      }
+	    }
+	    else
+	    {
+	      TString KEY_Mass2_Spec = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
+	      if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
+	      {
+	        TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_high_Centrality_9_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	        h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
+	      }
+	    }
 	  }
 	}
       }
     }
   }
-
-  TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",cent9,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
   h_mMass_Yields[KEY_Mass2_Yields]->Fill(InvMass,reweight);
 }
 
@@ -166,10 +189,18 @@ void StVecMesonHist::FillDcaSys(Float_t dcaA, Float_t dcaB, Int_t dcaSys)
 
 void StVecMesonHist::FillSigSys(Float_t nsA, Float_t nsB, Int_t nSigSys)
 {
-  TString KEY_nSigKaonA = Form("TracksSigA_%d",nSigSys);
+  TString KEY_nSigKaonA = Form("Tracks_SigA_%d",nSigSys);
   h_mSigKaon[KEY_nSigKaonA]->Fill(nsA); 
-  TString KEY_nSigKaonB = Form("TracksSigB_%d",nSigSys);
+  TString KEY_nSigKaonB = Form("Tracks_SigB_%d",nSigSys);
   h_mSigKaon[KEY_nSigKaonB]->Fill(nsB); 
+}
+
+void StVecMesonHist::FillNHitSys(Int_t nsA, Int_t nsB, Int_t nNHitSys)
+{
+  TString KEY_nNHitA = Form("Tracks_nHitA_%d",nNHitSys);
+  h_mNHit[KEY_nNHitA]->Fill(nsA); 
+  TString KEY_nNHitB = Form("Tracks_nHitB_%d",nNHitSys);
+  h_mNHit[KEY_nNHitB]->Fill(nsB); 
 }
 
 //-------------------------------------------------------------
@@ -187,8 +218,13 @@ void StVecMesonHist::WriteSys(Int_t X_flag, Int_t mode)
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
-	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	    h_mMass2[KEY_Mass2]->Write();
+            if(i_dca != 0 && i_sig != 0) continue;
+            for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+            {
+              if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+	      TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass2[KEY_Mass2]->Write();
+            }
 	  }
 	}
       }
@@ -202,31 +238,41 @@ void StVecMesonHist::WriteSys(Int_t X_flag, Int_t mode)
     {
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
-	TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_cent,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	h_mMass_Yields[KEY_Mass2_Yields]->Write();
+        if(i_dca != 0 && i_sig != 0) continue;
+        for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+        {
+          if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+	  TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	  h_mMass_Yields[KEY_Mass2_Yields]->Write();
+        }
       }
     }
   }
 
   // raw pt spectra
-  //for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
-  //{
-  //  for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
-  //  {
-  //    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
-  //    {
-  //      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
-  //      {
-  //        for(Int_t i_pT = 0; i_pT < 2; i_pT++)
-  //        {
-  //          TString pT[2] = {"low","high"};
-  //          TString KEY_Mass2_Spec = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_pt,pT[i_pT].Data(),i_cent,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-  //          h_mMass_Spec[KEY_Mass2_Spec]->Write();
-  //        }
-  //      }
-  //    }
-  //  }
-  //}
+  for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
+  {
+    for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
+    {
+      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+      {
+        for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+        {
+          if(i_dca != 0 && i_sig != 0) continue;
+          for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+          {
+            if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+            for(Int_t i_pT = 0; i_pT < 2; i_pT++)
+            {
+              TString pT[2] = {"low","high"};
+              TString KEY_Mass2_Spec = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,pT[i_pT].Data(),i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+              h_mMass_Spec[KEY_Mass2_Spec]->Write();
+            }
+          }
+        }
+      }
+    }
+  }
 
   TString Charge[2] = {"A","B"};
   // Dca QA
@@ -244,12 +290,20 @@ void StVecMesonHist::WriteSys(Int_t X_flag, Int_t mode)
   {
     for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
     {
-      TString KEY_nSigKaon = Form("TracksSig%s_%d",Charge[i_charge].Data(),i_sig);
+      TString KEY_nSigKaon = Form("Tracks_Sig%s_%d",Charge[i_charge].Data(),i_sig);
       h_mSigKaon[KEY_nSigKaon]->Write();
     }
   }
-}
 
+  for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+  {
+    for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
+    {
+      TString KEY_NHit = Form("Tracks_nHit%s_%d",Charge[i_charge].Data(),i_nhit);
+      h_mNHit[KEY_NHit]->Write();
+    }
+  }
+}
 //-----------------------EP Direction----------------------------
 
 void StVecMesonHist::InitSys_EP(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 for Mixed Event

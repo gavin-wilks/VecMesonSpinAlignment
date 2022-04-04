@@ -34,10 +34,10 @@ mode=3
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-flag_ME=0 # 0 for SE | 1 for ME
-SM=SE
-#flag_ME=1 # 0
-#SM=ME
+#flag_ME=0 # 0 for SE | 1 for ME
+#SM=SE
+flag_ME=1 # 0
+SM=ME
 ##########Mixed Event Selection##########
 
 flag_PID=2 # 0 for phi | 1 for rho | 2 for kstar

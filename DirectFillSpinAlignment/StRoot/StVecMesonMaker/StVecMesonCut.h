@@ -3,7 +3,6 @@
 
 #include "TObject.h"
 #include "TString.h"
-
 #include "TLorentzVector.h"
 
 class StPicoDst;
@@ -20,13 +19,16 @@ class StVecMesonCut : public TObject
     bool passEventCut(StPicoDst*);
     bool passTrackBasic(StPicoTrack*);
     bool passTrackEP(StPicoTrack*, StPicoEvent*);
-    bool passTrackEP(TLorentzVector lTrack, Float_t dca);
-    bool passSigPionCut(StPicoTrack*, Float_t);
-    bool passSigKaonCut(StPicoTrack*, Float_t);
-    bool passSigProntonCut(StPicoTrack*, Float_t);
-    bool passTrackPhi(StPicoTrack*, StPicoEvent*);
-    bool passTrackKStar(StPicoTrack*, StPicoEvent*);
-    
+    bool passSigPionCut(StPicoTrack*, Int_t);
+    bool passSigKaonCut(StPicoTrack*, Int_t);
+    bool passTrackMeson(StPicoTrack*, StPicoEvent*, Int_t);
+    bool isMinBias(StPicoEvent*);
+    bool isPileUpEvent(int, int, double);
+    double getRefMultReweight(double, int);
+    int getCentrality(double);
+    double getEventWeight(int, double);
+
+    bool passTrackEP(TLorentzVector, Float_t);
     bool passTrackEtaEast(TLorentzVector); // different eta_gap
     bool passTrackEtaWest(TLorentzVector);
     bool passEtaEast(TLorentzVector); // eta cut for Phi candidate
@@ -34,12 +36,7 @@ class StVecMesonCut : public TObject
 
     bool passTrackDcaSys(Float_t, Float_t, Int_t, Int_t); // apply dca cuts to Kaon for Systematic errors => default value is 2.0
     bool passTrackSigSys(Float_t, Float_t, Int_t, Int_t); // apply nSigKaon cuts to Kaon for Systematic errors => default value is 2.5
-
-    bool isMinBias(StPicoEvent*);
-    bool isPileUpEvent(int, int, double);
-    double getRefMultReweight(double, int);
-    int getCentrality(double);
-    double getEventWeight(int, double);
+    bool passTrackNHitSys(Float_t, Float_t, Int_t, Int_t); // apply nSigKaon cuts to Kaon for Systematic errors => default value is 2.5
 
     Int_t getMatchedToF();
     Int_t getNpirm();
