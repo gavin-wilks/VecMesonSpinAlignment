@@ -33,7 +33,7 @@ void printData_fig3_kstar()
     double energy, rho;
     g_rhoKstar_stat->GetPoint(iEnergy,energy,rho);
     double errStat = g_rhoKstar_stat->GetErrorYhigh(iEnergy);
-    double errSyst = g_rhoKstar_stat->GetErrorYhigh(iEnergy);
+    double errSyst = g_rhoKstar_sys->GetErrorYhigh(iEnergy);
 
     if(errStat > 0)
     {
