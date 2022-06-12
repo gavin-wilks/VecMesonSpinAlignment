@@ -183,8 +183,8 @@ void plotFig3_Rho00EnergyTheory()
   // plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
   // plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
   // plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"filled:  Au+Au (20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"open: Pb+Pb (10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"filled: STAR & Au+Au (20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"open: ALICE & Pb+Pb (10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
 
   Draw_TGAE_Point_new_Symbol(40,0.41,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.4075,size_font,1,0.0,42,0);
@@ -194,7 +194,9 @@ void plotFig3_Rho00EnergyTheory()
 
 
   // theory
-  string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
+  const float Gs = f_rho00_Laxis->GetParameter(0)*1.8e5*pow(197.0,8)/(pow(450.0,2)*pow(1020.0,4)*pow(138.05,4));
+  string leg_current_Laxis = Form("G^{(y)}_{s} = %1.2f m_{#pi}^{4}", Gs);
+  // string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
   // string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
   // string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
   // string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);

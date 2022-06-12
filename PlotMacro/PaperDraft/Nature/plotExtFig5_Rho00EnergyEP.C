@@ -177,28 +177,31 @@ void plotExtFig5_Rho00EnergyEP()
   plotTopLegend((char*)"#phi (In-Plane & 2^{nd}-Order EP)",23,0.3885,size_font,1,0.0,42,0);
 
   // theory
-  string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
+  // string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
+  const float Gsy = f_rho00_Laxis->GetParameter(0)*1.8e5*pow(197.0,8)/(pow(450.0,2)*pow(1020.0,4)*pow(138.05,4));
+  string leg_current_Laxis = Form("G^{(y)}_{s} = %1.2f m_{#pi}^{4}", Gsy);
   string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
   string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
   string leg_stat_Laxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Laxis,p_Laxis);
 
-  string leg_current_Xaxis = Form("C^{(x)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Xaxis->GetParameter(0),f_rho00_Xaxis->GetParError(0));
+  // string leg_current_Xaxis = Form("C^{(x)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Xaxis->GetParameter(0),f_rho00_Xaxis->GetParError(0));
+  const float Gsx = f_rho00_Xaxis->GetParameter(0)*1.8e5*pow(197.0,8)/(pow(450.0,2)*pow(1020.0,4)*pow(138.05,4));
+  string leg_current_Xaxis = Form("G^{(x)}_{s} = %1.2f m_{#pi}^{4}", Gsx);
   string leg_chi2_Xaxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Xaxis);
   string leg_p_Xaxis = Form("p-value: %1.3f", p_Xaxis);
   string leg_stat_Xaxis = Form("#chi^{2}/ndf: %1.1f & p-value: %1.3f",chi2_ndf_Xaxis,p_Xaxis);
 
-  TLegend *leg = new TLegend(0.45,0.17,0.85,0.32);
-  leg->SetBorderSize(0);
-  leg->SetFillColor(10);
-  leg->AddEntry(f_rho00_Laxis,leg_current_Laxis.c_str(),"l");
-  // leg->AddEntry((TObject*)0,leg_stat_Laxis.c_str(),"");
-  // leg->AddEntry((TObject*)0,leg_chi2_Laxis.c_str(),"");
-  // leg->AddEntry((TObject*)0,leg_p_Laxis.c_str(),"");
-  leg->AddEntry(f_rho00_Xaxis,leg_current_Xaxis.c_str(),"l");
-  // leg->AddEntry((TObject*)0,leg_stat_Xaxis.c_str(),"");
-  // leg->AddEntry((TObject*)0,leg_chi2_Xaxis.c_str(),"");
-  // leg->AddEntry((TObject*)0,leg_p_Xaxis.c_str(),"");
-  leg->Draw("same");
+  // TLegend *leg = new TLegend(0.45,0.17,0.85,0.32);
+  // leg->SetBorderSize(0);
+  // leg->SetFillColor(10);
+  // leg->AddEntry(f_rho00_Laxis,leg_current_Laxis.c_str(),"l");
+  // leg->AddEntry(f_rho00_Xaxis,leg_current_Xaxis.c_str(),"l");
+  // leg->Draw("same");
+
+  PlotLine(60,80,0.31,0.31,kRed,3,1);
+  plotTopLegend((char*)leg_current_Laxis.c_str(),85,0.3080,size_font,1,0.0,42,0);
+  PlotLine(60,80,0.30,0.30,kBlue,3,4);
+  plotTopLegend((char*)leg_current_Xaxis.c_str(),85,0.2980,size_font,1,0.0,42,0);
 
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig5_rho00EnergyEP.eps");
   c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig5_rho00EnergyEP.png");
