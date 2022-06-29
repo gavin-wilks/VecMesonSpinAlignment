@@ -45,7 +45,7 @@ void plotExtFig6_rho00PtPhi()
   TGraphAsymmErrors *g_rho_2nd_stat[6];
   TGraphAsymmErrors *g_rho_2nd_sys[6];
 
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/rho00_stat_sys_Laxis.root");
   for(int i_energy = 0; i_energy < 6; ++i_energy)
   {
     string GrapName_1st_stat = Form("rho00_1stEP_pt_stat_%d",mEnergy[i_energy]);
@@ -262,8 +262,8 @@ void plotExtFig6_rho00PtPhi()
     }
   }
 
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig6_rho00PtPhi.eps");
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig6_rho00PtPhi.png");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig6_rho00PtPhi.eps");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig6_rho00PtPhi.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

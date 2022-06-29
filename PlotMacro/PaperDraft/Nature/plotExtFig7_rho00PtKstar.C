@@ -225,8 +225,8 @@ void plotExtFig7_rho00PtKstar()
     }
   }
 
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig7_rho00PtKstar.eps");
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig7_rho00PtKstar.png");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig7_rho00PtKstar.eps");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig7_rho00PtKstar.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

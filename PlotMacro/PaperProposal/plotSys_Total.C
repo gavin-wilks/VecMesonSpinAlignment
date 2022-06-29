@@ -14,7 +14,7 @@ using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotSys_Total(int energy = 2)
+void plotSys_Total(int energy = 3)
 {
   const string mBeamEnergy[6] = {"11.5 GeV","19.6 GeV","27 GeV","39 GeV","62.4 GeV","200 GeV"};
   const int mEnergy[6] = {11,19,27,39,62,200};

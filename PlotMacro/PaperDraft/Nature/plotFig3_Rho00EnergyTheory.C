@@ -59,7 +59,7 @@ void plotFig3_Rho00EnergyTheory()
   //----------------------------------------------------------
   // phi-meson STAR
   //beam-energy dependence of phi-meson rho00 from STAR, pT: 1.2 - 5.4 GeV/c, 20-60%
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/rho00_stat_sys_Laxis.root");
   TGraphAsymmErrors *g_rhoPhi_2nd_stat_Laxis = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_stat");
   TGraphAsymmErrors *g_rhoPhi_2nd_sys_Laxis = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_sys");
   TGraphAsymmErrors *g_rho_2nd_fit_Laxis  = new TGraphAsymmErrors();
@@ -74,11 +74,6 @@ void plotFig3_Rho00EnergyTheory()
     g_rho_2nd_fit_Laxis->SetPoint(i_energy,energy,rho);
     g_rho_2nd_fit_Laxis->SetPointError(i_energy,0.0,0.0,err_fit,err_fit);
   }
-
-  // TFile *File_InputPhi_EP = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/BESII/rho00_stat_sys_Xaxis.root");
-  // TGraphAsymmErrors *g_rhoPhi_2nd_stat_Xaxis = (TGraphAsymmErrors*)File_InputPhi_EP->Get("rho00_2ndEP_energy_stat");
-  // TGraphAsymmErrors *g_rhoPhi_2nd_sys_Xaxis = (TGraphAsymmErrors*)File_InputPhi_EP->Get("rho00_2ndEP_energy_sys");
-  //----------------------------------------------------------
 
   //----------------------------------------------------------
   TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/data_Kstar_rho00_sNN_June9_2021.root");
@@ -179,12 +174,8 @@ void plotFig3_Rho00EnergyTheory()
   f_rho00_plot->Draw("l same");
 
   // plot Legend
-  // plotTopLegend((char*)"Au+Au",0.34,0.85,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"filled: STAR & Au+Au (20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"open: ALICE & Pb+Pb (10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"filled: STAR (Au+Au & 20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"open: ALICE (Pb+Pb & 10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
 
   Draw_TGAE_Point_new_Symbol(40,0.41,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.4075,size_font,1,0.0,42,0);
@@ -195,7 +186,8 @@ void plotFig3_Rho00EnergyTheory()
 
   // theory
   const float Gs = f_rho00_Laxis->GetParameter(0)*1.8e5*pow(197.0,8)/(pow(450.0,2)*pow(1020.0,4)*pow(138.05,4));
-  string leg_current_Laxis = Form("G^{(y)}_{s} = %1.2f m_{#pi}^{4}", Gs);
+  const float GsErr = f_rho00_Laxis->GetParError(0)*1.8e5*pow(197.0,8)/(pow(450.0,2)*pow(1020.0,4)*pow(138.05,4));
+  string leg_current_Laxis = Form("G^{(y)}_{s} = %1.2f #pm %1.2f m_{#pi}^{4}", Gs, GsErr);
   // string leg_current_Laxis = Form("C^{(y)}_{s} = %1.0f #pm %1.0f fm^{-8}",f_rho00_Laxis->GetParameter(0),f_rho00_Laxis->GetParError(0));
   // string leg_chi2_Laxis = Form("#chi^{2}/ndf: %1.1f",chi2_ndf_Laxis);
   // string leg_p_Laxis = Form("p-value: %1.3f", p_Laxis);
@@ -210,8 +202,8 @@ void plotFig3_Rho00EnergyTheory()
   PlotLine(35,45,0.38,0.38,2,3,1);
   plotTopLegend((char*)leg_current_Laxis.c_str(),48,0.3775,size_font,1,0.0,42,0);
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00EnergyTheory.eps");
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00EnergyTheory.png");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/fig3_rho00EnergyTheory.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/fig3_rho00EnergyTheory.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

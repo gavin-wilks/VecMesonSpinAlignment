@@ -36,7 +36,7 @@ void plotSys_2ndEnergyInte()
   const double total_center = 4.5;
   // const int mode_default = 0;
 
-  string inputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_2ndEnergyInte.root";
+  string inputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_2ndEnergyInte.root";
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -48,7 +48,8 @@ void plotSys_2ndEnergyInte()
   TGraphAsymmErrors *g_rho_default = (TGraphAsymmErrors*)File_InPut->Get(GraphName_Default.c_str());
   cout << "Default Graph set to: " << GraphName_Default.c_str() << endl;
 
-  double rho_def = 0.0;
+  double rho_def  = 0.0;
+  double err_stat = 0.0;
   TGraphAsymmErrors *g_rhoDef_Dca = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_rhoDef_Sig = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_rhoDef_Norm = new TGraphAsymmErrors();
@@ -61,6 +62,7 @@ void plotSys_2ndEnergyInte()
     g_rho_default->GetPoint(i_point,pt,rho);
     g_rho_default->GetPoint(i_point,pt,rho_def);
     double err = g_rho_default->GetErrorYhigh(i_point);
+    err_stat = g_rho_default->GetErrorYhigh(i_point);
     double width = 0.0;
 
     g_rhoDef_Dca->SetPoint(i_point,dca_center,rho);
@@ -284,6 +286,8 @@ void plotSys_2ndEnergyInte()
   g_rhoSys_Total->SetPointError(0,0,0,sys_total,sys_total);
   // cout << "sys_total_graph = " << g_rhoSys_Total->GetErrorYhigh(0) << endl;
 
+  cout << "rho_{00} = " << rho_def << " +/- " << err_stat << " +/- " << sys_total << endl;
+
   //==============================================================
 
   TCanvas *c_sys = new TCanvas("c_sys","c_sys",10,10,800,800);
@@ -384,7 +388,7 @@ void plotSys_2ndEnergyInte()
   leg->AddEntry((TObject*)0,leg_total.c_str(),"");
   leg->Draw("same");
 
-  string FigName = "/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysTotal_2ndEnergyInte.eps";
+  string FigName = "/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/NewF_JHChen/c_SysTotal_2ndEnergyInte.eps";
   c_sys->SaveAs(FigName.c_str());
 }
 

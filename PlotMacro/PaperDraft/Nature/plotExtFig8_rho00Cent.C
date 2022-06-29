@@ -41,7 +41,7 @@ void plotExtFig8_rho00Cent()
 
   for(int i_energy = 0; i_energy < 4; ++i_energy)
   {
-    string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rhoCent_%s_LXaxis.root",mBeamEnergyPhi[i_energy].c_str());
+    string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/rhoCent_%s_LXaxis.root",mBeamEnergyPhi[i_energy].c_str());
     File_InPutPhi[i_energy] = TFile::Open(inputfile.c_str());
 
     string GraName_1st_stat = Form("g_rhoCent_%s_1st_stat",mBeamEnergyPhi[i_energy].c_str());
@@ -336,8 +336,8 @@ void plotExtFig8_rho00Cent()
   plotTopLegend((char*)"Centrality (%)",0.46,0.4,0.8,1,0.0,42,1);
   pad_BottomMargin->Update();
 
-  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig8_rho00Centrality.eps");
-  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig8_rho00Centrality.png");
+  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig8_rho00Centrality.eps");
+  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig8_rho00Centrality.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

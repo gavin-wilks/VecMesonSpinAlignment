@@ -23,7 +23,7 @@ void cal1stEnergyInteRho()
   TFile *File_InPut[5];
   for(int i_energy = 0; i_energy < 5; ++i_energy)
   {
-    string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%s.root",mEnergy[i_energy].c_str());
+    string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%s.root",mEnergy[i_energy].c_str());
     File_InPut[i_energy] = TFile::Open(inputfile.c_str());
     cout << "Open input files: " << inputfile.c_str() << endl;
   }
@@ -226,7 +226,7 @@ void cal1stEnergyInteRho()
   // norm sysmatic value
   //--------------------------------------------------------------
 
-  string outputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_1stEnergyInte.root";
+  string outputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_1stEnergyInte.root";
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
 

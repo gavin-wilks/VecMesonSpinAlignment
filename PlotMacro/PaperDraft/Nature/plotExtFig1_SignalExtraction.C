@@ -29,7 +29,7 @@ void plotExtFig1_SignalExtraction()
 
   const float size_marker = 1.4;
 
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/Second_ActualFit_27GeV_pT_2.root");
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/Second_ActualFit_27GeV_pT_2.root");
   TH1D *h_mMassPhi = (TH1D*)File_InputPhi->Get("imass_all_pt2")->Clone("h_mMassPhi");
   TH1D *h_mYieldsPhi = (TH1D*)File_InputPhi->Get("raw_yield")->Clone("h_mYieldsPhi");
   float cos[7] = {1.0/14.0,3.0/14.0,5.0/14.0,7.0/14.0,9.0/14.0,11.0/14.0,13.0/14.0};
@@ -300,6 +300,6 @@ void plotExtFig1_SignalExtraction()
     // leg->Draw("same");
   }
 
-  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig1_SignalExtraction.eps");
-  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig1_SignalExtraction.png");
+  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig1_SignalExtraction.eps");
+  c_Signal->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig1_SignalExtraction.png");
 }

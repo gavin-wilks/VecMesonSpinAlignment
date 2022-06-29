@@ -43,6 +43,7 @@ void plotAlignmentMuB()
     c_alignment->cd(iPad+1)->SetLeftMargin(0.15);
     c_alignment->cd(iPad+1)->SetTicks(1,1);
     c_alignment->cd(iPad+1)->SetGrid(0,0);
+    c_alignment->cd(iPad+1)->SetLogx();
   }
   c_alignment->cd(1)->SetTopMargin(0.1);
   c_alignment->cd(2)->SetBottomMargin(0.20);

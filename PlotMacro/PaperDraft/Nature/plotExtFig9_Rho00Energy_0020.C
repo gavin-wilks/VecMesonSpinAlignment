@@ -59,7 +59,7 @@ void plotExtFig9_Rho00Energy_0020()
   //----------------------------------------------------------
   // phi-meson STAR
   //beam-energy dependence of phi-meson rho00 from STAR, pT: 1.2 - 5.4 GeV/c, 0-20%
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rhoCent_0020_LXaxis.root");
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/rhoCent_0020_Laxis.root");
   TGraphAsymmErrors *g_rhoPhi_1st_stat = (TGraphAsymmErrors*)File_InputPhi->Get("g_rho1st_0020_stat");
   TGraphAsymmErrors *g_rhoPhi_1st_sys = (TGraphAsymmErrors*)File_InputPhi->Get("g_rho1st_0020_sys");
   TGraphAsymmErrors *g_rhoPhi_2nd_stat = (TGraphAsymmErrors*)File_InputPhi->Get("g_rho2nd_0020_stat");
@@ -133,8 +133,8 @@ void plotExtFig9_Rho00Energy_0020()
 
   plotTopLegend((char*)"Au+Au (0-20\% & |y| < 1.0)",0.50,0.20,size_font,1,0.0,42,1);
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig9_rho00Energy_0020.eps");
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig9_rho00Energy_0020.png");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig9_rho00Energy_0020.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig9_rho00Energy_0020.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)

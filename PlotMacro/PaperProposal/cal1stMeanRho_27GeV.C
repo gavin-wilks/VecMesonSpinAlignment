@@ -25,10 +25,10 @@ void cal1stMeanRho_27GeV()
   // const int mode_default = 0;
 
 
-  string input_run11 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_27GeV.root";
+  string input_run11 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_27GeV.root";
   TFile *File_Run11 = TFile::Open(input_run11.c_str());
 
-  string input_run18 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_27GeV_Run18.root";
+  string input_run18 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_27GeV_Run18.root";
   TFile *File_Run18 = TFile::Open(input_run18.c_str());
 
 
@@ -232,7 +232,7 @@ void cal1stMeanRho_27GeV()
   // norm sysmatic value
   //--------------------------------------------------------------
 
-  string outputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_27GeV_1stMean.root";
+  string outputfile = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_27GeV_1stMean.root";
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
 

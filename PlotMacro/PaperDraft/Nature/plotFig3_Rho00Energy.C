@@ -59,7 +59,7 @@ void plotFig3_Rho00Energy()
   //----------------------------------------------------------
   // phi-meson STAR
   //beam-energy dependence of phi-meson rho00 from STAR, pT: 1.2 - 5.4 GeV/c, 20-60%
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/rho00_stat_sys_Laxis.root");
   TGraphAsymmErrors *g_rhoPhi_2nd_stat_Laxis = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_stat");
   TGraphAsymmErrors *g_rhoPhi_2nd_sys_Laxis = (TGraphAsymmErrors*)File_InputPhi->Get("rho00_2ndEP_energy_sys");
   TGraphAsymmErrors *g_rho_2nd_fit_Laxis  = new TGraphAsymmErrors();
@@ -148,12 +148,9 @@ void plotFig3_Rho00Energy()
   // plotSysErrors(g_rhoPhi_ALICE_sys,color_phi_ALICE);
 
   // plot Legend
-  // plotTopLegend((char*)"Au+Au",0.34,0.85,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"20\% - 60\% Centrality",0.25,0.82,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"Pb+Pb",0.72,0.85,size_font,1,0.0,42,1);
-  // plotTopLegend((char*)"10\% - 50\% Centrality",0.63,0.82,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"filled:  Au+Au (20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
-  plotTopLegend((char*)"open: Pb+Pb (10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"filled: STAR (Au+Au & 20\% - 60\% Centrality)",0.20,0.25,size_font,1,0.0,42,1);
+  plotTopLegend((char*)"open: ALICE (Pb+Pb & 10\% - 50\% Centrality)",0.20,0.20,size_font,1,0.0,42,1);
+
 
   Draw_TGAE_Point_new_Symbol(40,0.41,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotTopLegend((char*)"#phi    (|y| < 1.0 & 1.2 < p_{T} < 5.4 GeV/c)",48,0.4075,size_font,1,0.0,42,0);
@@ -161,8 +158,8 @@ void plotFig3_Rho00Energy()
   Draw_TGAE_Point_new_Symbol(40,0.395,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker-0.4);
   plotTopLegend((char*)"K^{*0} (|y| < 1.0 & 1.0 < p_{T} < 5.0 GeV/c)",48,0.3925,size_font,1,0.0,42,0);
 
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00Energy.eps");
-  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/fig3_rho00Energy.png");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/fig3_rho00Energy.eps");
+  c_rho00->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/fig3_rho00Energy.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
