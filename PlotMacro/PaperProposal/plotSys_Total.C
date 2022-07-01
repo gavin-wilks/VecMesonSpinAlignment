@@ -38,8 +38,8 @@ void plotSys_Total(int energy = 3)
   const float total_center = 4.5;
   // const int mode_default = 0;
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV.root",mEnergy[energy]);
-  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean.root",mEnergy[energy]);
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV.root",mEnergy[energy]);
+  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV_2ndMean.root",mEnergy[energy]);
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -418,7 +418,7 @@ void plotSys_Total(int energy = 3)
   leg->AddEntry((TObject*)0,leg_total.c_str(),"");
   leg->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysTotal_AuAu%dGeV.eps",mEnergy[energy]);
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/NewF_JHChen/c_SysTotal_AuAu%dGeV.eps",mEnergy[energy]);
   c_sys->SaveAs(FigName.c_str());
 }
 

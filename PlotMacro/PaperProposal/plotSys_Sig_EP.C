@@ -25,8 +25,8 @@ void plotSys_Sig_EP(int energy = 2)
   const string mLeg_sig[3] = {"|n#sigma_{K}| < 2.0", "|n#sigma_{K}| < 2.5", "|n#sigma_{K}| < 3.0"};
   const string mLeg_mode[4] = {"BW Inte (2#sigma)", "Counting (2#sigma)", "Counting (2.5#sigma)", "Counting (3.0#sigma)"};
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_EP.root",mEnergy[energy]);
-  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean_EP.root",mEnergy[energy]);
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV_EP.root",mEnergy[energy]);
+  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV_2ndMean_EP.root",mEnergy[energy]);
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -109,7 +109,7 @@ void plotSys_Sig_EP(int energy = 2)
   h_frame->GetXaxis()->SetTitleOffset(1.1);
   h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.22,0.38);
+  h_frame->GetYaxis()->SetRangeUser(0.22,0.42);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
   h_frame->GetYaxis()->SetTitle("#rho_{00} (In-Plane)");
   h_frame->GetYaxis()->SetTitleSize(0.06);
@@ -133,7 +133,7 @@ void plotSys_Sig_EP(int energy = 2)
 
   string formula = "#Delta#rho_{00,sys}^{sig} = #frac{#rho_{00,max}^{sig}-#rho_{00,min}^{sig}}{#sqrt{12}}";
   // string formula = "#Delta#rho_{00,sys}^{sig} = (#rho_{00,max}^{sig}-#rho_{00,min}^{sig})/#sqrt{12}";
-  plotTopLegend((char*)formula.c_str(),0.3,0.45,0.03,1,0.0,42,1);
+  plotTopLegend((char*)formula.c_str(),0.3,0.75,0.03,1,0.0,42,1);
 
   TLegend *leg_sig = new TLegend(0.2,0.2,0.5,0.4);
   leg_sig->SetBorderSize(0);
@@ -156,6 +156,6 @@ void plotSys_Sig_EP(int energy = 2)
   }
   leg_mode->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysSig_AuAu%dGeV_EP.eps",mEnergy[energy]);
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/NewF_JHChen/c_SysSig_AuAu%dGeV_EP.eps",mEnergy[energy]);
   c_rho00->SaveAs(FigName.c_str());
 }

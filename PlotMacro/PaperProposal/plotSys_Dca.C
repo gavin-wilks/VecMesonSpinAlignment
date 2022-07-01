@@ -25,8 +25,8 @@ void plotSys_Dca(int energy = 2)
   const string mLeg_dca[3] = {"dca < 2.0 cm", "dca < 2.5 cm", "dca < 3.0 cm"};
   const string mLeg_mode[4] = {"BW Inte (2#sigma)", "Counting (2#sigma)", "Counting (2.5#sigma)", "Counting (3.0#sigma)"};
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV.root",mEnergy[energy]);
-  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/rho00_%dGeV_2ndMean.root",mEnergy[energy]);
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV.root",mEnergy[energy]);
+  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV_2ndMean.root",mEnergy[energy]);
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -156,6 +156,6 @@ void plotSys_Dca(int energy = 2)
   }
   leg_mode->Draw("same");
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_SysDca_AuAu%dGeV.eps",mEnergy[energy]);
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/NewF_JHChen/c_SysDca_AuAu%dGeV.eps",mEnergy[energy]);
   c_rho00->SaveAs(FigName.c_str());
 }
