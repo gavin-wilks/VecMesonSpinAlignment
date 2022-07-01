@@ -9,19 +9,19 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TRandom3.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 
 ClassImp(StEffMcPhi)
 
 int StEffMcPhi::mInput_flag = 1;
 
-StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int year, int cut)
+StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int year, int cut, const char* setting)
 {
   energy = Energy;
   pid = PID;
 
   // string InPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
-  string InPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_%s_%s_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str(),vmsa::mCuts[cut].c_str());
+  string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Eff_%s_SingleParticle_2060_%s.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),setting);
 
   SetInPutFile(InPutFile); // set input list
 
@@ -29,7 +29,7 @@ StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int
   SetStopEvent(StopEvent); // set stop event
 
   // string OutPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string OutPutFile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string OutPutFile = Form("Eff_%s_SingleParticle_2060_%s.root",vmsa::mBeamEnergy[energy].c_str(),setting);
   SetOutPutFile(OutPutFile); // set output file
 
   mEffCut = new StEffCut();
@@ -73,7 +73,9 @@ void StEffMcPhi::Init()
   // initialize the TNtuple
   mFile_InPut = TFile::Open(mInPutFile.c_str());
   cout << "OPEN InPut File: " << mInPutFile.c_str() << endl;
-  mNtuple = (TNtuple*)mFile_InPut->Get("McPhiMeson");
+  
+  if(pid == 0) mNtuple = (TNtuple*)mFile_InPut->Get("McPhiMeson");
+  if(pid == 2) mNtuple = (TNtuple*)mFile_InPut->Get("McKStarMeson");
 
   // initialize Ntuple
   mNtuple->SetBranchAddress("Centrality",&mCentrality);
@@ -230,10 +232,10 @@ void StEffMcPhi::Make()
   }
   cout << "=> processing data: 100%" << endl;
   cout << "work done!" << endl;
-
   mEffHistManger->CalEfficiency();
   // mEffHistManger->CalEffPtEtaPhi();
   mEffHistManger->CalEffCosThetaStar();
+
 }
 
 void StEffMcPhi::Finish()

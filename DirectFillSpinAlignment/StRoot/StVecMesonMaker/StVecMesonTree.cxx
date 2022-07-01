@@ -40,7 +40,7 @@ StVecMesonTree::~StVecMesonTree()
 //------------------------------------------------------------------------------------------------------------------
 
 
-void StVecMesonTree::InitRho()
+/*void StVecMesonTree::InitRho()
 {
   mVecMesonCut = new StVecMesonCut(mEnergy);
   
@@ -70,7 +70,7 @@ void StVecMesonTree::InitRho()
   mTree->Branch("rho_SpinAlignment_branch","StMesonEvent",&mMesonEvent);
   //mTree->SetAutoSave(5000000);
 }
-
+*/
 //------------------------------------------------------------------------------------------------------------------
 
 
@@ -82,7 +82,7 @@ void StVecMesonTree::InitKStar()
   mVecMesonHistoFlow = new StVecMesonHistoFlow();  
 
   mUtility = new StUtility(mEnergy);
-  mRefMultCorr = new StRefMultCorr("refmult");
+  //mRefMultCorr = new StRefMultCorr("refmult");
 
   mVecMesonCorr->InitReCenterCorrection();
   mVecMesonCorr->InitShiftCorrection();
@@ -105,30 +105,15 @@ void StVecMesonTree::InitKStar()
   HistName = "pi_InvBeta_Rig";
   h_PiInvBetaRig = new TH2F(HistName.Data(),HistName.Data(),400,-4.5,4.5,300,-0.0,3.0);
 
-
-
-  for(Int_t cent = 0; cent < vmsa::Bin_Centrality; cent++)
-  {
-    for(Int_t vz = 0; vz < vmsa::Bin_VertexZ; vz++)
-    {
-      for(Int_t kstar_psi = 0; kstar_psi < vmsa::Bin_KStar_Psi; kstar_psi++)
-      {
-        mEventCounter2[cent][vz][kstar_psi] = 0;
-	clear_kstar(cent,vz,kstar_psi);
-      }
-    }
-  }
-
-  mMesonEvent = new StMesonEvent();
-  mMesonEventRK = new StMesonEvent();
-  mMesonEventRP = new StMesonEvent();
+  clear_kstar();
+    
 }
 
 //------------------------------------------------------------------------------------------------------------------
 
 
 
-void StVecMesonTree::WriteMass2Phi()
+/*void StVecMesonTree::WriteMass2Phi()
 {
   h_Mass2->Write();
   h_KdEdxRig->Write();
@@ -144,7 +129,7 @@ void StVecMesonTree::WriteMass2Rho()
   h_PiM2Rig->Write();
   h_PiInvBetaRig->Write(); 
   mTree->Write("",TObject::kOverwrite);
-}
+}*/
 
 void StVecMesonTree::WriteMass2KStar()
 {
@@ -161,7 +146,7 @@ void StVecMesonTree::WriteMass2KStar()
 }
 //------------------------------------------------------------------------------------------------------------------
 
-void StVecMesonTree::clear_rho(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
+/*void StVecMesonTree::clear_rho(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
 {
   mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].clear();
   mRefMult[cent9][Bin_vz][Bin_Psi2].clear();
@@ -197,47 +182,23 @@ void StVecMesonTree::clear_rho(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
     }
   }
   mEventCounter2[cent9][Bin_vz][Bin_Psi2] = 0;
-}
+}*/
 
-void StVecMesonTree::clear_kstar(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
+void StVecMesonTree::clear_kstar()
 {
-  mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].clear();
-  mRefMult[cent9][Bin_vz][Bin_Psi2].clear();
-  mCentrality[cent9][Bin_vz][Bin_Psi2].clear();
-  mRunId[cent9][Bin_vz][Bin_Psi2].clear();
-  mEventId[cent9][Bin_vz][Bin_Psi2].clear();
-  mN_prim[cent9][Bin_vz][Bin_Psi2].clear();
-  mN_non_prim[cent9][Bin_vz][Bin_Psi2].clear();
-  mN_Tof_match[cent9][Bin_vz][Bin_Psi2].clear();
-  mZDCx[cent9][Bin_vz][Bin_Psi2].clear();
-  mBBCx[cent9][Bin_vz][Bin_Psi2].clear();
-  mVzVpd[cent9][Bin_vz][Bin_Psi2].clear();
-  mQ2East[cent9][Bin_vz][Bin_Psi2].clear();
-  mQ2West[cent9][Bin_vz][Bin_Psi2].clear();
-  mQ2Full[cent9][Bin_vz][Bin_Psi2].clear();
-  mNumTrackEast[cent9][Bin_vz][Bin_Psi2].clear();
-  mNumTrackWest[cent9][Bin_vz][Bin_Psi2].clear();
-  mNumTrackFull[cent9][Bin_vz][Bin_Psi2].clear();
-  mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].clear();
-  mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].clear();
+  mPrimaryvertex.set(-999.0,-999.0,-999.0);
 
-  for(Int_t Bin_Event = 0; Bin_Event < 1/*vmsa::Buffer_depth*/; Bin_Event++)
+  for(Int_t id = 0; id < 4; id++)
   {
-    for(Int_t id = 0; id < 4; id++)
-    {
-      MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,id);
-      mHelix[key].clear();
-      mMomentum[key].clear();
-      mMass2[key].clear();
-      mDca[key].clear();
-      mNHitsFit[key].clear();
-      mNSigma[key].clear();
-      mCharge[key].clear();
-    }
+    mHelix[id].clear();
+    mMomentum[id].clear();
+    mMass2[id].clear();
+    mDca[id].clear();
+    mNHitsFit[id].clear();
+    mNSigma[id].clear();
   }
-  mEventCounter2[cent9][Bin_vz][Bin_Psi2] = 0;
 }
-
+/*
 void StVecMesonTree::size_rho(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
 {
   LOG_INFO << "Event Buffer: Centrality = " << cent9 << ", VertexZ = " << Bin_vz << ", Psi2 = " << Bin_Psi2 << endm;
@@ -272,10 +233,10 @@ void StVecMesonTree::size_rho(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
     LOG_INFO << "---------------------------------------------------------------------------" << endm;
   }
 }
-
+*/
 //------------------------------------------------------------------------------------------------------------------
 
-void StVecMesonTree::size_kstar(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
+/*void StVecMesonTree::size_kstar(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
 {
   LOG_INFO << "Event Buffer: Centrality = " << cent9 << ", VertexZ = " << Bin_vz << ", Psi2 = " << Bin_Psi2 << endm;
   LOG_INFO << "Buffer_depth = " << mEventCounter2[cent9][Bin_vz][Bin_Psi2] << endm;
@@ -331,11 +292,11 @@ void StVecMesonTree::size_kstar(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
     LOG_INFO << "---------------------------------------------------------------------------" << endm;
 
   }
-}
+}*/
 
 //------------------------------------------------------------------------------------------------------------------
 
-void StVecMesonTree::doRho(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2) // 0: Same Event, 1: Mix Event
+/*void StVecMesonTree::doRho(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2) // 0: Same Event, 1: Mix Event
 {
   if(Flag_ME == 0) // same event
   {
@@ -388,17 +349,17 @@ void StVecMesonTree::doRho(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_P
 	  // fill phi candidate into mTree
 	  if(InvMassAB > vmsa::mMassPion*2 && InvMassAB < 0.9) 
 	  {
-	    mMesonTrack = mMesonEvent->createTrack();
-	    mMesonTrack->setMass2A(mMass2[key_plus][n_piplus]); // K+
-	    mMesonTrack->setMass2B(mMass2[key_minus][n_piminus]); // K-
-	    mMesonTrack->setNSigA(mNSigma[key_plus][n_piplus]); // K+
-	    mMesonTrack->setNSigB(mNSigma[key_minus][n_piminus]); // K-
-	    mMesonTrack->setDcaA(mDca[key_plus][n_piplus]); // K+
-	    mMesonTrack->setDcaB(mDca[key_minus][n_piminus]); // K-
-	    mMesonTrack->setTrackA(ltrackA); // K+
-	    mMesonTrack->setTrackB(ltrackB); // K-
-	    mMesonTrack->setFlagA(Bin_Event); // K+
-	    mMesonTrack->setFlagB(Bin_Event); // K-
+	    mesonTrack = mMesonEvent->createTrack();
+	    mesonTrack->setMass2A(mMass2[key_plus][n_piplus]); // K+
+	    mesonTrack->setMass2B(mMass2[key_minus][n_piminus]); // K-
+	    mesonTrack->setNSigA(mNSigma[key_plus][n_piplus]); // K+
+	    mesonTrack->setNSigB(mNSigma[key_minus][n_piminus]); // K-
+	    mesonTrack->setDcaA(mDca[key_plus][n_piplus]); // K+
+	    mesonTrack->setDcaB(mDca[key_minus][n_piminus]); // K-
+	    mesonTrack->setTrackA(ltrackA); // K+
+	    mesonTrack->setTrackB(ltrackB); // K-
+	    mesonTrack->setFlagA(Bin_Event); // K+
+	    mesonTrack->setFlagB(Bin_Event); // K-
 	  }
 
 	  // Fill histogram with InvMassAB information
@@ -474,17 +435,17 @@ void StVecMesonTree::doRho(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_P
 	    // fill phi candidate background into mTree
 	    if(InvMassAB > vmsa::mMassPion*2 && InvMassAB < 1.05) 
 	    {
-	      mMesonTrack = mMesonEvent->createTrack();
-	      mMesonTrack->setMass2A(mMass2[key_A_plus][n_piplus]); // K+
-	      mMesonTrack->setMass2B(mMass2[key_B_minus][n_piminus]); // K-
-	      mMesonTrack->setNSigA(mNSigma[key_A_plus][n_piplus]); // K+
-	      mMesonTrack->setNSigB(mNSigma[key_B_minus][n_piminus]); // K-
-	      mMesonTrack->setDcaA(mDca[key_A_plus][n_piplus]); // K+
-	      mMesonTrack->setDcaB(mDca[key_B_minus][n_piminus]); // K-
-	      mMesonTrack->setTrackA(ltrackA); // K+
-	      mMesonTrack->setTrackB(ltrackB); // K-
-	      mMesonTrack->setFlagA(Bin_Event_A); // K+
-	      mMesonTrack->setFlagB(Bin_Event_B); // K-
+	      mesonTrack = mMesonEvent->createTrack();
+	      mesonTrack->setMass2A(mMass2[key_A_plus][n_piplus]); // K+
+	      mesonTrack->setMass2B(mMass2[key_B_minus][n_piminus]); // K-
+	      mesonTrack->setNSigA(mNSigma[key_A_plus][n_piplus]); // K+
+	      mesonTrack->setNSigB(mNSigma[key_B_minus][n_piminus]); // K-
+	      mesonTrack->setDcaA(mDca[key_A_plus][n_piplus]); // K+
+	      mesonTrack->setDcaB(mDca[key_B_minus][n_piminus]); // K-
+	      mesonTrack->setTrackA(ltrackA); // K+
+	      mesonTrack->setTrackB(ltrackB); // K-
+	      mesonTrack->setFlagA(Bin_Event_A); // K+
+	      mesonTrack->setFlagB(Bin_Event_B); // K-
 	    }
 
 	    // Fill histogram with InvMassAB information
@@ -512,17 +473,17 @@ void StVecMesonTree::doRho(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_P
 	    // fill phi candidate background into mTree
 	    if(InvMassAB > vmsa::mMassPion*2 && InvMassAB < 1.05) 
 	    {
-	      mMesonTrack = mMesonEvent->createTrack();
-	      mMesonTrack->setMass2A(mMass2[key_B_plus][n_piplus]); // K+
-	      mMesonTrack->setMass2B(mMass2[key_A_minus][n_piminus]); // K-
-	      mMesonTrack->setNSigA(mNSigma[key_B_plus][n_piplus]); // K+
-	      mMesonTrack->setNSigB(mNSigma[key_A_minus][n_piminus]); // K-
-	      mMesonTrack->setDcaA(mDca[key_B_plus][n_piplus]); // K+
-	      mMesonTrack->setDcaB(mDca[key_A_minus][n_piminus]); // K-
-	      mMesonTrack->setTrackA(ltrackB); // K+
-	      mMesonTrack->setTrackB(ltrackA); // K-
-	      mMesonTrack->setFlagA(Bin_Event_B); // K+
-	      mMesonTrack->setFlagB(Bin_Event_A); // K-
+	      mesonTrack = mMesonEvent->createTrack();
+	      mesonTrack->setMass2A(mMass2[key_B_plus][n_piplus]); // K+
+	      mesonTrack->setMass2B(mMass2[key_A_minus][n_piminus]); // K-
+	      mesonTrack->setNSigA(mNSigma[key_B_plus][n_piplus]); // K+
+	      mesonTrack->setNSigB(mNSigma[key_A_minus][n_piminus]); // K-
+	      mesonTrack->setDcaA(mDca[key_B_plus][n_piplus]); // K+
+	      mesonTrack->setDcaB(mDca[key_A_minus][n_piminus]); // K-
+	      mesonTrack->setTrackA(ltrackB); // K+
+	      mesonTrack->setTrackB(ltrackA); // K-
+	      mesonTrack->setFlagA(Bin_Event_B); // K+
+	      mesonTrack->setFlagB(Bin_Event_A); // K-
 	    }
 
 	    // Fill histogram with InvMassAB information
@@ -534,7 +495,7 @@ void StVecMesonTree::doRho(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_P
     mTree->Fill();
   }
 }
-
+*/
 //------------------------------------------------------------------------------------------------------------------
 
 void StVecMesonTree::FillKStar(StMesonTrack* Meson_track)
@@ -642,8 +603,8 @@ void StVecMesonTree::FillKStar(StMesonTrack* Meson_track)
 
     //cout << "Rapidity = " << rapidity_lTrack << "  , pt = " << pt_lTrack << endl;
 
-    if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) return;
-    if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) return;
+    //if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) return;
+    //if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) return;
     if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) return;
     //cout << "After issue?" << endl;
     Float_t InvMass_lTrack = lTrack.M();
@@ -655,20 +616,23 @@ void StVecMesonTree::FillKStar(StMesonTrack* Meson_track)
 
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
     {
-      if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,2)) ) return;
+      if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,2)) ) continue;
       mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
 
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigma
       {
-        if(i_dca != 0 && i_sig != 0) return;
-        if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,2)) ) return;
+        if(i_dca != 0 && i_sig != 0) continue;
+        if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,2)) ) continue;
         mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
     
         for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++) // systematic loop for nSigma
         {
-          if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) return;
-          if( !(mVecMesonCut->passTrackNHitSys(nhA,nhB,i_nhit,2)) ) return;
+          //if((i_dca != 0 || i_sig != 0) && i_nhit != 0) return;
+          //cout << "dca = " << i_dca << "    sig = " << i_sig << "    nhit = " << i_nhit << endl;
+          if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+          if( !(mVecMesonCut->passTrackNHitSys(nhA,nhB,i_nhit,2)) ) continue;
           mVecMesonHistoManger->FillNHitSys(nhA,nhB,i_nhit); // fill QA for nhA and nhB 
+          //cout << i_dca << i_sig << i_nhit << endl;
 
           //////////////// GLOBAL SPIN ALIGNMENT ///////////////////////////////////////////////////
           if(mVecMesonCut->passEtaEast(lTrackA)) // K+/- neg eta(east)
@@ -786,11 +750,11 @@ void StVecMesonTree::FillKStar(StMesonTrack* Meson_track)
   }
 }
 
-void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2) // 0: Same Event, 1: Mix Event
+void StVecMesonTree::doKStar(Int_t Flag_ME) // 0: Same Event, 1: Mix Event
 {
   if(Flag_ME == 0) // same event
   {
-    for(Int_t Bin_Event = 0; Bin_Event < mEventCounter2[cent9][Bin_vz][Bin_Psi2]; Bin_Event++)
+    //for(Int_t Bin_Event = 0; Bin_Event < mEventCounter2[cent9][Bin_vz][Bin_Psi2]; Bin_Event++)
     {
       // event header
       //mMesonEvent->clearTrackList();
@@ -818,21 +782,21 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
       //mMesonEvent->setVzVpd(mVzVpd[cent9][Bin_vz][Bin_Psi2][Bin_Event]);
    
       // start to select phi candidate in a event
-      MEKey key_kplus   = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,0); //K+
-      MEKey key_kminus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,1); //K-
-      MEKey key_piplus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,2); //pi+
-      MEKey key_piminus = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,3); //pi-
+      //MEKey key_kplus   = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,0); //K+
+      //MEKey key_kminus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,1); //K-
+      //MEKey key_piplus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,2); //pi+
+      //MEKey key_piminus = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,3); //pi-
 
       TLorentzVector ltrackA, ltrackB;
-      for(Int_t n_kplus = 0; n_kplus < mHelix[key_kplus].size(); n_kplus++) // first track loop over K+ candidates
+      for(Int_t n_kplus = 0; n_kplus < mHelix[0].size(); n_kplus++) // first track loop over K+ candidates
       {
-	StThreeVectorF p_vecA = mHelix[key_kplus][n_kplus].cat(mHelix[key_kplus][n_kplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	p_vecA *= mMomentum[key_kplus][n_kplus];
+	StThreeVectorF p_vecA = mHelix[0][n_kplus].cat(mHelix[0][n_kplus].pathLength(mPrimaryvertex));  // primary momentum
+	p_vecA *= mMomentum[0][n_kplus];
 	ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassKaon);
-	for(Int_t n_piminus = 0; n_piminus < mHelix[key_piminus].size(); n_piminus++) // second track loop over K- candidates
+	for(Int_t n_piminus = 0; n_piminus < mHelix[3].size(); n_piminus++) // second track loop over K- candidates
 	{
-	  StThreeVectorF p_vecB = mHelix[key_piminus][n_piminus].cat(mHelix[key_piminus][n_piminus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	  p_vecB *= mMomentum[key_piminus][n_piminus];
+	  StThreeVectorF p_vecB = mHelix[3][n_piminus].cat(mHelix[3][n_piminus].pathLength(mPrimaryvertex));  // primary momentum
+	  p_vecB *= mMomentum[3][n_piminus];
 	  ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassPion);
 	  TLorentzVector trackAB      = ltrackA+ltrackB;
 	  Double_t InvMassAB          = trackAB.M();
@@ -842,38 +806,39 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	  //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
 	  if(InvMassAB > 0.60 && InvMassAB < 1.2) 
 	  {
-	    StMesonTrack* mesonTrackAB1 = new StMesonTrack();
-	    mesonTrackAB1->setMass2A(mMass2[key_kplus][n_kplus]); // K+
-	    mesonTrackAB1->setMass2B(mMass2[key_piminus][n_piminus]); // pi-
-	    mesonTrackAB1->setNSigA(mNSigma[key_kplus][n_kplus]); // K+
-	    mesonTrackAB1->setNSigB(mNSigma[key_piminus][n_piminus]); // pi-
-	    mesonTrackAB1->setDcaA(mDca[key_kplus][n_kplus]); // K+
-	    mesonTrackAB1->setDcaB(mDca[key_piminus][n_piminus]); // pi-
-	    mesonTrackAB1->setNHitA(mNHitsFit[key_kplus][n_kplus]); // K+
-	    mesonTrackAB1->setNHitB(mNHitsFit[key_piminus][n_piminus]); // pi-
-	    mesonTrackAB1->setChargeA(mCharge[key_kplus][n_kplus]); // K+
-	    mesonTrackAB1->setChargeB(mCharge[key_piminus][n_piminus]); // pi-
-	    mesonTrackAB1->setTrackA(ltrackA); // K+
-	    mesonTrackAB1->setTrackB(ltrackB); // pi-
-	    mesonTrackAB1->setFlagA(Bin_Event); // K+
-	    mesonTrackAB1->setFlagB(Bin_Event); // pi-
+	    StMesonTrack *mesonTrack = new StMesonTrack();
+	    mesonTrack->setMass2A(mMass2[0][n_kplus]); // K+
+	    mesonTrack->setMass2B(mMass2[3][n_piminus]); // pi-
+	    mesonTrack->setNSigA(mNSigma[0][n_kplus]); // K+
+	    mesonTrack->setNSigB(mNSigma[3][n_piminus]); // pi-
+	    mesonTrack->setDcaA(mDca[0][n_kplus]); // K+
+	    mesonTrack->setDcaB(mDca[3][n_piminus]); // pi-
+	    mesonTrack->setNHitA(mNHitsFit[0][n_kplus]); // K+
+	    mesonTrack->setNHitB(mNHitsFit[3][n_piminus]); // pi-
+	    //mesonTrack->setChargeA(mCharge[0][n_kplus]); // K+
+	    //mesonTrack->setChargeB(mCharge[3][n_piminus]); // pi-
+	    mesonTrack->setTrackA(ltrackA); // K+
+	    mesonTrack->setTrackB(ltrackB); // pi-
+	    mesonTrack->setFlagA(0); // K+
+	    mesonTrack->setFlagB(0); // pi-
 	    h_Mass2->Fill(pt,InvMassAB);
-            FillKStar(mesonTrackAB1);
+            FillKStar(mesonTrack);
+            delete mesonTrack;
 	  }
 
 	  // Fill histogram with InvMassAB information
 	}
       }
 
-      for(Int_t n_piplus = 0; n_piplus < mHelix[key_piplus].size(); n_piplus++) // first track loop over pi+ candidates
+      for(Int_t n_piplus = 0; n_piplus < mHelix[2].size(); n_piplus++) // first track loop over pi+ candidates
       {
-	StThreeVectorF p_vecA = mHelix[key_piplus][n_piplus].cat(mHelix[key_piplus][n_piplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	p_vecA *= mMomentum[key_piplus][n_piplus];
+	StThreeVectorF p_vecA = mHelix[2][n_piplus].cat(mHelix[2][n_piplus].pathLength(mPrimaryvertex));  // primary momentum
+	p_vecA *= mMomentum[2][n_piplus];
 	ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassPion);
-	for(Int_t n_kminus = 0; n_kminus < mHelix[key_kminus].size(); n_kminus++) // second track loop over K- candidates
+	for(Int_t n_kminus = 0; n_kminus < mHelix[1].size(); n_kminus++) // second track loop over K- candidates
 	{
-	  StThreeVectorF p_vecB = mHelix[key_kminus][n_kminus].cat(mHelix[key_kminus][n_kminus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	  p_vecB *= mMomentum[key_kminus][n_kminus];
+	  StThreeVectorF p_vecB = mHelix[1][n_kminus].cat(mHelix[1][n_kminus].pathLength(mPrimaryvertex));  // primary momentum
+	  p_vecB *= mMomentum[1][n_kminus];
 	  ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassKaon);
 	  TLorentzVector trackAB      = ltrackA+ltrackB;
 	  Double_t InvMassAB          = trackAB.M();
@@ -883,23 +848,24 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	  //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
 	  if(InvMassAB > 0.6 && InvMassAB < 1.2) 
 	  {
-	    StMesonTrack* mesonTrackAB2 = new StMesonTrack();
-	    mesonTrackAB2->setMass2B(mMass2[key_piplus][n_piplus]); // pi+
-	    mesonTrackAB2->setMass2A(mMass2[key_kminus][n_kminus]); // K-
-	    mesonTrackAB2->setNSigB(mNSigma[key_piplus][n_piplus]); // pi+
-	    mesonTrackAB2->setNSigA(mNSigma[key_kminus][n_kminus]); // K-
-	    mesonTrackAB2->setDcaB(mDca[key_piplus][n_piplus]); // pi+
-	    mesonTrackAB2->setDcaA(mDca[key_kminus][n_kminus]); // K-
-	    mesonTrackAB2->setNHitB(mNHitsFit[key_piplus][n_piplus]); // pi+
-	    mesonTrackAB2->setNHitA(mNHitsFit[key_kminus][n_kminus]); // K-
-	    mesonTrackAB2->setChargeB(mCharge[key_piplus][n_piplus]); // pi+
-	    mesonTrackAB2->setChargeA(mCharge[key_kminus][n_kminus]); // K-
-	    mesonTrackAB2->setTrackB(ltrackA); // pi+
-	    mesonTrackAB2->setTrackA(ltrackB); // K-
-	    mesonTrackAB2->setFlagB(Bin_Event); // pi+
-	    mesonTrackAB2->setFlagA(Bin_Event); // K-
+	    StMesonTrack *mesonTrack = new StMesonTrack();
+	    mesonTrack->setMass2B(mMass2[2][n_piplus]); // pi+
+	    mesonTrack->setMass2A(mMass2[1][n_kminus]); // K-
+	    mesonTrack->setNSigB(mNSigma[2][n_piplus]); // pi+
+	    mesonTrack->setNSigA(mNSigma[1][n_kminus]); // K-
+	    mesonTrack->setDcaB(mDca[2][n_piplus]); // pi+
+	    mesonTrack->setDcaA(mDca[1][n_kminus]); // K-
+	    mesonTrack->setNHitB(mNHitsFit[2][n_piplus]); // pi+
+	    mesonTrack->setNHitA(mNHitsFit[1][n_kminus]); // K-
+	    //mesonTrack->setChargeB(mCharge[2][n_piplus]); // pi+
+	    //mesonTrack->setChargeA(mCharge[1][n_kminus]); // K-
+	    mesonTrack->setTrackB(ltrackA); // pi+
+	    mesonTrack->setTrackA(ltrackB); // K-
+	    mesonTrack->setFlagB(0); // pi+
+	    mesonTrack->setFlagA(0); // K-
 	    h_Mass2->Fill(pt,InvMassAB);
-            FillKStar(mesonTrackAB2);
+            FillKStar(mesonTrack);
+            delete mesonTrack;
 	  }
 
 	  // Fill histogram with InvMassAB information
@@ -910,7 +876,8 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 
   if(Flag_ME == 1) // mixed event
   {
-    for(Int_t Bin_Event = 0; Bin_Event < mEventCounter2[cent9][Bin_vz][Bin_Psi2]; Bin_Event++)
+    //Int_t Bin_event = 0;
+    //for(Int_t Bin_Event = 0; Bin_Event < mEventCounter2[cent9][Bin_vz][Bin_Psi2]; Bin_Event++)
     {
       // event header
       //mMesonEventRK->clearTrackList();
@@ -963,24 +930,24 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
       //mMesonEventRP->setVzVpd(mVzVpd[cent9][Bin_vz][Bin_Psi2][Bin_Event]);
 
       // start to select phi candidate in a event
-      MEKey key_kplus   = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,0); //K+
-      MEKey key_kminus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,1); //K-
-      MEKey key_piplus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,2); //pi+
-      MEKey key_piminus = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,3); //pi-
+      //MEKey key_kplus   = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,0); //K+
+      //MEKey key_kminus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,1); //K-
+      //MEKey key_piplus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,2); //pi+
+      //MEKey key_piminus = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,3); //pi-
 
       TLorentzVector ltrackA, ltrackB, ltrackC, ltrackD;
-      for(Int_t n_kplus = 0; n_kplus < mHelix[key_kplus].size(); n_kplus++) // first track loop over K+ candidates
+      for(Int_t n_kplus = 0; n_kplus < mHelix[0].size(); n_kplus++) // first track loop over K+ candidates
       {
-	StThreeVectorF p_vecA = mHelix[key_kplus][n_kplus].cat(mHelix[key_kplus][n_kplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	p_vecA *= mMomentum[key_kplus][n_kplus];
+	StThreeVectorF p_vecA = mHelix[0][n_kplus].cat(mHelix[0][n_kplus].pathLength(mPrimaryvertex));  // primary momentum
+	p_vecA *= mMomentum[0][n_kplus];
 	ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassKaon);
-	ltrackC.SetXYZM(-1.0*p_vecA.x(),-1.0*p_vecA.y(),p_vecA.z(),vmsa::mMassKaon);
+	//ltrackC.SetXYZM(-1.0*p_vecA.x(),-1.0*p_vecA.y(),p_vecA.z(),vmsa::mMassKaon);
         //ltrackC.RotateZ(TMath::Pi());
-	for(Int_t n_piminus = 0; n_piminus < mHelix[key_piminus].size(); n_piminus++) // second track loop over K- candidates
+	for(Int_t n_piminus = 0; n_piminus < mHelix[3].size(); n_piminus++) // second track loop over K- candidates
 	{
-	  StThreeVectorF p_vecB = mHelix[key_piminus][n_piminus].cat(mHelix[key_piminus][n_piminus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	  p_vecB *= mMomentum[key_piminus][n_piminus];
-	  ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassPion);
+	  StThreeVectorF p_vecB = mHelix[3][n_piminus].cat(mHelix[3][n_piminus].pathLength(mPrimaryvertex));  // primary momentum
+	  p_vecB *= mMomentum[3][n_piminus];
+	  //ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassPion);
 	  ltrackD.SetXYZM(-1.0*p_vecB.x(),-1.0*p_vecB.y(),p_vecB.z(),vmsa::mMassPion);
           //ltrackD.RotateZ(TMath::Pi());
 //cout << "Before issue?" << endl;
@@ -988,76 +955,78 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 	  Double_t InvMassAD          = trackAD.M();
 	  Double_t ptAD = trackAD.Perp();
 
-	  TLorentzVector trackCB      = ltrackC+ltrackB;
-	  Double_t InvMassCB          = trackCB.M();
-	  Double_t ptCB = trackCB.Perp();
+	  //TLorentzVector trackCB      = ltrackC+ltrackB;
+	  //Double_t InvMassCB          = trackCB.M();
+	  //Double_t ptCB = trackCB.Perp();
 //cout << "After issue?" << endl;
 	  // fill phi candidate into mTree
 	  //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
 	  if(InvMassAD > 0.60 && InvMassAD < 1.2) 
 	  {
-	    StMesonTrack* mesonTrackAD = new StMesonTrack();
-	    mesonTrackAD->setMass2A(mMass2[key_kplus][n_kplus]); // K+
-	    mesonTrackAD->setMass2B(mMass2[key_piminus][n_piminus]); // pi-
-	    mesonTrackAD->setNSigA(mNSigma[key_kplus][n_kplus]); // K+
-	    mesonTrackAD->setNSigB(mNSigma[key_piminus][n_piminus]); // pi-
-	    mesonTrackAD->setDcaA(mDca[key_kplus][n_kplus]); // K+
-	    mesonTrackAD->setDcaB(mDca[key_piminus][n_piminus]); // pi-
-	    mesonTrackAD->setNHitA(mNHitsFit[key_kplus][n_kplus]); // K+
-	    mesonTrackAD->setNHitB(mNHitsFit[key_piminus][n_piminus]); // pi-
-	    mesonTrackAD->setChargeA(mCharge[key_kplus][n_kplus]); // K+
-	    mesonTrackAD->setChargeB(mCharge[key_piminus][n_piminus]); // pi-
-	    mesonTrackAD->setTrackA(ltrackA); // K+
-	    mesonTrackAD->setTrackB(ltrackD); // pi-
-	    mesonTrackAD->setFlagA(Bin_Event); // K+
-	    mesonTrackAD->setFlagB(Bin_Event); // pi-
+	    StMesonTrack *mesonTrack = new StMesonTrack();
+	    mesonTrack->setMass2A(mMass2[0][n_kplus]); // K+
+	    mesonTrack->setMass2B(mMass2[3][n_piminus]); // pi-
+	    mesonTrack->setNSigA(mNSigma[0][n_kplus]); // K+
+	    mesonTrack->setNSigB(mNSigma[3][n_piminus]); // pi-
+	    mesonTrack->setDcaA(mDca[0][n_kplus]); // K+
+	    mesonTrack->setDcaB(mDca[3][n_piminus]); // pi-
+	    mesonTrack->setNHitA(mNHitsFit[0][n_kplus]); // K+
+	    mesonTrack->setNHitB(mNHitsFit[3][n_piminus]); // pi-
+	    //mesonTrack->setChargeA(mCharge[0][n_kplus]); // K+
+	    //mesonTrack->setChargeB(mCharge[3][n_piminus]); // pi-
+	    mesonTrack->setTrackA(ltrackA); // K+
+	    mesonTrack->setTrackB(ltrackD); // pi-
+	    mesonTrack->setFlagA(0); // K+
+	    mesonTrack->setFlagB(0); // pi-
 	    h_Mass2->Fill(ptAD,InvMassAD);
-            FillKStar(mesonTrackAD);
+            FillKStar(mesonTrack);
+            delete mesonTrack;
 	  }
 
-	  if(InvMassCB > 0.60 && InvMassCB < 1.2) 
-	  {
-	    StMesonTrack* mesonTrackCB = new StMesonTrack();
-	    mesonTrackCB->setMass2A(mMass2[key_kplus][n_kplus]); // K+
-	    mesonTrackCB->setMass2B(mMass2[key_piminus][n_piminus]); // pi-
-	    mesonTrackCB->setNSigA(mNSigma[key_kplus][n_kplus]); // K+
-	    mesonTrackCB->setNSigB(mNSigma[key_piminus][n_piminus]); // pi-
-	    mesonTrackCB->setDcaA(mDca[key_kplus][n_kplus]); // K+
-	    mesonTrackCB->setDcaB(mDca[key_piminus][n_piminus]); // pi-
-	    mesonTrackCB->setNHitA(mNHitsFit[key_kplus][n_kplus]); // K+
-	    mesonTrackCB->setNHitB(mNHitsFit[key_piminus][n_piminus]); // pi-
-	    mesonTrackCB->setChargeA(mCharge[key_kplus][n_kplus]); // K+
-	    mesonTrackCB->setChargeB(mCharge[key_piminus][n_piminus]); // pi-
-	    mesonTrackCB->setTrackA(ltrackC); // K+
-	    mesonTrackCB->setTrackB(ltrackB); // pi-
-	    mesonTrackCB->setFlagA(Bin_Event); // K+
-	    mesonTrackCB->setFlagB(Bin_Event); // pi-
-	    h_Mass2->Fill(ptCB,InvMassCB);
-            FillKStar(mesonTrackCB);
-	  }
+	  //if(InvMassCB > 0.60 && InvMassCB < 1.2) 
+	  //{
+	  //  StMesonTrack *mesonTrack = new StMesonTrack();
+	  //  mesonTrack->setMass2A(mMass2[0][n_kplus]); // K+
+	  //  mesonTrack->setMass2B(mMass2[3][n_piminus]); // pi-
+	  //  mesonTrack->setNSigA(mNSigma[0][n_kplus]); // K+
+	  //  mesonTrack->setNSigB(mNSigma[3][n_piminus]); // pi-
+	  //  mesonTrack->setDcaA(mDca[0][n_kplus]); // K+
+	  //  mesonTrack->setDcaB(mDca[3][n_piminus]); // pi-
+	  //  mesonTrack->setNHitA(mNHitsFit[0][n_kplus]); // K+
+	  //  mesonTrack->setNHitB(mNHitsFit[3][n_piminus]); // pi-
+	  //  //mesonTrack->setChargeA(mCharge[0][n_kplus]); // K+
+	  //  //mesonTrack->setChargeB(mCharge[3][n_piminus]); // pi-
+	  //  mesonTrack->setTrackA(ltrackC); // K+
+	  //  mesonTrack->setTrackB(ltrackB); // pi-
+	  //  mesonTrack->setFlagA(0); // K+
+	  //  mesonTrack->setFlagB(0); // pi-
+	  //  h_Mass2->Fill(ptCB,InvMassCB);
+          //  FillKStar(mesonTrack);
+          //  delete mesonTrack;
+	  //}
 	  // Fill histogram with InvMassAB information
 	}
       }
 
-      for(Int_t n_piplus = 0; n_piplus < mHelix[key_piplus].size(); n_piplus++) // first track loop over pi+ candidates
+      for(Int_t n_piplus = 0; n_piplus < mHelix[2].size(); n_piplus++) // first track loop over pi+ candidates
       {
-	StThreeVectorF p_vecA = mHelix[key_piplus][n_piplus].cat(mHelix[key_piplus][n_piplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	p_vecA *= mMomentum[key_piplus][n_piplus];
-	ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassPion);
+	StThreeVectorF p_vecA = mHelix[2][n_piplus].cat(mHelix[2][n_piplus].pathLength(mPrimaryvertex));  // primary momentum
+	p_vecA *= mMomentum[2][n_piplus];
+	//ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassPion);
 	ltrackC.SetXYZM(-1.0*p_vecA.x(),-1.0*p_vecA.y(),p_vecA.z(),vmsa::mMassPion);
         //ltrackC.RotateZ(TMath::Pi());
-	for(Int_t n_kminus = 0; n_kminus < mHelix[key_kminus].size(); n_kminus++) // second track loop over K- candidates
+	for(Int_t n_kminus = 0; n_kminus < mHelix[1].size(); n_kminus++) // second track loop over K- candidates
 	{
-	  StThreeVectorF p_vecB = mHelix[key_kminus][n_kminus].cat(mHelix[key_kminus][n_kminus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
-	  p_vecB *= mMomentum[key_kminus][n_kminus];
+	  StThreeVectorF p_vecB = mHelix[1][n_kminus].cat(mHelix[1][n_kminus].pathLength(mPrimaryvertex));  // primary momentum
+	  p_vecB *= mMomentum[1][n_kminus];
 	  ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassKaon);
-	  ltrackD.SetXYZM(-1.0*p_vecB.x(),-1.0*p_vecB.y(),p_vecB.z(),vmsa::mMassKaon);
+	  //ltrackD.SetXYZM(-1.0*p_vecB.x(),-1.0*p_vecB.y(),p_vecB.z(),vmsa::mMassKaon);
           //ltrackD.RotateZ(TMath::Pi());
 //cout << "Before issue?" << endl;
 
-	  TLorentzVector trackAD      = ltrackA+ltrackD;
-	  Double_t InvMassAD          = trackAD.M();
-	  Double_t ptAD = trackAD.Perp();
+	  //TLorentzVector trackAD      = ltrackA+ltrackD;
+	  //Double_t InvMassAD          = trackAD.M();
+	  //Double_t ptAD = trackAD.Perp();
 
 	  TLorentzVector trackCB      = ltrackC+ltrackB;
 	  Double_t InvMassCB          = trackCB.M();
@@ -1066,45 +1035,47 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 
 	  // fill phi candidate into mTree
 	  //if(InvMassAB > (vmsa::mMassKaon+vmsa::mMassPion) && InvMassAB < 1.05) 
-	  if(InvMassAD > 0.6 && InvMassAD < 1.2) 
-	  {
-	    StMesonTrack* mesonTrackAD2 = new StMesonTrack();
-	    mesonTrackAD2->setMass2B(mMass2[key_piplus][n_piplus]); // pi+
-	    mesonTrackAD2->setMass2A(mMass2[key_kminus][n_kminus]); // K-
-	    mesonTrackAD2->setNSigB(mNSigma[key_piplus][n_piplus]); // pi+
-	    mesonTrackAD2->setNSigA(mNSigma[key_kminus][n_kminus]); // K-
-	    mesonTrackAD2->setDcaB(mDca[key_piplus][n_piplus]); // pi+
-	    mesonTrackAD2->setDcaA(mDca[key_kminus][n_kminus]); // K-
-	    mesonTrackAD2->setNHitB(mNHitsFit[key_piplus][n_piplus]); // pi+
-	    mesonTrackAD2->setNHitA(mNHitsFit[key_kminus][n_kminus]); // K-
-	    mesonTrackAD2->setChargeB(mCharge[key_piplus][n_piplus]); // pi+
-	    mesonTrackAD2->setChargeA(mCharge[key_kminus][n_kminus]); // K-
-	    mesonTrackAD2->setTrackB(ltrackA); // pi+
-	    mesonTrackAD2->setTrackA(ltrackD); // K-
-	    mesonTrackAD2->setFlagB(Bin_Event); // pi+
-	    mesonTrackAD2->setFlagA(Bin_Event); // K-
-	    h_Mass2->Fill(ptAD,InvMassAD);
-            FillKStar(mesonTrackAD2);
-	  }
+	  //if(InvMassAD > 0.6 && InvMassAD < 1.2) 
+	  //{
+	  //  StMesonTrack *mesonTrack = new StMesonTrack();
+	  //  mesonTrack->setMass2B(mMass2[2][n_piplus]); // pi+
+	  //  mesonTrack->setMass2A(mMass2[1][n_kminus]); // K-
+	  //  mesonTrack->setNSigB(mNSigma[2][n_piplus]); // pi+
+	  //  mesonTrack->setNSigA(mNSigma[1][n_kminus]); // K-
+	  //  mesonTrack->setDcaB(mDca[2][n_piplus]); // pi+
+	  //  mesonTrack->setDcaA(mDca[1][n_kminus]); // K-
+	  //  mesonTrack->setNHitB(mNHitsFit[2][n_piplus]); // pi+
+	  //  mesonTrack->setNHitA(mNHitsFit[1][n_kminus]); // K-
+	  //  //mesonTrack->setChargeB(mCharge[2][n_piplus]); // pi+
+	  //  //mesonTrack->setChargeA(mCharge[1][n_kminus]); // K-
+	  //  mesonTrack->setTrackB(ltrackA); // pi+
+	  //  mesonTrack->setTrackA(ltrackD); // K-
+	  //  mesonTrack->setFlagB(0); // pi+
+	  //  mesonTrack->setFlagA(0); // K-
+	  //  h_Mass2->Fill(ptAD,InvMassAD);
+          //  FillKStar(mesonTrack);
+          //  delete mesonTrack;
+	  //}
 	  if(InvMassCB > 0.6 && InvMassCB < 1.2) 
 	  {
-	    StMesonTrack* mesonTrackCB2 = new StMesonTrack();
-	    mesonTrackCB2->setMass2B(mMass2[key_piplus][n_piplus]); // pi+
-	    mesonTrackCB2->setMass2A(mMass2[key_kminus][n_kminus]); // K-
-	    mesonTrackCB2->setNSigB(mNSigma[key_piplus][n_piplus]); // pi+
-	    mesonTrackCB2->setNSigA(mNSigma[key_kminus][n_kminus]); // K-
-	    mesonTrackCB2->setDcaB(mDca[key_piplus][n_piplus]); // pi+
-	    mesonTrackCB2->setDcaA(mDca[key_kminus][n_kminus]); // K-
-	    mesonTrackCB2->setNHitB(mNHitsFit[key_piplus][n_piplus]); // pi+
-	    mesonTrackCB2->setNHitA(mNHitsFit[key_kminus][n_kminus]); // K-
-	    mesonTrackCB2->setChargeB(mCharge[key_piplus][n_piplus]); // pi+
-	    mesonTrackCB2->setChargeA(mCharge[key_kminus][n_kminus]); // K-
-	    mesonTrackCB2->setTrackB(ltrackC); // pi+
-	    mesonTrackCB2->setTrackA(ltrackB); // K-
-	    mesonTrackCB2->setFlagB(Bin_Event); // pi+
-	    mesonTrackCB2->setFlagA(Bin_Event); // K-
+	    StMesonTrack *mesonTrack = new StMesonTrack();
+	    mesonTrack->setMass2B(mMass2[2][n_piplus]); // pi+
+	    mesonTrack->setMass2A(mMass2[1][n_kminus]); // K-
+	    mesonTrack->setNSigB(mNSigma[2][n_piplus]); // pi+
+	    mesonTrack->setNSigA(mNSigma[1][n_kminus]); // K-
+	    mesonTrack->setDcaB(mDca[2][n_piplus]); // pi+
+	    mesonTrack->setDcaA(mDca[1][n_kminus]); // K-
+	    mesonTrack->setNHitB(mNHitsFit[2][n_piplus]); // pi+
+	    mesonTrack->setNHitA(mNHitsFit[1][n_kminus]); // K-
+	    //mesonTrack->setChargeB(mCharge[2][n_piplus]); // pi+
+	    //mesonTrack->setChargeA(mCharge[1][n_kminus]); // K-
+	    mesonTrack->setTrackB(ltrackC); // pi+
+	    mesonTrack->setTrackA(ltrackB); // K-
+	    mesonTrack->setFlagB(0); // pi+
+	    mesonTrack->setFlagA(0); // K-
 	    h_Mass2->Fill(ptCB,InvMassCB);
-            FillKStar(mesonTrackCB2);
+            FillKStar(mesonTrack);
+            delete mesonTrack;
 	  }
 	}
       }
@@ -1114,7 +1085,7 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 
 //------------------------------------------------------------------------------------------------------------------
 
-void StVecMesonTree::MixEvent_Rho(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, Float_t vz, Float_t Psi2)
+/*void StVecMesonTree::MixEvent_Rho(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, Float_t vz, Float_t Psi2)
 {
   StPicoEvent *event = (StPicoEvent*)pico->event();
 
@@ -1153,25 +1124,25 @@ void StVecMesonTree::MixEvent_Rho(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, F
   primVer.setZ(event->primaryVertex().z());
 
   mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<StThreeVectorF>(primVer));
-  mRefMult[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->refMult()));
-  mCentrality[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(cent9));
-  mRunId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->runId()));
-  mEventId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->eventId()));
-  mN_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_prim));
-  mN_non_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_non_prim));
-  mN_Tof_match[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_Tof_match));
-  mZDCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->ZDCx()));
-  mBBCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->BBCx()));
-  mVzVpd[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->vzVpd()));
-  mNumTracks[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<UShort_t>(pico->numberOfTracks()));
-  mQ2East[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2East));
-  mQ2West[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2West));
-  mQ2Full[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2Full));
-  mNumTrackEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaEast));
-  mNumTrackWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaWest));
-  mNumTrackFull[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFull));
-  mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullEast));
-  mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullWest));
+  //mRefMult[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->refMult()));
+  //mCentrality[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(cent9));
+  //mRunId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->runId()));
+  //mEventId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->eventId()));
+  //mN_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_prim));
+  //mN_non_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_non_prim));
+  //mN_Tof_match[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_Tof_match));
+  //mZDCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->ZDCx()));
+  //mBBCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->BBCx()));
+  //mVzVpd[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->vzVpd()));
+  //mNumTracks[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<UShort_t>(pico->numberOfTracks()));
+  //mQ2East[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2East));
+  //mQ2West[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2West));
+  //mQ2Full[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2Full));
+  //mNumTrackEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaEast));
+  //mNumTrackWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaWest));
+  //mNumTrackFull[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFull));
+  //mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullEast));
+  //mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullWest));
 
   // store Track Information
   for(Int_t i = 0; i < nTracks; i ++) // loop over all particles in event
@@ -1239,70 +1210,43 @@ void StVecMesonTree::MixEvent_Rho(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, F
     }
   }
 }
-
+*/
 //------------------------------------------------------------------------------------------------------------------
 
 
-void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, Float_t vz, Float_t Psi2)
+void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico)
 {
   StPicoEvent *event = (StPicoEvent*)pico->event();
-
-  Int_t Bin_vz, Bin_Psi2;
-
-  /*Float_t vz_start = vmsa::mVzMaxMap[mEnergy];
-  Float_t vz_bin = 2*vz_start/vmsa::Bin_VertexZ;
-
-  Float_t psi2_start = TMath::Pi()/2.0;
-  Float_t psi2_bin = 2*psi2_start/vmsa::Bin_KStar_Psi;
-
-  for(Int_t i = 0; i < vmsa::Bin_VertexZ; i++)
-  {
-    if((vz > -1.0*vz_start+i*vz_bin) && (vz <= -1.0*vz_start+(i+1)*vz_bin))
-    {
-      Bin_vz = i;
-    }
-  }
-  for(Int_t i = 0; i < vmsa::Bin_KStar_Psi; i++)
-  {
-    if((Psi2 > -1.0*psi2_start+i*psi2_bin) && (Psi2 <= -1.0*psi2_start+(i+1)*psi2_bin))
-    {
-      Bin_Psi2 = i;
-    }
-  }*/
-  Bin_vz = 0; 
-  Bin_Psi2 = 0;
-
-  Int_t Bin_Event = mEventCounter2[cent9][Bin_vz][Bin_Psi2];
 
   const Double_t MAGFIELDFACTOR = kilogauss;
   const Int_t nTracks = pico->numberOfTracks();
 
   // store Enent Information
-  StThreeVectorF primVer; 
-  primVer.setX(event->primaryVertex().x());
-  primVer.setY(event->primaryVertex().y());
-  primVer.setZ(event->primaryVertex().z());
+  mPrimaryvertex; 
+  mPrimaryvertex.setX(event->primaryVertex().x());
+  mPrimaryvertex.setY(event->primaryVertex().y());
+  mPrimaryvertex.setZ(event->primaryVertex().z());
 
-  mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<StThreeVectorF>(primVer));
-  mRefMult[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->refMult()));
-  mCentrality[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(cent9));
-  mRunId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->runId()));
-  mEventId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->eventId()));
-  mN_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_prim));
-  mN_non_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_non_prim));
-  mN_Tof_match[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_Tof_match));
-  mZDCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->ZDCx()));
-  mBBCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->BBCx()));
-  mVzVpd[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->vzVpd()));
-  mNumTracks[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<UShort_t>(pico->numberOfTracks()));
-  mQ2East[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2East));
-  mQ2West[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2West));
-  mQ2Full[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2Full));
-  mNumTrackEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaEast));
-  mNumTrackWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaWest));
-  mNumTrackFull[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFull));
-  mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullEast));
-  mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullWest));
+  //mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<StThreeVectorF>(primVer));
+  //mRefMult[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->refMult()));
+  //mCentrality[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(cent9));
+  //mRunId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->runId()));
+  //mEventId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->eventId()));
+  //mN_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_prim));
+  //mN_non_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_non_prim));
+  //mN_Tof_match[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_Tof_match));
+  //mZDCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->ZDCx()));
+  //mBBCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->BBCx()));
+  //mVzVpd[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->vzVpd()));
+  //mNumTracks[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<UShort_t>(pico->numberOfTracks()));
+  //mQ2East[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2East));
+  //mQ2West[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2West));
+  //mQ2Full[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2Full));
+  //mNumTrackEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaEast));
+  //mNumTrackWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaWest));
+  //mNumTrackFull[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFull));
+  //mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullEast));
+  //mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullWest));
 
   // store Track Information
   for(Int_t i = 0; i < nTracks; i ++) // loop over all particles in event
@@ -1326,6 +1270,7 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
       {
 	if(
             (Mass2 > Mass2K_low && Mass2 < Mass2K_up) || (Mass2 < -10.0 && fabs(nSigmaKaon) < 2.0)
+            //(Mass2 > Mass2K_low && Mass2 < Mass2K_up) && fabs(nSigmaKaon) < 2.0
 	  )
 	{
           StThreeVectorD primMom; 
@@ -1336,17 +1281,18 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
           primVer.setX(event->primaryVertex().x());
           primVer.setY(event->primaryVertex().y());
           primVer.setZ(event->primaryVertex().z());
-	  MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
-	  mMass2[key].push_back(static_cast<Float_t>(Mass2)); // mass2
-	  mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
-	  mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
-	  mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaKaon()))); // nSigma
-	  mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
-	  mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
-          mCharge[key].push_back(static_cast<Int_t>(charge));
+	  //MEKey charge = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
+	  mMass2[charge].push_back(static_cast<Float_t>(Mass2)); // mass2
+	  mDca[charge].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
+	  mNHitsFit[charge].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
+	  mNSigma[charge].push_back(static_cast<Float_t>((track->nSigmaKaon()))); // nSigma
+	  mHelix[charge].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
+	  mMomentum[charge].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
+          //mCharge[charge].push_back(static_cast<Int_t>(charge));
           h_KdEdxRig->Fill(momentum*Polarity,track->dEdx());
           h_KM2Rig->Fill(momentum*Polarity,Mass2);
           h_KInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
+          //cout << "something too large in kaon container" << endl;
 	}
       }
       Float_t nSigmaPion = track->nSigmaPion();
@@ -1354,6 +1300,7 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
         charge += 2; // changes id to pi+ and pi-
 	if(
             (Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) || (Mass2 < -10.0 && fabs(nSigmaPion) < 2.0) 
+            //(Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) && fabs(nSigmaPion) < 2.0
 	  )
 	{
           StThreeVectorD primMom; 
@@ -1364,28 +1311,29 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
           primVer.setX(event->primaryVertex().x());
           primVer.setY(event->primaryVertex().y());
           primVer.setZ(event->primaryVertex().z());
-	  MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
-	  mMass2[key].push_back(static_cast<Float_t>(Mass2)); // mass2
-	  mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
-	  mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
-	  mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaPion()))); // nSigma
-	  mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
-	  mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
-          mCharge[key].push_back(static_cast<Int_t>(charge));
+	  //MEKey charge = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
+	  mMass2[charge].push_back(static_cast<Float_t>(Mass2)); // mass2
+	  mDca[charge].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
+	  mNHitsFit[charge].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
+	  mNSigma[charge].push_back(static_cast<Float_t>((track->nSigmaPion()))); // nSigma
+	  mHelix[charge].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
+	  mMomentum[charge].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
+          //mCharge[charge].push_back(static_cast<Int_t>(charge));
           
           h_PidEdxRig->Fill(momentum*Polarity,track->dEdx());
           h_PiM2Rig->Fill(momentum*Polarity,Mass2);
           h_PiInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
+          //cout << "something too large in pion contianer" << endl;
 	}
       }
 
     }
   }
 
-  mEventCounter2[cent9][Bin_vz][Bin_Psi2]++;
+  //mEventCounter2[cent9][Bin_vz][Bin_Psi2]++;
 
-  doKStar(Flag_ME,cent9,Bin_vz,Bin_Psi2);
-  clear_kstar(cent9,Bin_vz,Bin_Psi2);
+  doKStar(Flag_ME);
+  clear_kstar();
 }
 
 //------------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #include <TSystem>
 #include "TStopwatch.h"
 
-void FillSpinAlignment(const char* list = "../FileLists/19GeV_2019/KStar_SE_Forest.list", const char *jobId = "test", const Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 2)
+void FillSpinAlignment(const char* list = "submit/19GeV_2019/resubmit.list"/*"../FileLists/19GeV_2019/Phi_SE_Forest_test.list"*/, const char *jobId = "LastBit", const Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 0)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // X_flag: 0 for Same Event, 1 for Mixed Event
@@ -11,11 +11,14 @@ void FillSpinAlignment(const char* list = "../FileLists/19GeV_2019/KStar_SE_Fore
   TStopwatch *stopWatch = new TStopwatch();
   stopWatch->Start();
 
+  gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
+  loadSharedLibraries();
   gSystem->Load("StRefMultCorr");
-  // gSystem->Load("StPicoDstMaker");
+  //gSystem->Load("StPicoEvent");
+  //gSystem->Load("StPicoDstMaker");
   gSystem->Load("StMesonEvent");
   gSystem->Load("StVecMesonAna");
-  gSystem->Load("StRunIdEventsDb");
+  //gSystem->Load("StRunIdEventsDb");
 
   cout << "All libraries are loaded!!!!" << endl;
 

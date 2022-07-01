@@ -21,10 +21,10 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 #define _PlotQA_  1
 #endif
 
-void calTpcTrackEfficiency(int energy = 4, int pid = 0, int year = 0)
+void calTpcTrackEfficiency(int energy = 4, int mpid = 2, int pid = 1, int year = 0)
 {
   // string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
-  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/Embedding/Phi/%s_embedding_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/Embedding/%s/%s_embedding_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[mpid].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   
   TH1D *h_FrameEta = (TH1D*)File_InPut->Get("h_FrameEta");
@@ -141,7 +141,7 @@ void calTpcTrackEfficiency(int energy = 4, int pid = 0, int year = 0)
 
 
   // string outputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/Embedding/%s/Efficiency/Eff_%s_StMcEvent_%s_pr_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mYear[year].c_str());
-  string outputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/TPC/Eff_%s_%s.root",vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string outputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/TPC/Eff_%s_%s.root",vmsa::mPID[mpid].c_str(),vmsa::mParType[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
   // write histogram

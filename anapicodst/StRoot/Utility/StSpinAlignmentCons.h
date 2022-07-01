@@ -24,6 +24,7 @@ namespace vmsa
   float const mDcaTrMax = 1.0; // for pion, kaon, proton mDcaTrMax = 1.0 for flow
   float const mDcaTrMax_phi = 3.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
   float const mDcaTrMax_KStar = 2.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
+  float const mDcaTrMax_pid[3] = {3.0,2.0,2.0};
   int const mHitsDedxMin = 5;
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
@@ -31,6 +32,7 @@ namespace vmsa
   float const mEtaMax = 1.0;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
+  float const mGlobPtMax = 10.0; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
   float const mPrimPtWeight = 2.0;
   float const mPrimMomMax = 10.0; // also use for gMom
@@ -87,9 +89,12 @@ namespace vmsa
   float const mToFYLocalMax = 1.8;
   float const mToFZLocalMax = 1.8;
   float const mNSigmaElectronMax = 2.5;
-  float const mNSigmaPionMax = 2.0;
-  float const mNSigmaKaonMax = 3.0;
+  //float const mNSigmaPionMax = 2.0;
+  //float const mNSigmaKaonMax = 3.0;
   float const mNSigmaProtonMax = 2.5;
+  float const mNSigmaPionMax[3] = {0.0,2.0,2.0};
+  float const mNSigmaKaonMax[3] = {3.0,0.0,2.0};
+  float const mNSigmaMax[3] = {3.0,2.0,2.0};
   float const mMassPion = 0.13957;
   float const mMassKaon = 0.49368;
   float const mMassProton = 0.93827;

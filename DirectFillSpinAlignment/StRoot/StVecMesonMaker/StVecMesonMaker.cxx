@@ -105,14 +105,14 @@ Int_t StVecMesonMaker::Init()
     mVecMesonTree = new StVecMesonTree(mEnergy,mFlag_ME);
     mFile_PID = new TFile(mOutPut_PID.Data(),"RECREATE");
     mFile_PID->cd();
-    if(mFlag_PID == 0)
-    {
-      mVecMesonTree->InitPhi();
-    }
-    if(mFlag_PID == 1)
-    {
-      mVecMesonTree->InitRho();
-    }
+    //if(mFlag_PID == 0)
+    //{
+    //  mVecMesonTree->InitPhi();
+    //}
+    //if(mFlag_PID == 1)
+    //{
+    //  mVecMesonTree->InitRho();
+    //}
     if(mFlag_PID == 2)
     {
       mVecMesonTree->InitKStar();
@@ -162,8 +162,8 @@ Int_t StVecMesonMaker::Finish()
     if(mOutPut_PID != "")
     {
       mFile_PID->cd();
-      if(mFlag_PID == 0) mVecMesonTree->WriteMass2Phi();
-      if(mFlag_PID == 1) mVecMesonTree->WriteMass2Rho();
+      //if(mFlag_PID == 0) mVecMesonTree->WriteMass2Phi();
+      //if(mFlag_PID == 1) mVecMesonTree->WriteMass2Rho();
       if(mFlag_PID == 2) mVecMesonTree->WriteMass2KStar();
       mFile_PID->Close();
     }
@@ -480,17 +480,17 @@ Int_t StVecMesonMaker::Make()
 
 	// pass NumOfTrack to StVecMesonTree
 	mVecMesonTree->passNumTrack(NumTrackEast,NumTrackWest,NumTrackFull,NumTrackFullEast,NumTrackFullWest);
-        if(mFlag_PID == 0)
-        {
-	  mVecMesonTree->MixEvent_Phi(mFlag_ME,mPicoDst,cent9,vz,Psi2);
-        }
-        if(mFlag_PID == 1)
-        {
-	  mVecMesonTree->MixEvent_Rho(mFlag_ME,mPicoDst,cent9,vz,Psi2);
-        }
+        //if(mFlag_PID == 0)
+        //{
+	//  mVecMesonTree->MixEvent_Phi(mFlag_ME,mPicoDst,cent9,vz,Psi2);
+        //}
+        //if(mFlag_PID == 1)
+        //{
+	//  mVecMesonTree->MixEvent_Rho(mFlag_ME,mPicoDst,cent9,vz,Psi2);
+        //}
         if(mFlag_PID == 2)
         {
-	  mVecMesonTree->MixEvent_KStar(mFlag_ME,mPicoDst,cent9,vz,Psi2);
+	  mVecMesonTree->MixEvent_KStar(mFlag_ME,mPicoDst);
         }
       }
     }

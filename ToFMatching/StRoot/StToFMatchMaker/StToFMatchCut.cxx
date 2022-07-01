@@ -338,7 +338,7 @@ bool StToFMatchCut::passTrackBasic(StPicoTrack *track, StPicoEvent *picoEvent)
   }
 
   // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
+  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Perp() < vmsa::mGlobPtMax))
   {
     return kFALSE;
   }

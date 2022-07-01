@@ -34,16 +34,15 @@ mode=3
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-#flag_ME=0 # 0 for SE | 1 for ME
-#SM=SE
-flag_ME=1 # 0
-SM=ME
+flag_ME=0 # 0 for SE | 1 for ME
+SM=SE
+#flag_ME=1 # 0
+#SM=ME
 ##########Mixed Event Selection##########
 
 flag_PID=2 # 0 for phi | 1 for rho | 2 for kstar
 
 outDir=KStar/Forest/${SM}
-chunk=10
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -53,7 +52,7 @@ mkdir -p ${outPath}/Log/DirectFill/${outDir}
 mkdir -p ${outPath}/OutPut/DirectFill/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities chunk=$chunk,mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template testProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -61,6 +60,6 @@ star-submit-template -template testProductionTemp.xml -entities chunk=$chunk,mod
 ##########Full Production##########
 
 ##########Re-Submit##########
-#star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 
 ##########Re-Submit##########

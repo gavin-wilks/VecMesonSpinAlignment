@@ -32,6 +32,7 @@ namespace vmsa
   float const mEtaMax = 1.0;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
+  float const mGlobPtMax = 10.0; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
   float const mPrimPtWeight = 2.0;
   float const mPrimMomMax = 10.0; // also use for gMom
@@ -233,7 +234,7 @@ namespace vmsa
 
   float const nSigVecSys[6] = {2.0,2.5,3.0,1.5,1.0,0.5};
   int const Sig_start = 0;
-  int const Sig_stop  = 6;
+  int const Sig_stop  = 3;
   int const Sig_QA    = 0;
 
   // used for systematic errors
@@ -258,13 +259,13 @@ namespace vmsa
   float const InvMass_high[3] = {1.05,0.6,1.05};
   float const nSigVec = 2.0;
 
-  float const ptEffMax = 8.0;
+  float const ptEffMax = 5.0;
   float const ptMin = 0.2;
   float const ptMax = 5.0;
   int const BinPt  = 80; // for efficiency
   // int const BinPt  = 20;
   int const BinEta = 10;
-  int const BinY = 30;
+  int const BinY = 20;
   int const BinPhi = 12;
   int const BinCos = 7;
 
@@ -279,7 +280,7 @@ namespace vmsa
   float const McEtaBin[20] = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,2.0,2.5,3.0,3.5,4.0};
 
   // used in RcPhiEffCorr
-  std::string const mParType[2] = {"Kplus","Kminus"};
+  std::string const mParType[4] = {"Kplus","Kminus","Piplus","Piminus"};
   std::string const mYear[2] = {"run11","run10"};
   std::string const mCuts[2] = {"pr","gl"};
   int const NCentMax = 9; 

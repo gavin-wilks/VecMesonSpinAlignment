@@ -18,11 +18,9 @@ class StVecMesonCut : public TObject
     bool passEventCut(StPicoDst*);
     bool passTrackBasic(StPicoTrack*);
     bool passTrackEP(StPicoTrack*, StPicoEvent*);
-    bool passSigPionCut(StPicoTrack*, Float_t);
-    bool passSigKaonCut(StPicoTrack*, Float_t);
-    bool passSigProntonCut(StPicoTrack*, Float_t);
-    bool passTrackPhi(StPicoTrack*, StPicoEvent*);
-    bool passTrackKStar(StPicoTrack*, StPicoEvent*);
+    bool passSigPionCut(StPicoTrack*, Int_t);
+    bool passSigKaonCut(StPicoTrack*, Int_t);
+    bool passTrackMeson(StPicoTrack*, StPicoEvent*, Int_t);
     bool isMinBias(StPicoEvent*);
     bool isPileUpEvent(int, int, double);
     double getRefMultReweight(double, int);

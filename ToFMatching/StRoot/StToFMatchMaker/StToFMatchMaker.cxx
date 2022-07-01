@@ -23,12 +23,13 @@ ClassImp(StToFMatchMaker)
 
 StRefMultCorr* StToFMatchMaker::mRefMultCorr = NULL;
 //-----------------------------------------------------------------------------
-StToFMatchMaker::StToFMatchMaker(const char* name, StPicoDstMaker *picoMaker, const char *jobCounter, const int energy)
+StToFMatchMaker::StToFMatchMaker(const char* name, StPicoDstMaker *picoMaker, const char *jobCounter, const int energy, const int pid)
   : StMaker(name)
 {
   mPicoDstMaker = picoMaker;
   mPicoDst = 0;
   mEnergy = energy;
+  mPID = pid;
 
   mOutPut_ToFMatch = Form("file_%s_ToFMatch_%s.root",vmsa::mBeamEnergy[energy].c_str(),jobCounter);
 }
@@ -160,35 +161,38 @@ Int_t StToFMatchMaker::Make()
 	mToFMatchHistoManger->FillQA_Detector(dEdx,Mass2,p*polarity);
       }
 
-      /*
-      if(mToFMatchCut->passSigPionCut(track,mScaleFactor_nSigma)) // pion QA
+      if(mPID == 0)
       {
-	mToFMatchHistoManger->FillQA_Pion(dEdx,Mass2,p*polarity);
-	mToFMatchHistoManger->Fill_TPC(charge,1,cent9,pt,eta,phi);
-	if(mToFMatchCut->passToFMatchCut(track))
-	{
-	  mToFMatchHistoManger->Fill_ToF(charge,1,cent9,pt,eta,phi);
-	}
+        if(mToFMatchCut->passSigKaonCut(track,mPicoEvent,mScaleFactor_nSigma)) // Kaon QA
+        {
+          mToFMatchHistoManger->FillQA_Kaon(dEdx,Mass2,p*polarity);
+          mToFMatchHistoManger->Fill_TPC(charge,0,cent9,pt,eta,phi);
+          if(mToFMatchCut->passToFMatchCut(track,mPicoEvent,mPicoDst))
+          {
+            mToFMatchHistoManger->Fill_ToF(charge,0,cent9,pt,eta,phi);
+          }
+        }
       }
-      if(mToFMatchCut->passSigProntonCut(track,mScaleFactor_nSigma)) // proton QA
+      if(mPID == 2)
       {
-	mToFMatchHistoManger->FillQA_Proton(dEdx,Mass2,p*polarity);
-	mToFMatchHistoManger->Fill_TPC(charge,2,cent9,pt,eta,phi);
-	if(mToFMatchCut->passToFMatchCut(track))
-	{
-	  mToFMatchHistoManger->Fill_ToF(charge,2,cent9,pt,eta,phi);
-	}
-      }
-      */
-
-      if(mToFMatchCut->passSigKaonCut(track,mPicoEvent,mScaleFactor_nSigma)) // Kaon QA
-      {
-	mToFMatchHistoManger->FillQA_Kaon(dEdx,Mass2,p*polarity);
-	mToFMatchHistoManger->Fill_TPC(charge,0,cent9,pt,eta,phi);
-	if(mToFMatchCut->passToFMatchCut(track,mPicoEvent,mPicoDst))
-	{
-	  mToFMatchHistoManger->Fill_ToF(charge,0,cent9,pt,eta,phi);
-	}
+        if(mToFMatchCut->passSigKaonCut(track,mPicoEvent,mScaleFactor_nSigma)) // Kaon QA
+        {
+          mToFMatchHistoManger->FillQA_Kaon(dEdx,Mass2,p*polarity);
+          mToFMatchHistoManger->Fill_TPC(charge,0,cent9,pt,eta,phi);
+          if(mToFMatchCut->passToFMatchCut(track,mPicoEvent,mPicoDst))
+          {
+            mToFMatchHistoManger->Fill_ToF(charge,0,cent9,pt,eta,phi);
+          }
+        }
+        if(mToFMatchCut->passSigPionCut(track,mPicoEvent,mScaleFactor_nSigma)) // Pion QA
+        {
+          mToFMatchHistoManger->FillQA_Pion(dEdx,Mass2,p*polarity);
+          mToFMatchHistoManger->Fill_TPC(charge,1,cent9,pt,eta,phi);
+          if(mToFMatchCut->passToFMatchCut(track,mPicoEvent,mPicoDst))
+          {
+            mToFMatchHistoManger->Fill_ToF(charge,1,cent9,pt,eta,phi);
+          }
+        }
       }
     }
   }

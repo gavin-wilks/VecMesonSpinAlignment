@@ -16,7 +16,7 @@ codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignmen
 energy=4  # 19GeV
 library=SL21c
 listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/PidFlow/FileList/19p6GeV_2019
-outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
+outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
 ##########Mode Selection##########
@@ -43,18 +43,17 @@ SM=SE
 flag_PID=0 # 0 for phi | 1 for rho | 2 for kstar
 
 
-#outDir=KStar/Forest/${SM}
-chunk=10
+#outDir=Phi/Forest/Phi${SM}
 
-mkdir -p JOBS/report
-mkdir -p JOBS/csh
-mkdir -p JOBS/list
+#mkdir -p JOBS/report
+#mkdir -p JOBS/csh
+#mkdir -p JOBS/list
 
-mkdir -p ${outPath}/Log/SpinAlignment/${outDir}
-mkdir -p ${outPath}/OutPut/SpinAlignment/${outDir}
+#mkdir -p ${outPath}/Log/SpinAlignment/${outDir}
+#mkdir -p ${outPath}/OutPut/SpinAlignment/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities chunk=$chunk,mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template ${codePath}/submit/19GeV_2019/testProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########

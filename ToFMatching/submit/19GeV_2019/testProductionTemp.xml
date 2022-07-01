@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="5" filesPerHour="10" maxFilesPerProcess="10" fileListSyntax="xrootd" simulateSubmission="false">
+<job minFilesPerProcess="4" filesPerHour="10" maxFilesPerProcess="6" fileListSyntax="xrootd" simulateSubmission="false">
 
   <command>
     starver &library;
-    root4star -l -b -q ToFMatching.C\(\"$FILELIST\",\"$JOBID\",&energy;\) </command>
+    root4star -l -b -q ToFMatching.C\(\"$FILELIST\",\"$JOBID\",&energy;,&pid;\) </command>
 
   <SandBox installer="ZIP">
     <Package>

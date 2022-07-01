@@ -17,7 +17,7 @@ namespace vmsa
   float const mVrMax = 2.0;
   float const mVzVpdDiffMax = 10.0;
   int const mMatchedToFMin = 2;
-
+  int const mEpdEpOrder = 1;
   // track cut
   float const mSigScaleMap[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0};
   float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0}; // for event plane reconstruction: 1.0 for BES-II
@@ -29,14 +29,16 @@ namespace vmsa
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
   float const mHitsRatioTPCMin = 0.52;
-  float const mEtaMax = 1.0;
+  float const mEtaMax = 1.5;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
+  float const mGlobPtMax = 10.0; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
   float const mPrimPtWeight = 2.0;
   float const mPrimMomMax = 10.0; // also use for gMom
   float const mMass2Min = -10.0;
   // double const MAGFIELDFACTOR = kilogauss;
+  int const mNumOfRunIndex = 1600;
 
   const double pl19[5][5] = {{-22.706,0.863809,-0.00036812,5.97123e-06,-1.27439e-08},   //-145 < vz < -87  cm
                        {-15.5924,0.604207,0.00131806,-2.04754e-06,5.73182e-10},   //-87  < vz < -29  cm 
@@ -114,6 +116,7 @@ namespace vmsa
   int const Bin_Centrality = 9;
   int const Bin_VertexZ = 10;
   int const Bin_Phi_Psi = 5;
+  int const Bin_Phi_Psi1 = 10;
   int const Bin_Rho_Psi = 5;
   int const Bin_KStar_Psi = 5;
   int const Buffer_depth = 5;

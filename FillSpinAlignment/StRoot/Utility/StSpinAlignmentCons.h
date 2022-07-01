@@ -28,7 +28,7 @@ namespace vmsa
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
   float const mHitsRatioTPCMin = 0.52;
-  float const mEtaMax = 1.5;
+  float const mEtaMax = 1.0;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
@@ -168,9 +168,9 @@ namespace vmsa
 
   double const Pi = TMath::Pi();
   double const PiOver10 = Pi/10.0;
-  int const PhiPsi_total = 20;
-  double const PhiPsi_low[20] = {-Pi,-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10};
-  double const PhiPsi_up[20]  = {-9.0*PiOver10,-8.0*PiOver10,-7.0*PiOver10,-6.0*PiOver10,-5.0*PiOver10,-4.0*PiOver10,-3.0*PiOver10,-2.0*PiOver10,-1.0*PiOver10,0.0,1.0*PiOver10, 2.0*PiOver10, 3.0*PiOver10, 4.0*PiOver10, 5.0*PiOver10, 6.0*PiOver10, 7.0*PiOver10, 8.0*PiOver10, 9.0*PiOver10, Pi };
+  int const PhiPsi_total = 10;
+  double const PhiPsi_low[10] = {0.0,1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0};
+  double const PhiPsi_up[10]  = {1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0, Pi/2.0 };
 
   int const CTS_total = 7; // cos(theta*) bin
   int const CTS_start = 0;

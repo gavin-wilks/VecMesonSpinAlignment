@@ -32,6 +32,7 @@ namespace vmsa
   float const mEtaMax = 1.0;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
+  float const mGlobPtMax = 10.0; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
   float const mPrimPtWeight = 2.0;
   float const mPrimMomMax = 10.0; // also use for gMom
@@ -103,12 +104,12 @@ namespace vmsa
   float const mEta_Gap = 0.05;
   float const mShiftOrder[5] = {2.0, 4.0, 6.0, 8.0, 10.0};
 
-  int const pt_total = 25; // pt bin
+  int const pt_total = 24; // pt bin
   int const pt_start = 0;
-  int const pt_stop  = 25;
-  float const ptRawStart[pt_total] = {0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2};
-  float const ptRawStop[pt_total]  = {0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
-  double const pt_bin[pt_total+1] = {0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
+  int const pt_stop  = 24;
+  float const ptRawStart[pt_total] = {0.2,0.4,0.6,0.8,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5};
+  float const ptRawStop[pt_total]  = {0.4,0.6,0.8,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0};
+  double const pt_bin[pt_total+1]  = {0.2,0.4,0.6,0.8,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0};
 
   // mix event
   int const Bin_Centrality = 9;

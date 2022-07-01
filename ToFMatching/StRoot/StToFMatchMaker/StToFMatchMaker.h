@@ -15,7 +15,7 @@ class StUtility;
 
 class StToFMatchMaker : public StMaker {
   public:
-    StToFMatchMaker(const char *name, StPicoDstMaker *picoMaker, const char *jobCounter, const int Energy);
+    StToFMatchMaker(const char *name, StPicoDstMaker *picoMaker, const char *jobCounter, const int Energy, const int pid);
     virtual ~StToFMatchMaker();
     
     virtual Int_t Init();
@@ -34,6 +34,7 @@ class StToFMatchMaker : public StMaker {
     StUtility *mUtility;
 
     int mEnergy;
+    int mPID;
 
     TString mOutPut_ToFMatch;
 

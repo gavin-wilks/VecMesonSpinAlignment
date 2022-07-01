@@ -17,8 +17,9 @@ outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Mode Selection##########
 #mode=0
 #outDir=ReCenterParameter
-outDir=PhiSE
-outFile=FlowYields_Phi_SE_19GeV
+SM=SE
+outDir=Phi${SM}
+outFile=FlowYields_Phi_${SM}_19GeV
 ##########Mode Selection##########
 
 mkdir -p ${outPath}/hadd/FlowYields/${outDir}

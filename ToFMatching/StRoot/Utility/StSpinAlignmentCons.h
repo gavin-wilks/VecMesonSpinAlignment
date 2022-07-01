@@ -31,6 +31,7 @@ namespace vmsa
   float const mEtaMax = 1.0;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
+  float const mGlobPtMax = 10.0; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
   float const mPrimPtWeight = 2.0;
   float const mPrimMomMax = 10.0; // also use for gMom
@@ -94,7 +95,7 @@ namespace vmsa
   float const mMassKaon = 0.49368;
   float const mMassProton = 0.93827;
   float const mSigKaon = 2.5;
-  float const mNSigmaToF = 0.6;
+  float const mNSigmaToF = 0.4;
 
   // used constant
   // float const mEta_Gap[4] = {0.05,0.10,0.20,0.50};

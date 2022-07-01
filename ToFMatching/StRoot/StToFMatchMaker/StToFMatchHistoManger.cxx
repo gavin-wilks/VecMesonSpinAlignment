@@ -81,8 +81,8 @@ void StToFMatchHistoManger::WriteQA()
   h_mDEdx->Write();
   h_mMass2->Write();
 
-  // h_mDEdx_Pion->Write();
-  // h_mMass2_Pion->Write();
+  h_mDEdx_Pion->Write();
+  h_mMass2_Pion->Write();
 
   h_mDEdx_Kaon->Write();
   h_mMass2_Kaon->Write();

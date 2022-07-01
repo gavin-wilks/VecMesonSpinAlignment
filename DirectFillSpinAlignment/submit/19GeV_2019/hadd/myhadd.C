@@ -6,7 +6,7 @@
 void myhadd(TString list, TString jobId, TString output)
 {
   TString command = 0;
-  command.Append("hadd "+output+"_"+jobId+".root");
+  command.Append("hadd -n 10 "+output+"_"+jobId+".root");
   //----------------------------------------------------------------------------------------------------
   // input
   if (list != NULL)   // if input file is ok

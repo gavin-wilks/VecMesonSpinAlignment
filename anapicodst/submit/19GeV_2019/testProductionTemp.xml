@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="1" filesPerHour="10" maxFilesPerProcess="5" fileListSyntax="paths" simulateSubmission="false">
+<job minFilesPerProcess="5" filesPerHour="10" maxFilesPerProcess="10" fileListSyntax="paths" simulateSubmission="false">
 
   <command>
     starver &library;
-    csh runmakePicoDstQA.csh $FILELIST 0 &particle; $JOBID &energy; &gid;
+    csh runmakePicoDstQA.csh $FILELIST 0 &particle; $JOBID &energy; &gid; &mode;
   </command>
 
   <SandBox installer="ZIP">

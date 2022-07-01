@@ -25,9 +25,11 @@ void StEffHistManger::InitHist()
   {
     std::string HistName = Form("h_mMcTracks_%d",i_cent);
     h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mMcTracks[i_cent]->Sumw2();
     // h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     HistName = Form("h_mRcTracks_%d",i_cent);
     h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mRcTracks[i_cent]->Sumw2();
     // h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     HistName = Form("h_mPtGl_%d",i_cent);
     h_mPtGl[i_cent] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinPt*10,0.0,24.0);

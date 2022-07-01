@@ -35,17 +35,17 @@ TH1D* CalEffError(TH1D *h_Mc, TH1D *h_Rc, std::string HistName)
 
 
 
-void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
+void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mpid = 0, int dpid = 0, int year = 1)
 {
   string const mBeamEnergy[7] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
-  string const mParType[2] = {"Kplus","Kminus"};
-  string const mParTex[2] = {"K^{+}","K^{-}"};
+  string const mParType[4] = {"Kplus","Kminus","Piplus","Piminus"};
+  string const mParTex[4] = {"K^{+}","K^{-}","#pi^{+}","#pi^{-}"};
   string const Centrality[10] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%","20%-60%"}; // Centrality bin
   string const mYear[2] = {"run19","run19"};
   int const mPlotStyle[10] = {0,0,1,1,1,1,0,0,0,1};
   int const mPlotColor[10] = {0,0,kGray+3,kAzure+4,kOrange+1,kCyan+1,0,0,0,kRed};
 
-  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/Embedding/Phi/%s_embedding_%s.root",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/Embedding/%s/%s_embedding_%s.root",mBeamEnergy[mEnergy].c_str(),vmsa::mPID[mpid].c_str(),mParType[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   cout << "open input file: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -163,7 +163,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
   c_raw->SetTicks(1,1);
 
   string HistNameEff = "h_mRcEffPt_Cent_9";
-  string title = Form("%s @ Au+Au %s",mParTex[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string title = Form("%s @ Au+Au %s",mParTex[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   h_mRcEffPt[9]->SetTitle(title.c_str());
   h_mRcEffPt[9]->SetStats(0);
 
@@ -201,7 +201,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
   }
   leg->Draw("same");
 
-  string FigName = Form("figures/AnalysisNote/Efficiency/TPC/c_RcTpcEffRawHits_%s%s.pdf",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string FigName = Form("figures/AnalysisNote/Efficiency/TPC/c_RcTpcEffRawHits_%s%s.pdf",mParType[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   c_raw->SaveAs(FigName.c_str());
   }
   {
@@ -212,7 +212,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
   c_raw->SetTicks(1,1);
 
   string HistNameEff = "h_mMcEffPt_Cent_9";
-  string title = Form("%s @ Au+Au %s",mParTex[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string title = Form("%s @ Au+Au %s",mParTex[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   h_mMcEffPt[9]->SetTitle(title.c_str());
   h_mMcEffPt[9]->SetStats(0);
 
@@ -250,7 +250,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
   }
   leg->Draw("same");
 
-  string FigName = Form("figures/AnalysisNote/Efficiency/TPC/c_McTpcEffRawHits_%s%s.pdf",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string FigName = Form("figures/AnalysisNote/%s/Efficiency/TPC/c_McTpcEffRawHits_%s%s.pdf",vmsa::mPID[mpid].c_str(),mParType[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   c_raw->SaveAs(FigName.c_str());
   }
 
@@ -261,7 +261,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
   c_play->SetTicks(1,1);
 
   string HistNameEff = "h_mEffPt_Cent_9";
-  string title = Form("%s @ Au+Au %s",mParTex[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string title = Form("%s @ Au+Au %s",mParTex[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   h_mEffPt[9]->SetTitle(title.c_str());
   h_mEffPt[9]->SetStats(0);
 
@@ -299,10 +299,11 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
   }
   leg->Draw("same");
 
-  string FigName = Form("figures/AnalysisNote/Efficiency/TPC/c_TpcEffCentCom_%s%s.pdf",mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  string FigName = Form("figures/AnalysisNote/%s/Efficiency/TPC/c_TpcEffCentCom_%s%s.pdf",vmsa::mPID[mpid].c_str(),mParType[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   c_play->SaveAs(FigName.c_str());
 
-  int const eta_bin = 7;
+  for(int eta_bin = 0; eta_bin < vmsa::BinEta; eta_bin++)
+  {
 
   TCanvas *c_diff = new TCanvas("c_diff","c_diff",10,10,1600,1200);
   c_diff->Divide(4,3);
@@ -314,7 +315,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
     c_diff->cd(i_pad+1)->SetTicks(1,1);
     string HistName = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",eta_bin,i_pad);
 
-    string title = Form("%s @ Au+Au %s",mParTex[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+    string title = Form("%s @ Au+Au %s",mParTex[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
     h_mEfficiency[HistName]->SetTitle(title.c_str());
     h_mEfficiency[HistName]->SetStats(0);
 
@@ -346,10 +347,13 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
     leg_phi->AddEntry(h_mEfficiency[HistName],phi_leg.c_str());
     leg_phi->Draw("same");
   }
-  FigName = Form("figures/AnalysisNote/Efficiency/TPC/c_TpcEffDiffComEta_%d_%s%s.pdf",eta_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  FigName = Form("figures/AnalysisNote/%s/Efficiency/TPC/c_TpcEffDiffComEta_%d_%s%s.pdf",vmsa::mPID[mpid].c_str(),eta_bin,mParType[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   c_diff->SaveAs(FigName.c_str());
+  }
 
-  int const phi_bin = 4;
+
+  for (int phi_bin = 0; phi_bin < vmsa::BinPhi; phi_bin++)
+  {
   TCanvas *c_diff_phi = new TCanvas("c_diff_phi","c_diff_phi",10,10,1000,500);
   c_diff_phi->Divide(5,2);
   for(int i_pad = 0; i_pad < 10; ++i_pad)
@@ -360,7 +364,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
     c_diff_phi->cd(i_pad+1)->SetTicks(1,1);
     string HistName = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",i_pad,phi_bin);
 
-    string title = Form("%s @ Au+Au %s",mParTex[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+    string title = Form("%s @ Au+Au %s",mParTex[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
     h_mEfficiency[HistName]->SetTitle(title.c_str());
     h_mEfficiency[HistName]->SetStats(0);
 
@@ -392,6 +396,7 @@ void plotQA_TpcTrackingEfficiency(int mEnergy = 4, int mPID = 0, int year = 1)
     leg_eta->AddEntry(h_mEfficiency[HistName],eta_leg.c_str());
     leg_eta->Draw("same");
   }
-  FigName = Form("figures/AnalysisNote/Efficiency/TPC/c_TpcEffDiffComPhi_%d_%s%s.pdf",phi_bin,mParType[mPID].c_str(),mBeamEnergy[mEnergy].c_str());
+  FigName = Form("figures/AnalysisNote/%s/Efficiency/TPC/c_TpcEffDiffComPhi_%d_%s%s.pdf",vmsa::mPID[mpid].c_str(),phi_bin,mParType[dpid].c_str(),mBeamEnergy[mEnergy].c_str());
   c_diff_phi->SaveAs(FigName.c_str());
+  }
 }

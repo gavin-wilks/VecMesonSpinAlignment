@@ -13,7 +13,7 @@ class StEffCut;
 class StEffMcPhi
 {
   public:
-    StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int Year, int Cut);
+    StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int Year, int Cut, const char* setting);
     ~StEffMcPhi();
 
     void SetInPutFile(const string inputfile);

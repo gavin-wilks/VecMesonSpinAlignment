@@ -25,19 +25,23 @@ void StEffHistManger::InitHist()
   {
     std::string HistName = Form("h_mMcTracks_%d",i_cent);
     h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mMcTracks[i_cent]->Sumw2();
     HistName = Form("h_mRcTracks_%d",i_cent);
     h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mRcTracks[i_cent]->Sumw2();
     for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
     {
       HistName = Form("h_mMcEffCos_Cent_%d_Pt_%d",i_cent,i_pt);
       h_mMcEffCos[i_cent][i_pt] = new TH1D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0);
+      h_mMcEffCos[i_cent][i_pt]->Sumw2();
       HistName = Form("h_mRcEffCos_Cent_%d_Pt_%d",i_cent,i_pt);
       h_mRcEffCos[i_cent][i_pt] = new TH1D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0);
+      h_mRcEffCos[i_cent][i_pt]->Sumw2();
 
-      HistName = Form("h_mMcCosEP_Cent_%d_Pt_%d",i_cent,i_pt);
-      h_mMcCosEP[i_cent][i_pt] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
-      HistName = Form("h_mRcCosEP_Cent_%d_Pt_%d",i_cent,i_pt);
-      h_mRcCosEP[i_cent][i_pt] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
+  //    HistName = Form("h_mMcCosEP_Cent_%d_Pt_%d",i_cent,i_pt);
+  //    h_mMcCosEP[i_cent][i_pt] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
+  //    HistName = Form("h_mRcCosEP_Cent_%d_Pt_%d",i_cent,i_pt);
+  //    h_mRcCosEP[i_cent][i_pt] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     }
   }
   flag_eff = 0;
@@ -53,17 +57,17 @@ void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float
     h_mMcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
   }
 
-  float phi_shift = AngleShift(phi-Psi2);
+  //float phi_shift = AngleShift(phi-Psi2);
   for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
   {
     if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= vmsa::pt_up[mEnergy][i_pt])
     {
       h_mMcEffCos[cent][i_pt]->Fill(cos);
-      h_mMcCosEP[cent][i_pt]->Fill(cos,phi_shift);
+    //  h_mMcCosEP[cent][i_pt]->Fill(cos,phi_shift);
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
       {//20-60%
 	h_mMcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
-	h_mMcCosEP[9][i_pt]->Fill(cos,phi_shift,vmsa::weight[cent]);
+//	h_mMcCosEP[9][i_pt]->Fill(cos,phi_shift,vmsa::weight[cent]);
       }
     }
   }
@@ -77,17 +81,17 @@ void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float
     h_mRcTracks[9]->Fill(pt,eta,phi,vmsa::weight[cent]);
   }
 
-  float phi_shift = AngleShift(phi-Psi2);
+  //float phi_shift = AngleShift(phi-Psi2);
   for(int i_pt = vmsa::pt_rebin_first[mEnergy]; i_pt < vmsa::pt_rebin_last[mEnergy]; ++i_pt) // use rebinned pt
   {
     if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= vmsa::pt_up[mEnergy][i_pt])
     {
       h_mRcEffCos[cent][i_pt]->Fill(cos);
-      h_mRcCosEP[cent][i_pt]->Fill(cos,phi_shift);
+      //h_mRcCosEP[cent][i_pt]->Fill(cos,phi_shift);
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
       {//20-60%
 	h_mRcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
-	h_mRcCosEP[9][i_pt]->Fill(cos,phi_shift,vmsa::weight[cent]);
+	//h_mRcCosEP[9][i_pt]->Fill(cos,phi_shift,vmsa::weight[cent]);
       }
     }
   }
@@ -225,8 +229,8 @@ void StEffHistManger::WriteHist()
 	h_mRcEffCos[i_cent][i_pt]->Write();
 	h_mEffCos[i_cent][i_pt]->Write();
 
-	h_mMcCosEP[i_cent][i_pt]->Write();
-	h_mRcCosEP[i_cent][i_pt]->Write();
+//	h_mMcCosEP[i_cent][i_pt]->Write();
+//	h_mRcCosEP[i_cent][i_pt]->Write();
       }
     }
   }

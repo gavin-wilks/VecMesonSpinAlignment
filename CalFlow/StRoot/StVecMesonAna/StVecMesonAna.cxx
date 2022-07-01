@@ -67,7 +67,8 @@ void StVecMesonAna::Init()
 {
   mUtility = new StUtility(mEnergy);
   mUtility->initRunIndex(); // initialize std::map for run index
- 
+  mRefMultCorr = new StRefMultCorr("refmult"); 
+
   mVecMesonCorr->InitReCenterCorrection();
   mVecMesonCorr->InitShiftCorrection();
   mVecMesonCorr->InitResolutionCorr();
@@ -210,6 +211,19 @@ void StVecMesonAna::MakePhi()
     Int_t flagA = -1;
     Int_t flagB = -1;
 
+    mRefMultCorr->init(RunId);
+
+    if(mRefMultCorr->isBadRun( RunId ))
+    {
+      LOG_ERROR << "Bad Run! Skip!" << endm;
+      continue;
+    }
+
+    //bool isPileUpEvent = false;
+    // IMPORTANT: vertex position is needed for Au+Au 19.6 GeV 2019
+    //if (mRefMultCorr->isPileUpEvent( RefMult, N_Tof_match, PrimaryVertex.z() ) ) isPileUpEvent = true;
+    mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx);
+
     // vz sign 
     int vz_sign = 0;
     if(PrimaryVertex.z() > -70.0 && PrimaryVertex.z() <= -30.0) vz_sign = 0;
@@ -220,10 +234,11 @@ void StVecMesonAna::MakePhi()
     //mRefMultCorr->init(RunId);
     //mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); 
     const Int_t cent9 = Centrality;
-    const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
-    const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
+    //const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
+    //const Double_t reweight = mVecMesonCut->getEventWeight(cent9, refMultCorr);
     // runIndex
-
+    const Double_t reweight = mRefMultCorr->getWeight();
+ 
     const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
     
     // get Track Information
@@ -252,8 +267,8 @@ void StVecMesonAna::MakePhi()
 	  )
 	{
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
-	  if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
-	  if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
+	  //if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
+	  //if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
 	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
 	  Float_t InvMass_lTrack = lTrack.M();
 	  TVector3 vBetaPhi = -1.0*lTrack.BoostVector(); // get phi beta
@@ -265,7 +280,7 @@ void StVecMesonAna::MakePhi()
 	    for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigmaKaon
 	    {
 	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
-	      if(mVecMesonCut->passEtaEast(lTrackA)) // K+ neg eta(east)
+	      if(mVecMesonCut->passEtaEast(lTrack)) // phi neg eta(east)
 	      { // Below is West Only
 		TVector2 Q2Vector = Q2West;
 		// subtract auto-correlation from pos eta(west) event plane
@@ -294,7 +309,7 @@ void StVecMesonAna::MakePhi()
                 mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
-	      if(mVecMesonCut->passEtaWest(lTrackA)) // K+ pos eta (west)
+	      if(mVecMesonCut->passEtaWest(lTrack)) // phi pos eta (west)
 	      { // Below is East Only
 		TVector2 Q2Vector = Q2East;
 		// subtract auto-correlation from pos eta(west) event plane

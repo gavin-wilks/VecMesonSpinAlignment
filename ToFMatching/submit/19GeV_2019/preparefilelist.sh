@@ -13,6 +13,6 @@ then
   do
        echo "This is working"
        echo ${FILE}
-       cat /star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction/submit/19GeV_2019/JOBS/list/sched${jobid}_${FILE}.list >> resubmit.list
+       cat /star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/ToFMatching/submit/19GeV_2019/JOBS/list/sched${jobid}_${FILE}.list >> resubmit.list
   done
 fi

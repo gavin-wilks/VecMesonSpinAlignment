@@ -1,4 +1,4 @@
-#include "../StRoot/StEventPlaneMaker/StEventPlaneCons.h"
+#include "../StRoot/Utility/StSpinAlignmentCons.h"
 #include <string>
 #include "TFile.h"
 #include "TH1F.h"
@@ -11,74 +11,51 @@
 
 using namespace std;
 
-void plotEventPlane(int beamEnergy = 1)
+void plotEventPlane(int beamEnergy = 4)
 {
 
   //--------------TPC EP---------------
   // x-axis: runIndex | y-axis: EP
-  TH2F *h_mTpcRawEpEast[3][9]; // raw EP
-  TH2F *h_mTpcRawEpWest[3][9];
-  TH2F *h_mTpcRawEpFull[3][9];
+  TH2F *h_mTpcRawEpEast; // raw EP
+  TH2F *h_mTpcRawEpWest;
+  TH2F *h_mTpcRawEpFull;
 
-  TH2F *h_mTpcReCenterEpEast[3][9]; // recenter EP
-  TH2F *h_mTpcReCenterEpWest[3][9];
-  TH2F *h_mTpcReCenterEpFull[3][9];
+  TH2F *h_mTpcReCenterEpEast; // recenter EP
+  TH2F *h_mTpcReCenterEpWest;
+  TH2F *h_mTpcReCenterEpFull;
 
-  TH2F *h_mTpcShiftEpEast[3][9]; // shift EP
-  TH2F *h_mTpcShiftEpWest[3][9];
-  TH2F *h_mTpcShiftEpRanA[3][9];
-  TH2F *h_mTpcShiftEpRanB[3][9];
-  TH2F *h_mTpcShiftEpFull[3][9];
+  TH2F *h_mTpcShiftEpEast; // shift EP
+  TH2F *h_mTpcShiftEpWest;
+  TH2F *h_mTpcShiftEpRanA;
+  TH2F *h_mTpcShiftEpRanB;
+  TH2F *h_mTpcShiftEpFull;
   //--------------TPC EP---------------
 
-  string inputRaw = Form("../StRoot/Utility/ReCenterParameter/file_%s_ReCenterPar.root",recoEP::mBeamEnergy[beamEnergy].c_str());
+  string inputRaw = Form("../StRoot/Utility/ReCenterParameter/file_%s_ReCenterPar.root",vmsa::mBeamEnergy[beamEnergy].c_str());
   TFile *File_InPutRaw = TFile::Open(inputRaw.c_str());
   
   string HistName;
 
-  for(int order = 2; order <= 2; ++order)
-  {
-    for(int i_cent = 0; i_cent < 9; ++i_cent)
-    {
-      HistName = Form("h_mTpcRawEpEast_%d_%d",order,i_cent);
-      h_mTpcRawEpEast[order-1][i_cent] = (TH2F*)File_InPutRaw->Get(HistName.c_str());
-      HistName = Form("h_mTpcRawEpWest_%d_%d",order,i_cent);
-      h_mTpcRawEpWest[order-1][i_cent] = (TH2F*)File_InPutRaw->Get(HistName.c_str());
-      HistName = Form("h_mTpcRawEpFull_%d_%d",order,i_cent);
-      h_mTpcRawEpFull[order-1][i_cent] = (TH2F*)File_InPutRaw->Get(HistName.c_str());
-    }
-  }
+  HistName = "h_mEastRaw";
+  h_mTpcRawEpEast = (TH2F*)File_InPutRaw->Get(HistName.c_str());
+  HistName = "h_mWestRaw";
+  h_mTpcRawEpWest = (TH2F*)File_InPutRaw->Get(HistName.c_str());
+  HistName = "h_mFullRaw";
+  h_mTpcRawEpFull = (TH2F*)File_InPutRaw->Get(HistName.c_str());
+  
+ cout << "Are these loaded in" << endl;
 
-  string inputReCenter = Form("../StRoot/Utility/ShiftParameter/file_%s_ShiftPar.root",recoEP::mBeamEnergy[beamEnergy].c_str());
-  TFile *File_InPutReCenter = TFile::Open(inputReCenter.c_str());
-  for(int order = 2; order <= 2; ++order)
-  {
-    for(int i_cent = 0; i_cent < 9; ++i_cent)
-    {
-      HistName = Form("h_mTpcReCenterEpEast_%d_%d",order,i_cent);
-      h_mTpcReCenterEpEast[order-1][i_cent] = (TH2F*)File_InPutReCenter->Get(HistName.c_str());
-      HistName = Form("h_mTpcReCenterEpWest_%d_%d",order,i_cent);
-      h_mTpcReCenterEpWest[order-1][i_cent] = (TH2F*)File_InPutReCenter->Get(HistName.c_str());
-      HistName = Form("h_mTpcReCenterEpFull_%d_%d",order,i_cent);
-      h_mTpcReCenterEpFull[order-1][i_cent] = (TH2F*)File_InPutReCenter->Get(HistName.c_str());
-    }
-  }
-
-  string inputShift = Form("../StRoot/StEventPlaneUtility/Resolution/file_%s_Resolution.root",recoEP::mBeamEnergy[beamEnergy].c_str());
+  string inputShift = Form("../StRoot/Utility/Resolution/file_%s_Resolution.root",vmsa::mBeamEnergy[beamEnergy].c_str());
   TFile *File_InPutShift = TFile::Open(inputShift.c_str());
   
-  for(int order = 1; order <= 3; ++order)
-  {
-    for(int i_cent = 0; i_cent < 9; ++i_cent)
-    {
-      HistName = Form("h_mTpcShiftEpEast_%d_%d",order,i_cent);
-      h_mTpcShiftEpEast[order-1][i_cent] = (TH2F*)File_InPutShift->Get(HistName.c_str());
-      HistName = Form("h_mTpcShiftEpWest_%d_%d",order,i_cent);
-      h_mTpcShiftEpWest[order-1][i_cent] = (TH2F*)File_InPutShift->Get(HistName.c_str());
-      HistName = Form("h_mTpcShiftEpFull_%d_%d",order,i_cent);
-      h_mTpcShiftEpFull[order-1][i_cent] = (TH2F*)File_InPutShift->Get(HistName.c_str());
-    }
-  }
+  h_mTpcReCenterEpEast = (TH2F*)File_InPutShift->Get(HistName.c_str());
+  h_mTpcReCenterEpWest = (TH2F*)File_InPutShift->Get(HistName.c_str());
+  h_mTpcReCenterEpFull = (TH2F*)File_InPutShift->Get(HistName.c_str());
+  h_mTpcShiftEpEast = (TH2F*)File_InPutShift->Get(HistName.c_str());
+  h_mTpcShiftEpWest = (TH2F*)File_InPutShift->Get(HistName.c_str());
+  h_mTpcShiftEpFull = (TH2F*)File_InPutShift->Get(HistName.c_str());
+
+ cout << "Are these loaded in 2" << endl;
 
   TCanvas *c_Tpc = new TCanvas("c_Tpc","c_Tpc",10,10,900,900);
   c_Tpc->Divide(3,3);
@@ -207,7 +184,7 @@ void plotEventPlane(int beamEnergy = 1)
       leg[2][i_cent]->Draw("same");
 
     }
-    string FigureName = Form("./figures/c_mTpcEventPlane_%s_Cent%d.pdf",recoEP::mBeamEnergy[beamEnergy].c_str(),i_cent);
+    string FigureName = Form("./figures/c_mTpcEventPlane_%s_Cent%d.pdf",vmsa::mBeamEnergy[beamEnergy].c_str(),i_cent);
     c_Tpc->SaveAs(FigureName.c_str());
   }
 }

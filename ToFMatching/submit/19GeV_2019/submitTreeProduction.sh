@@ -41,8 +41,8 @@ outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Mixed Event Selection##########
 
 #flag_PID=2 # 0 for phi | 1 for rho | 2 for kstar
-
-outDir=ToFMatching/Phi/
+pid=2
+outDir=ToFMatching/KStar/
 #chunk=10
 
 mkdir -p JOBS/report
@@ -53,7 +53,7 @@ mkdir -p ${outPath}/Log/${outDir}
 mkdir -p ${outPath}/OutPut/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template testProductionTemp.xml -entities pid=$pid,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -61,6 +61,6 @@ star-submit-template -template testProductionTemp.xml -entities energy=$energy,l
 ##########Full Production##########
 
 ##########Re-Submit##########
-#star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template resubmitProductionTemp.xml -entities pid=$pid,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 
 ##########Re-Submit##########

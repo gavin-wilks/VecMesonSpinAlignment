@@ -9,7 +9,7 @@ namespace tof
   std::string const mPID_ToF[3] = {"K","Pi","P"};
   std::string const mCharge[2] = {"plus","minus"};
   int const mPID_Start = 0;
-  int const mPID_Stop  = 1;
+  int const mPID_Stop  = 2;
   int const pidQA = 0;
   int const chargeQA = 1;
 

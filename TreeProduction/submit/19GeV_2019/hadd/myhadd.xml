@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="100" filesPerHour="5" maxFilesPerProcess="200" fileListSyntax="paths" simulateSubmission="false">
+<job minFilesPerProcess="50" filesPerHour="10" maxFilesPerProcess="150" fileListSyntax="paths" simulateSubmission="false">
 
   <command>
     root -l -b -q myhadd.C\(\"$FILELIST\",\"$JOBID\",\"&outFile;\"\)&gt;&amp; ${JOBID}.log
@@ -12,7 +12,7 @@
     </Package>
   </SandBox>
 
-  <input URL="filelist:&listPath;/hadd.list" />
+  <input URL="filelist:&listPath;/EventPlane_hadd.list" />
 
   <stdout discard="true"/>
   <stderr URL="file:&outPath;/hadd/TreeProductionLog/&outDir;/$JOBID.err"/>

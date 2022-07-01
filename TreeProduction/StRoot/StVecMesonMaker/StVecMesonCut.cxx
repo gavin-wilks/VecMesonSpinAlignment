@@ -392,7 +392,7 @@ bool StVecMesonCut::passTrackEP(StPicoTrack *track, StPicoEvent *picoEvent)
   // pt cut 0.15 - 2.0 GeV/c
   Float_t pt = track->pMom().Perp();
   Float_t p  = track->pMom().Mag();
-  if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax && p < vmsa::mPrimMomMax))
+  if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax))
   {
     return kFALSE;
   }
@@ -418,7 +418,7 @@ bool StVecMesonCut::passTrackMeson(StPicoTrack *track, StPicoEvent *picoEvent, I
   }
 
   // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
+  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Perp() < vmsa::mGlobPtMax))
   {
     return kFALSE;
   }

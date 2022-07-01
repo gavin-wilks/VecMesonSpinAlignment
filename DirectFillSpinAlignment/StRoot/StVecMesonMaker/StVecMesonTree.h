@@ -34,35 +34,15 @@ class StVecMesonTree
     StVecMesonTree(Int_t energy, Int_t flag);
     virtual ~StVecMesonTree();
 
-    //phi-meson specific functions
-    void InitPhi();
-
-    void doPhi(Int_t,Int_t,Int_t,Int_t);
-    void MixEvent_Phi(Int_t,StPicoDst*,Int_t,Float_t,Float_t);
-    void clear_phi(Int_t,Int_t,Int_t);
-    void size_phi(Int_t,Int_t,Int_t);
-    ////////////////////////////////
-    //
-    //rho-meson specific functions
-    void InitRho();
-
-    void doRho(Int_t,Int_t,Int_t,Int_t);
-    void MixEvent_Rho(Int_t,StPicoDst*,Int_t,Float_t,Float_t);
-    void clear_rho(Int_t,Int_t,Int_t);
-    void size_rho(Int_t,Int_t,Int_t);
-    ////////////////////////////////
-    //
     //KStar-meson specific functions
     void InitKStar();
-    void doKStar(Int_t,Int_t,Int_t,Int_t);
-    void MixEvent_KStar(Int_t,StPicoDst*,Int_t,Float_t,Float_t);
+    void doKStar(Int_t);
+    void MixEvent_KStar(Int_t,StPicoDst*);
     void FillKStar(StMesonTrack*);
-    void clear_kstar(Int_t,Int_t,Int_t);
-    void size_kstar(Int_t,Int_t,Int_t);
+    void clear_kstar();
+    //void size_kstar(Int_t,Int_t,Int_t);
     /////////////////////////////////
 
-    void WriteMass2Phi();
-    void WriteMass2Rho();
     void WriteMass2KStar();
 
     void clearEvent();
@@ -86,16 +66,22 @@ class StVecMesonTree
     TH2F *h_PidEdxRig;
     TH2F *h_PiM2Rig;
     TH2F *h_PiInvBetaRig;
-    Int_t mEventCounter2[9][10][5]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
+    //Int_t mEventCounter2[9][10][5]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
 
     // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin, 3 = mixed event bin, 4 = charge bin(0 for pos, 1 for neg) || push_back->track
-    vectorHelixMap mHelix;
-    vectorFloatMap mMomentum;
-    vectorFloatMap mMass2;
-    vectorFloatMap mDca;
-    vectorFloatMap mNHitsFit;
-    vectorFloatMap mNSigma;
-    vectorIntMap mCharge;
+    //vectorHelixMap mHelix;
+    //vectorFloatMap mMomentum;
+    //vectorFloatMap mMass2;
+    //vectorFloatMap mDca;
+    //vectorFloatMap mNHitsFit;
+    //vectorFloatMap mNSigma;
+    //vectorIntMap mCharge;
+    vector<StPhysicalHelixD> mHelix[4];
+    vector<Float_t> mMomentum[4];
+    vector<Float_t> mMass2[4];
+    vector<Float_t> mDca[4];
+    vector<Float_t> mNHitsFit[4];
+    vector<Float_t> mNSigma[4];
 
     TTree *mTree;
     StMesonEvent *mMesonEvent;
@@ -104,27 +90,27 @@ class StVecMesonTree
     StMesonTrack *mMesonTrack;
 
     // event information | 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin || push_back->event
-    std::vector<StThreeVectorF> mPrimaryvertex[9][10][5];
-    std::vector<Int_t> mRefMult[9][10][5];
-    std::vector<Int_t> mCentrality[9][10][5];
-    std::vector<Int_t> mRunId[9][10][5];
-    std::vector<Int_t> mEventId[9][10][5];
-    std::vector<Int_t> mN_prim[9][10][5];
-    std::vector<Int_t> mN_non_prim[9][10][5];
-    std::vector<Int_t> mN_Tof_match[9][10][5];
-    std::vector<Float_t> mZDCx[9][10][5];
-    std::vector<Float_t> mBBCx[9][10][5];
-    std::vector<Float_t> mVzVpd[9][10][5];
-    std::vector<Float_t> mField[9][10][5];
-    std::vector<UShort_t> mNumTracks[9][10][5];
-    std::vector<TVector2> mQ2East[9][10][5];
-    std::vector<TVector2> mQ2West[9][10][5];
-    std::vector<TVector2> mQ2Full[9][10][5];
-    std::vector<Int_t> mNumTrackEast[9][10][5];
-    std::vector<Int_t> mNumTrackWest[9][10][5];
-    std::vector<Int_t> mNumTrackFull[9][10][5];
-    std::vector<Int_t> mNumTrackFullEast[9][10][5];
-    std::vector<Int_t> mNumTrackFullWest[9][10][5];
+    StThreeVectorF mPrimaryvertex;
+    Int_t mRefMult;
+    Int_t mCentrality;
+    Int_t mRunId;
+    Int_t mEventId;
+    Int_t mN_prim;
+    Int_t mN_non_prim;
+    Int_t mN_Tof_match;
+    Float_t mZDCx;
+    Float_t mBBCx;
+    Float_t mVzVpd;
+    Float_t mField;
+    UShort_t mNumTracks;
+    TVector2 mQ2East;
+    TVector2 mQ2West;
+    TVector2 mQ2Full;
+    Int_t mNumTrackEast;
+    Int_t mNumTrackWest;
+    Int_t mNumTrackFull;
+    Int_t mNumTrackFullEast;
+    Int_t mNumTrackFullWest;
 
     // passing variable
     Int_t mNumber_prim, mNumber_non_prim, mNumber_Tof_match;

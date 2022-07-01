@@ -8,7 +8,7 @@ class StPicoDstMaker;
 
 
 StChain *chain;
-void ToFMatching(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/pico_prod_random_test.list", const Char_t *jobCounter = "1", const Int_t energy = 4)
+void ToFMatching(const Char_t *inputFile="submit/19GeV_2019/resubmit.list", const Char_t *jobCounter = "lastlastbit", const Int_t energy = 4, const Int_t pid = 2)
 // void ToFMatching(const Char_t *inputFile="/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu11GeV/List/run_list/11GeV_14.list", const Int_t jobCounter = 14, const Int_t energy = 1)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
@@ -17,7 +17,7 @@ void ToFMatching(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/pi
 
   TStopwatch *stopWatch = new TStopwatch();
   stopWatch->Start();
-  Int_t nEvents = 10000000;
+  Int_t nEvents = 100000000;
   //Int_t nEvents = 50000;
 
   gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
@@ -32,7 +32,7 @@ void ToFMatching(const Char_t *inputFile="../../PidFlow/FileList/19p6GeV_2019/pi
 
   StPicoDstMaker *picoMaker = new StPicoDstMaker(2,inputFile,"picoDst");
 
-  StToFMatchMaker *ToFMatchMaker = new StToFMatchMaker("ToFMatch",picoMaker,jobCounter,energy);
+  StToFMatchMaker *ToFMatchMaker = new StToFMatchMaker("ToFMatch",picoMaker,jobCounter,energy,pid);
 
   chain->Init();
   cout<<"chain->Init();"<<endl;

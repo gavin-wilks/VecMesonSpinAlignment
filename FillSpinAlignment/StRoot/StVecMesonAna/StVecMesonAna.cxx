@@ -8,6 +8,7 @@
 #include "StRoot/StMesonEvent/StMesonEvent.h"
 //#include "StRoot/StRunIdEventsDb/StRunIdEventsDb.h"
 #include "StRoot/StVecMesonAna/StUtility.h"
+#include "StarGenerator/UTIL/StarRandom.h"
 #include "StThreeVectorF.hh"
 #include "StMessMgr.h"
 #include "TFile.h"
@@ -16,6 +17,8 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include <fstream>
+#include "TRandom3.h"
+#include "TStopwatch.h"
 
 ClassImp(StVecMesonAna)
 
@@ -78,6 +81,11 @@ void StVecMesonAna::setStartEvent(const Long64_t StartEvent)
 // initial functions
 void StVecMesonAna::Init()
 {
+  if(gRandom) delete gRandom;
+  gRandom = new TRandom3();
+  gRandom->SetSeed();
+
+
   mUtility = new StUtility(mEnergy);
   mUtility->initRunIndex(); // initialize std::map for run index
   mRefMultCorr = new StRefMultCorr("refmult");
@@ -324,8 +332,8 @@ void StVecMesonAna::MakePhi()
 	  // Float_t eta_lTrack = lTrack.Eta();
 	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
-	  if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
-	  if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
+	  //if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
+	  //if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
 	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
           //cout << "pass rapidity cut" << endl;
 	  Float_t InvMass_lTrack = lTrack.M();
@@ -338,63 +346,68 @@ void StVecMesonAna::MakePhi()
 	  {
 	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
 	    mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
-            //cout << "pass dca cut" << endl;
+
 	    for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigmaKaon
 	    {
+              if( i_dca != 0 && i_sig != 0) continue;
 	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
 	      mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
-              //cout << "pass nsig cut" << endl;
+
+              double randtheta = gRandom->Uniform(0.,TMath::Pi());
+              double randPsi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
+
+              //cout << "Rand Theta: " << randtheta << "    rand PSi = " << randPsi << endl;
+
 	      if(mVecMesonCut->passEtaEast(lTrackA)) // K+ neg eta(east)
 	      { // Below is West Only
-                //cout << "pass east eta cut" << endl;
-		TVector2 Q2Vector = Q2West;
-		// subtract auto-correlation from pos eta(west) event plane
-		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
-		{
-                  //cout << "pass track EP cut" << endl;
-		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
-		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
-		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(cent9,runIndex,vz_sign);
-		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
-		}
+		//TVector2 Q2Vector = Q2West;
+		//// subtract auto-correlation from pos eta(west) event plane
+		//if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
+		//{
+		//  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+		//  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+		//  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(cent9,runIndex,vz_sign);
+		//  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+		//}
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
-		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
+		//Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
 
-		TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
+		//TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
+		TVector3 nQ_West(TMath::Sin(randPsi)*TMath::Cos(randtheta),-1.0*TMath::Cos(randPsi)*TMath::Cos(randtheta),TMath::Sin(randtheta)); // normal vector of 2nd Event Plane
 		TVector3 nQ = nQ_West.Unit();
 		Double_t CosThetaStar = vKpRest.Dot(nQ);
 		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 
-		TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
-		TVector3 nQ_EP = nQ_West_EP.Unit();
-		Double_t CosThetaStar_EP = vKpRest.Dot(nQ_EP);
-		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+		//TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
+		//TVector3 nQ_EP = nQ_West_EP.Unit();
+		//Double_t CosThetaStar_EP = vKpRest.Dot(nQ_EP);
+		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
 	      if(mVecMesonCut->passEtaWest(lTrackA)) // K+ pos eta (west)
 	      { // Below is East Only
-                //cout << "pass west eta cut" << endl;
-		TVector2 Q2Vector = Q2East;
-		// subtract auto-correlation from pos eta(west) event plane
-		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
-		{
-		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
-		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
-		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(cent9,runIndex,vz_sign);
-		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
-		}
+		//TVector2 Q2Vector = Q2East;
+		//// subtract auto-correlation from pos eta(west) event plane
+		//if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
+		//{
+		//  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+		//  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+		//  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(cent9,runIndex,vz_sign);
+		//  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+		//}
 		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
-		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
+		//Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
 
-		TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane
+		//TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane*/
+		TVector3 nQ_East(TMath::Sin(randPsi)*TMath::Cos(randtheta),-1.0*TMath::Cos(randPsi)*TMath::Cos(randtheta),TMath::Sin(randtheta)); // normal vector of 2nd Event Plane
 		TVector3 nQ = nQ_East.Unit();
 		Double_t CosThetaStar = vKpRest.Dot(nQ);
 		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 
-		TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
-		TVector3 nQ_EP = nQ_East_EP.Unit();
-		Double_t CosThetaStar_EP = vKpRest.Dot(nQ_EP);
-		mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+		//TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
+		//TVector3 nQ_EP = nQ_East_EP.Unit();
+		//Double_t CosThetaStar_EP = vKpRest.Dot(nQ_EP);
+		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }
 	  }
@@ -403,8 +416,6 @@ void StVecMesonAna::MakePhi()
     }
   }
 
-  //cout << "." << flush;
-  //cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
   cout << endl;
 }
 
@@ -843,6 +854,6 @@ void StVecMesonAna::Finish()
 {
   mFile_OutPut->cd();
   mVecMesonHistoManger->WriteSys(mX_flag,mMode);
-  mVecMesonHistoManger->WriteSys_EP(mX_flag,mMode);
+  //mVecMesonHistoManger->WriteSys_EP(mX_flag,mMode);
   mFile_OutPut->Close();
 }

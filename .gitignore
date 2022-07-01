@@ -27,6 +27,16 @@ temp_gccflags.c
 */submit/*/hadd/sched*
 */submit/*/hadd/*.session.xml
 
+*/*/submit/*/JOBS/
+*/*/submit/*/Log/
+*/*/submit/*/sched*
+*/*/submit/*/*.session.xml
+
+*/*/submit/*/hadd/JOBS/
+*/*/submit/*/hadd/Log/
+*/*/submit/*/hadd/sched*
+*/*/submit/*/hadd/*.session.xml
+
 */AutoDict*
 */*/AutoDict*
 */*/*/AutoDict*
@@ -69,6 +79,12 @@ CalSpinAlignment/*_C.*
 */*/*/figures/*
 */*/*/*/figures/*
 */*/*/*/*/figures/*
+
+*/*.log
+*/*/*.log
+*/*/*/*.log
+*/*/*/*/*.log
+*/*/*/*/*/*.log
 
 Utility/compareHistograms/*.root*
 Utility/compareHistograms/compareHistograms.o

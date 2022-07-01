@@ -37,9 +37,9 @@
 #endif
 
 
-void makePicoDstQA(TString InputFileList, Int_t nEvents = 0, TString OutputFile = "test.histo", TString jobId = "1", Int_t mEnergy = 4, Int_t mGid = 11);
+void makePicoDstQA(TString InputFileList, Int_t nEvents = 0, TString OutputFile = "test.histo", TString jobId = "1", Int_t mEnergy = 4, Int_t mGid = 11, Int_t mPid = 0);
 
-void makePicoDstQA(TString InputFileList, Int_t nEvents, TString OutputFile, TString jobId, Int_t mEnergy, Int_t mGid) 
+void makePicoDstQA(TString InputFileList, Int_t nEvents, TString OutputFile, TString jobId, Int_t mEnergy, Int_t mGid, Int_t mPid) 
 {
  
   // Load libraries for CINT mode
@@ -83,7 +83,7 @@ void makePicoDstQA(TString InputFileList, Int_t nEvents, TString OutputFile, TSt
   // chain -> EventLoop(1,nEvents) ;  //will output lots of useless debugging info.
   Int_t istat = 0, i = 1;
   while (i <= nEvents && istat != 2) {
-     if(i%10==0)cout << endl << "== Event " << i << " start ==" << endl;
+     if(i%1000==0)cout << endl << "== Event " << i << " start ==" << endl;
      chain->Clear();
      istat = chain->Make(i);
 
@@ -153,9 +153,9 @@ void makePicoDstQA(TString InputFileList, Int_t nEvents, TString OutputFile, TSt
      //The MC arrays in PicoDst
      Int_t NoMuMcVertices = mPicoDst->numberOfMcVertices();
      Int_t NoMuMcTracks = mPicoDst->numberOfMcTracks();
-     LOG_INFO <<"# of MC tracks = "<< NoMuMcTracks <<" # of MC vertices = "<< NoMuMcVertices << endm;
+     //LOG_INFO <<"# of MC tracks = "<< NoMuMcTracks <<" # of MC vertices = "<< NoMuMcVertices << endm;
      if (! NoMuMcVertices || ! NoMuMcTracks) {
-	  LOG_WARN << "Ev. " << i  << " has no MC information ==> skip it" << endm;
+	  //LOG_WARN << "Ev. " << i  << " has no MC information ==> skip it" << endm;
 	  continue;
      }
      Int_t nMc = 0;
@@ -230,27 +230,28 @@ void makePicoDstQA(TString InputFileList, Int_t nEvents, TString OutputFile, TSt
 
 	  //if(mcTrack->geantId() != 11) continue; //geantId cut for Kplus = 11 and Kminus = 12
 	  if(mcTrack->geantId() != mGid) continue; //geantId cut for Kplus = 11 and Kminus = 12
-	  if(mcTrack->idVtxStart() != 1) {
-	     LOG_WARN<<"mc track may not directly originate from PV!"<<endm;
-	  }
+	  //if(mcTrack->idVtxStart() != 1) {
+	  //   LOG_WARN<<"mc track may not directly originate from PV!"<<endm;
+	  //}
 
-          double P   = mcTrack->p().Mag();
+          //double P   = mcTrack->p().Mag();
           double Pt  = mcTrack->p().Perp();
           double Phi = mcTrack->p().Phi();
           double Eta = mcTrack->p().PseudoRapidity();
-
+   
           double gRcPt = ptrack->gMom().Perp();
           double pRcPt = ptrack->pMom().Perp();
+ 
+          if(ptrack->qaTruth()<50.) continue;
 
           //-------------------------McKaon-----------------------------------------------------
-          if( Eta > vmsa::mEtaMax ) continue; // eta cut
-          if(!(Pt > vmsa::mGlobPtMin && P < vmsa::mPrimMomMax) ) continue; // eta cut
+          if( fabs(Eta) > vmsa::mEtaMax ) continue; // eta cut
+          if(!(Pt > vmsa::mGlobPtMin && Pt < vmsa::mGlobPtMax) ) continue; // eta cut
 
           mEffHistManger->FillHistMc(cent9,Pt,Eta,Phi,0.0,0.0);
           //-------------------------McKaon----------------------------------------------------- 
 
-          if(ptrack->qaTruth()<50.) continue;
-          if( !mVecMesonCut->passTrackPhi(ptrack, mPicoEvent) ) continue;
+          if( !mVecMesonCut->passTrackMeson(ptrack, mPicoEvent, mPid) ) continue;
           mEffHistManger->FillHistRc(cent9,Pt,Eta,Phi,0.0,0.0);
           mEffHistManger->FillHistPt(cent9,Pt,gRcPt,pRcPt);   
 

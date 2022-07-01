@@ -11,13 +11,14 @@
 #energy=1  # 19p6GeV
 #library=SL21c
 listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction/submit/19GeV_2019/hadd
-outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
+outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
 ##########Mode Selection##########
 #mode=0
-#outDir=ReCenterParameter
-outDir=ShiftParameter
+#outDir=ReCenterPar
+outDir=ShiftPar
+#outDir=EpdFlow
 outFile=file_19GeV_${outDir}
 ##########Mode Selection##########
 
@@ -29,7 +30,7 @@ mkdir -p JOBS/csh
 mkdir -p JOBS/list
 
 ##########Full Production##########
-star-submit-template -template myhadd.xml -entities outFile=$outFile,outPath=$outPath,outDir=$outDir,listPath=$listPath
+star-submit-template -u ie -template myhadd.xml -entities outFile=$outFile,outPath=$outPath,outDir=$outDir,listPath=$listPath
 ##########Full Production##########
 
 #star-submit-template -template myhadd_resubmit.xml -entities outFile=$outFile,outPath=$outPath,outDir=$outDir,listPath=$listPath

@@ -321,30 +321,20 @@ Float_t StVecMesonCut::getV0Mass2(StPicoTrack *picoTrack, StPicoDst *picoDst)
   return mass2;
 }
 
-bool StVecMesonCut::passSigPionCut(StPicoTrack* track, Float_t scale_nSigma_factor)
+bool StVecMesonCut::passSigPionCut(StPicoTrack* track, Int_t pid)
 {
   Float_t nSigmaPion = track->nSigmaPion();
-  if(fabs(nSigmaPion*scale_nSigma_factor) > vmsa::mNSigmaPionMax)
+  if(fabs(nSigmaPion) > vmsa::mNSigmaPionMax[pid])
   {
     return kFALSE;
   }
   return kTRUE;
 }
 
-bool StVecMesonCut::passSigKaonCut(StPicoTrack* track, Float_t scale_nSigma_factor)
+bool StVecMesonCut::passSigKaonCut(StPicoTrack* track, Int_t pid)
 {
   Float_t nSigmaKaon = track->nSigmaKaon();
-  if(fabs(nSigmaKaon*scale_nSigma_factor) > vmsa::mNSigmaKaonMax)
-  {
-    return kFALSE;
-  }
-  return kTRUE;
-}
-
-bool StVecMesonCut::passSigProntonCut(StPicoTrack* track, Float_t scale_nSigma_factor)
-{
-  Float_t nSigmaProton = track->nSigmaProton();
-  if(fabs(nSigmaProton*scale_nSigma_factor) > vmsa::mNSigmaProtonMax)
+  if(fabs(nSigmaKaon) > vmsa::mNSigmaKaonMax[pid])
   {
     return kFALSE;
   }
@@ -409,7 +399,7 @@ bool StVecMesonCut::passTrackEP(StPicoTrack *track, StPicoEvent *picoEvent)
 }
 
 //---------------------------------------------------------------------------------
-bool StVecMesonCut::passTrackPhi(StPicoTrack *track, StPicoEvent *picoEvent)
+bool StVecMesonCut::passTrackMeson(StPicoTrack *track, StPicoEvent *picoEvent, Int_t pid)
 {
   if(!track) return kFALSE;
 
@@ -420,38 +410,13 @@ bool StVecMesonCut::passTrackPhi(StPicoTrack *track, StPicoEvent *picoEvent)
   const double vz = picoEvent->primaryVertex().z();
 
   // dca cut for phi
-  if(track->gDCA(vx,vy,vz) > vmsa::mDcaTrMax_phi)
+  if(track->gDCA(vx,vy,vz) > vmsa::mDcaTrMax_pid[pid])
   {
     return kFALSE;
   }
 
   // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
-  {
-    return kFALSE;
-  }
-
-  return kTRUE;
-}
-
-bool StVecMesonCut::passTrackKStar(StPicoTrack *track, StPicoEvent *picoEvent)
-{
-  if(!track) return kFALSE;
-
-  if(!passTrackBasic(track)) return kFALSE;
-
-  const double vx = picoEvent->primaryVertex().x(); // x works for both TVector3 and StThreeVectorF
-  const double vy = picoEvent->primaryVertex().y();
-  const double vz = picoEvent->primaryVertex().z();
-
-  // dca cut for kstar
-  if(track->gDCA(vx,vy,vz) > vmsa::mDcaTrMax_KStar)
-  {
-    return kFALSE;
-  }
-
-  // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
+  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Perp() < vmsa::mGlobPtMax))
   {
     return kFALSE;
   }
