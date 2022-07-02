@@ -25,10 +25,10 @@ void cal2ndMeanRho_27GeV_EP()
   // const int mode_default = 0;
 
 
-  string input_run11 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_27GeV_EP.root";
+  string input_run11 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_27GeV_run11_EP.root";
   TFile *File_Run11 = TFile::Open(input_run11.c_str());
 
-  string input_run18 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_27GeV_Run18_EP.root";
+  string input_run18 = "/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_27GeV_run18_EP.root";
   TFile *File_Run18 = TFile::Open(input_run18.c_str());
 
 
