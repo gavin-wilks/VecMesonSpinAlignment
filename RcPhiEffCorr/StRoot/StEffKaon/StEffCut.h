@@ -3,7 +3,7 @@
 
 #include "StMessMgr.h"
 #include "StEffStruct.h"
-#include "../../../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 
 class StEffCut
 {

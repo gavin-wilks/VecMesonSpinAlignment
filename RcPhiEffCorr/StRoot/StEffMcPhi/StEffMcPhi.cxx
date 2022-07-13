@@ -33,7 +33,7 @@ StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int
   SetOutPutFile(OutPutFile); // set output file
 
   mEffCut = new StEffCut();
-  mEffHistManger = new StEffHistManger(energy);
+  mEffHistManger = new StEffHistManger(energy, pid);
 }
 
 StEffMcPhi::~StEffMcPhi()

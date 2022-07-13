@@ -366,6 +366,8 @@ void fill(TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const
   double PhiPt = lKStar->Pt();
   double KEta = lK.Eta();
   double PiEta = lPi.Eta();
+  double KPt = lK.Pt();
+  double PiPt = lPi.Pt();
 
   TVector3 nQ(0.0,-1.0,0.0); // direction of angular momentum with un-smeared EP
   TVector3 zQ(0.0,0.0,1.0);
@@ -384,7 +386,7 @@ void fill(TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const
   h_theta_before->Fill(TMath::Abs(CosThetaStarEP));
 
 //  if(TMath::Abs(KplusEta)<=eta_gap && TMath::Abs(KminusEta)<=eta_gap)
-  if(TMath::Abs(KEta)<eta_gap && TMath::Abs(PiEta)<eta_gap)
+  if(TMath::Abs(KEta)<eta_gap && TMath::Abs(PiEta)<eta_gap && KPt > 0.1 && KPt < 10.0 && PiPt > 0.1 && PiPt < 10.0)
   {
     h_theta->Fill(TMath::Abs(CosThetaStarZP));
     h_theta_star->Fill(TMath::Abs(CosThetaStarEP));

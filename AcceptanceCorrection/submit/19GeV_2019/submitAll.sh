@@ -2,10 +2,10 @@
 
 #./submitTreeProduction.sh 1 3333 2.0
 #./submitTreeProduction.sh 2 3333 2.0
-./submitTreeProduction.sh 3 3333 2.0
-./submitTreeProduction.sh 4 3333 2.0
-./submitTreeProduction.sh 5 3333 2.0
-./submitTreeProduction.sh 6 3333 2.0
+#./submitTreeProduction.sh 3 3333 2.0
+#./submitTreeProduction.sh 4 3333 2.0
+#./submitTreeProduction.sh 5 3333 2.0
+#./submitTreeProduction.sh 6 3333 2.0
 
 #echo "2667"
 #./submitTreeProduction.sh 3 2667 1.0
@@ -30,9 +30,9 @@
 #./submitAcceptanceKStar.sh 3 4000
 
 
-#./submitAcceptanceKStar.sh 1 3333 
-#./submitAcceptanceKStar.sh 2 3333 
-#./submitAcceptanceKStar.sh 3 3333 
+./submitAcceptanceKStar.sh 1 3333 
+./submitAcceptanceKStar.sh 2 3333 
+./submitAcceptanceKStar.sh 3 3333 
 #./submitAcceptanceKStar.sh 4 3333 
 #./submitAcceptanceKStar.sh 5 3333 
 #./submitAcceptanceKStar.sh 6 3333 

@@ -2,7 +2,7 @@
 
 if [ $# -eq 1 ]
 then
-  location=scratch
+  location=pwg
   pid=KStar
   SM=$1
   rm EventPlane_hadd.list

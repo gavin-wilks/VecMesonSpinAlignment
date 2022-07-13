@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="50" filesPerHour="20" maxFilesPerProcess="200" fileListSyntax="paths" simulateSubmission="false">
+<job minFilesPerProcess="5" filesPerHour="20" maxFilesPerProcess="10" fileListSyntax="paths" simulateSubmission="false">
 
   <command>
     root -l -b -q myhadd.C\(\"$FILELIST\",\"$JOBID\",\"&outFile;\"\)&gt;&amp; ${JOBID}.log

@@ -22,8 +22,8 @@ outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Mode Selection##########
 pid=2 #0 = phi
 ptbin=$1
-nJobs=200
-nEvents=25000
+nJobs=500
+nEvents=20000
 rho00=$2
 
 #mode=2

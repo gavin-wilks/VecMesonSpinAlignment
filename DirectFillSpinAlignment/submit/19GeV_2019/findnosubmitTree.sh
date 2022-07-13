@@ -4,7 +4,7 @@ date
 jobid=$1
 part=KStar # Phi, KStar
 SM=$2 # SE, ME
-where=scratch
+where=$3
 numjobs=`ls JOBS\/list\/*${jobid}* | wc -l`
 echo "${numjobs}"
 

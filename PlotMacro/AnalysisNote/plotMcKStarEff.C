@@ -4,7 +4,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TF1.h"
-#include "../../Utility/StSpinAlignmentCons.h"
+#include "../../RcPhiEffCorr/StRoot/Utility/StSpinAlignmentCons.h"
 #include "../../Utility/draw.h"
 
 using namespace std;
@@ -12,20 +12,15 @@ using namespace std;
 float pos_x[8] = {0.05,0.54,0.05,0.54,0.05,0.54,0.05,0.54};
 float pos_y[8] = {0.50,0.50,0.45,0.45,0.40,0.40,0.35,0.35};
 
-void plotMcPhiEff(int energy = 4, int cent = 9, int pid = 2)
+void plotMcKStarEff(int energy = 4, int cent = 9, int pid = 2)
 {
   gStyle->SetOptDate(0);
-  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/Eff_%s_SingleParticle_2060.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/Eff_%s_SingleParticle_2060_noToF.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   //string inputfile = Form("/star/u/gwilks3/Workspace/FileTransfers/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str());
   // string InPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
-
-  int mpt_rebin;
-  int mpt_rebin_last;
-  int mpt_rebin_first; 
-
-  TH1D *h_mEff[vmsa::pt_rebin];
-  for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt)
+  TH1D *h_mEff[vmsa::pt_rebinKS];
+  for(int i_pt = vmsa::pt_rebin_firstKS[energy]; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
   {
     string HistName = Form("h_mEffCos_Cent_%d_Pt_%d",cent,i_pt);
     h_mEff[i_pt] = (TH1D*)File_InPut->Get(HistName.c_str());
@@ -65,7 +60,7 @@ void plotMcPhiEff(int energy = 4, int cent = 9, int pid = 2)
   double slopeVal[6];
   double slopeErr[6];
 
-  for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt)
+  for(int i_pt = vmsa::pt_rebin_firstKS[energy]; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
   {
     h_mEff[i_pt]->SetMarkerStyle(vmsa::Style[i_pt]);
     h_mEff[i_pt]->SetMarkerColor(vmsa::Color[i_pt]);
@@ -83,13 +78,13 @@ void plotMcPhiEff(int energy = 4, int cent = 9, int pid = 2)
     f_poly->SetLineStyle(2);
     f_poly->SetLineWidth(2);
     f_poly->Draw("l same");
-    string pt_range = Form("p_{T} = %1.1f-%1.1f GeV/c",vmsa::pt_low[energy][i_pt],vmsa::pt_up[energy][i_pt]);
+    string pt_range = Form("p_{T} = %1.1f-%1.1f GeV/c",vmsa::pt_lowKS[energy][i_pt],vmsa::pt_upKS[energy][i_pt]);
     Draw_TGAE_Point_new_Symbol(pos_x[i_pt],pos_y[i_pt]-0.05,0.0,0.0,0.0,0.0,vmsa::Style[i_pt],vmsa::Color[i_pt],1.2);
     plotTopLegend((char*)pt_range.c_str(),pos_x[i_pt]+0.03,pos_y[i_pt]-0.055,0.04,1,0.0,42,0,1);
   }
   plotTopLegend((char*)legEnergy.c_str(),0.17,0.5,0.05,1,0.0,42,0,1);
 
-  for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt)
+  for(int i_pt = vmsa::pt_rebin_firstKS[energy]; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
   {
     cout << "pT bin: " << i_pt << endl;
     cout << "y-int = " << intVal[i_pt] << " +/- " << intErr[i_pt] << endl;

@@ -13,7 +13,7 @@ class TH3D;
 class StEffHistManger : public TObject
 {
   public:
-    StEffHistManger(int energy);
+    StEffHistManger(int energy, int pid);
     virtual ~StEffHistManger();
     void InitHist();
     void FillHistMc(int,float,float,float,float,float);
@@ -56,7 +56,13 @@ class StEffHistManger : public TObject
     int flag_eff;
     int flag_eff_PtEtaPhi;
     int flag_eff_Cos;
+    
+    int mpt_first;
+    int mpt_last;
 
+    int mpt_low[10];
+    int mpt_up[10];
+ 
   ClassDef(StEffHistManger,1)
 };
 

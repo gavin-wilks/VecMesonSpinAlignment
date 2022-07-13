@@ -109,6 +109,13 @@ namespace vmsa
   float const ptRawStop[pt_total]  = {0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
   double const pt_bin[pt_total+1] = {0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
 
+  int const pt_totalKS = 24; // pt bin
+  int const pt_startKS = 0;
+  int const pt_stopKS  = 24;
+  float const ptRawStartKS[pt_totalKS] = {0.2,0.4,0.6,0.8,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5};
+  float const ptRawStopKS[pt_totalKS]  = {0.4,0.6,0.8,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0};
+  double const pt_binKS[pt_totalKS+1]  = {0.2,0.4,0.6,0.8,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0};
+
   // mix event
   int const Bin_Centrality = 9;
   int const Bin_VertexZ = 10;
@@ -158,6 +165,40 @@ namespace vmsa
   int const pt_rebin_last[NumBeamEnergy]  = {8,6,6,6,6};
   int const pt_QA[NumBeamEnergy]    = {1,1,2,2,3};
   int const pt_RawQA[NumBeamEnergy]    = {2,4,6,3,10};
+
+  int const pt_rebinKS = 4; // maximum pt binning
+  float const pt_lowKS[NumBeamEnergy][pt_rebinKS] = {
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0}
+  };
+  float const pt_upKS[NumBeamEnergy][pt_rebinKS]  = {
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0}
+  };
+  int const pt_rebin_startKS[NumBeamEnergy][pt_rebinKS] = {
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18}
+  };
+  int const pt_rebin_stopKS[NumBeamEnergy][pt_rebinKS]  = {
+    {4,6,18,24},
+    {4,6,18,24},
+    {4,6,18,24},
+    {4,6,18,24},
+    {4,6,18,24}
+  };
+  int const pt_rebin_firstKS[NumBeamEnergy] = {0,0,0,0,0};
+  int const pt_rebin_lastKS[NumBeamEnergy]  = {4,4,4,4,4};
+  int const pt_QAKS[NumBeamEnergy]    = {1,1,1,1,1};
+  int const pt_RawQAKS[NumBeamEnergy]    = {6,6,6,6,6};
 
   std::string const Centrality[9] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%"}; // Centrality bin
   int const Cent_Total = 10; // centrality: 9 = 20%-60%, 0-8 from RefMultCorr
