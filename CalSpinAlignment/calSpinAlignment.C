@@ -44,7 +44,7 @@ void calSpinAlignment(int energy = 6, int pid = 0, int year = 0)
     //  {
 	for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	{
-	  string KEY_SE = Form("pt_%d_Centrality_%d__CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_SE[KEY_SE] = (TH1F*)File_SE->Get(KEY_SE.c_str())->Clone(); 
 	  int Norm_bin_start = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Start[pid][0]);
 	  int Norm_bin_stop  = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Stop[pid][0]);
@@ -272,8 +272,22 @@ void calSpinAlignment(int energy = 6, int pid = 0, int year = 0)
 	    TF1 *f_poly = new TF1("f_poly",Poly,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],2);
 	    f_poly->FixParameter(0,f_bw->GetParameter(3));
 	    f_poly->FixParameter(1,f_bw->GetParameter(4));
-
+	    f_poly->SetParError(0,f_bw->GetParError(3));
+	    f_poly->SetParError(1,f_bw->GetParError(4));
+            
+            TH1F *hTotal = (TH1F*)h_mMass[KEY]->Clone();
 	    h_mMass[KEY]->Add(f_poly,-1.0); // subtract linear background for phi differential InvMass
+            float binWidth = h_mMass[KEY]->GetBinWidth();  
+
+            for(int bin = 1; bin <= h_mMass[KEY]->GetNbinsX(); bin++)
+            {
+              float binLowEdge = hTotal->GetBinLowEdge(bin);
+              float funcError = h_poly->IntegralError(binLowEdge,binLowEdge+binWidth);
+              float totError = hTotal->GetBinError(bin);
+              cout << "funcError = " << funcError << endl;
+              h_mMass[KEY]->SetBinError(bin,totError+funcError); 
+            } 
+            delete hTotal;
 	  }
 	}
       }

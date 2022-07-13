@@ -16,7 +16,7 @@ double tof_Kaon(double* x, double* par)
   return par[0]*(1.0 / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6]);
 }
 
-void plotQA_TofMatchingEfficiency(int mEnergy = 4, int mPID = 0)
+void plotQA_TofMatchingEfficiency(int mEnergy = 4, int mPID = 1)
 {
   string const mBeamEnergy[5] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
   string const mParType[2] = {"Kplus","Kminus"};
@@ -25,7 +25,7 @@ void plotQA_TofMatchingEfficiency(int mEnergy = 4, int mPID = 0)
   int const mPlotStyle[10] = {0,0,1,1,1,1,0,0,0,1};
   int const mPlotColor[10] = {0,0,kGray+3,kAzure+4,kOrange+1,kCyan+1,0,0,0,kRed};
 
-  string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/file_%s_ToFMatching.root",mBeamEnergy[mEnergy].c_str(),mBeamEnergy[mEnergy].c_str());
+  string inputfile = Form("../../output/Eff_%s_ToFMatch.root",mBeamEnergy[mEnergy].c_str());
   cout << "open input file: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
@@ -50,7 +50,7 @@ void plotQA_TofMatchingEfficiency(int mEnergy = 4, int mPID = 0)
     }
   }
 
-  string inputEff = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/FitPar_AuAu%s_%s_first_2060.root",mBeamEnergy[mEnergy].c_str(),mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
+  string inputEff = Form("../../output/FitPar_AuAu%s_%s_2060.root",mBeamEnergy[mEnergy].c_str(),mParType[mPID].c_str());
   TFile *File_Eff = TFile::Open(inputEff.c_str());
   cout << "OPEN ToF Matching Efficiency Fit File : " << inputEff.c_str() << endl;
   string KEY = Form("h_mFitParameters_%s_Cent_9",mParType[mPID].c_str());
@@ -99,7 +99,7 @@ void plotQA_TofMatchingEfficiency(int mEnergy = 4, int mPID = 0)
     f_TofFit->SetLineStyle(2);
     f_TofFit->Draw("l same");
 
-    TLegend *leg = new TLegend(0.5,0.2,0.8,0.5);
+    TLegend *leg = new TLegend(0.3,0.2,0.6,0.5);
     leg->SetFillColor(10);
     leg->SetBorderSize(0);
     for(int i_cent = 0; i_cent < 10; ++i_cent)

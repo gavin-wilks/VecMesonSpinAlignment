@@ -12,6 +12,8 @@
 #include "TProfile.h"
 #include "TGraphAsymmErrors.h"
 #include "TProfile2D.h"
+#include "TFitResultPtr.h"
+#include "TMatrixTSym.h"
 #include "TStyle.h"
 #include "../Utility/functions.h"
 #include "../Utility/draw.h"
@@ -27,9 +29,9 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
   TGaxis::SetMaxDigits(4);
   gStyle->SetOptDate(0);
 
-  string InPutFile_SE = "../data/Yields_Phi_SE_19GeV.root";
+  string InPutFile_SE = "../data/Yields_Phi_SE_19GeV_20220408.root";
   
-  string InPutFile_ME = "../data/Yields_Phi_ME_19GeV.root";
+  string InPutFile_ME = "../data/Yields_Phi_ME_19GeV_20220408.root";
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
 
@@ -323,13 +325,55 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
 	    f_bw->SetParameter(3,ParFit_theta[KEY_theta][3]/7.0);
 	    f_bw->SetParameter(4,ParFit_theta[KEY_theta][4]/7.0);
 	    f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
-	    h_mMass[KEY]->Fit(f_bw,"NQR");
+	    TFitResultPtr result = h_mMass[KEY]->Fit(f_bw,"NQRS");
 
 	    TF1 *f_poly = new TF1("f_poly",Poly,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],2);
-	    f_poly->FixParameter(0,f_bw->GetParameter(3));
-	    f_poly->FixParameter(1,f_bw->GetParameter(4));
+	    f_poly->SetParameter(0,f_bw->GetParameter(3));
+	    f_poly->SetParameter(1,f_bw->GetParameter(4));
+	    f_poly->SetParError(0,f_bw->GetParError(3));
+	    f_poly->SetParError(1,f_bw->GetParError(4));
 
+            double params[2] = {result->GetParams()[3],result->GetParams()[4]};
+            TMatrixDSym covArr(2);
+            covArr(0,0) = result->GetCovarianceMatrix()(3,3);
+            covArr(0,1) = result->GetCovarianceMatrix()(3,4);
+            covArr(1,0) = result->GetCovarianceMatrix()(4,3);
+            covArr(1,1) = result->GetCovarianceMatrix()(4,4);
+
+            if(i_cent == 9)
+            {
+              //cout << "fit parameters directly from fit" << endl;
+              //cout << "intercept: " << f_poly->GetParameter(0) << endl;
+              //cout << "error in intercept: " << f_poly->GetParError(0) << endl;
+              //cout << "slope:     " << f_poly->GetParameter(1) << endl;
+              //cout << "error in slope:     " << f_poly->GetParError(1) << endl;
+              //cout << "fit parameters from fit result (COV)" << endl;
+              //cout << "intercept: " << result->GetParams()[3] << endl;
+              //cout << "error in intercept: " << covArr[0] << endl;
+              //cout << "slope:     " << result->GetParams()[4] << endl;
+              //cout << "error in slope:     " << covArr[1] << endl;
+              //for(int i=0; i<30; i++)  cout << "getmatrixarray: i = " <<i << "  value = "<< result->GetCovarianceMatrix().GetMatrixArray()[i]<< endl;
+            }
+      
+          
+            TH1F *hTotal = (TH1F*)h_mMass[KEY]->Clone();
 	    h_mMass[KEY]->Add(f_poly,-1.0); // subtract linear background for phi differential InvMass
+            for(int bin = 1; bin <= h_mMass[KEY]->GetNbinsX(); bin++)
+            {
+              float binWidth = h_mMass[KEY]->GetBinWidth(bin);  
+              float binLowEdge = hTotal->GetBinLowEdge(bin);
+              float funcError = f_poly->IntegralError(binLowEdge,binLowEdge+binWidth,params,covArr.GetMatrixArray())/binWidth;
+              float totError = hTotal->GetBinError(bin);
+              if(i_cent == 9)
+              { 
+              //  cout << "binWidth  = " << binWidth << endl;
+              //  cout << "binLow    = " << binLowEdge << endl;
+                //cout << "funcError = " << funcError << endl;
+                //cout << "totError  = " << totError << endl;
+              }
+              h_mMass[KEY]->SetBinError(bin,TMath::Sqrt(totError*totError+funcError*funcError)); 
+            } 
+            delete hTotal;
 	  }
 	//}
       }
@@ -492,6 +536,14 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
 	ParSpin_BW[KEY_BW].push_back(static_cast<float>(f_cos_bw->GetParameter(1)));
 	h_mRho00[KEY_Rho00_BW]->SetBinContent(h_mRho00[KEY_Rho00_BW]->FindBin(pt_mean),f_cos_bw->GetParameter(0));
 	h_mRho00[KEY_Rho00_BW]->SetBinError(h_mRho00[KEY_Rho00_BW]->FindBin(pt_mean),f_cos_bw->GetParError(0));
+        if(i_cent == 9)
+        {
+          cout << "PT = " << i_pt << endl;
+          cout << "INTEGRAL      VALUE = " << f_cos_bw->GetParameter(0) << endl;
+          cout << "INTEGRAL STAT ERROR = " << f_cos_bw->GetParError(0) << endl;
+          cout << "COUNT         VALUE = " << f_cos_count->GetParameter(0) << endl;
+          cout << "COUNT    STAT ERROR = " << f_cos_count->GetParError(0)<< endl;
+        }
       }
     //}
   }
@@ -545,9 +597,10 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
 
     float x1 = ParBW[KEY_theta_QA][0] - vmsa::nSigVec*ParBW[KEY_theta_QA][1];
     float x2 = ParBW[KEY_theta_QA][0] + vmsa::nSigVec*ParBW[KEY_theta_QA][1];
-    float y = h_mMass[KEY_QA]->GetBinContent(h_mMass[KEY_QA]->FindBin(ParBW[KEY_theta_QA][0]));
-    PlotLine(x1,x1,0,y,4,2,2);
-    PlotLine(x2,x2,0,y,4,2,2);
+    float y  = h_mMass[KEY_QA]->GetBinContent(h_mMass[KEY_QA]->FindBin(ParBW[KEY_theta_QA][0]));
+    float yl = h_mMass[KEY_QA]->GetMinimum();
+    PlotLine(x1,x1,yl,y,4,2,2);
+    PlotLine(x2,x2,yl,y,4,2,2);
     PlotLine(0.98,1.05,0.0,0.0,1,2,2);
   }
 
@@ -636,9 +689,10 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
 
     float x1 = ParBW[KEY_theta_QA][0] - vmsa::nSigVec*ParBW[KEY_theta_QA][1];
     float x2 = ParBW[KEY_theta_QA][0] + vmsa::nSigVec*ParBW[KEY_theta_QA][1];
-    float y = h_mMass[KEY_QA]->GetBinContent(h_mMass[KEY_QA]->FindBin(ParBW[KEY_theta_QA][0]));
-    PlotLine(x1,x1,0,y,4,2,2);
-    PlotLine(x2,x2,0,y,4,2,2);
+    float y  = h_mMass[KEY_QA]->GetBinContent(h_mMass[KEY_QA]->FindBin(ParBW[KEY_theta_QA][0]));
+    float yl = h_mMass[KEY_QA]->GetMinimum();
+    PlotLine(x1,x1,yl,y,4,2,2);
+    PlotLine(x2,x2,yl,y,4,2,2);
     PlotLine(0.98,1.05,0.0,0.0,1,2,2);
   }
 
@@ -693,13 +747,120 @@ void calSpinAlignment_Updated(int energy = 4, int pid = 0, int year = 0)
   f_cos_bw_QA_2->SetLineColor(2);
   f_cos_bw_QA_2->DrawCopy("l same");
 
-  TLegend *leg_temp_2 = new TLegend(0.5,0.6,0.8,0.8);
+  TLegend *leg_temp_2 = new TLegend(0.2,0.6,0.5,0.8);
   leg_temp_2->SetFillColor(10);
   leg_temp_2->SetBorderSize(0.0);
   leg_temp_2->AddEntry(h_mCounts[KEY_Count],"bin counting","p");
   leg_temp_2->AddEntry(h_mCounts[KEY_BW],"breit wigner","p");
   leg_temp_2->Draw("same");
   c_mMass_psi_2->SaveAs("./figures/phi_SpinAlighment.pdf");
+#endif
+
+#if _PlotQA_
+  // QA InvMass vs. phi for gaussian and breit wigner fits
+  //string KEY_theta_QA = Form("pt_%d_Centrality_%d_2nd_%s_SM",2,vmsa::Cent_start,vmsa::mPID[pid].c_str());
+  TH1FMap h_mMassR;
+  TH1FMap h_mMassR_total;
+
+  TCanvas *c_mMass_psi_3 = new TCanvas("c_mMass_psi_3","c_mMass_psi_3",10,10,900,900);
+  c_mMass_psi_3->Divide(3,3);
+  for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
+  {
+    c_mMass_psi_3->cd(i_theta+1)->SetLeftMargin(0.15);
+    c_mMass_psi_3->cd(i_theta+1)->SetBottomMargin(0.15);
+    c_mMass_psi_3->cd(i_theta+1)->SetTicks(1,1);
+    c_mMass_psi_3->cd(i_theta+1)->SetGrid(0,0);
+    c_mMass_psi_3->cd(i_theta+1);
+    string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_%s_SM",2,9,i_theta,vmsa::mPID[pid].c_str());
+    h_mMassR[KEY_QA] = (TH1F*)h_mMass[KEY_QA]->Clone();
+    h_mMassR[KEY_QA]->SetTitle(Form("%d/7 < cos(#theta*) < %d/7",i_theta,i_theta+1));
+    h_mMassR[KEY_QA]->SetMarkerColor(1);
+    h_mMassR[KEY_QA]->SetMarkerStyle(24);
+    h_mMassR[KEY_QA]->SetMarkerSize(0.8);
+
+    TF1 *f_bwR = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+    f_bwR->FixParameter(0,ParBW[KEY_theta_QA][0]);
+    f_bwR->FixParameter(1,ParBW[KEY_theta_QA][1]);
+    f_bwR->SetParameter(2,ParBW[KEY_theta_QA][2]/7.0);
+    f_bwR->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
+    h_mMass[KEY_QA]->Fit(f_bwR,"NMQR");
+    f_bwR->SetLineColor(2);
+    //f_bwR->DrawCopy("l same");
+    h_mMassR[KEY_QA]->Divide(f_bwR);
+    h_mMassR[KEY_QA]->GetYaxis()->SetRangeUser(0.9,1.1);
+    h_mMassR[KEY_QA]->GetXaxis()->SetRangeUser(1.01,1.03);
+    h_mMassR[KEY_QA]->DrawCopy("pE");
+
+    float x1 = ParBW[KEY_theta_QA][0] - vmsa::nSigVec*ParBW[KEY_theta_QA][1];
+    float x2 = ParBW[KEY_theta_QA][0] + vmsa::nSigVec*ParBW[KEY_theta_QA][1];
+    //float y = h_mMass[KEY_QA]->GetBinContent(h_mMass[KEY_QA]->FindBin(ParBW[KEY_theta_QA][0]));
+    //PlotLine(x1,x1,0,1.0,4,2,2);
+    //PlotLine(x2,x2,0,1.0,4,2,2);
+    PlotLine(0.98,1.05,1.0,1.0,1,2,2);
+  }
+
+  c_mMass_psi_3->cd(8);
+  h_mMassR_total[KEY_theta_QA] = (TH1F*)h_mMass_total[KEY_theta_QA]->Clone();
+  h_mMassR_total[KEY_theta_QA]->SetTitle("Integrated Yield Ratios");
+  h_mMassR_total[KEY_theta_QA]->SetMarkerColor(1);
+  h_mMassR_total[KEY_theta_QA]->SetMarkerStyle(24);
+  h_mMassR_total[KEY_theta_QA]->SetMarkerSize(0.8);
+  TF1 *f_bw_QAR = new TF1("f_bw_QAR",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+  f_bw_QAR->FixParameter(0,ParBW[KEY_theta_QA][0]);
+  f_bw_QAR->FixParameter(1,ParBW[KEY_theta_QA][1]);
+  f_bw_QAR->FixParameter(2,ParBW[KEY_theta_QA][2]);
+  f_bw_QAR->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
+  f_bw_QAR->SetLineColor(2);
+  //f_bw_QAR->Draw("l same");
+  h_mMassR_total[KEY_theta_QA]->Divide(f_bw_QAR);
+  h_mMassR_total[KEY_theta_QA]->GetYaxis()->SetRangeUser(0.9,1.1);
+  h_mMassR_total[KEY_theta_QA]->GetXaxis()->SetRangeUser(1.01,1.03);
+  h_mMassR_total[KEY_theta_QA]->DrawCopy("pE");
+  string pT_rangeR = Form("[%.2f,%.2f]",vmsa::pt_low[energy][2],vmsa::pt_up[energy][2]);
+  plotTopLegend((char*)pT_rangeR.c_str(),0.15,0.7,0.08,1,0.0,42,1);
+  PlotLine(0.98,1.05,1.0,1.0,1,2,2);
+
+
+  c_mMass_psi_3->cd(9);
+  //string KEY_Count = Form("Count_pt_%d_Centrality_%d_2nd_%s_SM",2,vmsa::Cent_start,vmsa::mPID[pid].c_str());
+  h_mCounts[KEY_Count]->SetStats(0);
+  h_mCounts[KEY_Count]->SetTitle("20-60%");
+  h_mCounts[KEY_Count]->SetTitleSize(0.08);
+  h_mCounts[KEY_Count]->SetLineColor(4);
+  h_mCounts[KEY_Count]->SetMarkerColor(4);
+  h_mCounts[KEY_Count]->SetMarkerStyle(24);
+  h_mCounts[KEY_Count]->SetMarkerSize(0.8);
+  h_mCounts[KEY_Count]->GetXaxis()->SetTitle("cos(#theta^{*}) (w.r.t. 2^{nd} event plane)");
+  h_mCounts[KEY_Count]->GetXaxis()->SetTitleSize(0.05);
+  h_mCounts[KEY_Count]->GetXaxis()->CenterTitle();
+  h_mCounts[KEY_Count]->DrawCopy("pE");
+  TF1 *f_cos_count_QA_2R = new TF1("f_cos_count_QA_2R",SpinDensity,0.0,1.0,2);
+  f_cos_count_QA_2R->FixParameter(0,ParSpin_Count[KEY_Count][0]);
+  f_cos_count_QA_2R->FixParameter(1,ParSpin_Count[KEY_Count][1]);
+  f_cos_count_QA_2R->SetLineStyle(2);
+  f_cos_count_QA_2R->SetLineColor(4);
+  f_cos_count_QA_2R->DrawCopy("l same");
+
+  //string KEY_BW = Form("BW_pt_%d_Centrality_%d_2nd_%s_SM",2,vmsa::Cent_start,vmsa::mPID[pid].c_str());
+  h_mCounts[KEY_BW]->SetLineColor(2);
+  h_mCounts[KEY_BW]->SetMarkerColor(2);
+  h_mCounts[KEY_BW]->SetMarkerStyle(24);
+  h_mCounts[KEY_BW]->SetMarkerSize(0.8);
+  h_mCounts[KEY_BW]->DrawCopy("pE same");
+  TF1 *f_cos_bw_QA_2R = new TF1("f_cos_bw_QA_2R",SpinDensity,0.0,1.0,2);
+  f_cos_bw_QA_2R->FixParameter(0,ParSpin_BW[KEY_BW][0]);
+  f_cos_bw_QA_2R->FixParameter(1,ParSpin_BW[KEY_BW][1]);
+  f_cos_bw_QA_2R->SetLineStyle(2);
+  f_cos_bw_QA_2R->SetLineColor(2);
+  f_cos_bw_QA_2R->DrawCopy("l same");
+
+  TLegend *leg_temp_2R = new TLegend(0.5,0.6,0.8,0.8);
+  leg_temp_2R->SetFillColor(10);
+  leg_temp_2R->SetBorderSize(0.0);
+  leg_temp_2R->AddEntry(h_mCounts[KEY_Count],"bin counting","p");
+  leg_temp_2R->AddEntry(h_mCounts[KEY_BW],"breit wigner","p");
+  leg_temp_2R->Draw("same");
+  c_mMass_psi_3->SaveAs("./figures/phi_SpinYields_Ratios.pdf");
 #endif
 
   // set final pt and rho00 to one TGraphAsymmErrors

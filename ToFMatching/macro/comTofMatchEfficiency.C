@@ -13,16 +13,16 @@
 
 using namespace std;
 
-void comTofMatchEfficiency(int energy = 6, int pid = 0, int charge = 0)
+void comTofMatchEfficiency(int energy = 4, int pid = 0, int charge = 0)
 {
   gStyle->SetOptDate(0);
   gRandom->SetSeed();
 
   int NCentralityMax = 9;
-  int NEtaMax = 12;
+  int NEtaMax = 10;
   int NPhiMax = 12;
 
-  string input_0080 = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  /*string input_0080 = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut_0080 = TFile::Open(input_0080.c_str());
 
   TH1DMap h_mEfficiency_0080;
@@ -47,10 +47,10 @@ void comTofMatchEfficiency(int energy = 6, int pid = 0, int charge = 0)
 	}
       }
     }
-  }
+  }*/
 
 
-  string input_2060 = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/Eff_%s_ToFMatch_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string input_2060 = Form("../../output/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut_2060 = TFile::Open(input_2060.c_str());
 
   TH1DMap h_mEfficiency_2060;
@@ -98,10 +98,10 @@ void comTofMatchEfficiency(int energy = 6, int pid = 0, int charge = 0)
     h_mEfficiency_2060[HistName]->SetLineColor(2);
     h_mEfficiency_2060[HistName]->Draw("pE");
 
-    h_mEfficiency_0080[HistName]->SetMarkerStyle(20);
-    h_mEfficiency_0080[HistName]->SetMarkerSize(1.0);
-    h_mEfficiency_0080[HistName]->SetMarkerColor(1);
-    h_mEfficiency_0080[HistName]->SetLineColor(1);
-    h_mEfficiency_0080[HistName]->Draw("pE same");
+   // h_mEfficiency_0080[HistName]->SetMarkerStyle(20);
+    //h_mEfficiency_0080[HistName]->SetMarkerSize(1.0);
+    //h_mEfficiency_0080[HistName]->SetMarkerColor(1);
+    //h_mEfficiency_0080[HistName]->SetLineColor(1);
+    //h_mEfficiency_0080[HistName]->Draw("pE same");
   }
 }

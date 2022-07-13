@@ -32,14 +32,14 @@ double tof_Kaon(double* x, double* par)
   return par[0]*(1.0 / (pow(x[0] - par[1], 2) + par[2]) - par[4] / (exp(x[0] - par[3]) + par[5]) + par[6]);
 }
 
-void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
+void plotQA_ToFMatchEff_2060(const int energy = 4, const int dpid = 0, const int charge = 0, const int pid = 2, const int mKpCent = 3, const int mKmCent = 4)
 {
   int const mColor[12] = {11,11,2,2,4,4,7,7,8,8,38,38};
   int const mStyle[12] = {30,24,30,24,30,24,30,24,30,24,30,24};
   int const mLineStyle[12] = {3,2,3,2,3,2,3,2,3,2,3,2};
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(10000);
 
-  std::string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu%s_2019/OutPut/file_%s_ToFMatching.root",mBeamEnergy[mEnergy].c_str(),mBeamEnergy[mEnergy].c_str());
+  std::string inputfile = Form("../../output/%s/Eff_%s_ToFMatch.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
   TH1DMap h_mEffCent;
@@ -49,7 +49,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   TH1DMap h_mEfficiency;
   TH1DMap h_mEfficiency_plot;
 
-  string HistName = Form("h_mEfficiency_K%s_Cent_9",tof::mCharge[charge].c_str());
+  string HistName = Form("h_mEfficiency_%s%s_Cent_9",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str());
   h_mEffCent[HistName] = (TH1D*)File_InPut->Get(HistName.c_str())->Clone();
   h_mEffCent[HistName]->SetMarkerStyle(24);
   h_mEffCent[HistName]->SetMarkerSize(1.2);
@@ -61,7 +61,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   h_mEffCent_plot[HistName] = (TH1D*)h_mEffCent[HistName]->Clone();
   for(int i_eta = 0; i_eta < tof::BinEta; ++i_eta)
   {
-    HistName = Form("h_mEfficiency_K%s_Cent_9_Eta_%d",tof::mCharge[charge].c_str(),i_eta);
+    HistName = Form("h_mEfficiency_%s%s_Cent_9_Eta_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta);
     h_mEffEta[HistName] = (TH1D*)File_InPut->Get(HistName.c_str())->Clone();
     h_mEffEta[HistName]->SetMarkerStyle(29);
     h_mEffEta[HistName]->SetMarkerSize(1.6);
@@ -73,7 +73,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
     h_mEffEta_plot[HistName] = (TH1D*)h_mEffEta[HistName]->Clone();
     for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi)
     {
-      HistName = Form("h_mEfficiency_K%s_Cent_9_Eta_%d_Phi_%d",tof::mCharge[charge].c_str(),i_eta,i_phi);
+      HistName = Form("h_mEfficiency_%s%s_Cent_9_Eta_%d_Phi_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
       h_mEfficiency[HistName] = (TH1D*)File_InPut->Get(HistName.c_str())->Clone();
       h_mEfficiency[HistName]->SetMarkerStyle(mStyle[i_phi]);
       h_mEfficiency[HistName]->SetMarkerSize(1.2);
@@ -88,31 +88,31 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
 
   TH1DMap h_mFitPar; // initialize histogram for fit parameters
   std::string HistName_FitPar;
-  HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9",tof::mCharge[charge].c_str());
+  HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str());
   h_mFitPar[HistName_FitPar] = new TH1D(HistName_FitPar.c_str(),HistName_FitPar.c_str(),7,-0.5,6.5);
   for(int i_eta = 0; i_eta < tof::BinEta; ++i_eta)
   {
-    HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9_Eta_%d",tof::mCharge[charge].c_str(),i_eta);
+    HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9_Eta_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta);
     h_mFitPar[HistName_FitPar] = new TH1D(HistName_FitPar.c_str(),HistName_FitPar.c_str(),7,-0.5,6.5);
     for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi)
     {
-      HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9_Eta_%d_Phi_%d",tof::mCharge[charge].c_str(),i_eta,i_phi);
+      HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9_Eta_%d_Phi_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
       h_mFitPar[HistName_FitPar] = new TH1D(HistName_FitPar.c_str(),HistName_FitPar.c_str(),7,-0.5,6.5);
     }
   }
 
-  float dip_1st[7] = {0.4,0.4,0.4,0.4,0.4,0.4,0.4};
-  float dip_2nd[7] = {0.8,0.8,0.8,0.8,0.8,0.8,0.8};
-  float dip_3rd[7] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0};
-  float dip_4th[7] = {2.5,2.5,2.5,2.5,2.5,2.5,2.5}; // Kplus
+  float dip_1st[5] = {0.4,0.4,0.4,0.4,0.4};
+  float dip_2nd[5] = {0.8,0.8,0.8,0.8,0.8};
+  float dip_3rd[5] = {1.0,1.0,1.0,1.0,1.0};
+  float dip_4th[5] = {2.5,2.5,2.5,2.5,2.5}; // Kplus
   // float dip_4th[7] = {2.5,2.5,2.5,2.3,2.5,2.5,2.5}; // Kminus
 
-  double range[7] = {4.0,4.0,5.0,4.0,4.7,4.8,5.0}; // Kplus
+  double range[5] = {5.0,5.0,5.0,5.0,5.0}; // Kplus
   // double range[7] = {4.0,3.5,4.5,4.0,4.7,4.2,5.0}; // Kminus
 
   int cent_kaon = -1;
-  if(charge == 0) cent_kaon = 2;
-  if(charge == 1) cent_kaon = 4;
+  if(charge == 0) cent_kaon = mKpCent;
+  if(charge == 1) cent_kaon = mKmCent;
   double par0[9] = {-0.018979, -0.0322611, -0.0680754, -0.0698575, -0.0315267, -0.00589929, -0.00226724, -0.00212137, -0.00389514 };
   double par1[9] = {0.0308943, -0.0939411, -0.14377, -0.19003, -0.116323, 0.180593, 0.207874, 0.208863, 0.194876};
   double par2[9] = {-0.00592033, -0.0600635, -0.0515391, -0.0708703, -0.0756912, 0.00912449, 0.00500487, 0.00497987, 0.00824164};
@@ -125,8 +125,16 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   for(int i_bin = 0; i_bin < h_mEffCent[HistName]->GetNbinsX(); ++i_bin) 
   {
     float pt = h_mEffCent[HistName]->GetBinCenter(i_bin+1); 
-    if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffCent[HistName]->SetBinError(i_bin+1,0.0); 
-    if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffCent[HistName]->SetBinContent(i_bin+1,0.0); 
+    if(charge == 0)
+    {
+      if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffCent[HistName]->SetBinError(i_bin+1,0.0); 
+      if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffCent[HistName]->SetBinContent(i_bin+1,0.0); 
+    }
+    if(charge == 1)
+    {
+      if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffCent[HistName]->SetBinError(i_bin+1,0.0); 
+      if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffCent[HistName]->SetBinContent(i_bin+1,0.0); 
+    }
   }
 
   TF1 *f_kaon_cent = new TF1("f_kaon_cent",tof_Kaon,0.2,10,7);
@@ -146,7 +154,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   h_mEffCent[HistName]->Fit(f_kaon_cent, "MWNR");
 
   double par_fit[7];
-  HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9",tof::mCharge[charge].c_str());
+  HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str());
   for(int i_par = 0; i_par < 7; ++i_par)
   {
     par_fit[i_par] = f_kaon_cent->GetParameter(i_par);
@@ -155,70 +163,118 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
 
   // fit eta distribution
   TF1 *f_kaon_eta[tof::BinEta];
-  for(int i_eta = 1; i_eta < tof::BinEta-1; ++i_eta) // ToF efficiency at different eta and phi bin at cent 9
+  TF1 *f_kaon_phi[tof::BinEta][tof::BinPhi];
+  for(int i_eta = 0; i_eta < tof::BinEta; ++i_eta) // ToF efficiency at different eta and phi bin at cent 9
   {
-    HistName = Form("h_mEfficiency_K%s_Cent_9_Eta_%d",tof::mCharge[charge].c_str(),i_eta);
+    HistName = Form("h_mEfficiency_%s%s_Cent_9_Eta_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta);
     for(int i_bin = 0; i_bin < h_mEffEta[HistName]->GetNbinsX(); ++i_bin) 
     {
-      float pt = h_mEffEta[HistName]->GetBinCenter(i_bin+1); 
-      if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEffEta[HistName]->SetBinError(i_bin+1,0.0); 
-      if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEffEta[HistName]->SetBinContent(i_bin+1,0.0); 
+      float pt = h_mEffEta[HistName]->GetBinCenter(i_bin+1);
+      if(i_eta == 0 || i_eta == 9)
+      {
+        if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.15) || (pt > dip_3rd[energy]-0.15 && pt < dip_4th[energy]-0.5)) h_mEffEta[HistName]->SetBinError(i_bin+1,0.0); 
+        if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.15) || (pt > dip_3rd[energy]-0.15 && pt < dip_4th[energy]-0.5)) h_mEffEta[HistName]->SetBinContent(i_bin+1,0.0); 
+      } 
+      //else if(i_eta == 2 || i_eta == 12)
+      //{ 
+      //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.2) || (pt > dip_3rd[energy]-0.2 && pt < dip_4th[energy]-0.5)) h_mEffEta[HistName]->SetBinError(i_bin+1,0.0); 
+      //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.2) || (pt > dip_3rd[energy]-0.2 && pt < dip_4th[energy]-0.5)) h_mEffEta[HistName]->SetBinContent(i_bin+1,0.0); 
+      //}
+      //else if(i_eta == 3 || i_eta == 11)
+      //{
+      //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.1) || (pt > dip_3rd[energy]-0.1 && pt < dip_4th[energy]-0.2)) h_mEffEta[HistName]->SetBinError(i_bin+1,0.0); 
+      //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.1) || (pt > dip_3rd[energy]-0.1 && pt < dip_4th[energy]-0.2)) h_mEffEta[HistName]->SetBinContent(i_bin+1,0.0); 
+      //
+      //}
+      //else
+      {
+        if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffEta[HistName]->SetBinError(i_bin+1,0.0); 
+        if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEffEta[HistName]->SetBinContent(i_bin+1,0.0);
+      }
     }
-
+    double par_fite[7] = {0.0};
     std::string FuncName = Form("f_kaon_cent_9_eta_%d",i_eta);
     f_kaon_eta[i_eta] = new TF1(FuncName.c_str(),tof_Kaon,0.2,10,7);
     f_kaon_eta[i_eta]->SetParameter(0,par_fit[0]);
+    //if(i_eta == 1 || i_eta == 13) f_kaon_eta[i_eta]->SetParameter(0,0.003);
+    //if(i_eta == 0 || i_eta == 14) f_kaon_eta[i_eta]->FixParameter(0,0.0);
     for(int i_par = 1; i_par < 7; ++i_par)
     {
-      f_kaon_eta[i_eta]->FixParameter(i_par,par_fit[i_par]);
+      f_kaon_eta[i_eta]->SetParameter(i_par,par_fit[i_par]);
     }
     f_kaon_eta[i_eta]->SetRange(0.2,range[energy]);
+    //if(i_eta < 4 || i_eta > 10) f_kaon_eta[i_eta]->SetRange(0.2,range[energy]);
 
     h_mEffEta[HistName]->Fit(f_kaon_eta[i_eta], "NR");
 
-    HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9_Eta_%d",tof::mCharge[charge].c_str(),i_eta);
+    HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9_Eta_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta);
     for(int i_bin = 0; i_bin < 7; ++i_bin)
     {
+      par_fite[i_bin] = f_kaon_eta[i_eta]->GetParameter(i_bin);
       h_mFitPar[HistName_FitPar]->SetBinContent(i_bin+1,f_kaon_eta[i_eta]->GetParameter(i_bin));
     }
-  }
 
-  // fit eta & phi distribution
-  TF1 *f_kaon_phi[tof::BinEta][tof::BinPhi];
-  for(int i_eta = 1; i_eta < tof::BinEta-1; ++i_eta) // ToF efficiency at different eta and phi bin at cent 9
-  {
     for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi) // eta & phi dependence
     {
-      HistName = Form("h_mEfficiency_K%s_Cent_9_Eta_%d_Phi_%d",tof::mCharge[charge].c_str(),i_eta,i_phi);
+      HistName = Form("h_mEfficiency_%s%s_Cent_9_Eta_%d_Phi_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
       for(int i_bin = 0; i_bin < h_mEfficiency[HistName]->GetNbinsX(); ++i_bin) 
       {
 	float pt = h_mEfficiency[HistName]->GetBinCenter(i_bin+1); 
-	if(i_phi == 3 || i_phi == 5 || i_phi == 6) // 200 GeV second
+	//if(i_phi == 3 || i_phi == 5 || i_phi == 6) // 200 GeV second
 	// if(i_phi == 4 || i_phi == 5 || i_phi == 6) // 62 GeV second
 	// if(i_phi == 5 || i_phi == 6) // 39 GeV second
 	// if(i_phi == 3 || i_phi == 4 || i_phi == 5 || i_phi == 6) // 27 GeV second
 	// if(i_phi == 3 || i_phi == 5 || i_phi == 6) // 19 GeV second
 	// if(i_phi == 5 || i_phi == 6) // 11 GeV second
-	{
-	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
-	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
-	}
-	else
-	{
-	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
-	  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
-	}
+	//{
+	//  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+	//  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
+	//}
+	//else
+	//{
+        if(i_eta == 0 || i_eta == 9)
+        {
+          if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.15) || (pt > dip_3rd[energy]-0.15 && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+          if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.15) || (pt > dip_3rd[energy]-0.15 && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0);  
+        }
+        //else if(i_eta == 2 || i_eta == 12)
+        //{ 
+        //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.2) || (pt > dip_3rd[energy]-0.2 && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+        //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.2) || (pt > dip_3rd[energy]-0.2 && pt < dip_4th[energy]-0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
+        //}
+        //else if(i_eta == 3 || i_eta == 11)
+        //{
+        //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.1) || (pt > dip_3rd[energy]-0.1 && pt < dip_4th[energy]-0.2)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+        //  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]-0.1) || (pt > dip_3rd[energy]-0.1 && pt < dip_4th[energy]-0.2)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
+        //
+        //}
+        else
+        {
+          if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+          if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy])) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0);
+        }
+
+
+	//  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinError(i_bin+1,0.0); 
+	//  if ((pt > dip_1st[energy] && pt < dip_2nd[energy]) || (pt > dip_3rd[energy] && pt < dip_4th[energy]+0.5)) h_mEfficiency[HistName]->SetBinContent(i_bin+1,0.0); 
+	//}
       }
 
       std::string FuncName = Form("f_kaon_cent_9_eta_%d_phi_%d",i_eta,i_phi);
       f_kaon_phi[i_eta][i_phi] = new TF1(FuncName.c_str(),tof_Kaon,0.2,10,7);
       f_kaon_phi[i_eta][i_phi]->SetParameter(0,par_fit[0]);
+      //if(i_eta == 1 || i_eta == 13) f_kaon_phi[i_eta][i_phi]->SetParameter(0,0.003);
+      //if(i_eta == 0 || i_eta == 14) f_kaon_phi[i_eta][i_phi]->FixParameter(0,0.0);
       for(int i_par = 1; i_par < 7; ++i_par)
       {
-	f_kaon_phi[i_eta][i_phi]->FixParameter(i_par,par_fit[i_par]);
+	f_kaon_phi[i_eta][i_phi]->FixParameter(i_par,par_fite[i_par]);
       }
-      f_kaon_phi[i_eta][i_phi]->SetRange(0.2,range[energy]);
-      if(i_phi == 3 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 200 GeV first
+      //f_kaon_phi[i_eta][i_phi]->SetRange(0.2,range[energy]);
+      f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]);
+      if(i_eta == 0 || i_eta == 9) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy]-0.5,range[energy]);
+      //if(i_eta == 2 || i_eta == 12) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy]-0.5,range[energy]);
+      //if(i_eta == 3 || i_eta == 11) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy]-0.2,range[energy]);
+      //if(i_phi == 3 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 200 GeV first
       // if(i_phi == 3 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 200 GeV second
       // if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(0.2,dip_3rd[energy]); // 62 GeV first
       // if(i_phi == 4 || i_phi == 5 || i_phi == 6) f_kaon_phi[i_eta][i_phi]->SetRange(dip_4th[energy],range[energy]); // 62 GeV second
@@ -233,7 +289,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
 
       h_mEfficiency[HistName]->Fit(f_kaon_phi[i_eta][i_phi], "NR");
 
-      HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9_Eta_%d_Phi_%d",tof::mCharge[charge].c_str(),i_eta,i_phi);
+      HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9_Eta_%d_Phi_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
       for(int i_bin = 0; i_bin < 7; ++i_bin)
       {
 	h_mFitPar[HistName_FitPar]->SetBinContent(i_bin+1,f_kaon_phi[i_eta][i_phi]->GetParameter(i_bin));
@@ -249,12 +305,12 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   c_Efficiency->cd()->SetGrid(0,0);
   c_Efficiency->cd()->SetTicks(1,1);
 
-  string output_start = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/QAs/EffFit_AuAu%s_K%s_QA_2060.pdf[",vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string output_start = Form("figures/Efficiency/ToF/QAs/%s/EffFit_AuAu%s_%s%s_QA_2060.pdf[",vmsa::mPID[pid].c_str(),vmsa::mParType[dpid].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
   c_Efficiency->Print(output_start.c_str());
 
-  string outputname = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/QAs/EffFit_AuAu%s_K%s_QA_2060.pdf",vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string outputname = Form("figures/Efficiency/ToF/QAs/%s/EffFit_AuAu%s_%s%s_QA_2060.pdf",vmsa::mPID[pid].c_str(),vmsa::mParType[dpid].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
 
-  HistName = Form("h_mEfficiency_K%s_Cent_9",tof::mCharge[charge].c_str()); // ToF efficiency at cent 9
+  HistName = Form("h_mEfficiency_%s%s_Cent_9",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str()); // ToF efficiency at cent 9
   h_mEffCent[HistName]->Draw("pE");
   h_mEffCent_plot[HistName]->Draw("pE same");
   f_kaon_cent->SetLineColor(4);
@@ -266,13 +322,14 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
   c_Efficiency->Update();
   c_Efficiency->Print(outputname.c_str());
 
-  for(int i_eta = 1; i_eta < tof::BinEta-1; ++i_eta) // ToF efficiency at different eta and phi bin at cent 9
+  for(int i_eta = 0; i_eta < tof::BinEta; ++i_eta) // ToF efficiency at different eta and phi bin at cent 9
   {
     TLegend *leg = new TLegend(0.5,0.7,0.8,0.9);
     leg->SetFillColor(10);
     leg->SetBorderSize(0);
-    HistName = Form("h_mEfficiency_K%s_Cent_9_Eta_%d",tof::mCharge[charge].c_str(),i_eta);
+    HistName = Form("h_mEfficiency_%s%s_Cent_9_Eta_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta);
     // h_mEffEta[HistName]->Draw("pE");
+    //if(i_eta == 1 || i_eta == 13) h_mEffEta_plot[HistName]->GetYaxis()->SetRangeUser(0.0,0.03);
     h_mEffEta_plot[HistName]->Draw("pE");
     f_kaon_eta[i_eta]->SetLineColor(2);
     f_kaon_eta[i_eta]->SetLineWidth(4);
@@ -283,7 +340,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
     leg->AddEntry(h_mEffEta[HistName],"eta & phi integrated","p");
     for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi) 
     {
-      HistName = Form("h_mEfficiency_K%s_Cent_9_Eta_%d_Phi_%d",tof::mCharge[charge].c_str(),i_eta,i_phi);
+      HistName = Form("h_mEfficiency_%s%s_Cent_9_Eta_%d_Phi_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
       // h_mEfficiency[HistName]->Draw("pE same");
       h_mEfficiency_plot[HistName]->Draw("pE same");
       f_kaon_phi[i_eta][i_phi]->SetLineColor(mColor[i_phi]);
@@ -296,7 +353,7 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
       string Leg_phi = Form("%d bin",i_phi);
       leg->AddEntry(h_mEfficiency[HistName],Leg_phi.c_str(),"p");
     }
-    HistName = Form("h_mEfficiency_K%s_Cent_9_Eta_%d",tof::mCharge[charge].c_str(),i_eta);
+    HistName = Form("h_mEfficiency_%s%s_Cent_9_Eta_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta);
     // h_mEffEta[HistName]->Draw("pE same");
     h_mEffEta_plot[HistName]->Draw("pE same");
 
@@ -305,22 +362,22 @@ void plotQA_ToFMatchEff_2060(const int energy = 6, const int charge = 0)
     c_Efficiency->Print(outputname.c_str());
   }
 
-  string output_stop = Form("/Users/xusun/WorkSpace/Papers/VecMesonSpinAlignment/figures/Efficiency/ToF/QAs/EffFit_AuAu%s_K%s_QA_2060.pdf]",vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string output_stop = Form("figures/Efficiency/ToF/QAs/%s/EffFit_AuAu%s_%s%s_QA_2060.pdf]",vmsa::mPID[pid].c_str(),vmsa::mParType[dpid].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
   c_Efficiency->Print(output_stop.c_str());
 
 #endif
 
-  string outputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/AuAu%s/ToFMatch/FitPar_AuAu%s_K%s_2060.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
+  string outputfile = Form("../../output/%s/FitPar_AuAu%s_%s%s_2060.root",vmsa::mPID[pid].c_str(),vmsa::mParType[dpid].c_str(),vmsa::mBeamEnergy[energy].c_str(),tof::mCharge[charge].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
-  HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9",tof::mCharge[charge].c_str());
+  HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str());
   h_mFitPar[HistName_FitPar]->Write();
   for(int i_eta = 0; i_eta < tof::BinEta; ++i_eta)
   {
-    HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9_Eta_%d",tof::mCharge[charge].c_str(),i_eta);
+    HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9_Eta_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta);
     h_mFitPar[HistName_FitPar]->Write();
     for(int i_phi = 0; i_phi < tof::BinPhi; ++i_phi) 
     {
-      HistName_FitPar = Form("h_mFitParameters_K%s_Cent_9_Eta_%d_Phi_%d",tof::mCharge[charge].c_str(),i_eta,i_phi);
+      HistName_FitPar = Form("h_mFitParameters_%s%s_Cent_9_Eta_%d_Phi_%d",vmsa::mParType[dpid].c_str(),tof::mCharge[charge].c_str(),i_eta,i_phi);
       h_mFitPar[HistName_FitPar]->Write();
     }
   }

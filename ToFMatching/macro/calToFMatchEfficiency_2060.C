@@ -22,10 +22,9 @@ typedef std::map<std::string,TH1D*> TH1DMap;
 #define _PlotQA_  1
 #endif
 
-void calToFMatchEfficiency_2060(int energy = 4)
+void calToFMatchEfficiency_2060(int energy = 4, int pid = 2)
 {
-  // string inputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/file_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  std::string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/ToF/file_%s_ToFMatching.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string inputfile = Form("../../data/file_%s_ToFMatching%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
   TH1D *h_FrameEta_ToF = (TH1D*)File_InPut->Get("h_FrameEta_ToF");
@@ -33,7 +32,13 @@ void calToFMatchEfficiency_2060(int energy = 4)
 
   TH3D *h_mTracks_TPC[2][3][10]; // pt, eta, phi distribution as a function of charge | pid | centrality
   TH3D *h_mTracks_ToF[2][3][10];
-  for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
+
+  int pid_start, pid_stop;
+  if(pid == 0) { pid_start = 0; pid_stop = 1; }
+  if(pid == 1) { pid_start = 1; pid_stop = 2; }
+  if(pid == 2) { pid_start = 0; pid_stop = 2; }
+
+  for(int i_pid = pid_start; i_pid < pid_stop; ++i_pid)
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
     {
@@ -71,7 +76,7 @@ void calToFMatchEfficiency_2060(int energy = 4)
   TH1DMap h_mCounts_TPC_cent; // efficiency vs. cent
   TH1DMap h_mCounts_ToF_cent;
   TH1DMap h_mEfficiency_cent;
-  for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
+  for(int i_pid = pid_start; i_pid < pid_stop; ++i_pid)
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
     {
@@ -96,7 +101,7 @@ void calToFMatchEfficiency_2060(int energy = 4)
   TH1DMap h_mCounts_TPC_eta; // efficiency vs. cent & eta
   TH1DMap h_mCounts_ToF_eta;
   TH1DMap h_mEfficiency_eta;
-  for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
+  for(int i_pid = pid_start; i_pid < pid_stop; ++i_pid)
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
     {
@@ -123,7 +128,7 @@ void calToFMatchEfficiency_2060(int energy = 4)
   TH1DMap h_mCounts_TPC; // efficiency vs. cent & eta & phi
   TH1DMap h_mCounts_ToF;
   TH1DMap h_mEfficiency;
-  for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
+  for(int i_pid = pid_start; i_pid < pid_stop; ++i_pid)
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
     {
@@ -135,10 +140,10 @@ void calToFMatchEfficiency_2060(int energy = 4)
 	  {
 	    string HistName_TPC = Form("h_mCounts_TPC_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
 	    h_mCounts_TPC[HistName_TPC] = (TH1D*)h_mTracks_TPC[i_charge][i_pid][i_cent]->ProjectionX(HistName_TPC.c_str(),i_eta+1,i_eta+1,i_phi+1,i_phi+1)->Clone();
-
+            //h_mCounts_TPC[HistName_TPC]->Print();
 	    string HistName_ToF = Form("h_mCounts_ToF_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
 	    h_mCounts_ToF[HistName_ToF] = (TH1D*)h_mTracks_ToF[i_charge][i_pid][i_cent]->ProjectionX(HistName_ToF.c_str(),i_eta+1,i_eta+1,i_phi+1,i_phi+1)->Clone();
-
+            //h_mCounts_ToF[HistName_ToF]->Print();
 	    string HistName = Form("h_mEfficiency_%s%s_Cent_%d_Eta_%d_Phi_%d",tof::mPID_ToF[i_pid].c_str(),tof::mCharge[i_charge].c_str(),i_cent,i_eta,i_phi);
 	    h_mEfficiency[HistName] = (TH1D*)h_mCounts_ToF[HistName_ToF]->Clone(HistName.c_str());
 	    h_mEfficiency[HistName]->SetTitle(HistName.c_str());
@@ -154,10 +159,10 @@ void calToFMatchEfficiency_2060(int energy = 4)
 
   //---------------output------------------------
   // string outputfile = Form("/global/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/ToFMatch/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string outputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Efficiency/ToF/Eff_%s_ToFMatch.root",vmsa::mBeamEnergy[energy].c_str());
+  string outputfile = Form("../../output/%s/Eff_%s_ToFMatch.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
-  for(int i_pid = tof::mPID_Start; i_pid < tof::mPID_Stop; ++i_pid)
+  for(int i_pid = pid_start; i_pid < pid_stop; ++i_pid)
   {
     for(int i_charge = 0; i_charge < 2; ++i_charge)
     {

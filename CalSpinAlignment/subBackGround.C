@@ -30,15 +30,17 @@
 
 using namespace std;
 
-void subBackGround(int energy = 4, int pid = 0, int year = 0)
+void subBackGround(int energy = 4, int pid = 0, int year = 0, string date = "20220528", bool random3D = true)
 {
   TGaxis::SetMaxDigits(4);
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);
 
-  string InPutFile_SE = "../data/Yields_Phi_SE_19GeV_Eta1p5.root";
+  string InPutFile_SE = Form("../data/Yields_Phi_SE_19GeV_20220527.root");
+  if(random3D) InPutFile_SE = Form("../data/3DRandom/Yields_Phi_SE_19GeV_%s_3DRandom.root",date.c_str());
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
   
-  string InPutFile_ME = "../data/Yields_Phi_ME_19GeV_Eta1p5.root";
+  string InPutFile_ME = Form("../data/Yields_Phi_ME_19GeV_20220408.root");
+  if(random3D) InPutFile_ME = Form("../data/3DRandom/Yields_Phi_ME_19GeV_%s_3DRandom.root",date.c_str());
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
 
   // read in histogram for same event and mixed event
@@ -55,9 +57,10 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
+            if( i_dca != 0 && i_sig != 0 ) continue;
 	    string KEY_InPutSE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
             h_mInPut_SE[KEY_InPutSE] = (TH1F*)File_SE->Get(KEY_InPutSE.c_str())->Clone(); 
-            //cout << "Worked" << endl;
+
 	    string KEY_InPutME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_ME",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
 	    h_mInPut_ME[KEY_InPutME] = (TH1F*)File_ME->Get(KEY_InPutME.c_str())->Clone(); 
 
@@ -192,6 +195,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
       {
 	for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	{
+          if( i_dca != 0 && i_sig != 0 ) continue;
 	  for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	  {
 	    for(int pt_bin = vmsa::pt_rebin_first[energy]; pt_bin < vmsa::pt_rebin_last[energy]; pt_bin++) // pt loop
@@ -253,8 +257,9 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 	for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
-	  {
-	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+	  { 
+            if( i_dca != 0 && i_sig != 0 ) continue;
+            for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	    {
 	      string KEY_theta = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	      for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
@@ -333,7 +338,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 #endif
 
     // Poly+bw fits for phi differential InvMass
-    vecFMap ParFit;
+    /*vecFMap ParFit;
     for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
     {
       for(int i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // Centrality loop
@@ -342,6 +347,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
+            if( i_dca != 0 && i_sig != 0 ) continue;
 	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	    {
 	      for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
@@ -357,7 +363,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 
 		cout << "i_pt = " << i_pt << ", i_cent = " << i_cent << ", i_theta = " << i_theta << ", i_dca = " << i_dca << ", i_sig = " << i_sig << ", i_norm = " << i_norm << endl;
 		string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
-		h_mMass[KEY]->Fit(f_sig,"MNRI");
+		TFitResultPtr result = h_mMass[KEY]->Fit(f_sig,"MNRIS");
 		ParFit[KEY].clear();
 		for(int i_par = 0; i_par < 5; ++i_par)
 		{
@@ -368,15 +374,44 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
 		for(int i_par = 0; i_par < 2;++i_par)
 		{
 		  f_bg->SetParameter(i_par,ParFit[KEY][i_par+3]);
+		  f_bg->SetParError(i_par,f_sig->GetParError(i_par+3));
 		}
+                
+	        //f_bg->SetParError(0,f_bw->GetParError(3));
+	        //f_bg->SetParError(1,f_bw->GetParError(4));
 
-		h_mMass[KEY]->Add(f_bg,-1.0);
+                double params[2] = {result->GetParams()[3],result->GetParams()[4]};
+                TMatrixDSym covArr(2);
+                covArr(0,0) = result->GetCovarianceMatrix()(3,3);
+                covArr(0,1) = result->GetCovarianceMatrix()(3,4);
+                covArr(1,0) = result->GetCovarianceMatrix()(4,3);
+                covArr(1,1) = result->GetCovarianceMatrix()(4,4);
+
+                TH1F *hTotal = (TH1F*)h_mMass[KEY]->Clone();
+	        h_mMass[KEY]->Add(f_bg,-1.0); // subtract linear background for phi differential InvMass
+                for(int bin = h_mMass[KEY]->FindBin(vmsa::BW_Start[pid]); bin <= h_mMass[KEY]->FindBin(vmsa::BW_Stop[pid]); bin++)
+                {
+                  float binWidth = h_mMass[KEY]->GetBinWidth(bin);  
+                  float binLowEdge = hTotal->GetBinLowEdge(bin);
+                  float funcError = f_bg->IntegralError(binLowEdge,binLowEdge+binWidth,params,covArr.GetMatrixArray())/binWidth;
+                  float totError = hTotal->GetBinError(bin);
+                  if(i_cent == 9)
+                  { 
+                    cout << "funcError  = " << funcError << endl;
+                    cout << "totError   = " << totError << endl;
+                    cout << "finalError = " << TMath::Sqrt(totError*totError+funcError*funcError) << endl;
+                  }
+                  h_mMass[KEY]->SetBinError(bin,TMath::Sqrt(totError*totError+funcError*funcError)); 
+                } 
+                delete hTotal;
+
+		//h_mMass[KEY]->Add(f_bg,-1.0);
 	      }
 	    }
 	  }
 	}
       }
-    }
+    }*/
 
 #if _PlotQA_
     // QA plots for phi differential InvMass after linear background subtraction
@@ -403,7 +438,8 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
   }
 
   // write background subtracted histograms to output file
-  string outputfile = "../output/InvMassSubBg/InvMassSubBg.root";
+  string outputfile = Form("../output/AuAu%s/%s/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  if(random3D) outputfile = Form("../output/AuAu%s/%s/3DRandom/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   // string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
@@ -415,6 +451,7 @@ void subBackGround(int energy = 4, int pid = 0, int year = 0)
       {
 	for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	{
+          if( i_dca != 0 && i_sig != 0 ) continue;
 	  for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	  {
 	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)

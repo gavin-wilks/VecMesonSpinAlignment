@@ -532,7 +532,7 @@ void Draw_TGAE_Point_new_Symbol(Double_t x_val, Double_t y_val, Double_t x_min_e
     TGraphAsymmErrors* ge_clone_A = (TGraphAsymmErrors*)tgae->Clone(HistName.Data());
     ge_clone_A->SetMarkerSize(size_A);
     ge_clone_A->SetMarkerStyle(alt_marker);
-    ge_clone_A->SetMarkerColor(1);
+    ge_clone_A->SetMarkerColor(color);
     ge_clone_A->SetLineColor(10);
     if(style_in == 260 || style_in == 300) ge_clone_A->SetLineColor(1);
     ge_clone_A->Draw("same PZ0");
@@ -555,7 +555,7 @@ void Draw_TGAE_Point_new_Symbol(Double_t x_val, Double_t y_val, Double_t x_min_e
     ge_clone_C->SetMarkerSize(size_C);
     ge_clone_C->SetMarkerStyle(style);
     ge_clone_C->SetMarkerColor(color);
-    ge_clone_C->SetLineColor(1);
+    ge_clone_C->SetLineColor(color);
     ge_clone_C->Draw("same PZ0");
 }
 //----------------------------------------------------------------------------------------

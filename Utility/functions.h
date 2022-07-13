@@ -198,6 +198,56 @@ double Poly(double *x_val, double *par)
   return y;
 }
 
+double Poly2BreitWigner(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double m0 = par[0];
+  double Gamma = par[1];
+  double Norm = par[2];
+
+  double denom = 2.0*TMath::Pi()*((x-m0)*(x-m0)+Gamma*Gamma/4.0);
+  double BW = Norm*Gamma/denom;
+
+  double Poly = par[3] + par[4]*x + par[5]*x*x;
+
+  double y = BW + Poly;
+
+  return y;
+}
+
+double Poly2(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double y = par[0] + par[1]*x + par[2]*x*x;
+
+  return y;
+}
+
+double Poly3BreitWigner(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double m0 = par[0];
+  double Gamma = par[1];
+  double Norm = par[2];
+
+  double denom = 2.0*TMath::Pi()*((x-m0)*(x-m0)+Gamma*Gamma/4.0);
+  double BW = Norm*Gamma/denom;
+
+  double Poly = par[3] + par[4]*x + par[5]*x*x + par[6]*x*x*x;
+
+  double y = BW + Poly;
+
+  return y;
+}
+
+double Poly3(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double y = par[0] + par[1]*x + par[2]*x*x + par[3]*x*x*x;
+
+  return y;
+}
+
 double LegeBreitWigner(double *x_val, double *par)
 {
   double x = x_val[0];

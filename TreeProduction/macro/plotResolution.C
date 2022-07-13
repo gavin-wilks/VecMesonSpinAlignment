@@ -24,23 +24,23 @@ double ResolutionFull(double *x_val, double *par)
 
 void plotResolution(int beamEnergy = 4)
 {
-  //string inputfile = Form("../OldUtilityFilesEta1OfficialCent/file_%s_Resolution.root",vmsa::mBeamEnergy[beamEnergy].c_str());
-  string inputfile = Form("../UtilityFilesEta1p5OfficialCent/file_%s_Resolution.root",vmsa::mBeamEnergy[beamEnergy].c_str());
-  string inputfileXu = Form("/star/u/gwilks3/Workspace/FileTransfers/file_%s_Resolution.root",vmsa::mBeamEnergy[beamEnergy].c_str());
+  string inputfile = Form("./file_%s_Resolution.root",vmsa::mBeamEnergy[beamEnergy].c_str());
+  //string inputfile = Form("../UtilityFilesEta1p5OfficialCent/file_%s_Resolution.root",vmsa::mBeamEnergy[beamEnergy].c_str());
+  //string inputfileXu = Form("/star/u/gwilks3/Workspace/FileTransfers/file_%s_Resolution.root",vmsa::mBeamEnergy[beamEnergy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
-  TFile *File_InPutXu = TFile::Open(inputfileXu.c_str());
+  //TFile *File_InPutXu = TFile::Open(inputfileXu.c_str());
   TF1 *f_res = new TF1("f_res",ResolutionFull,0,10,0);
   double Centrality_start[9] = {0.7,0.6,0.5,0.4,0.3,0.2,0.1,0.05, 0.0};
   double Centrality_stop[9]  = {0.8,0.7,0.6,0.5,0.4,0.3,0.2, 0.1,0.05};
 
 
-  string paperfile = "../ComparisonFiles/HEPData-ins1119620-v1-root.root";
-  TFile *File_Paper = TFile::Open(paperfile.c_str());
-  TDirectory *dir = (TDirectory*) File_Paper->Get("Table 2;1");
-  dir->cd();
-  TGraphAsymmErrors *g_mRes2Off_Raw = dir->Get("Graph1D_y3;1");
-  TGraphAsymmErrors *g_mRes2Off = new TGraphAsymmErrors();
-  TGraphAsymmErrors *g_mRes2OffSub = new TGraphAsymmErrors();
+  //string paperfile = "../ComparisonFiles/HEPData-ins1119620-v1-root.root";
+  //TFile *File_Paper = TFile::Open(paperfile.c_str());
+  //TDirectory *dir = (TDirectory*) File_Paper->Get("Table 2;1");
+  //dir->cd();
+  //TGraphAsymmErrors *g_mRes2Off_Raw = dir->Get("Graph1D_y3;1");
+  //TGraphAsymmErrors *g_mRes2Off = new TGraphAsymmErrors();
+  //TGraphAsymmErrors *g_mRes2OffSub = new TGraphAsymmErrors();
 
   double CentVal[9] = {2.5,7.5,15,25,35,45,55,65,75};
   double LiKeVal[9] = {0.29528, 0.41235, 0.49976, 0.519075, 0.472266, 0.38668, 0.283204, 0.193584, 0.137737};
@@ -120,26 +120,26 @@ void plotResolution(int beamEnergy = 4)
   cout << "TPC Event Plane Resolution:" << endl;
   cout << "Sub Event Plane:" << endl;
   TProfile *p_mTpcSubRes2 =   (TProfile*)File_InPut->Get("p_mRes2_Sub");
-  TProfile *p_mTpcSubRes2Xu = (TProfile*)File_InPutXu->Get("p_mRes2_Sub");
+  //TProfile *p_mTpcSubRes2Xu = (TProfile*)File_InPutXu->Get("p_mRes2_Sub");
 
   for(int i_cent = 0; i_cent < 9; ++i_cent)
   {
     const double resRaw = p_mTpcSubRes2->GetBinContent(p_mTpcSubRes2->FindBin(i_cent));
     const double errRaw = p_mTpcSubRes2->GetBinError(p_mTpcSubRes2->FindBin(i_cent));
-    const double resRawXu = p_mTpcSubRes2Xu->GetBinContent(p_mTpcSubRes2Xu->FindBin(i_cent));
-    const double errRawXu = p_mTpcSubRes2Xu->GetBinError(p_mTpcSubRes2Xu->FindBin(i_cent));
+    //const double resRawXu = p_mTpcSubRes2Xu->GetBinContent(p_mTpcSubRes2Xu->FindBin(i_cent));
+    //const double errRawXu = p_mTpcSubRes2Xu->GetBinError(p_mTpcSubRes2Xu->FindBin(i_cent));
     if(resRaw > 0)
     {
       mTpcSubRes2Val[i_cent] = TMath::Sqrt(resRaw);
       mTpcSubRes2Err[i_cent] = errRaw/(2.0*TMath::Sqrt(resRaw));
-      mTpcSubRes2ValXu[i_cent] = TMath::Sqrt(resRawXu);
-      mTpcSubRes2ErrXu[i_cent] = errRaw/(2.0*TMath::Sqrt(resRawXu));
+      //mTpcSubRes2ValXu[i_cent] = TMath::Sqrt(resRawXu);
+      //mTpcSubRes2ErrXu[i_cent] = errRaw/(2.0*TMath::Sqrt(resRawXu));
     }
     cout << "i_cent = " << i_cent << ", resRaw = " << resRaw << ", resSub = " << mTpcSubRes2Val[i_cent] << " +/- " << mTpcSubRes2Err[i_cent] << endl;
     g_mTpcSubRes2->SetPoint(i_cent,50.0*(Centrality_start[i_cent]+Centrality_stop[i_cent]),mTpcSubRes2Val[i_cent]);
     g_mTpcSubRes2->SetPointError(i_cent,0.0,0.0,mTpcSubRes2Err[i_cent],mTpcSubRes2Err[i_cent]);
-    g_mTpcSubRes2Xu->SetPoint(i_cent,50.0*(Centrality_start[i_cent]+Centrality_stop[i_cent]),mTpcSubRes2ValXu[i_cent]);
-    g_mTpcSubRes2Xu->SetPointError(i_cent,0.0,0.0,mTpcSubRes2ErrXu[i_cent],mTpcSubRes2ErrXu[i_cent]);
+    //g_mTpcSubRes2Xu->SetPoint(i_cent,50.0*(Centrality_start[i_cent]+Centrality_stop[i_cent]),mTpcSubRes2ValXu[i_cent]);
+    //g_mTpcSubRes2Xu->SetPointError(i_cent,0.0,0.0,mTpcSubRes2ErrXu[i_cent],mTpcSubRes2ErrXu[i_cent]);
   }
 
   // calculate full event plane resolution
@@ -165,17 +165,17 @@ void plotResolution(int beamEnergy = 4)
     g_mTpcFullRes2->SetPointError(i_cent,0.0,0.0,mTpcFullRes2Err[i_cent],mTpcFullRes2Err[i_cent]);
   }
 
-  for(int i_cent = 0; i_cent < 9; ++i_cent)
-  {
-    g_mRes2Off->SetPoint(i_cent,CentVal[i_cent],LiKeVal[i_cent]);
-    g_mRes2Off->SetPointError(i_cent,0.0,0.0,LiKeErr[i_cent],LiKeErr[i_cent]);
-  }
-  TGraphAsymmErrors *g_mRes2SubOff = new TGraphAsymmErrors();
-  for(int i_cent = 0; i_cent < 9; ++i_cent)
-  {
-    g_mRes2SubOff->SetPoint(i_cent,CentVal[i_cent],val_19GeV[i_cent]);
-    g_mRes2SubOff->SetPointError(i_cent,0.0,0.0,err_19GeV[i_cent],err_19GeV[i_cent]);
-  }
+  //for(int i_cent = 0; i_cent < 9; ++i_cent)
+ // {
+  //  g_mRes2Off->SetPoint(i_cent,CentVal[i_cent],LiKeVal[i_cent]);
+  //  g_mRes2Off->SetPointError(i_cent,0.0,0.0,LiKeErr[i_cent],LiKeErr[i_cent]);
+ // }
+  //TGraphAsymmErrors *g_mRes2SubOff = new TGraphAsymmErrors();
+  //for(int i_cent = 0; i_cent < 9; ++i_cent)
+ // {
+   // g_mRes2SubOff->SetPoint(i_cent,CentVal[i_cent],val_19GeV[i_cent]);
+  //  g_mRes2SubOff->SetPointError(i_cent,0.0,0.0,err_19GeV[i_cent],err_19GeV[i_cent]);
+  //}
 /* 
   double mTpcSubRes3Val[9];
   double mTpcSubRes3Err[9];
@@ -240,8 +240,8 @@ void plotResolution(int beamEnergy = 4)
   }
   h_play->SetTitle("");
   h_play->SetStats(0);
-  h_play->GetXaxis()->SetTitle("centrality (%)");
-  h_play->GetYaxis()->SetTitle("Resolution (%)");
+  h_play->GetXaxis()->SetTitle("Centrality (%)");
+  h_play->GetYaxis()->SetTitle("#Psi_{2} Resolution");
   h_play->GetXaxis()->CenterTitle();
   h_play->GetYaxis()->CenterTitle();
   h_play->GetXaxis()->SetTitleSize(0.06);
@@ -305,7 +305,7 @@ void plotResolution(int beamEnergy = 4)
   //leg->AddEntry(g_mTpcFullRes1,"1^{st} Full TPC EP","p");
   //leg->AddEntry(g_mTpcSubRes1,"1^{st} #eta_{sub} TPC EP","p");
   //leg->AddEntry(g_mTpcFullRes2,"2^{nd} Full TPC EP","p");
-  leg->AddEntry(g_mTpcSubRes2,"#eta_{sub} TPC BES-II","p");
+  leg->AddEntry(g_mTpcSubRes2,"#eta_{sub} TPC","p");
   //leg->AddEntry(g_mTpcSubRes2Xu,"#eta_{sub} TPC Xu Sun's BES-I","p");
   //leg->AddEntry(g_mTpcFullRes2,"2^{nd} Full Ran TPC","p");
   //leg->AddEntry(g_mRes2Off,"2^{nd} Full Ran TPC, BES-I","p");

@@ -25,7 +25,7 @@
 void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
 {
   //string inputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/rho00/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
-  string inputfile = "../output/InvMassSubBg/InvMassSubBg.root";
+  string inputfile = Form("../output/AuAu%s/%s/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   File_InPut->cd();
   TH1FMap h_mMass, h_mMass_InteTheta;
@@ -40,6 +40,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
       {
 	for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	{
+          if( i_dca != 0 && i_sig != 0 ) continue;
 	  for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	  {
 	    string KEY_InteTheta = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
@@ -173,6 +174,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
     {
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
+        if( i_dca != 0 && i_sig != 0 ) continue;
 	for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	{
 	  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
@@ -345,6 +347,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
     {
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
+        if( i_dca != 0 && i_sig != 0 ) continue;
 	for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	{
 	  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
@@ -361,7 +364,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
   }
   c_rho->SaveAs("../figures/c_rho.pdf");
 
-  string outputfile = "../output/RawPhiPt/RawPhiPtSys.root";
+  string outputfile = Form("../output/AuAu%s/%s/RawPhiPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   // string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/RawRhoPtSys.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
@@ -372,6 +375,7 @@ void calSpinAlignmentSys(int energy = 4, int pid = 0, int year = 0)
     {
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
+        if( i_dca != 0 && i_sig != 0 ) continue;
 	for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	{
 	  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
