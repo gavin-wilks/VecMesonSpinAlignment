@@ -191,16 +191,51 @@ namespace vmsa
     {1,4,6,18}
   };
   int const pt_rebin_stopKS[NumBeamEnergy][pt_rebinKS]  = {
-    {4,6,18,24},
-    {4,6,18,24},
-    {4,6,18,24},
-    {4,6,18,24},
-    {4,6,18,24}
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23}
   };
   int const pt_rebin_firstKS[NumBeamEnergy] = {0,0,0,0,0};
   int const pt_rebin_lastKS[NumBeamEnergy]  = {3,3,3,3,3};
   int const pt_QAKS[NumBeamEnergy]    = {1,1,1,1,1};
   int const pt_RawQAKS[NumBeamEnergy]    = {6,6,6,6,6};
+
+
+  int const pt_rebinKSv2 = 8; // maximum pt binning
+  float const pt_lowKSv2[NumBeamEnergy][pt_rebinKSv2] = {
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0}
+  };
+  float const pt_upKSv2[NumBeamEnergy][pt_rebinKSv2]  = { 
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0}
+  };
+  int const pt_rebin_startKSv2[NumBeamEnergy][pt_rebinKSv2] = {
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18}
+  };
+  int const pt_rebin_stopKSv2[NumBeamEnergy][pt_rebinKSv2]  = {
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23}
+  };
+  int const pt_rebin_firstKSv2[NumBeamEnergy] = {0,0,0,0,0};
+  int const pt_rebin_lastKSv2[NumBeamEnergy]  = {7,7,7,7,7};
+  int const pt_QAKSv2[NumBeamEnergy]    = {1,1,1,1,1};
+  int const pt_RawQAKSv2[NumBeamEnergy]    = {6,6,6,6,6};
 
   std::string const Centrality[9] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%"}; // Centrality bin
   int const Cent_Total = 10; // centrality: 9 = 20%-60%, 0-8 from RefMultCorr

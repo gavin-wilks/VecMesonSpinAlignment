@@ -48,16 +48,16 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     }
   }
 
-  string InPutFile_SE = "../data/Yields_KStar_SE_19GeV_20220413.root";
+  string InPutFile_SE = "../data/Yields_KStar_SE_19GeV_20220708.root";
   
-  string InPutFile_ME = "../data/Yields_KStar_ME_19GeV_20220413.root";
+  string InPutFile_ME = "../data/Yields_KStar_ME_19GeV_20220708.root";
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
 
   // read in histogram for same event and mixed event
   // calculate SE - ME
   TH1FMap h_mMass_SE, h_mMass_ME, h_mMass_SM;
-  for(int i_pt = vmsa::pt_start; i_pt < vmsa::pt_stop; i_pt++) // pt loop
+  for(int i_pt = vmsa::pt_startKS; i_pt < vmsa::pt_stopKS; i_pt++) // pt loop
   {
     for(int i_cent = vmsa::Cent_start; i_cent < 13; i_cent++) // Centrality loop
     {
@@ -78,10 +78,11 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
         string KEY_SM = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
         h_mMass_SM[KEY_SM] = (TH1F*)h_mMass_SE[KEY_SE]->Clone();
         h_mMass_SM[KEY_SM]->Add(h_mMass_ME[KEY_ME],-1.0);
+        cout << KEY_SE << endl;
       }
     }
   }
-
+  cout << "Out of the first loop" << endl;
 #if _PlotQA_
   // QA Plots for SE vs. ME
   TCanvas *cy6 = new TCanvas("cy6","cy6",10,10,800,600);
@@ -143,7 +144,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   // QA Plots for pT bins
   TCanvas *c_pT = new TCanvas("c_pT","c_pT",10,10,1400,1400);
   c_pT->Divide(5,5);
-  for(int i_pt = vmsa::pt_start; i_pt < vmsa::pt_stop; i_pt++) // pt loop
+  for(int i_pt = vmsa::pt_startKS; i_pt < vmsa::pt_stopKS; i_pt++) // pt loop
   {
     c_pT->cd(i_pt+1);
     c_pT->cd(i_pt+1)->SetLeftMargin(0.15);
@@ -165,7 +166,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     h_mMass_SM[KEY_SM_QA]->SetFillStyle(3004);
     h_mMass_SM[KEY_SM_QA]->DrawCopy("h same");
 
-    string pT_range = Form("[%.2f,%.2f]",vmsa::ptRawStart[i_pt],vmsa::ptRawStop[i_pt]);
+    string pT_range = Form("[%.2f,%.2f]",vmsa::ptRawStartKS[i_pt],vmsa::ptRawStopKS[i_pt]);
     plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
   }
 #endif
@@ -177,13 +178,13 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   {
     for(int i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta++) // cos(theta*) loop
     {
-      for(int pt_bin = vmsa::pt_rebin_first[energy]; pt_bin < vmsa::pt_rebin_last[energy]; pt_bin++) // pt loop
+      for(int pt_binKS = vmsa::pt_rebin_firstKSv2[energy]; pt_binKS < vmsa::pt_rebin_lastKSv2[energy]; pt_binKS++) // pt loop
       {
-        string KEY = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",pt_bin,i_cent,i_theta,vmsa::mPID[pid].c_str());
-        for(int i_pt = vmsa::pt_rebin_start[energy][pt_bin]; i_pt <= vmsa::pt_rebin_stop[energy][pt_bin]; i_pt++)
+        string KEY = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",pt_binKS,i_cent,i_theta,vmsa::mPID[pid].c_str());
+        for(int i_pt = vmsa::pt_rebin_startKSv2[energy][pt_binKS]; i_pt <= vmsa::pt_rebin_stopKSv2[energy][pt_binKS]; i_pt++)
         {
           string KEY_SM = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
-          if(i_pt == vmsa::pt_rebin_start[energy][pt_bin])
+          if(i_pt == vmsa::pt_rebin_startKSv2[energy][pt_binKS])
           {
             h_mMass[KEY] = (TH1F*)h_mMass_SM[KEY_SM]->Clone();
           }
@@ -200,20 +201,20 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   // QA Plots for pT rebins
   TCanvas *c_pT_rebin = new TCanvas("c_pT_rebin","c_pT_rebin",10,10,1400,1400);
   c_pT_rebin->Divide(5,5);
-  for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+  for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
   {
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetLeftMargin(0.15);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetBottomMargin(0.15);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetTicks(1,1);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetGrid(0,0);
+    c_pT_rebin->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1);
+    c_pT_rebin->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetLeftMargin(0.15);
+    c_pT_rebin->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetBottomMargin(0.15);
+    c_pT_rebin->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetTicks(1,1);
+    c_pT_rebin->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetGrid(0,0);
     string KEY_QA = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",i_pt,9,3,vmsa::mPID[pid].c_str());
     h_mMass[KEY_QA]->SetMarkerStyle(20);
     h_mMass[KEY_QA]->SetMarkerSize(0.4);
     h_mMass[KEY_QA]->SetLineColor(1);
     h_mMass[KEY_QA]->DrawCopy("pE");
 
-    string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low[energy][i_pt],vmsa::pt_up[energy][i_pt]);
+    string pT_range = Form("[%.2f,%.2f]",vmsa::pt_lowKSv2[energy][i_pt],vmsa::pt_upKSv2[energy][i_pt]);
     plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
   }
 #endif
@@ -222,7 +223,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     TH1FMap h_mMass_theta;
     vecFMap ParFit_theta;
 
-    for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+    for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
     {
       for(int i_cent = vmsa::Cent_start; i_cent < 13; i_cent++) // Centrality loop
       {
@@ -230,7 +231,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
 	for(int i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta++) // cos(theta*) loop
 	{
 	  string KEY = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
-          h_mMass[KEY]->Rebin(2);
+          //h_mMass[KEY]->Rebin(2);
 	  if(i_theta == 0) h_mMass_theta[KEY_theta] = (TH1F*)h_mMass[KEY]->Clone();
 	  else h_mMass_theta[KEY_theta]->Add(h_mMass[KEY],1.0);
 	}
@@ -240,13 +241,13 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
 	  f_bw->ReleaseParameter(i_par);
 	}
 	f_bw->SetParameter(0,vmsa::InvMass[pid]);
-	f_bw->SetParLimits(0,vmsa::InvMass[pid]-1.5*vmsa::Width[pid],vmsa::InvMass[pid]+1.5*vmsa::Width[pid]);
+	f_bw->SetParLimits(0,vmsa::InvMass[pid]-0.01,vmsa::InvMass[pid]+0.01);
 	f_bw->SetParameter(1,vmsa::Width[pid]);
 	f_bw->SetParameter(2,10000);
-	f_bw->SetParameter(3,6000);
-	f_bw->SetParameter(4,0.5);
-        f_bw->SetParameter(5,0.1);
-	f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
+	//f_bw->SetParameter(3,6000);
+	//f_bw->SetParameter(4,0.5);
+        //f_bw->SetParameter(5,0.1);
+	//f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
 	ParFit_theta[KEY_theta].clear();
 	h_mMass_theta[KEY_theta]->Fit(f_bw,"NQR");
 	for(int n_par = 0; n_par < 6; n_par++)
@@ -261,13 +262,13 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     TCanvas *c_linsub = new TCanvas("c_linsub","c_linsub",10,10,800,600);
     TCanvas *c_mMass_theta = new TCanvas("c_mMass_theta","c_mMass_theta",10,10,1400,1400);
     c_mMass_theta->Divide(5,5);
-    for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+    for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
     {
-      c_mMass_theta->cd(vmsa::pt_rebin_start[energy][i_pt]+1);
-      c_mMass_theta->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetLeftMargin(0.15);
-      c_mMass_theta->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetBottomMargin(0.15);
-      c_mMass_theta->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetTicks(1,1);
-      c_mMass_theta->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetGrid(0,0);
+      c_mMass_theta->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1);
+      c_mMass_theta->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetLeftMargin(0.15);
+      c_mMass_theta->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetBottomMargin(0.15);
+      c_mMass_theta->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetTicks(1,1);
+      c_mMass_theta->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetGrid(0,0);
       string KEY_theta_QA = Form("pt_%d_Centrality_%d_2nd_%s_SM",i_pt,9,vmsa::mPID[pid].c_str()); 
       h_mMass_theta[KEY_theta_QA]->SetMarkerColor(1);
       h_mMass_theta[KEY_theta_QA]->SetMarkerStyle(24);
@@ -284,16 +285,19 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
       f_bw->SetLineWidth(2);
       f_bw->DrawCopy("l same");
 
-      TF1 *f_poly = new TF1("f_poly",Poly2,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
-      f_poly->SetParameter(0,ParFit_theta[KEY_theta_QA][3]);
-      f_poly->SetParameter(1,ParFit_theta[KEY_theta_QA][4]);
-      f_poly->SetParameter(2,ParFit_theta[KEY_theta_QA][5]);
+      TF1 *f_poly = new TF1("f_poly",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
+      f_poly->SetParameter(0,ParFit_theta[KEY_theta_QA][0]);
+      f_poly->SetParameter(1,ParFit_theta[KEY_theta_QA][1]);
+      f_poly->SetParameter(2,ParFit_theta[KEY_theta_QA][2]);
+      f_poly->SetParameter(3,ParFit_theta[KEY_theta_QA][3]);
+      f_poly->SetParameter(4,ParFit_theta[KEY_theta_QA][4]);
+      f_poly->SetParameter(5,ParFit_theta[KEY_theta_QA][5]);
       f_poly->SetLineColor(4);
       f_poly->SetLineStyle(2);
       f_poly->SetLineWidth(4);
       f_poly->DrawCopy("l same");
 
-      string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low[energy][i_pt],vmsa::pt_up[energy][i_pt]);
+      string pT_range = Form("[%.2f,%.2f]",vmsa::pt_lowKSv2[energy][i_pt],vmsa::pt_upKSv2[energy][i_pt]);
       plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
       PlotLine(0.98,1.05,0.0,0.0,1,2,2);
 
@@ -304,7 +308,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
         f_bw->DrawCopy("l same");
         f_poly->DrawCopy("l same");
 
-        string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low[energy][i_pt],vmsa::pt_up[energy][i_pt]);
+        string pT_range = Form("[%.2f,%.2f]",vmsa::pt_lowKSv2[energy][i_pt],vmsa::pt_upKSv2[energy][i_pt]);
         plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
         PlotLine(0.98,1.05,0.0,0.0,1,2,2);
         c_linsub->SaveAs("./figures/c_linsub.pdf");
@@ -314,37 +318,37 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
 #endif
 
     // Poly+bw fits for phi differential InvMass
-    for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
-    {
-      for(int i_cent = vmsa::Cent_start; i_cent < 13; i_cent++) // Centrality loop
-      {
-	string KEY_theta = Form("pt_%d_Centrality_%d_2nd_%s_SM",i_pt,i_cent,vmsa::mPID[pid].c_str());
-	for(int i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta++) // cos(theta*) loop
-	{
-	  string KEY = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
-	  TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6); //Poly+bw fits
-	  for(int i_par = 0; i_par < 6; i_par++)
-	  {
-	    f_bw->ReleaseParameter(i_par);
-	  }
-	  f_bw->FixParameter(0,ParFit_theta[KEY_theta][0]);
-	  f_bw->FixParameter(1,ParFit_theta[KEY_theta][1]);
-	  f_bw->SetParameter(2,ParFit_theta[KEY_theta][2]/10.0);
-	  f_bw->SetParameter(3,ParFit_theta[KEY_theta][3]/10.0);
-	  f_bw->SetParameter(4,ParFit_theta[KEY_theta][4]/10.0);
-	  f_bw->SetParameter(5,ParFit_theta[KEY_theta][5]/10.0);
-	  f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
-	  h_mMass[KEY]->Fit(f_bw,"NQR");
+    //for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
+    //{
+    //  for(int i_cent = vmsa::Cent_start; i_cent < 13; i_cent++) // Centrality loop
+    //  {
+    //    string KEY_theta = Form("pt_%d_Centrality_%d_2nd_%s_SM",i_pt,i_cent,vmsa::mPID[pid].c_str());
+    //    for(int i_theta = 0; i_theta < vmsa::PhiPsi_total; i_theta++) // cos(theta*) loop
+    //    {
+    //      string KEY = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+    //      TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6); //Poly+bw fits
+    //      for(int i_par = 0; i_par < 6; i_par++)
+    //      {
+    //        f_bw->ReleaseParameter(i_par);
+    //      }
+    //      f_bw->FixParameter(0,ParFit_theta[KEY_theta][0]);
+    //      f_bw->FixParameter(1,ParFit_theta[KEY_theta][1]);
+    //      f_bw->SetParameter(2,ParFit_theta[KEY_theta][2]/10.0);
+    //      f_bw->SetParameter(3,ParFit_theta[KEY_theta][3]/10.0);
+    //      f_bw->SetParameter(4,ParFit_theta[KEY_theta][4]/10.0);
+    //      f_bw->SetParameter(5,ParFit_theta[KEY_theta][5]/10.0);
+    //      f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
+    //      h_mMass[KEY]->Fit(f_bw,"NQR");
 
-	  TF1 *f_poly = new TF1("f_poly",Poly2,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
-	  f_poly->FixParameter(0,f_bw->GetParameter(3));
-	  f_poly->FixParameter(1,f_bw->GetParameter(4));
-	  f_poly->FixParameter(2,f_bw->GetParameter(5));
+    //      TF1 *f_poly = new TF1("f_poly",Poly2,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+    //      f_poly->FixParameter(0,f_bw->GetParameter(3));
+    //      f_poly->FixParameter(1,f_bw->GetParameter(4));
+    //      f_poly->FixParameter(2,f_bw->GetParameter(5));
 
-	  h_mMass[KEY]->Add(f_poly,-1.0); // subtract linear background for phi differential InvMass
-	}
-      }
-    }
+    //      h_mMass[KEY]->Add(f_poly,-1.0); // subtract linear background for phi differential InvMass
+    //    }
+    //  }
+    //}
 
     ////////////////////////////////////////////////////////////////////
     // Yields
@@ -367,6 +371,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
       string KEY_Yield = Form("Yields_Centrality_%d_Dca_0_Sig_0_NHit_0_%s_SM",i_cent,vmsa::mPID[pid].c_str());
       h_mYield[KEY_Yield] = (TH1F*)h_mYield_SE[KEY_Yield_SE]->Clone();
       h_mYield[KEY_Yield]->Add(h_mYield_ME[KEY_Yield_ME],-1.0); 
+      cout << KEY_Yield_SE << endl;
     }
 
 
@@ -383,12 +388,12 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
         f_bw->ReleaseParameter(i_par);
       }
       f_bw->SetParameter(0,vmsa::InvMass[pid]);
-      f_bw->SetParLimits(0,vmsa::InvMass[pid]-1.5*vmsa::Width[pid],vmsa::InvMass[pid]+1.5*vmsa::Width[pid]);
+      f_bw->SetParLimits(0,vmsa::InvMass[pid]-0.01,vmsa::InvMass[pid]+0.01);
       f_bw->SetParameter(1,vmsa::Width[pid]);
       f_bw->SetParameter(2,10000);
       f_bw->SetParameter(3,6000);
-      f_bw->SetParameter(4,0.5);
-      f_bw->SetParameter(5,0.1);
+      //f_bw->SetParameter(4,0.5);
+      //f_bw->SetParameter(5,0.1);
       f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
       ParYield_SM[KEY_Yield].clear();
       h_mYield[KEY_Yield]->Fit(f_bw,"QNR");
@@ -396,54 +401,70 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
       {
         ParYield_SM[KEY_Yield].push_back(static_cast<Float_t>(f_bw->GetParameter(n_par)));
       }
-
-      TF1 *f_poly = new TF1("f_poly",Poly2,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
-      f_poly->FixParameter(0,f_bw->GetParameter(3));
-      f_poly->FixParameter(1,f_bw->GetParameter(4));
-      f_poly->FixParameter(2,f_bw->GetParameter(5));
-      h_mYield[KEY_Yield]->Add(f_poly,-1.0); // subtract linear background for phi differential InvMass
     }
 
-    vecFMap ParYield_BW;
     vecFMap yields_Gaus, yields_BW;
     for(Int_t i_cent = 0; i_cent < 9; i_cent++) // Centrality loop
     {
       string KEY_Yield = Form("Yields_Centrality_%d_Dca_0_Sig_0_NHit_0_%s_SM",i_cent,vmsa::mPID[pid].c_str());
-      TF1 *f_yields_bw = new TF1("f_yields_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
-      f_yields_bw->SetParameter(0,vmsa::InvMass[pid]);
-      f_yields_bw->SetParLimits(0,vmsa::InvMass[pid]-0.1,vmsa::InvMass[pid]+0.1);
-      f_yields_bw->SetParameter(1,vmsa::Width[pid]);
-      f_yields_bw->SetParameter(2,h_mYield[KEY_Yield]->GetMaximum());
+      TF1 *f_yields_bw = new TF1("f_yields_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
+      f_yields_bw->SetParameter(0,ParYield_SM[KEY_Yield][0]);
+      f_yields_bw->SetParameter(1,ParYield_SM[KEY_Yield][1]);
+      f_yields_bw->SetParameter(2,ParYield_SM[KEY_Yield][2]);
+      f_yields_bw->SetParameter(3,ParYield_SM[KEY_Yield][3]);
+      f_yields_bw->SetParameter(4,ParYield_SM[KEY_Yield][4]);
+      f_yields_bw->SetParameter(5,ParYield_SM[KEY_Yield][5]);
       f_yields_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
-      h_mYield[KEY_Yield]->Fit(f_yields_bw,"MQNR");
-      ParYield_BW[KEY_Yield].clear();
-      ParYield_BW[KEY_Yield].push_back(static_cast<Float_t>(f_yields_bw->GetParameter(0)));
-      ParYield_BW[KEY_Yield].push_back(static_cast<Float_t>(f_yields_bw->GetParameter(1)));
-      ParYield_BW[KEY_Yield].push_back(static_cast<Float_t>(f_yields_bw->GetParameter(2)));
+      TFitResultPtr result = h_mYield[KEY_Yield]->Fit(f_yields_bw,"MQNRIS");
+
+      TF1 *f_bg = new TF1("f_bg",Poly2,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+      f_bg->SetParameter(0,ParYield_SM[KEY_Yield][3]);
+      f_bg->SetParameter(1,ParYield_SM[KEY_Yield][4]);
+      f_bg->SetParameter(2,ParYield_SM[KEY_Yield][5]);
+      f_bg->SetParError(0,ParYield_SM[KEY_Yield][3]);
+      f_bg->SetParError(1,ParYield_SM[KEY_Yield][4]);
+      f_bg->SetParError(2,ParYield_SM[KEY_Yield][5]);
+      
+      double params[3] = {result->GetParams()[3],result->GetParams()[4],result->GetParams()[5]};
+      TMatrixDSym covArr(3);
+      covArr(0,0) = result->GetCovarianceMatrix()(3,3);
+      covArr(0,1) = result->GetCovarianceMatrix()(3,4);
+      covArr(0,2) = result->GetCovarianceMatrix()(3,5);
+      covArr(1,0) = result->GetCovarianceMatrix()(4,3);
+      covArr(1,1) = result->GetCovarianceMatrix()(4,4);
+      covArr(1,2) = result->GetCovarianceMatrix()(4,5);
+      covArr(2,0) = result->GetCovarianceMatrix()(5,3);
+      covArr(2,1) = result->GetCovarianceMatrix()(5,4);
+      covArr(2,2) = result->GetCovarianceMatrix()(5,5);
+
 
       // counting for guassian
       Float_t counts_gaus = 0.0;
       Float_t errors_gaus = 0.0;
-      Int_t bin_start = h_mYield[KEY_Yield]->FindBin(ParYield_BW[KEY_Yield][0]-vmsa::nSigVec*ParYield_BW[KEY_Yield][1]);
-      Int_t bin_stop  = h_mYield[KEY_Yield]->FindBin(ParYield_BW[KEY_Yield][0]+vmsa::nSigVec*ParYield_BW[KEY_Yield][1]);
+      Int_t bin_start = h_mYield[KEY_Yield]->FindBin(ParYield_SM[KEY_Yield][0]-vmsa::nSigVec*ParYield_SM[KEY_Yield][1]);
+      Int_t bin_stop  = h_mYield[KEY_Yield]->FindBin(ParYield_SM[KEY_Yield][0]+vmsa::nSigVec*ParYield_SM[KEY_Yield][1]);
       for(Int_t i_bin = bin_start; i_bin <= bin_stop; i_bin++)
       {
         counts_gaus += h_mYield[KEY_Yield]->GetBinContent(i_bin);
         errors_gaus += h_mYield[KEY_Yield]->GetBinError(i_bin)*h_mYield[KEY_Yield]->GetBinError(i_bin);
       }
-      yields_Gaus[KEY_Yield].clear();
-      yields_Gaus[KEY_Yield].push_back(static_cast<Float_t>(counts_gaus));
-      yields_Gaus[KEY_Yield].push_back(static_cast<Float_t>(TMath::Sqrt(errors_gaus)));
 
       // integrating for breit wigner
       Float_t bin_width = h_mYield[KEY_Yield]->GetBinWidth(1);
-      Float_t Inte_start = ParYield_BW[KEY_Yield][0]-vmsa::nSigVec*ParYield_BW[KEY_Yield][1]-0.5*bin_width;
-      Float_t Inte_stop  = ParYield_BW[KEY_Yield][0]+vmsa::nSigVec*ParYield_BW[KEY_Yield][1]+0.5*bin_width;
+      Float_t Inte_start = ParYield_SM[KEY_Yield][0]-vmsa::nSigVec*ParYield_SM[KEY_Yield][1]-0.5*bin_width;
+      Float_t Inte_stop  = ParYield_SM[KEY_Yield][0]+vmsa::nSigVec*ParYield_SM[KEY_Yield][1]+0.5*bin_width;
       Float_t counts_bw = f_yields_bw->Integral(Inte_start,Inte_stop)/bin_width;
       Float_t errors_bw = f_yields_bw->IntegralError(Inte_start,Inte_stop)/bin_width;
+
+      float counts_bg = f_bg->Integral(Inte_start,Inte_stop)/bin_width;
+      float errors_bg = f_bg->IntegralError(Inte_start,Inte_stop,params,covArr.GetMatrixArray())/bin_width;
+
+      yields_Gaus[KEY_Yield].clear();
+      yields_Gaus[KEY_Yield].push_back(static_cast<Float_t>(counts_gaus-counts_bg));
+      yields_Gaus[KEY_Yield].push_back(static_cast<Float_t>(TMath::Sqrt(errors_gaus+errors_bg*errors_bg)));
       yields_BW[KEY_Yield].clear();
-      yields_BW[KEY_Yield].push_back(static_cast<Float_t>(counts_bw));
-      yields_BW[KEY_Yield].push_back(static_cast<Float_t>(errors_bw));
+      yields_BW[KEY_Yield].push_back(static_cast<Float_t>(counts_bw-counts_bg));
+      yields_BW[KEY_Yield].push_back(static_cast<Float_t>(TMath::Sqrt(errors_bw*errors_bw+errors_bg*errors_bg)));
     }
 
     // QA: different counting method: bin counting vs breit wigner integrating
@@ -472,19 +493,22 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
       h_mYield[KEY_Yield]->DrawCopy("pE");
       PlotLine(0.98,1.05,0.0,0.0,1,2,2);
   
-      TF1 *f_yields_bw = new TF1("f_yields_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
-      f_yields_bw->SetParameter(0,ParYield_BW[KEY_Yield][0]);
-      f_yields_bw->SetParameter(1,ParYield_BW[KEY_Yield][1]);
-      f_yields_bw->SetParameter(2,ParYield_BW[KEY_Yield][2]);
+      TF1 *f_yields_bw = new TF1("f_yields_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
+      f_yields_bw->SetParameter(0,ParYield_SM[KEY_Yield][0]);
+      f_yields_bw->SetParameter(1,ParYield_SM[KEY_Yield][1]);
+      f_yields_bw->SetParameter(2,ParYield_SM[KEY_Yield][2]);
+      f_yields_bw->SetParameter(3,ParYield_SM[KEY_Yield][3]);
+      f_yields_bw->SetParameter(4,ParYield_SM[KEY_Yield][4]);
+      f_yields_bw->SetParameter(5,ParYield_SM[KEY_Yield][5]);
       f_yields_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
       f_yields_bw->SetLineColor(2);
       f_yields_bw->SetLineStyle(1);
       f_yields_bw->SetLineWidth(2);
       f_yields_bw->DrawCopy("l same");
   
-      Float_t x1 = ParYield_BW[KEY_Yield][0] - vmsa::nSigVec*ParYield_BW[KEY_Yield][1];
-      Float_t x2 = ParYield_BW[KEY_Yield][0] + vmsa::nSigVec*ParYield_BW[KEY_Yield][1];
-      Float_t y = h_mYield[KEY_Yield]->GetBinContent(h_mYield[KEY_Yield]->FindBin(ParYield_BW[KEY_Yield][0]));
+      Float_t x1 = ParYield_SM[KEY_Yield][0] - vmsa::nSigVec*ParYield_SM[KEY_Yield][1];
+      Float_t x2 = ParYield_SM[KEY_Yield][0] + vmsa::nSigVec*ParYield_SM[KEY_Yield][1];
+      Float_t y = h_mYield[KEY_Yield]->GetBinContent(h_mYield[KEY_Yield]->FindBin(ParYield_SM[KEY_Yield][0]));
       PlotLine(x1,x1,0,y,4,2,2);
       PlotLine(x2,x2,0,y,4,2,2);
     }
@@ -561,20 +585,20 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     // QA plots for phi differential InvMass after linear background subtraction
     TCanvas *c_mMass_phi_diff = new TCanvas("c_mMass_phi_diff","c_mMass_phi_diff",10,10,2500,2500);
     c_mMass_phi_diff->Divide(5,5);
-    for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+    for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
     {
-      c_mMass_phi_diff->cd(vmsa::pt_rebin_start[energy][i_pt]+1);
-      c_mMass_phi_diff->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetLeftMargin(0.15);
-      c_mMass_phi_diff->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetBottomMargin(0.15);
-      c_mMass_phi_diff->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetTicks(1,1);
-      c_mMass_phi_diff->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetGrid(0,0);
+      c_mMass_phi_diff->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1);
+      c_mMass_phi_diff->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetLeftMargin(0.15);
+      c_mMass_phi_diff->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetBottomMargin(0.15);
+      c_mMass_phi_diff->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetTicks(1,1);
+      c_mMass_phi_diff->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetGrid(0,0);
       string KEY_QA = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_%s_SM",i_pt,9,0,vmsa::mPID[pid].c_str());
       h_mMass[KEY_QA]->SetMarkerColor(1);
       h_mMass[KEY_QA]->SetMarkerStyle(24);
       h_mMass[KEY_QA]->SetMarkerSize(0.8);
       h_mMass[KEY_QA]->DrawCopy("PE");
 
-      string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low[energy][i_pt],vmsa::pt_up[energy][i_pt]);
+      string pT_range = Form("[%.2f,%.2f]",vmsa::pt_lowKSv2[energy][i_pt],vmsa::pt_upKSv2[energy][i_pt]);
       plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
       PlotLine(0.98,1.05,0.0,0.0,1,2,2);
     }
@@ -585,7 +609,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   TH1FMap h_mMass_total; // cos(theta*) integrated InvMass after linear background subtraction for bw fits to extract yields 
   vecFMap ParBW;
 
-  for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+  for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
   {
     for(int i_cent = vmsa::Cent_start; i_cent < 13; i_cent++) // Centrality loop
     {
@@ -596,17 +620,20 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
         if(i_theta == 0) h_mMass_total[KEY_theta] = (TH1F*)h_mMass[KEY]->Clone();
         else h_mMass_total[KEY_theta]->Add(h_mMass[KEY],1.0);
       }
-      TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+      TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
       f_bw->SetParameter(0,vmsa::InvMass[pid]);
-      f_bw->SetParLimits(0,vmsa::InvMass[pid]-0.005,vmsa::InvMass[pid]+0.005);
+      f_bw->SetParLimits(0,vmsa::InvMass[pid]-0.01,vmsa::InvMass[pid]+0.01);
       f_bw->SetParameter(1,vmsa::Width[pid]);
-      f_bw->SetParameter(2,1000);
+      f_bw->SetParameter(2,10000);
       f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
       h_mMass_total[KEY_theta]->Fit(f_bw,"MQNR");
       ParBW[KEY_theta].clear();
       ParBW[KEY_theta].push_back(static_cast<float>(f_bw->GetParameter(0)));
       ParBW[KEY_theta].push_back(static_cast<float>(f_bw->GetParameter(1)));
       ParBW[KEY_theta].push_back(static_cast<float>(f_bw->GetParameter(2)));
+      ParBW[KEY_theta].push_back(static_cast<float>(f_bw->GetParameter(3)));
+      ParBW[KEY_theta].push_back(static_cast<float>(f_bw->GetParameter(4)));
+      ParBW[KEY_theta].push_back(static_cast<float>(f_bw->GetParameter(5)));
     }
   }
 
@@ -614,27 +641,30 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   // QA: bw fits to phi integrated InvMass
   TCanvas *c_mMass_bw = new TCanvas("c_mMass_bw","c_mMass_bw",10,10,1400,1400);
   c_mMass_bw->Divide(5,5);
-  for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+  for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
   {
-    c_mMass_bw->cd(vmsa::pt_rebin_start[energy][i_pt]+1);
-    c_mMass_bw->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetLeftMargin(0.15);
-    c_mMass_bw->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetBottomMargin(0.15);
-    c_mMass_bw->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetTicks(1,1);
-    c_mMass_bw->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetGrid(0,0);
+    c_mMass_bw->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1);
+    c_mMass_bw->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetLeftMargin(0.15);
+    c_mMass_bw->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetBottomMargin(0.15);
+    c_mMass_bw->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetTicks(1,1);
+    c_mMass_bw->cd(vmsa::pt_rebin_startKSv2[energy][i_pt]+1)->SetGrid(0,0);
     string KEY_theta_QA = Form("pt_%d_Centrality_%d_2nd_%s_SM",i_pt,9,vmsa::mPID[pid].c_str());
     h_mMass_total[KEY_theta_QA]->SetMarkerColor(1);
     h_mMass_total[KEY_theta_QA]->SetMarkerStyle(24);
     h_mMass_total[KEY_theta_QA]->SetMarkerSize(0.8);
     h_mMass_total[KEY_theta_QA]->DrawCopy("PE");
-    TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+    TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
     f_bw->SetParameter(0,ParBW[KEY_theta_QA][0]);
     f_bw->SetParameter(1,ParBW[KEY_theta_QA][1]);
     f_bw->SetParameter(2,ParBW[KEY_theta_QA][2]);
+    f_bw->SetParameter(3,ParBW[KEY_theta_QA][3]);
+    f_bw->SetParameter(4,ParBW[KEY_theta_QA][4]);
+    f_bw->SetParameter(5,ParBW[KEY_theta_QA][5]);
     f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
     f_bw->SetLineColor(2);
     f_bw->DrawCopy("l same");
 
-    string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low[energy][i_pt],vmsa::pt_up[energy][i_pt]);
+    string pT_range = Form("[%.2f,%.2f]",vmsa::pt_lowKSv2[energy][i_pt],vmsa::pt_upKSv2[energy][i_pt]);
     plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
     PlotLine(0.98,1.05,0.0,0.0,1,2,2);
   }
@@ -661,7 +691,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     string KEY_v2_BW_corr = Form("v2_Corr_BW_Centrality_%d_%s",i_cent,vmsa::mPID[pid].c_str()); // breit wigner fits
     h_mv2_corr[KEY_v2_BW_corr] = new TH1F(KEY_v2_BW_corr.c_str(),KEY_v2_BW_corr.c_str(),100,-0.05,9.95);
 
-    for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+    for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
     {
       string KEY_Count = Form("Count_pt_%d_Centrality_%d_2nd_%s_SM",i_pt,i_cent,vmsa::mPID[pid].c_str());
       h_mCounts[KEY_Count] = new TH1F(KEY_Count.c_str(),KEY_Count.c_str(),10,0.0,TMath::Pi()/2.0);
@@ -682,25 +712,53 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
           counts += h_mMass[KEY]->GetBinContent(i_bin);
           errors += h_mMass[KEY]->GetBinError(i_bin)*h_mMass[KEY]->GetBinError(i_bin);
         }
-        h_mCounts[KEY_Count]->SetBinContent(h_mCounts[KEY_Count]->FindBin(bin_center),counts);
-        h_mCounts[KEY_Count]->SetBinError(h_mCounts[KEY_Count]->FindBin(bin_center),TMath::Sqrt(errors));
       
         // breit wigner integrating
-        TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+        TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
         f_bw->FixParameter(0,ParBW[KEY_theta][0]);
         f_bw->FixParameter(1,ParBW[KEY_theta][1]);
         f_bw->SetParameter(2,ParBW[KEY_theta][2]/10.0);
+        f_bw->FixParameter(3,ParBW[KEY_theta][3]/10.0);
+        f_bw->FixParameter(4,ParBW[KEY_theta][4]/10.0);
+        f_bw->SetParameter(5,ParBW[KEY_theta][5]/10.0);
         f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
-        h_mMass[KEY]->Fit(f_bw,"NMQRI");
+        TFitResultPtr result = h_mMass[KEY]->Fit(f_bw,"NMQRIS");
+
+        TF1 *f_bg = new TF1("f_bg",Poly2,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+        f_bg->SetParameter(0,f_bw->GetParameter(3));
+        f_bg->SetParameter(1,f_bw->GetParameter(4));
+        f_bg->SetParameter(2,f_bw->GetParameter(5));
+        f_bg->SetParError(0,f_bw->GetParError(3));
+        f_bg->SetParError(1,f_bw->GetParError(4));
+        f_bg->SetParError(2,f_bw->GetParError(5));
+
+        double params[3] = {result->GetParams()[3],result->GetParams()[4],result->GetParams()[5]};
+        TMatrixDSym covArr(3);
+        covArr(0,0) = result->GetCovarianceMatrix()(3,3);
+        covArr(0,1) = result->GetCovarianceMatrix()(3,4);
+        covArr(0,2) = result->GetCovarianceMatrix()(3,5);
+        covArr(1,0) = result->GetCovarianceMatrix()(4,3);
+        covArr(1,1) = result->GetCovarianceMatrix()(4,4);
+        covArr(1,2) = result->GetCovarianceMatrix()(4,5);
+        covArr(2,0) = result->GetCovarianceMatrix()(5,3);
+        covArr(2,1) = result->GetCovarianceMatrix()(5,4);
+        covArr(2,2) = result->GetCovarianceMatrix()(5,5);
+
+
         float bin_width = h_mMass[KEY]->GetBinWidth(1);
         float Inte_start = ParBW[KEY_theta][0]-vmsa::nSigVec*ParBW[KEY_theta][1]-0.5*bin_width;
         float Inte_stop  = ParBW[KEY_theta][0]+vmsa::nSigVec*ParBW[KEY_theta][1]+0.5*bin_width;
         float counts_bw = f_bw->Integral(Inte_start,Inte_stop)/bin_width;
         float errors_bw = f_bw->IntegralError(Inte_start,Inte_stop)/bin_width;
-        h_mCounts[KEY_BW]->SetBinContent(h_mCounts[KEY_BW]->FindBin(bin_center),counts_bw);
-        h_mCounts[KEY_BW]->SetBinError(h_mCounts[KEY_BW]->FindBin(bin_center),errors_bw);  
+     
+        float counts_bg = f_bg->Integral(Inte_start,Inte_stop)/bin_width;
+        float errors_bg = f_bg->IntegralError(Inte_start,Inte_stop,params,covArr.GetMatrixArray())/bin_width;
+        h_mCounts[KEY_Count]->SetBinContent(h_mCounts[KEY_Count]->FindBin(bin_center),counts-counts_bg);
+        h_mCounts[KEY_Count]->SetBinError(h_mCounts[KEY_Count]->FindBin(bin_center),TMath::Sqrt(errors+errors_bg*errors_bg));
+        h_mCounts[KEY_BW]->SetBinContent(h_mCounts[KEY_BW]->FindBin(bin_center),counts_bw-counts_bg);
+        h_mCounts[KEY_BW]->SetBinError(h_mCounts[KEY_BW]->FindBin(bin_center),TMath::Sqrt(errors_bw*errors_bw+errors_bg*errors_bg));  
       }
-      float pt_mean = (vmsa::pt_low[energy][i_pt]+vmsa::pt_up[energy][i_pt])/2.0;
+      float pt_mean = (vmsa::pt_lowKSv2[energy][i_pt]+vmsa::pt_upKSv2[energy][i_pt])/2.0;
       
       TF1 *f_cos_count = new TF1("f_cos_count",flow,0.0,TMath::Pi()/2.0,2);
       f_cos_count->SetParameter(0,0.33);
@@ -772,10 +830,13 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     h_mMass[KEY_QA]->SetMarkerSize(0.8);
     h_mMass[KEY_QA]->DrawCopy("hE");
 
-    TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+    TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
     f_bw->FixParameter(0,ParBW[KEY_theta_QA][0]);
     f_bw->FixParameter(1,ParBW[KEY_theta_QA][1]);
     f_bw->SetParameter(2,ParBW[KEY_theta_QA][2]/10.0);
+    f_bw->SetParameter(3,ParBW[KEY_theta_QA][3]/10.0);
+    f_bw->SetParameter(4,ParBW[KEY_theta_QA][4]/10.0);
+    f_bw->SetParameter(5,ParBW[KEY_theta_QA][5]/10.0);
     f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
     h_mMass[KEY_QA]->Fit(f_bw,"NMQR");
     f_bw->SetLineColor(2);
@@ -862,10 +923,13 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     h_mMass[KEY_QA]->SetMarkerSize(0.8);
     h_mMass[KEY_QA]->DrawCopy("pE");
 
-    TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+    TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
     f_bw->FixParameter(0,ParBW[KEY_theta_QA][0]);
     f_bw->FixParameter(1,ParBW[KEY_theta_QA][1]);
     f_bw->SetParameter(2,ParBW[KEY_theta_QA][2]/10.0);
+    f_bw->SetParameter(3,ParBW[KEY_theta_QA][3]/10.0);
+    f_bw->SetParameter(4,ParBW[KEY_theta_QA][4]/10.0);
+    f_bw->SetParameter(5,ParBW[KEY_theta_QA][5]/10.0);
     f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
     h_mMass[KEY_QA]->Fit(f_bw,"NMQR");
     f_bw->SetLineColor(2);
@@ -885,14 +949,17 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   h_mMass_total[KEY_theta_QA]->SetMarkerStyle(24);
   h_mMass_total[KEY_theta_QA]->SetMarkerSize(0.8);
   h_mMass_total[KEY_theta_QA]->DrawCopy("pE");
-  TF1 *f_bw_QA = new TF1("f_bw_QA",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+  TF1 *f_bw_QA = new TF1("f_bw_QA",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
   f_bw_QA->FixParameter(0,ParBW[KEY_theta_QA][0]);
   f_bw_QA->FixParameter(1,ParBW[KEY_theta_QA][1]);
   f_bw_QA->FixParameter(2,ParBW[KEY_theta_QA][2]);
+  f_bw_QA->FixParameter(3,ParBW[KEY_theta_QA][3]);
+  f_bw_QA->FixParameter(4,ParBW[KEY_theta_QA][4]);
+  f_bw_QA->FixParameter(5,ParBW[KEY_theta_QA][5]);
   f_bw_QA->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
   f_bw_QA->SetLineColor(2);
   f_bw_QA->Draw("l same");
-  string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low[energy][2],vmsa::pt_up[energy][2]);
+  string pT_range = Form("[%.2f,%.2f]",vmsa::pt_lowKSv2[energy][2],vmsa::pt_upKSv2[energy][2]);
   plotTopLegend((char*)pT_range.c_str(),0.15,0.7,0.08,1,0.0,42,1);
   PlotLine(0.98,1.05,0.0,0.0,1,2,2);
 
@@ -963,13 +1030,13 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
       g_mv2_corr[KEY_v2_BW_corr] = new TGraphAsymmErrors();
     }
 
-    for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++)
+    for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++)
     {
  
       if(i_cent <= 8)
       {
 
-        float pt_mean = (vmsa::pt_low[energy][i_pt]+vmsa::pt_up[energy][i_pt])/2.0;
+        float pt_mean = (vmsa::pt_lowKSv2[energy][i_pt]+vmsa::pt_upKSv2[energy][i_pt])/2.0;
 
         float count_content = h_mv2[KEY_v2_Count]->GetBinContent(h_mv2[KEY_v2_Count]->FindBin(pt_mean)); // bin counting
         float count_error   = h_mv2[KEY_v2_Count]->GetBinError(h_mv2[KEY_v2_Count]->FindBin(pt_mean));
@@ -994,7 +1061,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
       }
       if(i_cent > 8)
       {  
-        float pt_mean = (vmsa::pt_low[energy][i_pt]+vmsa::pt_up[energy][i_pt])/2.0;
+        float pt_mean = (vmsa::pt_lowKSv2[energy][i_pt]+vmsa::pt_upKSv2[energy][i_pt])/2.0;
 
         float count_content = h_mv2_corr[KEY_v2_Count_corr]->GetBinContent(h_mv2_corr[KEY_v2_Count_corr]->FindBin(pt_mean)); // bin counting
         float count_error   = h_mv2_corr[KEY_v2_Count_corr]->GetBinError(h_mv2_corr[KEY_v2_Count_corr]->FindBin(pt_mean));
@@ -1025,19 +1092,19 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   }
 
 
-  TFile *besi_cd = TFile::Open("../data/BESI/HEPData-ins1395151-v2-root.root");
-  TDirectory *dirAll = (TDirectory*) besi_cd->Get("Table 337;1");
-  dirAll->cd();
-  TGraphAsymmErrors *besi19_All = (TGraphAsymmErrors*)dirAll->Get("Graph1D_y1;1");
-  TDirectory *dir0 = (TDirectory*) besi_cd->Get("Table 43;1");
-  dir0->cd();
-  TGraphAsymmErrors *besi19_0 = (TGraphAsymmErrors*)dir0->Get("Graph1D_y1;1");
-  TDirectory *dir10 = (TDirectory*) besi_cd->Get("Table 141;1");
-  dir10->cd();
-  TGraphAsymmErrors *besi19_10 = (TGraphAsymmErrors*)dir10->Get("Graph1D_y1;1");
-  TDirectory *dir40 = (TDirectory*) besi_cd->Get("Table 239;1");
-  dir40->cd();
-  TGraphAsymmErrors *besi19_40 = (TGraphAsymmErrors*)dir40->Get("Graph1D_y1;1");
+  //TFile *besi_cd = TFile::Open("../data/BESI/HEPData-ins1395151-v2-root.root");
+  //TDirectory *dirAll = (TDirectory*) besi_cd->Get("Table 337;1");
+  //dirAll->cd();
+  //TGraphAsymmErrors *besi19_All = (TGraphAsymmErrors*)dirAll->Get("Graph1D_y1;1");
+  //TDirectory *dir0 = (TDirectory*) besi_cd->Get("Table 43;1");
+  //dir0->cd();
+  //TGraphAsymmErrors *besi19_0 = (TGraphAsymmErrors*)dir0->Get("Graph1D_y1;1");
+  //TDirectory *dir10 = (TDirectory*) besi_cd->Get("Table 141;1");
+  //dir10->cd();
+  //TGraphAsymmErrors *besi19_10 = (TGraphAsymmErrors*)dir10->Get("Graph1D_y1;1");
+  //TDirectory *dir40 = (TDirectory*) besi_cd->Get("Table 239;1");
+  //dir40->cd();
+  //TGraphAsymmErrors *besi19_40 = (TGraphAsymmErrors*)dir40->Get("Graph1D_y1;1");
 
   // QA Plots for rho00 vs. pt of bin counting and breit wigner integrating
   {//  0-80%
@@ -1140,10 +1207,10 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   string leg_bw = "#phi (bw integrating)";
   plotTopLegend((char*)leg_bw.c_str(),0.6,0.255,0.03,1,0.0,42,0);
 
-  string leg_besi = "BES-I";
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)besi19_0,25,1,1.1);
-  Draw_TGAE_Point_new_Symbol(0.5,0.24,0.0,0.0,0.0,0.0,25,1,1.3);
-  plotTopLegend((char*)leg_besi.c_str(),0.6,0.235,0.03,1,0.0,42,0);
+  //string leg_besi = "BES-I";
+  //Draw_TGAE_new_Symbol((TGraphAsymmErrors*)besi19_0,25,1,1.1);
+  //Draw_TGAE_Point_new_Symbol(0.5,0.24,0.0,0.0,0.0,0.0,25,1,1.3);
+  //plotTopLegend((char*)leg_besi.c_str(),0.6,0.235,0.03,1,0.0,42,0);
 
 
   string leg_energy = Form("AuAu %s %d", vmsa::mBeamEnergy[energy].c_str(), vmsa::mBeamYear[energy]);
@@ -1197,10 +1264,10 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   string leg_bw = "#phi (bw integrating)";
   plotTopLegend((char*)leg_bw.c_str(),0.6,0.255,0.03,1,0.0,42,0);
 
-  string leg_besi = "BES-I";
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)besi19_10,25,1,1.1);
-  Draw_TGAE_Point_new_Symbol(0.5,0.24,0.0,0.0,0.0,0.0,25,1,1.3);
-  plotTopLegend((char*)leg_besi.c_str(),0.6,0.235,0.03,1,0.0,42,0);
+  //string leg_besi = "BES-I";
+  //Draw_TGAE_new_Symbol((TGraphAsymmErrors*)besi19_10,25,1,1.1);
+  //Draw_TGAE_Point_new_Symbol(0.5,0.24,0.0,0.0,0.0,0.0,25,1,1.3);
+  //plotTopLegend((char*)leg_besi.c_str(),0.6,0.235,0.03,1,0.0,42,0);
 
   string leg_energy = Form("AuAu %s %d", vmsa::mBeamEnergy[energy].c_str(), vmsa::mBeamYear[energy]);
   plotTopLegend((char*)leg_energy.c_str(),2.5,0.275,0.04,1,0.0,42,0);
@@ -1253,10 +1320,10 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
   string leg_bw = "#phi (bw integrating)";
   plotTopLegend((char*)leg_bw.c_str(),0.6,0.255,0.03,1,0.0,42,0);
 
-  string leg_besi = "BES-I";
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)besi19_40,25,1,1.1);
-  Draw_TGAE_Point_new_Symbol(0.5,0.24,0.0,0.0,0.0,0.0,25,1,1.3);
-  plotTopLegend((char*)leg_besi.c_str(),0.6,0.235,0.03,1,0.0,42,0);
+  //string leg_besi = "BES-I";
+  //Draw_TGAE_new_Symbol((TGraphAsymmErrors*)besi19_40,25,1,1.1);
+  //Draw_TGAE_Point_new_Symbol(0.5,0.24,0.0,0.0,0.0,0.0,25,1,1.3);
+  //plotTopLegend((char*)leg_besi.c_str(),0.6,0.235,0.03,1,0.0,42,0);
 
   string leg_energy = Form("AuAu %s %d", vmsa::mBeamEnergy[energy].c_str(), vmsa::mBeamYear[energy]);
   plotTopLegend((char*)leg_energy.c_str(),2.5,0.275,0.04,1,0.0,42,0);
@@ -1276,7 +1343,7 @@ void calFlowKStar(int energy = 4, int pid = 2, int year = 0)
     g_mv2[KEY_v2_Count]->Write();
     string KEY_v2_BW = Form("v2_BW_Centrality_%d_%s",i_cent,vmsa::mPID[pid].c_str()); // breit wigner fits
     g_mv2[KEY_v2_BW]->Write();
-    for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
+    for(int i_pt = vmsa::pt_rebin_firstKSv2[energy]; i_pt < vmsa::pt_rebin_lastKSv2[energy]; i_pt++) // pt loop
     {
       string KEY_Count = Form("v2_pt_%d_Centrality_%d_2nd_%s_SM",i_pt,i_cent,vmsa::mPID[pid].c_str());
       h_mCounts[KEY_Count]->Write();
