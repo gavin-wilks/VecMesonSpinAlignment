@@ -11,6 +11,7 @@
 #include "../Utility/type.h"
 #include "../Utility/draw.h"
 #include "../Utility/functions.h"
+#include "data_Kstar_rho00_pT_May21_2021.h"
 
 #ifndef _PlotQA_
 #define _PlotQA_ 1
@@ -21,7 +22,7 @@ double FuncAD(double *x_val, double *par);
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE);
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
-void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string correction = "Raw", bool random3D = false, int defaultF = 1)//defaultF = 0 is BESII, defaultF = 1 is BESI
+void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string correction = "AccRes", bool random3D = false, int defaultF = 0)//defaultF = 0 is BESII, defaultF = 1 is BESI
 {
   string inputfileHframe = Form("../output/AuAu%s/%s/RawKStarPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   string inputfile = Form("../output/AuAu%s/%s/%sKStarPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),correction.c_str());
@@ -44,7 +45,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
           {
             for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
             {
-              for(int i_F = 0; i_F < 2; i_F++)
+              for(int i_F = 0; i_F < 1; i_F++)
               {
                 if(correction != "AccRes")
                 {
@@ -125,7 +126,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     plotTopLegend((char*)"20%-60%",0.65,0.00258,0.04,1,0.0,42,0);
 
     TF1 *Func_rho = new TF1("Func_rho",FuncAD,0,1,4);
-    string key = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",2,9,0,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),1);
+    string key = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",1,9,0,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),0);
     TH1F *PtCos = (TH1F*)File_InPut->Get(key.c_str())->Clone();
     for(int i = 1; i <= 7; i++)
     {
@@ -177,7 +178,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
           {
             for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
             {
-              for(int i_F = 0; i_F < 2; i_F++)
+              for(int i_F = 0; i_F < 1; i_F++)
               {
                 if(correction != "AccRes")
                 {
@@ -283,7 +284,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
       if(random3D) sysMeth[i_method] = 4.*(sysMeth[i_method]-1./3.)+1./3.;
     }
 
-    if(correction == "AccRes")
+    /*if(correction == "AccRes")
     {
       for(int i_F = 0; i_F < 2; ++i_F)
       {
@@ -293,26 +294,26 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
         sysF[i_F] = rho_sys;
         if(random3D) sysF[i_F] = 4.*(sysF[i_F]-1./3.)+1./3.;
       }
-    }
+    }*/
 
-    Double_t rho_min[6] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
+    Double_t rho_min[5] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
                             TMath::MinElement(vmsa::nSigKaon_stop,sysNSig),
                             TMath::MinElement(vmsa::Sig_start,sysSig),
                             TMath::MinElement(vmsa::Method_stop,sysMeth),    
-                            TMath::MinElement(vmsa::mNHit_stop,sysNHit),    
-                            (correction == "AccRes")? TMath::MinElement(2,sysF) : 0.0
+                            TMath::MinElement(vmsa::mNHit_stop,sysNHit)//,    
+                           // (correction == "AccRes")? TMath::MinElement(2,sysF) : 0.0
                           };
 
-    Double_t rho_max[6] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
+    Double_t rho_max[5] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
                             TMath::MaxElement(vmsa::nSigKaon_stop,sysNSig),
                             TMath::MaxElement(vmsa::Sig_start,sysSig),
                             TMath::MaxElement(vmsa::Method_stop,sysMeth),    
-                            TMath::MaxElement(vmsa::mNHit_stop,sysNHit),    
-                            (correction == "AccRes")? TMath::MaxElement(2,sysF) : 0.0
+                            TMath::MaxElement(vmsa::mNHit_stop,sysNHit)//,    
+                            //(correction == "AccRes")? TMath::MaxElement(2,sysF) : 0.0
                           };
   
     double SysError_rho = 0.0;
-    for(int i = 0; i < 6; i++)
+    for(int i = 0; i < 5; i++)
     {
       double sourcei = TMath::Power((rho_max[i] - rho_min[i])/TMath::Sqrt(12.0),2);
       cout << "rho_min = " << rho_min[i] << ", rho_max = " << rho_max[i] << endl;
@@ -340,6 +341,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
 
   double sysDca[vmsa::Dca_stop];
   double sysNSig[vmsa::nSigKaon_stop];
+  double sysNHit[vmsa::mNHit_stop];
   double sysNorm[vmsa::Norm_stop];
   double sysSig[vmsa::Sig_stop];
   double sysMeth[vmsa::Method_stop];
@@ -360,11 +362,17 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     sysNSig[i_sig] = h_mRho[KEY]->GetBinContent(7);
   }
 
-  for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+  /*for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
   {
     string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,0,vmsa::mPID[pid].c_str(),i_norm,0,vmsa::mInteMethod[1].c_str(),defaultF);
     sysNorm[i_norm] = h_mRho[KEY]->GetBinContent(7);
-  }	 
+  }*/	 
+
+  for(int i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; ++i_nhit)
+  {
+    string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,i_nhit,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),defaultF);
+    sysNHit[i_nhit] = h_mRho[KEY]->GetBinContent(7);
+  }
 
   for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
   {
@@ -378,24 +386,26 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     sysMeth[i_method] = h_mRho[KEY]->GetBinContent(7);
   }
 
-  for(int i_F = 0; i_F < 2; ++i_F)
+  /*for(int i_F = 0; i_F < 2; ++i_F)
   {
     string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),i_F);
     sysF[i_F] = h_mRho[KEY]->GetBinContent(7);
-  }
+  }*/
 
   Double_t rho_min[5] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
                           TMath::MinElement(vmsa::nSigKaon_stop,sysNSig),
                           TMath::MinElement(vmsa::Sig_start,sysSig),
                           TMath::MinElement(vmsa::Method_stop,sysMeth),    
-                          TMath::MinElement(2,sysF)    
+                          TMath::MinElement(vmsa::mNHit_stop,sysNHit)//,    
+                          //TMath::MinElement(2,sysF)    
                         };
 
   Double_t rho_max[5] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
                           TMath::MaxElement(vmsa::nSigKaon_stop,sysNSig),
                           TMath::MaxElement(vmsa::Sig_start,sysSig),
-                          TMath::MaxElement(vmsa::Method_stop,sysMeth),    
-                          TMath::MaxElement(2,sysF)    
+                          TMath::MaxElement(vmsa::Method_stop,sysMeth),
+                          TMath::MaxElement(vmsa::mNHit_stop,sysNHit)//,    
+                          //TMath::MaxElement(2,sysF)    
                         };
   
   double SysError_rho = 0.0;
@@ -436,13 +446,13 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   }
 
   cout << "double ptbincenter={0.6,0.8,1.5,2.1,2.7,3.6};" << endl;
-  cout << "rho00={"; for (int i = 0; i < vmsa::pt_rebin_lastKS[energy]; i++) {if (i<3) cout << val[i] << ","; else cout << val[i] << "};" << endl;}
-  cout << "stat={"; for (int i = 0; i < vmsa::pt_rebin_lastKS[energy]; i++) {if (i<3) cout << statE[i] << ","; else cout << statE[i] << "};" << endl;}
-  cout << "sys={"; for (int i = 0; i < vmsa::pt_rebin_lastKS[energy]; i++) {if (i<3) cout << sysE[i] << ","; else cout << sysE[i] << "};" << endl;}
+  cout << "rho00={"; for (int i = 1; i < 3; i++) {if (i<3) cout << val[i] << ","; else cout << val[i] << "};" << endl;}
+  cout << "stat={"; for (int i = 1; i < 3; i++) {if (i<3) cout << statE[i] << ","; else cout << statE[i] << "};" << endl;}
+  cout << "sys={"; for (int i = 1; i < 3; i++) {if (i<3) cout << sysE[i] << ","; else cout << sysE[i] << "};" << endl;}
   
-  TFile *besi = TFile::Open("../data/rho00_stat_sys_Laxis.root");
-  TGraphAsymmErrors *besi19 = (TGraphAsymmErrors*)besi->Get("rho00_2ndEP_pt_stat_19;1");
-  TGraphAsymmErrors *besi19_sys = (TGraphAsymmErrors*)besi->Get("rho00_2ndEP_pt_sys_19;1");
+  //TFile *besi = TFile::Open("../data/rho00_stat_sys_Laxis.root");
+  TGraphAsymmErrors *besi = new TGraphAsymmErrors();//(TGraphAsymmErrors*)besi->Get("rho00_2ndEP_pt_stat_19;1");
+  TGraphAsymmErrors *besi_sys = new TGraphAsymmErrors();//(TGraphAsymmErrors*)besi->Get("rho00_2ndEP_pt_sys_19;1");
 
   //cout << "All good" << endl;
 
@@ -468,42 +478,42 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   //g_SysErrors->Draw("pE same");
 //  PlotLine(0.0,5.0,1.0/3.0,1.0/3.0,1,2,2);
 
-  for(int i = 0; i < 4; i++)
+  for(int i = 0; i < 2; i++)
   {
-    besi19_sys->SetPointEXhigh(i,0.0);
-    besi19_sys->SetPointEXlow(i,0.0);
-    besi19->SetPointEXhigh(i,0.0);
-    besi19->SetPointEXlow(i,0.0);
+    besi_sys->SetPoint(i,KStarBESI::kstar_pt_19[i],KStarBESI::kstar_rho00_pT_19[i]);
+    besi_sys->SetPointError(i,0.0,0.0,KStarBESI::kstar_rho00_pT_19_syst[i],KStarBESI::kstar_rho00_pT_19_syst[i]);
+    besi->SetPoint(i,KStarBESI::kstar_pt_19[i],KStarBESI::kstar_rho00_pT_19[i]);
+    besi->SetPointError(i,0.0,0.0,KStarBESI::kstar_rho00_pT_19_stat[i],KStarBESI::kstar_rho00_pT_19_stat[i]);
   }
   PlotLine(0.0,5.0,1.0/3.0,1.0/3.0,1,2,2);
   gStyle->SetEndErrorSize(8);
   //gStyle->SetEndErrorWidth(10);
-  besi19->SetLineColor(kBlack);
-  besi19->SetLineWidth(1.0);
-  besi19->SetMarkerStyle(20);
-  besi19->SetMarkerSize(1.3);
-  besi19->SetMarkerColor(kBlack);
-  besi19->SetLineColor(kBlack);
-  //besi19->Draw("pE Z same");
+  besi->SetLineColor(kBlack);
+  besi->SetLineWidth(1.0);
+  besi->SetMarkerStyle(20);
+  besi->SetMarkerSize(1.3);
+  besi->SetMarkerColor(kBlack);
+  besi->SetLineColor(kBlack);
+  besi->Draw("pE Z same");
 
 
-  besi19_sys->SetLineColor(kBlack);
-  besi19_sys->SetMarkerStyle(1);
-  besi19_sys->SetMarkerSize(10);
-  besi19_sys->SetMarkerColor(kBlack);
-  besi19_sys->SetLineColor(kBlack);
+  besi_sys->SetLineColor(kBlack);
+  besi_sys->SetMarkerStyle(1);
+  besi_sys->SetMarkerSize(10);
+  besi_sys->SetMarkerColor(kBlack);
+  besi_sys->SetLineColor(kBlack);
   //besi19_sys->Draw("pE [] same");
 
   Draw_TGAE_Point_new_Symbol(0.5,0.46,0.0,0.0,0.0,0.0,20,kRed,1.3); 
   string leg_count;
-  if(correction == "Eff") leg_count = "Efficiency Corrected #phi BES-II";
-  if(correction == "Raw") leg_count = "Raw #phi BES-II";
-  if(correction == "AccRes") leg_count = "#phi BES-II (|y| < 1.0)";
+  if(correction == "Eff") leg_count = "Efficiency Corrected K*^{0} BES-II";
+  if(correction == "Raw") leg_count = "Raw K*^{0} BES-II";
+  if(correction == "AccRes") leg_count = "K*^{0} BES-II (|y| < 1.0)";
   plotTopLegend((char*)leg_count.c_str(),0.65,0.457,0.03,1,0.0,42,0);
 
-  //string leg_besi = "#phi BES-I  (|y| < 1.0)";
-  //Draw_TGAE_Point_new_Symbol(0.5,0.44,0.0,0.0,0.0,0.0,20,kBlack,1.3);
-  //plotTopLegend((char*)leg_besi.c_str(),0.65,0.437,0.03,1,0.0,42,0);
+  string leg_besi = "K*^{0} BES-I  (|y| < 1.0)";
+  Draw_TGAE_Point_new_Symbol(0.5,0.44,0.0,0.0,0.0,0.0,20,kBlack,1.3);
+  plotTopLegend((char*)leg_besi.c_str(),0.65,0.437,0.03,1,0.0,42,0);
  
   string leg_sp = "STAR Preliminary";
   plotTopLegend((char*)leg_sp.c_str(),0.3,0.48,0.03,2,0.0,42,0);
@@ -525,7 +535,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   g_SysErrors->SetMarkerSize(1.3);
   g_SysErrors->SetMarkerColor(kRed);
   g_SysErrors->SetLineColor(kRed);
-  g_SysErrors->Draw("pE [] same");
+  //g_SysErrors->Draw("pE [] same");
   if(correction == "AccRes") 
   {
   g_StatErrors->SetPoint(0,-1.0,-1.0);
@@ -537,6 +547,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   g_StatErrors->Draw("pE Z same");
   c_rho_SysError->SaveAs("figures/finaloutputrho_KStar.pdf");  
   plotSysErrorsBox(g_SysErrors,kRed);
+  plotSysErrorsBox(besi_sys,kBlack);
 
   /*for (int ipt = 0; ipt < 4; ipt++)
   {
