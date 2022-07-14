@@ -35,9 +35,9 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
   double FfromFperr[6]={0.0};
   double FvalBESI[6] = {0.0,-0.00989006, -0.0102287, -0.0102549, -0.00800524, -0.00767692};
 
-  for(int ipt = 2; ipt < 6; ipt++)
+  for(int ipt = 0; ipt < 3; ipt++)
   {
-    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
+    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/BESIBin/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
     //if(ipt == 2) MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9_00004999.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
@@ -85,7 +85,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
     c_play->cd();
     h_theta_star_clone->Draw("pE");
     Func_A->Draw("same");
-    c_play->SaveAs(Form("FValues/pt%d.pdf",ipt));
+    c_play->SaveAs(Form("FValues/KStar/pt%d.pdf",ipt));
 
     delete c_play;
     delete h_theta_star_clone;
@@ -102,7 +102,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
     Fval[5] = -0.000652552;
   }
   //double FfromF[6] ={0.0};
-  for(int ipt = 0; ipt < 6; ipt++)
+  for(int ipt = 0; ipt < 3; ipt++)
   {
     //FfromF[ipt] = -Fpval[ipt]/(2.+Fpval[ipt]);
     cout << "pt bin: " <<  pt_set[ipt] << "-" << pt_set[ipt+1] << std::fixed << std::setprecision(7) << "GeV/c    F = " << Fval[ipt] << " +/- " << Ferr[ipt] << "    F* = " << Fpval[ipt] << " +/- " << Fperr[ipt] << "    F from F* = " << FfromFp[ipt] << " +/- " << FfromFperr[ipt] << endl;   
@@ -298,7 +298,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
   double eff[10][7][7];
   double eff_error[10][7][7];
   //if(eff_mode==0)
-  TFile *eff_file = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/Eff_%s_SingleParticle_2060.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str()),"READ");
+  TFile *eff_file = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/Eff_%s_SingleParticle_2060_noToF.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str()),"READ");
   if(isBesI) eff_file = new TFile(Form("../../../FileTransfers/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str()),"READ");
   eff_file->Print();
   //else
@@ -306,7 +306,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
 
   for(int i=0; i<10;i++)
   {
-    for(int j=1; j<=6; j++)
+    for(int j=1; j<=3; j++)
     { 
      for(int k=1; k<=7; k++)
       {
@@ -366,7 +366,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
 
   output->Print();
   
-  Double_t ptbin_rho00[7] = {0.4,0.8,1.2, 1.8, 2.4, 3.0, 4.2};
+  Double_t ptbin_rho00[5] = {0.4,1.0,1.5, 5.0, 8.0};
 
   for(int i_cent = 9/*vmsa::Cent_start*/; i_cent < vmsa::Cent_stop; ++i_cent) // Centrality loop
   {
@@ -378,7 +378,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
         for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++) // systematic loop for nSigma
         {
           if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
-          for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+          for(int i_norm = vmsa::Norm_start; i_norm < 1; ++i_norm)
           {
             for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
             {
@@ -386,7 +386,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
               {
               for(int i_F = 0; i_F < 1; i_F++)
               {
-                cout << "am i in the loop" << endl; 
+                //cout << "am i in the loop" << endl; 
                 Double_t weight_rho00 = 0;
                 Double_t weight_error_rho00 = 0;
                 Double_t weight_all = 0;
@@ -395,7 +395,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                 Double_t pt_error_rho00[6] = {0};
                 Double_t pt_all[6] = {0};
 
-                for(Int_t PtBin=1; PtBin<=5; PtBin++) 
+                for(Int_t PtBin=1; PtBin<=3; PtBin++) 
                 {
                   string key = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",PtBin-1,i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
                   cout << key << endl;
@@ -418,14 +418,14 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                   PtCos->SetMarkerStyle(21);
                   PtCos->Draw();
                   Func_rho->SetParameter(0, PtCos->GetBinContent(5));
-                  Func_rho->SetParameter(1, 0.3);
+                  Func_rho->SetParameter(1, 0.333);
                   if(i_F == 0) Func_rho->FixParameter(2, Fval[PtBin-1]);
-                  if(i_F == 1) Func_rho->FixParameter(2, FvalBESI[PtBin-1]);
+                  //if(i_F == 1) Func_rho->FixParameter(2, FvalBESI[PtBin-1]);
                   Func_rho->FixParameter(3, Res_12);
                   if(random3D) Func_rho->FixParameter(3, 0.);
-                  cout << "Resolution = " << Func_rho->GetParameter(3);
+                  //cout << "Resolution = " << Func_rho->GetParameter(3);
                   //cout<<"Fit with real EP:"<<endl;
-                  PtCos->Fit(Func_rho, "NMI");
+                  PtCos->Fit(Func_rho, "NMIQ");
                //   Func_rho->Draw("same");
 
 //                  Title = new TString(Form("fit/yield_pt_%d_cent_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s.pdf",PtBin-1,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str()));
@@ -445,7 +445,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                   Float_t real_rho_error = Func_rho->GetParError(1);
                   Float_t weight = PtCos->Integral(1,7);
 
-                  if(PtBin>=3) {
+                  if(PtBin>=2 && PtBin <=3) {
                     weight_rho00 += real_rho*weight;
                     weight_error_rho00 += real_rho_error*real_rho_error*weight*weight;
                     weight_all += weight;
@@ -456,8 +456,8 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                   pt_all[PtBin-1] += weight;
 
                 
-                  if(i_cent == 9 && PtBin == 3 && i_dca == 0 && i_sig == 0 && i_norm == 0 && i_sigma == 0 && i_method == 1 && i_nhit == 0)
-                  { 
+                  //if(i_cent == 9 && PtBin == 2 && i_dca == 0 && i_sig == 0 && i_norm == 0 && i_sigma == 0 && i_method == 1 && i_nhit == 0)
+                  //{ 
                      string name = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",PtBin-1,i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F);                             
                      cout << name.c_str() << endl; 
                      TH1F *clonePt = new TH1F(name.c_str(),name.c_str(),7,0,1);
@@ -469,7 +469,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                      }
                      clonePt->Write();
                      delete clonePt;
-                  }
+                  //}
                   delete PtCos;
                   delete PtCos_raw;
                 }
@@ -477,7 +477,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                 weight_rho00 = weight_rho00/weight_all;
                 weight_error_rho00 = TMath::Sqrt(weight_error_rho00)/weight_all;
 
-                for(int PtBin=1; PtBin<=6; PtBin++) {
+                for(int PtBin=2; PtBin<=3; PtBin++) {
                   pt_rho00[PtBin-1] = pt_rho00[PtBin-1]/pt_all[PtBin-1];
                   pt_error_rho00[PtBin-1] = TMath::Sqrt(pt_error_rho00[PtBin-1])/pt_all[PtBin-1];
                 }
@@ -485,23 +485,23 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                 cout<<"rho00"<<endl;
                 cout<<weight_rho00<<" +/- "<<weight_error_rho00<<endl;
 
-                for(int PtBin=1; PtBin<=6; PtBin++) {
+                for(int PtBin=2; PtBin<=3; PtBin++) {
                   cout<<pt_rho00[PtBin-1];
-                  if(PtBin==6) cout<<" "<<weight_rho00<<endl;
+                  if(PtBin==3) cout<<" "<<weight_rho00<<endl;
                   else cout<<" ";
                 }
 
-                for(int PtBin=1; PtBin<=6; PtBin++) {
+                for(int PtBin=2; PtBin<=3; PtBin++) {
                   cout<<pt_error_rho00[PtBin-1];
-                  if(PtBin==6) cout<<" "<<weight_error_rho00<<endl;
+                  if(PtBin==3) cout<<" "<<weight_error_rho00<<endl;
                   else cout<<" ";
                 }
  
-                Title = new TString(Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,i_nhit,vmsa::mInteMethod[i_method].c_str(),i_F));                             
+                Title = new TString(Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F));                             
 
                 g_rho00 = new TGraphAsymmErrors();
                 g_rho00->SetName(Title->Data());
-                for(Int_t PtBin=1; PtBin<=6; PtBin++) {
+                for(Int_t PtBin=1; PtBin<=3; PtBin++) {
                   double ptmean = (ptbin_rho00[PtBin]+ptbin_rho00[PtBin-1])/2.0;
                   g_rho00->SetPoint(PtBin-1,ptmean,pt_rho00[PtBin-1]);
                   g_rho00->SetPointError(PtBin-1,0.0,0.0,pt_error_rho00[PtBin-1],pt_error_rho00[PtBin-1]);
@@ -513,7 +513,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                 rho00_hist = new TH1D(Title->Data(), Title->Data(), 7, 0.5, 7.5);
                 rho00_hist->SetBinContent(7,weight_rho00);
                 rho00_hist->SetBinError(7,weight_error_rho00);
-                for(Int_t PtBin=1; PtBin<=6; PtBin++) {
+                for(Int_t PtBin=1; PtBin<=3; PtBin++) {
                   rho00_hist->SetBinContent(PtBin,pt_rho00[PtBin-1]);
                   rho00_hist->SetBinError(PtBin,pt_error_rho00[PtBin-1]);
                 }
