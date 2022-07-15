@@ -39,15 +39,17 @@ void plotExtFig23_SignalCorrection()
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
   const int color_phi_2nd = kRed-4;
+  const int colorDiff_phi = 0;
 
   const int style_Kstr = 20;
   const int color_Kstr = kAzure-9;
+  const int colorDiff_Kstr = 2;
 
   const float size_marker = 1.4;
   TGaxis::SetMaxDigits(3);
 
   // plot phi signal
-  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/Second_ActualFit_27GeV_pT_2.root");
+  TFile *File_InputPhi = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/Second_ActualFit_27GeV_pT_2.root");
   TH1D *h_mYieldsPhi = (TH1D*)File_InputPhi->Get("PtCos")->Clone("h_mYieldsPhi");
   TF1 *f_rhoPhiInput = (TF1*)File_InputPhi->Get("Func_rho")->Clone("f_rhoPhiInput");
   float cos[7] = {1.0/14.0,3.0/14.0,5.0/14.0,7.0/14.0,9.0/14.0,11.0/14.0,13.0/14.0};
@@ -82,7 +84,7 @@ void plotExtFig23_SignalCorrection()
     }
     h_framePhi->SetTitle("");
     h_framePhi->SetStats(0);
-    h_framePhi->GetXaxis()->SetTitle("cos(#theta*)");
+    h_framePhi->GetXaxis()->SetTitle("#left|cos(#theta*)#right|");
     h_framePhi->GetXaxis()->CenterTitle();
     h_framePhi->GetXaxis()->SetTitleSize(0.06);
     h_framePhi->GetXaxis()->SetTitleOffset(0.9);
@@ -104,7 +106,7 @@ void plotExtFig23_SignalCorrection()
     h_framePhi->SetMarkerSize(1.8);
     h_framePhi->DrawCopy("PE");
 
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsPhi,style_phi_2nd,color_phi_2nd,size_marker+0.6);
+    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsPhi,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.6);
 
     float scale = f_rhoPhiInput->GetParameter(0)/(numOfEvent*binWidth);
     TF1 *f_rhoPhi = new TF1("f_rhoPhi",FuncAD,0,1.0,4);
@@ -132,8 +134,8 @@ void plotExtFig23_SignalCorrection()
     leg->AddEntry(f_rhoPhi,"N#times[(1+#frac{B'F}{2})+(A'+F)cos^{2}#theta*+(A'F-#frac{B'F}{2})cos^{4}#theta*]","l");
     // leg->Draw("same");
 
-    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig2_SignalCorrectionPhi.eps");
-    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig2_SignalCorrectionPhi.png");
+    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig2_SignalCorrectionPhi.eps");
+    c_SignalPhi->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig2_SignalCorrectionPhi.png");
   }
 
   // TFile *File_InputKstar = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Kstar/Kstar_Fig_signal_54_rap0p1.root");
@@ -165,7 +167,7 @@ void plotExtFig23_SignalCorrection()
     }
     h_frameKstar->SetTitle("");
     h_frameKstar->SetStats(0);
-    h_frameKstar->GetXaxis()->SetTitle("cos(#theta*)");
+    h_frameKstar->GetXaxis()->SetTitle("#left|cos(#theta*)#right|");
     h_frameKstar->GetXaxis()->CenterTitle();
     h_frameKstar->GetXaxis()->SetTitleSize(0.06);
     h_frameKstar->GetXaxis()->SetTitleOffset(0.9);
@@ -188,7 +190,7 @@ void plotExtFig23_SignalCorrection()
     h_frameKstar->DrawCopy("PE");
 
     // g_yieldsKstar->Draw("pE same");
-    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,size_marker);
+    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_yieldsKstar,style_Kstr,color_Kstr,colorDiff_Kstr,size_marker);
     f_rhoKstar->SetLineColor(color_Kstr);
     f_rhoKstar->SetLineStyle(2);
     f_rhoKstar->SetLineWidth(4);
@@ -205,7 +207,7 @@ void plotExtFig23_SignalCorrection()
     leg->AddEntry(f_rhoKstar,"N#times[(1-#rho_{00})+(3#rho_{00}-1)cos^{2}#theta*]","l");
     // leg->Draw("same");
 
-    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig3_SignalCorrectionKstar.eps");
-    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig3_SignalCorrectionKstar.png");
+    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig3_SignalCorrectionKstar.eps");
+    c_SignalKstar->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig3_SignalCorrectionKstar.png");
   }
 }

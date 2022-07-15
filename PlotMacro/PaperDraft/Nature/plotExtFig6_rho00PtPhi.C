@@ -13,6 +13,7 @@
 using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 void plotExtFig6_rho00PtPhi()
 {
@@ -21,6 +22,7 @@ void plotExtFig6_rho00PtPhi()
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
   const int color_phi_2nd = kRed-4;
+  const int colorDiff_phi = 0;
 
   const float size_marker = 1.4;
   
@@ -43,7 +45,7 @@ void plotExtFig6_rho00PtPhi()
   TGraphAsymmErrors *g_rho_2nd_stat[6];
   TGraphAsymmErrors *g_rho_2nd_sys[6];
 
-  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rho00_stat_sys_Laxis.root");
+  TFile *File_Input = TFile::Open("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/rho00_stat_sys_Laxis.root");
   for(int i_energy = 0; i_energy < 6; ++i_energy)
   {
     string GrapName_1st_stat = Form("rho00_1stEP_pt_stat_%d",mEnergy[i_energy]);
@@ -214,10 +216,12 @@ void plotExtFig6_rho00PtPhi()
       }
       h_frame[total_pad-1]->DrawCopy("PE");
       PlotLine(pt_low,pt_high,1.0/3.0,1.0/3.0,1,3,2);
-      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_1st_stat[total_pad-1],style_phi_1st,color_phi_1st,size_marker-0.2);
-      plotSysErrors(g_rho_1st_sys[total_pad-1],color_phi_1st);
-      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_phi_2nd,color_phi_2nd,size_marker+0.2);
-      plotSysErrors(g_rho_2nd_sys[total_pad-1],color_phi_2nd);
+      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_1st_stat[total_pad-1],style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
+      // plotSysErrors(g_rho_1st_sys[total_pad-1],color_phi_1st);
+      plotSysErrorsBox(g_rho_1st_sys[total_pad-1],color_phi_1st);
+      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rho_2nd_stat[total_pad-1],style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
+      // plotSysErrors(g_rho_2nd_sys[total_pad-1],color_phi_2nd);
+      plotSysErrorsBox(g_rho_2nd_sys[total_pad-1],color_phi_2nd);
 
       if(x_pads == 0 && y_pads != N_y_pads-1)
       {
@@ -258,8 +262,8 @@ void plotExtFig6_rho00PtPhi()
     }
   }
 
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig6_rho00PtPhi.eps");
-  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig6_rho00PtPhi.png");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig6_rho00PtPhi.eps");
+  c_rho00_double->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig6_rho00PtPhi.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
@@ -276,5 +280,25 @@ void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
     PlotLine(pt-0.1,pt+0.1,rho-err,rho-err,plot_color,2,1);
     PlotLine(pt-0.1,pt-0.1,rho-err+0.005,rho-err,plot_color,2,1);
     PlotLine(pt+0.1,pt+0.1,rho-err+0.005,rho-err,plot_color,2,1);
+  }
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nPt = g_rho->GetN();
+  TBox *bSys[nPt];
+  for(int i_pt = 0; i_pt < g_rho->GetN(); ++i_pt) // plot sys errors
+  {
+    double pt, rho;
+    g_rho->GetPoint(i_pt,pt,rho);
+    double err = g_rho->GetErrorYhigh(i_pt);
+
+    bSys[i_pt] = new TBox(pt-0.15,rho-err,pt+0.15,rho+err);
+    bSys[i_pt]->SetFillColor(0);
+    bSys[i_pt]->SetFillStyle(0);
+    bSys[i_pt]->SetLineStyle(1);
+    bSys[i_pt]->SetLineWidth(1);
+    bSys[i_pt]->SetLineColor(plot_color);
+    bSys[i_pt]->Draw("l Same");
   }
 }

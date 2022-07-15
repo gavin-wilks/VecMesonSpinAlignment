@@ -12,6 +12,7 @@
 using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 void plotExtFig8_rho00Cent()
 {
@@ -20,9 +21,11 @@ void plotExtFig8_rho00Cent()
   const int color_phi_1st = kGray+2;
   const int style_phi_2nd = 29;
   const int color_phi_2nd = kRed-4;
+  const int colorDiff_phi = 0;
 
   const int style_Kstr = 20;
   const int color_Kstr = kAzure-9;
+  const int colorDiff_Kstr = 2;
 
   const float size_marker = 1.2;
 
@@ -38,7 +41,7 @@ void plotExtFig8_rho00Cent()
 
   for(int i_energy = 0; i_energy < 4; ++i_energy)
   {
-    string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/rhoCent_%s_LXaxis.root",mBeamEnergyPhi[i_energy].c_str());
+    string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperDraft/Nature/Phi/NewF_JHChen/rhoCent_%s_LXaxis.root",mBeamEnergyPhi[i_energy].c_str());
     File_InPutPhi[i_energy] = TFile::Open(inputfile.c_str());
 
     string GraName_1st_stat = Form("g_rhoCent_%s_1st_stat",mBeamEnergyPhi[i_energy].c_str());
@@ -170,10 +173,12 @@ void plotExtFig8_rho00Cent()
   h_frame->GetYaxis()->SetLabelSize(size_font*scale_top0);
   h_frame->DrawCopy("pE");
   PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[0],style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotSysErrors(g_rhoPhiCent_1st_sys[0],color_phi_1st);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[0],style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhiCent_2nd_sys[0],color_phi_2nd);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[0],style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
+  // plotSysErrors(g_rhoPhiCent_1st_sys[0],color_phi_1st);
+  plotSysErrorsBox(g_rhoPhiCent_1st_sys[0],color_phi_1st);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[0],style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
+  // plotSysErrors(g_rhoPhiCent_2nd_sys[0],color_phi_2nd);
+  plotSysErrorsBox(g_rhoPhiCent_2nd_sys[0],color_phi_2nd);
   plotTopLegend((char*)"a) #phi",5,0.415,size_font*scale_top0,1,0.0,42,0);
   Draw_TGAE_Point_new_Symbol(25,0.4195,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
   plotTopLegend((char*)"1^{st}-order EP",28,0.415,size_font*scale_top0,1,0.0,42,0);
@@ -189,10 +194,12 @@ void plotExtFig8_rho00Cent()
   pad_Top1->cd()->SetGrid(0,0);
   h_frame->DrawCopy("pE");
   PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[1],style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotSysErrors(g_rhoPhiCent_1st_sys[1],color_phi_1st);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[1],style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhiCent_2nd_sys[1],color_phi_2nd);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[1],style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
+  // plotSysErrors(g_rhoPhiCent_1st_sys[1],color_phi_1st);
+  plotSysErrorsBox(g_rhoPhiCent_1st_sys[1],color_phi_1st);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[1],style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
+  // plotSysErrors(g_rhoPhiCent_2nd_sys[1],color_phi_2nd);
+  plotSysErrorsBox(g_rhoPhiCent_2nd_sys[1],color_phi_2nd);
   plotTopLegend((char*)"b) #phi",5,0.415,size_font,1,0.0,42,0);
   Draw_TGAE_Point_new_Symbol(25,0.4195,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotTopLegend((char*)"2^{nd}-order EP",28,0.415,size_font*scale_top0,1,0.0,42,0);
@@ -208,10 +215,12 @@ void plotExtFig8_rho00Cent()
   pad_Top2->cd()->SetGrid(0,0);
   h_frame->DrawCopy("pE");
   PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[2],style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotSysErrors(g_rhoPhiCent_1st_sys[2],color_phi_1st);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[2],style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhiCent_2nd_sys[2],color_phi_2nd);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[2],style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
+  // plotSysErrors(g_rhoPhiCent_1st_sys[2],color_phi_1st);
+  plotSysErrorsBox(g_rhoPhiCent_1st_sys[2],color_phi_1st);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[2],style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
+  // plotSysErrors(g_rhoPhiCent_2nd_sys[2],color_phi_2nd);
+  plotSysErrorsBox(g_rhoPhiCent_2nd_sys[2],color_phi_2nd);
   plotTopLegend((char*)"c) #phi",5,0.415,size_font,1,0.0,42,0);
   plotTopLegend((char*)mLegEnergyPhi[2].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Top2->Update();
@@ -225,10 +234,12 @@ void plotExtFig8_rho00Cent()
   pad_Top3->cd()->SetGrid(0,0);
   h_frame->DrawCopy("pE");
   PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[3],style_phi_1st,color_phi_1st,size_marker-0.2);
-  plotSysErrors(g_rhoPhiCent_1st_sys[3],color_phi_1st);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[3],style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotSysErrors(g_rhoPhiCent_2nd_sys[3],color_phi_2nd);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_1st_stat[3],style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
+  // plotSysErrors(g_rhoPhiCent_1st_sys[3],color_phi_1st);
+  plotSysErrorsBox(g_rhoPhiCent_1st_sys[3],color_phi_1st);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoPhiCent_2nd_stat[3],style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
+  // plotSysErrors(g_rhoPhiCent_2nd_sys[3],color_phi_2nd);
+  plotSysErrorsBox(g_rhoPhiCent_2nd_sys[3],color_phi_2nd);
   plotTopLegend((char*)"d) #phi",5,0.415,size_font,1,0.0,42,0);
   plotTopLegend((char*)mLegEnergyPhi[3].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Top3->Update();
@@ -244,15 +255,24 @@ void plotExtFig8_rho00Cent()
   h_frame->GetXaxis()->SetLabelSize(size_font*scale_bottom0);
   h_frame->GetYaxis()->SetLabelSize(size_font*scale_bottom0);
   h_frame->GetXaxis()->SetLabelOffset(size_offset/scale_bottom0/scale_bottom0);
-  // h_frame->GetYaxis()->SetRangeUser(0.17,0.39);
   h_frame->DrawCopy("pE");
-  PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[0],style_Kstr,color_Kstr,size_marker);
-  plotSysErrors(g_rhoKstarCent_2nd_sys[0],color_Kstr+2);
-  plotTopLegend((char*)"e) K^{*0}",5,0.415,size_font*scale_bottom0,1,0.0,42,0);
-  Draw_TGAE_Point_new_Symbol(25,0.420,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
-  plotTopLegend((char*)"2^{nd}-order EP",28,0.415,size_font*scale_top0,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyKstar[0].c_str(),30,0.25,size_font*scale_bottom0*1.05,1,0.0,42,0);
+  // plotTopLegend((char*)"h)",5,0.415,size_font,1,0.0,42,0);
+
+  // Phi Legend
+  // Draw_TGAE_Point_new_Symbol(30,0.30,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
+  // Draw_TGAE_Point_new_Symbol(35,0.30,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
+  plotTopLegend((char*)"#phi",5,0.38,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"|y| < 1.0",15,0.38,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"1.2 < p_{T}< 5.4 GeV/c",15,0.36,size_font,1,0.0,42,0);
+
+  // plotTopLegend((char*)"#phi  (|y| < 1.0 & 1.2 < p_{T}< 5.4 GeV/c)",8,0.2775,size_font,1,0.0,42,0);
+  // plotTopLegend((char*)"",3,0.26,size_font,1,0.0,42,0);
+
+  // K* Legend
+  // Draw_TGAE_Point_new_Symbol(5,0.26,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
+  plotTopLegend((char*)"K^{*0}",3,0.33,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"|y| < 1.0",15,0.33,size_font,1,0.0,42,0);
+  plotTopLegend((char*)"1.0 < p_{T}< 5.0 GeV/c",15,0.31,size_font,1,0.0,42,0);
   pad_Bottom0->Update();
 
   pad_Bottom1->cd();
@@ -262,15 +282,19 @@ void plotExtFig8_rho00Cent()
   pad_Bottom1->cd()->SetBottomMargin(0.10);
   pad_Bottom1->cd()->SetTicks(1,1);
   pad_Bottom1->cd()->SetGrid(0,0);
+  pad_Bottom1->Update();
   h_frame->GetXaxis()->SetLabelSize(size_font);
   h_frame->GetXaxis()->SetLabelOffset(size_offset);
+  // h_frame->GetYaxis()->SetRangeUser(0.17,0.39);
   h_frame->DrawCopy("pE");
   PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[1],style_Kstr,color_Kstr,size_marker);
-  plotSysErrors(g_rhoKstarCent_2nd_sys[1],color_Kstr+2);
-  plotTopLegend((char*)"f) K^{*0}",5,0.415,size_font,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyKstar[1].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
-  pad_Bottom1->Update();
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[0],style_Kstr,color_Kstr,colorDiff_Kstr,size_marker);
+  // plotSysErrors(g_rhoKstarCent_2nd_sys[0],color_Kstr+2);
+  plotSysErrorsBox(g_rhoKstarCent_2nd_sys[0],color_Kstr+2);
+  plotTopLegend((char*)"e) K^{*0}",5,0.415,size_font,1,0.0,42,0);
+  Draw_TGAE_Point_new_Symbol(25,0.420,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
+  plotTopLegend((char*)"2^{nd}-order EP",28,0.415,size_font*scale_top0,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyKstar[0].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
 
   pad_Bottom2->cd();
   pad_Bottom2->cd()->SetLeftMargin(0.0);
@@ -281,10 +305,11 @@ void plotExtFig8_rho00Cent()
   pad_Bottom2->cd()->SetGrid(0,0);
   h_frame->DrawCopy("pE");
   PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[2],style_Kstr,color_Kstr,size_marker);
-  plotSysErrors(g_rhoKstarCent_2nd_sys[2],color_Kstr+2);
-  plotTopLegend((char*)"g) K^{*0}",5,0.415,size_font,1,0.0,42,0);
-  plotTopLegend((char*)mLegEnergyKstar[2].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[1],style_Kstr,color_Kstr,colorDiff_Kstr,size_marker);
+  // plotSysErrors(g_rhoKstarCent_2nd_sys[1],color_Kstr+2);
+  plotSysErrorsBox(g_rhoKstarCent_2nd_sys[1],color_Kstr+2);
+  plotTopLegend((char*)"f) K^{*0}",5,0.415,size_font,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyKstar[1].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Bottom2->Update();
 
   pad_Bottom3->cd();
@@ -295,23 +320,12 @@ void plotExtFig8_rho00Cent()
   pad_Bottom3->cd()->SetTicks(1,1);
   pad_Bottom3->cd()->SetGrid(0,0);
   h_frame->DrawCopy("pE");
-  plotTopLegend((char*)"h)",5,0.415,size_font,1,0.0,42,0);
-
-  // Phi Legend
-  // Draw_TGAE_Point_new_Symbol(30,0.30,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
-  // Draw_TGAE_Point_new_Symbol(35,0.30,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
-  plotTopLegend((char*)"#phi",10,0.38,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"|y| < 1.0",20,0.38,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"1.2 < p_{T}< 5.4 GeV/c",20,0.36,size_font,1,0.0,42,0);
-
-  // plotTopLegend((char*)"#phi  (|y| < 1.0 & 1.2 < p_{T}< 5.4 GeV/c)",8,0.2775,size_font,1,0.0,42,0);
-  // plotTopLegend((char*)"",3,0.26,size_font,1,0.0,42,0);
-
-  // K* Legend
-  // Draw_TGAE_Point_new_Symbol(5,0.26,0.0,0.0,0.0,0.0,style_Kstr,color_Kstr,size_marker);
-  plotTopLegend((char*)"K^{*0}",10,0.33,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"|y| < 1.0",20,0.33,size_font,1,0.0,42,0);
-  plotTopLegend((char*)"1.0 < p_{T}< 5.0 GeV/c",20,0.31,size_font,1,0.0,42,0);
+  PlotLine(cent_start,cent_stop,1.0/3.0,1.0/3.0,1,3,2);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoKstarCent_2nd_stat[2],style_Kstr,color_Kstr,colorDiff_Kstr,size_marker);
+  // plotSysErrors(g_rhoKstarCent_2nd_sys[2],color_Kstr+2);
+  plotSysErrorsBox(g_rhoKstarCent_2nd_sys[2],color_Kstr+2);
+  plotTopLegend((char*)"g) K^{*0}",5,0.415,size_font,1,0.0,42,0);
+  plotTopLegend((char*)mLegEnergyKstar[2].c_str(),30,0.25,size_font*1.05,1,0.0,42,0);
   pad_Bottom3->Update();
 
   pad_LeftMargin->cd();
@@ -322,8 +336,8 @@ void plotExtFig8_rho00Cent()
   plotTopLegend((char*)"Centrality (%)",0.46,0.4,0.8,1,0.0,42,1);
   pad_BottomMargin->Update();
 
-  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig8_rho00Centrality.eps");
-  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/extFig8_rho00Centrality.png");
+  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig8_rho00Centrality.eps");
+  c_play->SaveAs("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperDraft/NatureSubmission/NewF_JHChen/extFig8_rho00Centrality.png");
 }
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
@@ -340,5 +354,25 @@ void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
     PlotLine(centrality-1.5,centrality+1.5,rho-err,rho-err,plot_color,1,1);
     PlotLine(centrality-1.5,centrality-1.5,rho-err+0.002,rho-err,plot_color,1,1);
     PlotLine(centrality+1.5,centrality+1.5,rho-err+0.002,rho-err,plot_color,1,1);
+  }
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nCent = g_rho->GetN();
+  TBox *bSys[nCent];
+  for(int i_cent = 0; i_cent < g_rho->GetN(); ++i_cent) // plot sys errors
+  {
+    double centrality, rho;
+    g_rho->GetPoint(i_cent,centrality,rho);
+    double err = g_rho->GetErrorYhigh(i_cent);
+
+    bSys[i_cent] = new TBox(centrality-1.8,rho-err,centrality+1.8,rho+err);
+    bSys[i_cent]->SetFillColor(0);
+    bSys[i_cent]->SetFillStyle(0);
+    bSys[i_cent]->SetLineStyle(1);
+    bSys[i_cent]->SetLineWidth(1);
+    bSys[i_cent]->SetLineColor(plot_color);
+    bSys[i_cent]->Draw("l Same");
   }
 }

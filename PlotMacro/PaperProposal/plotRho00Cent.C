@@ -12,14 +12,23 @@
 using namespace std;
 
 void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
-void plotRho00Cent(int energy)
+void plotRho00Cent(int energy = 3)
 {
+  gStyle->SetOptDate(0);
+  const int style_phi_1st = 21;
+  const int color_phi_1st = kGray+2;
+  const int style_phi_2nd = 29;
+  const int color_phi_2nd = kRed-4;
+  const int colorDiff_phi = 0;
+  const float size_marker = 1.2;
+
   int const NumBeamEnergy = 7;
   std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV_Run18","39GeV","62GeV","200GeV_Run14"};
   std::string const mLegEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV (Run18)","39GeV","62GeV","200GeV (Run14)"};
 
-  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/CentDependence/rhoCent_%s_LXaxis.root",mBeamEnergy[energy].c_str());
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/CentDependence/NewF_JHChen/rhoCent_%s_LXaxis.root",mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
 
@@ -70,16 +79,16 @@ void plotRho00Cent(int energy)
   h_frame->DrawCopy("pE");
   PlotLine(0.0,80.0,1.0/3.0,1.0/3.0,1,3,2);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCent_1st_stat,20,kAzure+2,1.4);
-  plotSysErrors(g_rhoCent_1st_sys,kAzure+2);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCent_1st_stat,style_phi_1st,color_phi_1st,colorDiff_phi,size_marker-0.2);
+  plotSysErrorsBox(g_rhoCent_1st_sys,color_phi_1st);
 
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCent_2nd_stat,29,kRed,1.8);
-  plotSysErrors(g_rhoCent_2nd_sys,kRed);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_rhoCent_2nd_stat,style_phi_2nd,color_phi_2nd,colorDiff_phi,size_marker+0.2);
+  plotSysErrorsBox(g_rhoCent_2nd_sys,color_phi_2nd);
 
-  Draw_TGAE_Point_new_Symbol(10,0.42,0.0,0.0,0.0,0.0,20,kAzure+2,1.4);
+  Draw_TGAE_Point_new_Symbol(10,0.42,0.0,0.0,0.0,0.0,style_phi_1st,color_phi_1st,size_marker-0.2);
   plotTopLegend((char*)"1^{st}-order EP",13,0.4175,0.04,1,0.0,42,0);
 
-  Draw_TGAE_Point_new_Symbol(10,0.40,0.0,0.0,0.0,0.0,29,kRed,1.8);
+  Draw_TGAE_Point_new_Symbol(10,0.40,0.0,0.0,0.0,0.0,style_phi_2nd,color_phi_2nd,size_marker+0.2);
   plotTopLegend((char*)"2^{nd}-order EP",13,0.3975,0.04,1,0.0,42,0);
 
   string leg_energy = Form("AuAu %s (|#eta| < 1)", mLegEnergy[energy].c_str());
@@ -112,9 +121,9 @@ void plotRho00Cent(int energy)
   }
   */
 
-  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoCentSys_%s.eps",mBeamEnergy[energy].c_str());
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/NewF_JHChen/c_rhoCentSys_%s.eps",mBeamEnergy[energy].c_str());
   c_rho00->SaveAs(FigName.c_str());
-  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/c_rhoCentSys_%s.png",mBeamEnergy[energy].c_str());
+  FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/NewF_JHChen/c_rhoCentSys_%s.png",mBeamEnergy[energy].c_str());
   c_rho00->SaveAs(FigName.c_str());
 }
 
@@ -132,5 +141,25 @@ void plotSysErrors(TGraphAsymmErrors *g_rho, int plot_color)
     PlotLine(energy-1,energy+1,rho-err,rho-err,plot_color,2,1);
     PlotLine(energy-1,energy-1,rho-err+0.001,rho-err,plot_color,2,1);
     PlotLine(energy+1,energy+1,rho-err+0.001,rho-err,plot_color,2,1);
+  }
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nCent = g_rho->GetN();
+  TBox *bSys[nCent];
+  for(int i_cent = 0; i_cent < g_rho->GetN(); ++i_cent) // plot sys errors
+  {
+    double centrality, rho;
+    g_rho->GetPoint(i_cent,centrality,rho);
+    double err = g_rho->GetErrorYhigh(i_cent);
+
+    bSys[i_cent] = new TBox(centrality-1.4,rho-err,centrality+1.4,rho+err);
+    bSys[i_cent]->SetFillColor(0);
+    bSys[i_cent]->SetFillStyle(0);
+    bSys[i_cent]->SetLineStyle(1);
+    bSys[i_cent]->SetLineWidth(1);
+    bSys[i_cent]->SetLineColor(plot_color);
+    bSys[i_cent]->Draw("l Same");
   }
 }
