@@ -22,7 +22,7 @@ double FuncAD(double *x_val, double *par);
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE);
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
-void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string correction = "AccRes", bool random3D = false, int defaultF = 0)//defaultF = 0 is BESII, defaultF = 1 is BESI
+void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string correction = "Raw", bool random3D = false, int defaultF = 0)//defaultF = 0 is BESII, defaultF = 1 is BESI
 {
   string inputfileHframe = Form("../output/AuAu%s/%s/RawKStarPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   string inputfile = Form("../output/AuAu%s/%s/%sKStarPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),correction.c_str());
@@ -184,12 +184,12 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
                 {
                   if(i_F > 0) continue;
                   string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-                  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
+                  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,0,1.1);
                 }
                 else
                 {
                   string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F);
-                  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
+                  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,0,1.1);
                 }
               }
             }
@@ -486,7 +486,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     besi->SetPointError(i,0.0,0.0,KStarBESI::kstar_rho00_pT_19_stat[i],KStarBESI::kstar_rho00_pT_19_stat[i]);
   }
   PlotLine(0.0,5.0,1.0/3.0,1.0/3.0,1,2,2);
-  gStyle->SetEndErrorSize(8);
+  //gStyle->SetEndErrorSize(8);
   //gStyle->SetEndErrorWidth(10);
   besi->SetLineColor(kBlack);
   besi->SetLineWidth(1.0);
@@ -494,7 +494,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   besi->SetMarkerSize(1.3);
   besi->SetMarkerColor(kBlack);
   besi->SetLineColor(kBlack);
-  besi->Draw("pE Z same");
+  besi->Draw("pE same");
 
 
   besi_sys->SetLineColor(kBlack);
@@ -536,14 +536,11 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   g_SysErrors->SetMarkerColor(kRed);
   g_SysErrors->SetLineColor(kRed);
   //g_SysErrors->Draw("pE [] same");
-  if(correction == "AccRes") 
-  {
   g_StatErrors->SetPoint(0,-1.0,-1.0);
   g_SysErrors->SetPoint(0,-1.0,-1.0);
   //g_StatErrors->SetPoint(1,-1.0,-1.0);
   //g_SysErrors->SetPoint(1,-1.0,-1.0);
   //g_SysErrors->Draw("pE [] same");
-  }
   g_StatErrors->Draw("pE Z same");
   c_rho_SysError->SaveAs("figures/finaloutputrho_KStar.pdf");  
   plotSysErrorsBox(g_SysErrors,kRed);

@@ -84,7 +84,7 @@ void subBackGroundKStar(int energy = 4, int pid = 2, int year = 0, string date =
 	          float Inte_SE = h_mMass_SE[KEY_SE]->Integral(Norm_bin_start,Norm_bin_stop);
 	          float Inte_ME = h_mMass_ME[KEY_ME]->Integral(Norm_bin_start,Norm_bin_stop);
 
-	          h_mMass_ME[KEY_ME]->Scale(Inte_SE/Inte_ME);
+	          if(Inte_ME != 0.0) h_mMass_ME[KEY_ME]->Scale(Inte_SE/Inte_ME);
 	          h_mMass_SM[KEY_SM]->Add(h_mMass_ME[KEY_ME],-1.0);
 	        }
 	        //else

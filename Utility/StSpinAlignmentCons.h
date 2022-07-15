@@ -111,6 +111,12 @@ namespace vmsa
   float const ptRawStop[pt_total]  = {0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
   double const pt_bin[pt_total+1] = {0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
 
+  int const pt_CentStart = 4;
+  int const pt_CentStop  = 19;
+  float const centVal[10] = {0.,5.,10.,20.,30.,40.,50.,60.,70.,80.};
+  int const centStart = 0; 
+  int const centStop = 9;
+
   int const pt_totalKS = 24; // pt bin
   int const pt_startKS = 0;
   int const pt_stopKS  = 24;

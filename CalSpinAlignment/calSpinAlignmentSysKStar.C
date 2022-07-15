@@ -411,7 +411,7 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
 	      for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	      {
 	        string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_0_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-	        Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
+	        Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,0,1.1);
 	      }
 	    }
 	  }
