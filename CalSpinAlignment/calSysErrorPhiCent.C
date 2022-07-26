@@ -22,7 +22,7 @@ double FuncAD(double *x_val, double *par);
 //void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE);
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
-void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Raw", bool random3D = false, int defaultF = 1)//defaultF = 0 is BESII, defaultF = 1 is BESI
+void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "AccRes", bool random3D = false, int defaultF = 1)//defaultF = 0 is BESII, defaultF = 1 is BESI
 {
 
   const int style_phi_1st = 21;
@@ -52,27 +52,17 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
 	{
 	  for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	  {
-            for(int i_F = 0; i_F < 2; i_F++)
-            {
-              for(int i_eff = 0; i_eff < 2; i_eff++)
-              {
-                if(correction != "AccRes")
-                {
-                  if(i_F > 0 || i_eff > 0) continue;
-	          string KEY_rho = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-	          g_mRho[KEY_rho] = (TGraphAsymmErrors*)File_InPut->Get(KEY_rho.c_str())->Clone();
-	          //string KEY_rho_ptbin = Form("rhoFinalWeighted__2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-	          //h_mRho[KEY_rho_ptbin] = (TH1D*)File_InPut->Get(KEY_rho_ptbin.c_str());
-                }
-                else
-                {
-	          string KEY_rho = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_%d",i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F,i_eff);
-	          g_mRho[KEY_rho] = (TGraphAsymmErrors*)File_InPut->Get(KEY_rho.c_str())->Clone();
-	          string KEY_rho_ptbin = Form("rhoFinalWeighted_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_%d",i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F,i_eff);
-	          h_mRho[KEY_rho_ptbin] = (TH1D*)File_InPut->Get(KEY_rho_ptbin.c_str());
-                }
-              }
-            }
+            //for(int i_F = 0; i_F < 2; i_F++)
+            //{
+              //for(int i_eff = 0; i_eff < 2; i_eff++)
+              //{
+              //  if(i_F > 0 || i_eff > 0) continue;
+	        string KEY_rho = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
+	        g_mRho[KEY_rho] = (TGraphAsymmErrors*)File_InPut->Get(KEY_rho.c_str())->Clone();
+	        //string KEY_rho_ptbin = Form("rhoFinalWeighted__2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
+	        //h_mRho[KEY_rho_ptbin] = (TH1D*)File_InPut->Get(KEY_rho_ptbin.c_str());
+             // }
+            //}
 	  }
 	}
       }
@@ -163,7 +153,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
     c_rhocorr->SaveAs("figures/BESII_19p6GeV_2060_CorrectedYieldsCos.pdf");
   }*/
   
-  /*TCanvas *c_rho = new TCanvas("c_rho","c_rho",10,10,800,800);
+  TCanvas *c_rho = new TCanvas("c_rho","c_rho",10,10,800,800);
   c_rho->cd();
   c_rho->cd()->SetLeftMargin(0.15);
   c_rho->cd()->SetBottomMargin(0.15);
@@ -183,29 +173,28 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
 	{
 	  for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	  {
-            for(int i_F = 0; i_F < 2; i_F++)
-            {
-              if(correction != "AccRes")
-              {
-                if(i_F > 0) continue;
-	        string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-	        Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
-              }
-              else
-              {
-	        string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F);
-	        Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
-              }
-            }
+           // for(int i_F = 0; i_F < 2; i_F++)
+           // {
+           //   if(correction != "AccRes")
+           //   {
+           //     if(i_F > 0) continue;
+	        string KEY_rho = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
+	        Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,0,1.1);
+           //   }
+           //   else
+           //   {
+	   //     string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F);
+	   //     Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
+           //   }
+           // }
 	  }
 	}
       }
     }
-  }*/
+  }
 #endif
  
   string KEY_Default = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str());
-  if(correction == "AccRes") KEY_Default = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),defaultF);
   cout << "DEFAULT: " << KEY_Default << endl;
   TGraphAsymmErrors *g_SysErrors = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_StatErrors = new TGraphAsymmErrors();
@@ -242,7 +231,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
           if(i_dca == 0 && (i_sigma != 0 || i_method == 0)) continue;
           if(i_dca != 0 && i_sigma != 0 && i_method == 1) continue;
           string KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_dca,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str());
-          if(correction == "AccRes") KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",i_dca,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[i_method].c_str(),defaultF);
+  //        if(correction == "AccRes") KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",i_dca,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[i_method].c_str(),defaultF);
           double pt_sys, rho_sys;
           g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
           sysDca[idx] = rho_sys;
@@ -262,7 +251,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
           if(i_sig == 0 && (i_sigma != 0 || i_method == 0)) continue;
           if(i_sig != 0 && i_sigma != 0 && i_method == 1) continue;
           string KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",0,i_sig,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str());
-          if(correction == "AccRes") KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",0,i_sig,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str(),defaultF);
+    //      if(correction == "AccRes") KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",0,i_sig,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str(),defaultF);
           double pt_sys, rho_sys;
           g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
           sysNSig[idx] = rho_sys;
@@ -282,7 +271,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
           if(i_norm == 0 && (i_sigma != 0 || i_method == 0)) continue;
           if(i_norm != 0 && i_sigma != 0 && i_method == 1) continue;
           string KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",0,0,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-          if(correction == "AccRes") KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",0,0,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),defaultF);
+          //if(correction == "AccRes") KEY = Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",0,0,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),defaultF);
           double pt_sys, rho_sys;
           g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
           sysNorm[idx] = rho_sys;
@@ -313,7 +302,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
       if(random3D) sysMeth[i_method] = 4.*(sysMeth[i_method]-1./3.)+1./3.;
     }*/
 
-    if(correction == "AccRes")
+   /* if(correction == "AccRes")
     {
       for(int i_F = 0; i_F < 2; ++i_F)
       {
@@ -333,8 +322,8 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
         }
       }
       idx = 0;
- 
-      /*for(int i_eff = 0; i_eff < 2; ++i_eff)
+
+      for(int i_eff = 0; i_eff < 2; ++i_eff)
       {
         for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
         {
@@ -350,26 +339,26 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
             idx++;
           }
         }
-      }*/
+      }
       idx = 0;
-    }
+    }*/
 
-    Double_t rho_min[5] = { TMath::MinElement(9,sysDca),
+    Double_t rho_min[3] = { TMath::MinElement(9,sysDca),
                             TMath::MinElement(9,sysNSig),
-                            TMath::MinElement(9,sysNorm),
-                            (correction == "AccRes")? TMath::MinElement(5,sysF) : 0.0,
-                            (correction == "AccRes")? TMath::MinElement(5,sysEff) : 0.0
+                            TMath::MinElement(9,sysNorm)
+                            //(correction == "AccRes")? TMath::MinElement(5,sysF) : 0.0,
+                            //(correction == "AccRes")? TMath::MinElement(5,sysEff) : 0.0
                           };
 
-    Double_t rho_max[5] = { TMath::MaxElement(9,sysDca),
+    Double_t rho_max[3] = { TMath::MaxElement(9,sysDca),
                             TMath::MaxElement(9,sysNSig),
-                            TMath::MaxElement(9,sysNorm),
-                            (correction == "AccRes")? TMath::MaxElement(5,sysF) : 0.0,
-                            (correction == "AccRes")? TMath::MaxElement(5,sysEff) : 0.0
+                            TMath::MaxElement(9,sysNorm)
+                            //(correction == "AccRes")? TMath::MaxElement(5,sysF) : 0.0,
+                            //(correction == "AccRes")? TMath::MaxElement(5,sysEff) : 0.0
                           };
   
     double SysError_rho = 0.0;
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 3; i++)
     {
       double sourcei = TMath::Power((rho_max[i] - rho_min[i])/TMath::Sqrt(12.0),2);
       cout << "rho_min = " << rho_min[i] << ", rho_max = " << rho_max[i] << endl;
@@ -391,7 +380,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
   }
  
   cout << "Finished pT bin calculations" << endl;
-  if(correction == "AccRes")
+  /*if(correction == "AccRes")
   { 
   string KEY_DefaultW = Form("rhoFinalWeighted_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_0",0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),defaultF);
 
@@ -454,7 +443,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
   }	 
   idx = 0;
 
-  /*for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
   {
     string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[1].c_str(),defaultF);
     sysSig[i_sigma] = h_mRho[KEY]->GetBinContent(7);
@@ -465,7 +454,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
     string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[i_method].c_str(),defaultF);
     sysMeth[i_method] = h_mRho[KEY]->GetBinContent(7);
   }
-*/
+
 
   for(int i_F = 0; i_F < 2; ++i_F)
   {
@@ -526,8 +515,8 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
   cout << "Final corrected rho00 = " << std::fixed << std::setprecision(4) << rho_def << " +/- " << rho_defErr << " (stat) +/- " << SysError_rho << " (sys)" << endl;
   cout << "sigma from 1/3 = " << std::fixed << std::setprecision(2) << TMath::Abs((rho_def-1./3.)/TMath::Sqrt(rho_defErr*rho_defErr + SysError_rho*SysError_rho)) << endl;
   cout << "sigma from BESI = " << TMath::Abs((rho_def-0.37)/TMath::Sqrt(0.008*0.008 + 0.007*0.007 + rho_defErr*rho_defErr + SysError_rho*SysError_rho)) << endl;
-  }
-  double val[6];
+  }*/
+  /*double val[6];
   double sysE[6];
   double statE[6];
 
@@ -553,7 +542,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
   cout << "rho00={"; for (int i = 0; i < 9; i++) {if (i<8) cout << val[i] << ","; else cout << val[i] << "};" << endl;}
   cout << "stat={"; for (int i = 0; i < 9; i++) {if (i<8) cout << statE[i] << ","; else cout << statE[i] << "};" << endl;}
   cout << "sys={"; for (int i = 0; i < 9; i++) {if (i<8) cout << sysE[i] << ","; else cout << sysE[i] << "};" << endl;}
-  
+  */
   //TFile *besi = TFile::Open("../data/rho00_stat_sys_Laxis.root");
   //TGraphAsymmErrors *besi19 = (TGraphAsymmErrors*)besi->Get("rho00_2ndEP_pt_stat_19;1");
   //TGraphAsymmErrors *besi19_sys = (TGraphAsymmErrors*)besi->Get("rho00_2ndEP_pt_sys_19;1");
@@ -567,7 +556,7 @@ void calSysErrorPhiCent(Int_t energy = 4, Int_t pid = 0, string correction = "Ra
   c_rho_SysError->cd()->SetTicks(1,1);
   c_rho_SysError->cd()->SetGrid(0,0);
   //h_frame->GetXaxis()->SetNdivisions(505,"I");
-  h_frame->GetYaxis()->SetRangeUser(0.315,0.35);
+  h_frame->GetYaxis()->SetRangeUser(0.26,0.40);
   //h_frame->GetXaxis()->SetLimits(0,9.95);
   //h_frame->GetXaxis()->SetRangeUser(0.0,5.0);
   //h_frame->GetXaxis()->SetLimits(0,10);

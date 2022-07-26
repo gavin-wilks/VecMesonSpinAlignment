@@ -104,6 +104,13 @@ namespace vmsa
   float const mEta_Gap = 0.05;
   float const mShiftOrder[5] = {2.0, 4.0, 6.0, 8.0, 10.0};
 
+  int const eta_total = 15; // pt bin
+  int const eta_start = 0;
+  int const eta_stop  = 15;
+  float const etaRawStart[eta_total] = {-1.5,-1.3,-1.1,-0.9,-0.7,-0.5,-0.3,-0.1,+0.1,+0.3,+0.5,+0.7,+0.9,+1.1,+1.3     };
+  float const etaRawStop[eta_total]  = {     -1.3,-1.1,-0.9,-0.7,-0.5,-0.3,-0.1,+0.1,+0.3,+0.5,+0.7,+0.9,+1.1,+1.3,+1.5};
+  double const eta_bin[eta_total+1]  = {-1.5,-1.3,-1.1,-0.9,-0.7,-0.5,-0.3,-0.1,+0.1,+0.3,+0.5,+0.7,+0.9,+1.1,+1.3,+1.5};
+
   int const pt_total = 25; // pt bin
   int const pt_start = 0;
   int const pt_stop  = 25;
@@ -113,7 +120,7 @@ namespace vmsa
 
   int const pt_CentStart = 4;
   int const pt_CentStop  = 19;
-  float const centVal[10] = {0.,5.,10.,20.,30.,40.,50.,60.,70.,80.};
+  float const centVal[10] = {80.,70.,60.,50.,40.,30.,20.,10.,5.,0.};
   int const centStart = 0; 
   int const centStop = 9;
 
