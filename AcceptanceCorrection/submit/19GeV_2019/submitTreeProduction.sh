@@ -26,6 +26,8 @@ nJobs=500
 nEvents=20000
 rho00=$2
 rapidity=$3
+cent=$4
+mode=$5
 
 #mode=2
 #pid=KStar
@@ -47,7 +49,7 @@ mkdir -p ${outPath}/Log/${outDir}
 mkdir -p ${outPath}/OutPut/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities rapidity=$rapidity,rho00=$rho00,ptbin=$ptbin,pid=$pid,energy=$energy,nJobs=$nJobs,nEvents=$nEvents,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities cent=$cent,mode=$mode,rapidity=$rapidity,rho00=$rho00,ptbin=$ptbin,pid=$pid,energy=$energy,nJobs=$nJobs,nEvents=$nEvents,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########

@@ -4,7 +4,7 @@
 
   <command>
     starver &library;
-    root4star -l -b -q McEtaF.C\(&rho00;,&ptbin;,&energy;,&pid;,9,&nEvents;,&rapidity;,\"$JOBID\"\)
+    root4star -l -b -q McEtaF.C\(&rho00;,&ptbin;,&energy;,&pid;,&cent;,&nEvents;,&rapidity;,&mode;,\"$JOBID\"\)
   </command>
 
   <SandBox installer="ZIP">

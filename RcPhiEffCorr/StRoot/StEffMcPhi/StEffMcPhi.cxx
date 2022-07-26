@@ -15,7 +15,7 @@ ClassImp(StEffMcPhi)
 
 int StEffMcPhi::mInput_flag = 1;
 
-StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int year, int cut, const char* setting)
+StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int year, int mode, const char* setting)
 {
   energy = Energy;
   pid = PID;
@@ -29,11 +29,11 @@ StEffMcPhi::StEffMcPhi(int Energy, long StartEvent, long StopEvent, int PID, int
   SetStopEvent(StopEvent); // set stop event
 
   // string OutPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/%s/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
-  string OutPutFile = Form("Eff_%s_SingleParticle_2060_%s.root",vmsa::mBeamEnergy[energy].c_str(),setting);
+  string OutPutFile = Form("Eff_%s_SingleParticle_2060_%s_Mode%d.root",vmsa::mBeamEnergy[energy].c_str(),setting,mode);
   SetOutPutFile(OutPutFile); // set output file
 
   mEffCut = new StEffCut();
-  mEffHistManger = new StEffHistManger(energy, pid);
+  mEffHistManger = new StEffHistManger(energy, pid, mode);
 }
 
 StEffMcPhi::~StEffMcPhi()

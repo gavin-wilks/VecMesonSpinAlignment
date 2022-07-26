@@ -50,6 +50,19 @@ TF1 *cut_pt = new TF1("cut_pt","1",0,1);
 
 Double_t pt_set[7] = {0.4,0.8,1.2,1.8,2.4,3.0,4.2};
 int pt_bin;
+int mMode;
+int tableNum[5][9] = {{6,6,5,5,4,3,2,1,1},
+                      {0,0,0,0,0,0,0,0,0},
+                      {12,12,11,11,10,9,8,7,7},
+                      {0,0,0,0,0,0,0,0,0},
+                      {18,18,17,17,16,15,14,13,13}};
+
+int tableNumV2[5][9] = {{0,0,0,0,0,0,0,0,0},
+                        {0,0,0,0,0,0,0,0,0},
+                        {0,0,0,0,0,0,0,0,0},
+                        {0,0,0,0,0,0,0,0,0},
+                        {239,239,239,239,141,141,141,43,43}};
+
 double yinput;
 
 TFile *eff_file;
@@ -62,7 +75,7 @@ TPythia6Decayer* pydecay;
 
 TFile *File_OutPut;
 
-void McEtaF(double Nrho=3333, int SetPt=3, int energy = 4, int pid = 0, int cent = 9, int const NMax = 10, double rapidity = 1.0, const char* jobID = "1")
+void McEtaF(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent = 8, int const NMax = 10, double rapidity = 1.0, int mode = 1, const char* jobID = "1")
 {
   string outputfile = Form("McAcceptanceOutput_pt%d_energy%d_pid%d_cent%d_%s.root",SetPt,energy,pid,cent,jobID);
   File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
@@ -73,10 +86,21 @@ void McEtaF(double Nrho=3333, int SetPt=3, int energy = 4, int pid = 0, int cent
   int   const BinPhi   = vmsa::BinPhi;
   float const rhoDelta = 0.0001; //rhoDelta = 0.01
 
-  pt_bin = SetPt;
+
+  mMode = mode;
+
+  pt_bin = SetPt; 
+  if(mode == 1) 
+  {
+    pt_bin = 1;
+    pt_set[1] = 5.0;
+    pt_set[0] = 1.0;
+  }
+
   yinput = rapidity;
 
-  cout << "ptbni = " <<  pt_bin << "     yinput = " << yinput << endl;
+  cout << "ptbin = " <<  pt_bin << "     yinput = " << yinput << endl;
+  cout << "pt range = [" << pt_set[pt_bin-1] << "," << pt_set[pt_bin] << "] GeV/c" << endl;  
 
   string Info = Form("sampling rhophy = %.2f with %d tracks!!!!",rhoDelta*Nrho,NMax);
   cout << Info.c_str() << endl;
@@ -151,10 +175,23 @@ void McEtaF(double Nrho=3333, int SetPt=3, int energy = 4, int pid = 0, int cent
 
 TF1* readv2(int energy, int pid, int centrality)
 {
-  string InPutV2 = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_v2_0080.root",vmsa::mBeamEnergy[energy].c_str());
+  //string centFile[9] = {"4080","4080","4080","4080","1040","1040","1040","0010","0010"};
+  string InPutV2 = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
+  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && mMode == 1) InPutV2 = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/HEPData-ins1395151-v2-root.root";
   TFile *File_v2 = TFile::Open(InPutV2.c_str());
   std::cout << "v2 file: " << InPutV2 << endl;
-  TGraphAsymmErrors *g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
+
+  TGraphAsymmErrors *g_v2;
+
+  if(mMode == 0) g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
+
+  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && mMode == 1) 
+  {
+    TDirectory *dir = (TDirectory*) File_v2->Get(Form("Table %d",tableNumV2[energy][centrality]));
+    dir->cd(); 
+    g_v2 = (TGraphAsymmErrors*)dir->Get("Graph1D_y1");
+  }
+
   TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc,vmsa::ptMin,vmsa::ptMax,5);
   f_v2->FixParameter(0,2);
   f_v2->SetParameter(1,0.1);
@@ -198,18 +235,91 @@ TF1* readv2(int energy, int pid, int centrality)
 
 TF1* readspec(int energy, int pid, int centrality)
 {
-  TCanvas *c1 = new TCanvas();
+  TCanvas *c1 = new TCanvas("c_pt","c_pt",10,10,800,800);
   c1->SetFillColor(0);
   c1->SetGrid(0,0);
   c1->SetTitle(0);
   c1->SetBottomMargin(0.15);
   c1->SetLeftMargin(0.15);
+ 
+  double ptlow[5][11] = { {0.4,0.5,0.6,0.7,0.9,1.0,1.3,0.,0.,0.,0.}, 
+                          {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                          {0.4,0.5,0.6,0.7,0.9,1.0,1.3,1.7,2.0,2.5,0.},
+                          {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                          {0.4,0.5,0.6,0.7,0.9,1.0,1.3,1.7,2.0,2.5,3.0} };
+ 
+  double pthigh[5][11] = { {0.5,0.6,0.7,0.9,1.0,1.3,1.7,0.,0.,0.,0.}, 
+                           {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                           {0.5,0.6,0.7,0.9,1.0,1.3,1.7,2.0,2.5,3.5,0.},
+                           {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                           {0.5,0.6,0.7,0.9,1.0,1.3,1.7,2.0,2.5,3.0,4.0} };
+
+  double ptvalues[5][9][11] = { { {0.4541,0.5510,0.6500,0.7973,0.9490,1.1399,1.4818,0.,0.,0.,0.},
+                                  {0.4541,0.5510,0.6500,0.7973,0.9490,1.1399,1.4818,0.,0.,0.,0.},
+                                  {0.4498,0.5562,0.6518,0.8012,0.9497,1.1433,1.4818,0.,0.,0.,0.},
+                                  {0.4498,0.5562,0.6518,0.8012,0.9497,1.1433,1.4818,0.,0.,0.,0.},
+                                  {0.4437,0.5493,0.6523,0.8020,0.9498,1.1446,1.4839,0.,0.,0.,0.},
+                                  {0.4430,0.5493,0.6521,0.8018,0.9498,1.1442,1.4834,0.,0.,0.,0.},                 
+                                  {0.4449,0.5494,0.6531,0.8027,0.9500,1.1456,1.4857,0.,0.,0.,0.},
+                                  {0.4461,0.5496,0.6543,0.8037,0.9502,1.1467,1.4876,0.,0.,0.,0.},  
+                                  {0.4461,0.5496,0.6543,0.8037,0.9502,1.1467,1.4876,0.,0.,0.,0.} },
+                                { {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},                 
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},  
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.} },
+                                { {0.4500,0.5556,0.6518,0.8013,0.9497,1.1438,1.4835,1.8392,2.2188,2.8795,0.},
+                                  {0.4500,0.5556,0.6518,0.8013,0.9497,1.1438,1.4835,1.8392,2.2188,2.8795,0.},
+                                  {0.4500,0.5551,0.6516,0.8008,0.9496,1.1427,1.4813,1.8377,2.2137,2.8589,0.},
+                                  {0.4500,0.5551,0.6516,0.8008,0.9496,1.1427,1.4813,1.8377,2.2137,2.8589,0.},
+                                  {0.4437,0.5494,0.6523,0.8021,0.9498,1.1446,1.4840,1.8390,2.2165,2.8633,0.},
+                                  {0.4441,0.5494,0.6525,0.8022,0.9499,1.1449,1.4845,1.8393,2.2173,2.8660,0.},                 
+                                  {0.4459,0.5494,0.6539,0.8035,0.9501,1.1464,1.4871,1.8408,2.2214,2.8798,0.},
+                                  {0.4457,0.5494,0.6535,0.8033,0.9501,1.1463,1.4868,1.8406,2.2210,2.8785,0.},  
+                                  {0.4457,0.5494,0.6535,0.8033,0.9501,1.1463,1.4868,1.8406,2.2210,2.8785,0.} },
+                                { {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},                 
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.},  
+                                  {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.} },
+                                { {0.4500,0.5547,0.6515,0.8006,0.9496,1.1427,1.4814,1.8380,2.2150,2.7142,3.3666},
+                                  {0.4500,0.5547,0.6515,0.8006,0.9496,1.1427,1.4814,1.8380,2.2150,2.7142,3.3666},
+                                  {0.4434,0.5495,0.6523,0.8020,0.9498,1.1446,1.4845,1.8396,2.2191,2.7178,3.3767},
+                                  {0.4434,0.5495,0.6523,0.8020,0.9498,1.1446,1.4845,1.8396,2.2191,2.7178,3.3767},
+                                  {0.4455,0.5494,0.6535,0.8031,0.9500,1.1460,1.4864,1.8404,2.2203,2.7178,3.3718},
+                                  {0.4453,0.5494,0.6531,0.8029,0.9500,1.1458,1.4860,1.8402,2.2198,2.7173,3.3699},                 
+                                  {0.4463,0.5494,0.6543,0.8039,0.9502,1.1469,1.4879,1.8412,2.2227,2.7202,3.3798},
+                                  {0.4457,0.5494,0.6535,0.8033,0.9501,1.1463,1.4869,1.8407,2.2211,2.7186,3.3745},  
+                                  {0.4457,0.5494,0.6535,0.8033,0.9501,1.1463,1.4869,1.8407,2.2211,2.7186,3.3745} } };
 
   string InPutSpec = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_Spec.root",vmsa::mBeamEnergy[energy].c_str());
+  if((energy == 4 || energy == 2 || energy == 0) && mMode == 1) InPutSpec = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/pTspectra/HEPData-ins1378002-v1-root.root";
   TFile *File_Spec = TFile::Open(InPutSpec.c_str());
   cout << "Input spectra" << InPutSpec << endl;
  
-  TGraphAsymmErrors *g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
+  TGraphAsymmErrors *g_spec;
+  if(mMode == 0) g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
+  if((energy == 4 || energy == 2 || energy == 0) && mMode == 1) 
+  {
+    TDirectory *dir = (TDirectory*) File_Spec->Get(Form("Table %d",tableNum[energy][centrality]));
+    dir->cd(); 
+    g_spec = (TGraphAsymmErrors*)dir->Get("Graph1D_y1");
+    for(int i = 0; i < g_spec->GetN(); i++)
+    {
+      double x,y;
+      g_spec->GetPoint(i,x,y);
+      g_spec->SetPoint(i,ptvalues[energy][centrality][i],y);
+      g_spec->SetPointError(i,fabs(ptvalues[energy][centrality][i]-ptlow[energy][i]),fabs(ptvalues[energy][centrality][i]-pthigh[energy][i]),g_spec->GetErrorYlow(i),g_spec->GetErrorYhigh(i));
+    }
+  }
 
   TF1 *f_Levy = new TF1("f_Levy",Levy,vmsa::ptMin,vmsa::ptMax,3);
   f_Levy->SetParameter(0,1);
@@ -247,6 +357,7 @@ TF1* readspec(int energy, int pid, int centrality)
 */
 
 
+  c1->SetLogy();
   g_spec->GetXaxis()->SetTitle("p_{T}(GeV/c)");
   g_spec->GetXaxis()->SetLabelSize(0.05);
   g_spec->GetXaxis()->SetTitleSize(0.05);
@@ -257,10 +368,10 @@ TF1* readspec(int energy, int pid, int centrality)
   g_spec->GetYaxis()->SetTitleOffset(1.1);
   g_spec->Draw("ap");
   f_Levy->Draw("same");
-  c1->SetLogy();
   c1->SaveAs("pt.pdf");
 
-  TCanvas *c10 = new TCanvas();
+  TCanvas *c10 = new TCanvas("c_ptdist","c_ptdist",10,10,800,800);
+  c10->cd();
   c10->SetFillColor(0);
   c10->SetGrid(0,0);
   c10->SetTitle(0);

@@ -9,7 +9,7 @@
 
 ClassImp(StEffHistManger)
 //
-StEffHistManger::StEffHistManger(int energy, int pid)
+StEffHistManger::StEffHistManger(int energy, int pid, int mode)
 {
   mEnergy = energy;
 
@@ -22,6 +22,18 @@ StEffHistManger::StEffHistManger(int energy, int pid)
     {
       mpt_low[i] = vmsa::pt_low[mEnergy][i];
       mpt_up[i]  = vmsa::pt_up[mEnergy][i];
+    }
+  }
+
+  if( pid == 0 && mode == 1)
+  {
+    mpt_first = 0;
+    mpt_last  = 1;
+
+    for(int i = mpt_first; i < mpt_last; i++)
+    {
+      mpt_low[i] = vmsa::ptRawStart[vmsa::pt_CentStart];
+      mpt_up[i]  = vmsa::ptRawStop[vmsa::pt_CentStop];
     }
   }
 
@@ -84,7 +96,7 @@ void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float
   //float phi_shift = AngleShift(phi-Psi2);
   for(int i_pt = mpt_first; i_pt < mpt_last; ++i_pt) // use rebinned pt
   {
-    if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= mpt_up[i_pt])
+    if(pt > mpt_low[i_pt]&& pt <= mpt_up[i_pt])
     {
       h_mMcEffCos[cent][i_pt]->Fill(cos);
     //  h_mMcCosEP[cent][i_pt]->Fill(cos,phi_shift);
@@ -108,7 +120,7 @@ void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float
   //float phi_shift = AngleShift(phi-Psi2);
   for(int i_pt = mpt_first; i_pt < mpt_last; ++i_pt) // use rebinned pt
   {
-    if(pt > vmsa::pt_low[mEnergy][i_pt] && pt <= mpt_up[i_pt])
+    if(pt > mpt_low[i_pt] && pt <= mpt_up[i_pt])
     {
       h_mRcEffCos[cent][i_pt]->Fill(cos);
       //h_mRcCosEP[cent][i_pt]->Fill(cos,phi_shift);
