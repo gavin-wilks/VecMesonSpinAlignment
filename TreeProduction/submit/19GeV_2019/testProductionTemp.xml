@@ -10,7 +10,7 @@
     <Package>
       <File>file:&codePath;/VecMesonTree.C</File>
       <File>file:&codePath;/StRoot</File>
-      <File>file:&codePath;/.sl73_gcc485</File>
+      <File>file:&codePath;/.sl73_x8664_gcc485</File>
     </Package>
   </SandBox>
 

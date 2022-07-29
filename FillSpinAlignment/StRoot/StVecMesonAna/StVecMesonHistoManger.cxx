@@ -34,6 +34,16 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
 	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2] = new TH1F(KEY_Mass2.Data(),KEY_Mass2.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
 	    h_mMass2[KEY_Mass2]->Sumw2();
+
+            if( i_cent == 0 ) 
+            {
+              for(Int_t i_eta = 0; i_eta < vmsa::eta_total; i_eta++)
+              {
+                KEY_Mass2 = Form("pt_%d_eta_%d_Centrality_10_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_eta,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	        h_mMass2[KEY_Mass2] = new TH1F(KEY_Mass2.Data(),KEY_Mass2.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
+	        h_mMass2[KEY_Mass2]->Sumw2();
+              }
+            }
 	  }
 	}
       }
@@ -104,7 +114,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
   }
 }
 //-------------------------------------------------------------
-void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
+void StVecMesonHistoManger::FillSys(Float_t pt, Float_t eta, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
 {
   TString Mode[2] = {"SE","ME"};
   if(Res2 > 0.0)
@@ -125,6 +135,16 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaSta
 	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,reweight);
 	    }
+
+            for(Int_t i_eta = 0; i_eta < vmsa::eta_total; i_eta++)
+            {
+              if(eta > vmsa::eta_raw[i_eta] && eta < vmsa::eta_raw[i_eta+1])
+              {
+	        TString KEY_Mass2Sys = Form("pt_%d_eta_%d_Centrality_10_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_eta,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	        h_mMass2[KEY_Mass2Sys]->Fill(InvMass,reweight);
+              }
+            }
+
 	    // raw pt spectra
 	    if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
 	    {
@@ -190,6 +210,15 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
             if( i_dca != 0 && i_sig != 0) continue;
 	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2]->Write();
+            
+            if( i_cent == 0 ) 
+            {
+              for(Int_t i_eta = 0; i_eta < vmsa::eta_total; i_eta++)
+              {
+                KEY_Mass2 = Form("pt_%d_eta_%d_Centrality_10_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_eta,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	        h_mMass2[KEY_Mass2]->Write();
+              }
+            }
 	  }
 	}
       }

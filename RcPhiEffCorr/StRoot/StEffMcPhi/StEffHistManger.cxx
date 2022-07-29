@@ -12,7 +12,7 @@ ClassImp(StEffHistManger)
 StEffHistManger::StEffHistManger(int energy, int pid, int mode)
 {
   mEnergy = energy;
-
+ 
   if( pid == 0 )
   {
     mpt_first = vmsa::pt_rebin_first[mEnergy];
@@ -25,7 +25,7 @@ StEffHistManger::StEffHistManger(int energy, int pid, int mode)
     }
   }
 
-  if( pid == 0 && mode == 1)
+  if( pid == 0 && (mode == 1 || mode == 2))
   {
     mpt_first = 0;
     mpt_last  = 1;
@@ -57,6 +57,19 @@ StEffHistManger::~StEffHistManger()
 
 void StEffHistManger::InitHist()
 {
+  for(int i_pt = mpt_first; i_pt < mpt_last; ++i_pt) // use rebinned pt
+  {
+    for(int i_eta = 0; i_eta < vmsa::eta_total; ++i_eta)
+    {
+      std::string HistName = Form("h_mMcEffCos_Cent_10_Pt_%d_Eta_%d",i_pt,i_eta);
+      h_mMcEffEtaCos[i_pt][i_eta] = new TH1D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0);
+      h_mMcEffEtaCos[i_pt][i_eta]->Sumw2();
+      HistName = Form("h_mRcEffCos_Cent_10_Pt_%d_Eta_%d",i_pt,i_eta);
+      h_mRcEffEtaCos[i_pt][i_eta] = new TH1D(HistName.c_str(),HistName.c_str(),vmsa::BinCos,0.0,1.0);
+      h_mRcEffEtaCos[i_pt][i_eta]->Sumw2();
+    }
+  }
+
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
     std::string HistName = Form("h_mMcTracks_%d",i_cent);
@@ -100,6 +113,13 @@ void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float
     {
       h_mMcEffCos[cent][i_pt]->Fill(cos);
     //  h_mMcCosEP[cent][i_pt]->Fill(cos,phi_shift);
+      for(int i_eta = 0; i_eta < vmsa::eta_total; ++i_eta)
+      {
+        if(eta > vmsa::eta_raw[i_eta] && eta < vmsa::eta_raw[i_eta+1])
+        {
+          h_mMcEffEtaCos[i_pt][i_eta]->Fill(cos);
+        }
+      }
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
       {//20-60%
 	h_mMcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
@@ -124,6 +144,13 @@ void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float
     {
       h_mRcEffCos[cent][i_pt]->Fill(cos);
       //h_mRcCosEP[cent][i_pt]->Fill(cos,phi_shift);
+      for(int i_eta = 0; i_eta < vmsa::eta_total; ++i_eta)
+      {
+        if(eta > vmsa::eta_raw[i_eta] && eta < vmsa::eta_raw[i_eta+1])
+        {
+          h_mRcEffEtaCos[i_pt][i_eta]->Fill(cos);
+        }
+      }
       if(cent >= vmsa::cent_low[0] && cent <= vmsa::cent_up[0])
       {//20-60%
 	h_mRcEffCos[9][i_pt]->Fill(cos,vmsa::weight[cent]);
@@ -220,6 +247,14 @@ void StEffHistManger::CalEffPtEtaPhi()
 
 void StEffHistManger::CalEffCosThetaStar()
 {
+  for(int i_pt = mpt_first; i_pt < mpt_last; ++i_pt)
+  {
+    for(int i_eta = 0; i_eta < vmsa::eta_total; ++i_eta)
+    { 
+      std::string HistName = Form("h_mEffCos_Cent_10_Pt_%d_Eta_%d",i_pt,i_eta);
+      h_mEffEtaCos[i_pt][i_eta] = CalEffError(h_mMcEffEtaCos[i_pt][i_eta],h_mRcEffEtaCos[i_pt][i_eta],HistName.c_str());
+    }
+  }
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
     for(int i_pt = mpt_first; i_pt < mpt_last; ++i_pt)
@@ -233,6 +268,21 @@ void StEffHistManger::CalEffCosThetaStar()
 
 void StEffHistManger::WriteHist()
 {
+  if(flag_eff_Cos > 0.5)
+  {
+    for(int i_pt = mpt_first; i_pt < mpt_last; ++i_pt)
+    {
+      for(int i_eta = 0; i_eta < vmsa::eta_total; ++i_eta)
+      {
+        h_mMcEffEtaCos[i_pt][i_eta]->Write();
+        h_mRcEffEtaCos[i_pt][i_eta]->Write();
+        h_mEffEtaCos[i_pt][i_eta]->Write();
+
+//    h_mMcCosEP[i_cent][i_pt]->Write();
+//    h_mRcCosEP[i_cent][i_pt]->Write(); 
+      }
+    }
+  }
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
     h_mMcTracks[i_cent]->Write();

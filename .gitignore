@@ -97,3 +97,7 @@ Embedding/*.root
 
 RcPhiEffCorr/macro/submit/star/JOBS/*
 FillSpinAlignment/submit/rcf/JOBS/*
+
+AcceptanceCorrection/FValues
+AcceptanceCorrection/fit
+AcceptanceCorrection/*.pdf

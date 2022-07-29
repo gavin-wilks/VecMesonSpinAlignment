@@ -4,6 +4,7 @@
 #include "StRoot/StPicoEvent/StPicoDst.h"
 #include "StRoot/StPicoEvent/StPicoEvent.h"
 #include "StRoot/StPicoEvent/StPicoBTofPidTraits.h"
+#include "StRoot/StPicoEvent/StPicoETofPidTraits.h"
 #include "StRoot/StPicoEvent/StPicoTrack.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
@@ -261,6 +262,7 @@ Float_t StToFMatchCut::getMass2(StPicoTrack *picoTrack, StPicoDst *picoDst)
   double mass2 = -999.9;
   // StPicoTrack *picoTrack = (StPicoTrack*)picoDst->track(i_track); // return ith track
   int tofIndex = picoTrack->bTofPidTraitsIndex(); // return ToF PID traits
+  int etofIndex = picoTrack->eTofPidTraitsIndex(); // return ToF PID traits
   if(tofIndex >= 0)
   {
     StPicoBTofPidTraits *tofTrack = picoDst->btofPidTraits(tofIndex);
@@ -275,6 +277,24 @@ Float_t StToFMatchCut::getMass2(StPicoTrack *picoTrack, StPicoDst *picoDst)
     const double Momentum = primMom.Mag(); // primary momentum
 
     if(tofTrack->btofMatchFlag() > 0 && tofTrack->btof() != 0 && beta != 0)
+    {
+      mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
+    }
+  }
+  if(etofIndex >= 0)
+  {
+    StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
+    const double beta = etofTrack->beta();
+    // const double Momentum = picoTrack->pMom().mag(); // primary momentum for 54GeV_2017
+    // const double Momentum = picoTrack->pMom().Mag(); // primary momentum for 27GeV_2018
+    TVector3 primMom; // temp fix for StThreeVectorF & TVector3
+    const double primPx    = picoTrack->pMom().x(); // x works for both TVector3 and StThreeVectorF
+    const double primPy    = picoTrack->pMom().y();
+    const double primPz    = picoTrack->pMom().z();
+    primMom.SetXYZ(primPx,primPy,primPz);
+    const double Momentum = primMom.Mag(); // primary momentum
+
+    if(etofTrack->matchFlag() > 0 && etofTrack->tof() != 0 && beta != 0)
     {
       mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
     }
@@ -408,12 +428,15 @@ bool StToFMatchCut::passToFMatchCut(StPicoTrack* picoTrack, StPicoEvent* picoEve
   if(!passTrackBasic(picoTrack,picoEvent)) return kFALSE;
 
   int tofIndex = picoTrack->bTofPidTraitsIndex(); // return ToF PID traits
-  if(tofIndex < 0) return kFALSE;
+  int etofIndex = picoTrack->eTofPidTraitsIndex(); // return ToF PID traits
+  if(tofIndex < 0 && etofIndex < 0) return kFALSE;
   
   StPicoBTofPidTraits *tofTrack = picoDst->btofPidTraits(tofIndex);
-  const double beta = tofTrack->btofBeta();
+  StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
+  const double betaBToF = tofTrack->btofBeta();
+  const double betaEToF = etofTrack->beta();
 
-  if(! (tofTrack->btofMatchFlag() > 0 && tofTrack->btof() != 0 && beta != 0) ) return kFALSE; 
+  if(! (tofTrack->btofMatchFlag() > 0 && tofTrack->btof() != 0 && betaBToF != 0) && ! (etofTrack->matchFlag() > 0 && etofTrack->tof() != 0 && betaEToF != 0)) return kFALSE; 
 
   return kTRUE;
 }

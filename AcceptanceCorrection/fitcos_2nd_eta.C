@@ -4,7 +4,7 @@
 #include "Utility/type.h"
 #include <string>
 
-void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true, bool isBesI = false, bool random3D = false) {
+void fitcos_2nd_eta(const int energy = 4, const int pid = 0, bool doall = false, bool isBesI = false, bool random3D = false) {
 
   gROOT->Reset();
   gStyle->SetOptDate(0);
@@ -20,59 +20,60 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
 //  Double_t pt_set[8] = {3.0, 3.3, 3.6, 3.9, 4.3, 4.6, 4.9, 5.2};
 //  Double_t pt_set[8] = {0.6, 1.4, 2.2, 3.0, 3.8, 4.6, 5.4, 7.2};
 
-  TH1D *h_theta_star_before[9];
-  TH1D *h_theta[9];
-  TH1D *h_theta_star[9];
-  TH1D *h_out1[9];
-  TH1D *h_out2[9];
+  TH1D *h_theta_star_before[vmsa::eta_total];
+  TH1D *h_theta[vmsa::eta_total];
+  TH1D *h_theta_star[vmsa::eta_total];
+  TH1D *h_out1[vmsa::eta_total];
+  TH1D *h_out2[vmsa::eta_total];
 
-  TFile *MCFiles[9];
-  double Fval[9] = {0.0};//{-0.0104367, -0.0104367, -0.0112319, -0.00879225, -0.00634735, -0.0053006};//{0.0}; //0.08555382,0.0660837,0.0363711,-0.00175735,0.0126171,-0.0257385};
-  double Ferr[9] = {0.0};
-  double Fpval[9]={0.0};
-  double Fperr[9]={0.0};
-  double FfromFp[9]={0.0};
-  double FfromFperr[9]={0.0};
+  TFile *MCFile;
+  double Fval[vmsa::eta_total] = {0.0};//{-0.0104367, -0.0104367, -0.0112319, -0.00879225, -0.00634735, -0.0053006};//{0.0}; //0.08555382,0.0660837,0.0363711,-0.00175735,0.0126171,-0.0257385};
+  double Ferr[vmsa::eta_total] = {0.0};
+  double Fpval[vmsa::eta_total]={0.0};
+  double Fperr[vmsa::eta_total]={0.0};
+  double FfromFp[vmsa::eta_total]={0.0};
+  double FfromFperr[vmsa::eta_total]={0.0};
 
-  for(int icent = 0; icent < 9; icent++)
+  MCFile = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/Centrality/McAcceptanceOutput_EtaDependence_energy%d_pid%d_cent10.root",vmsa::mPID[pid].c_str(),energy,pid),"READ");
+
+  for(int i_eta = 0; i_eta < vmsa::eta_total; i_eta++)
   {
-    MCFiles[icent] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/Centrality/McAcceptanceOutput_pt1_energy%d_pid%d_cent%d.root",vmsa::mPID[pid].c_str(),energy,pid,icent),"READ");
 
-    h_theta_star_before[icent] = (TH1D*) MCFiles[icent]->Get("h_theta_star_before");
-    h_theta[icent] = (TH1D*) MCFiles[icent]->Get("h_theta");
-    h_theta_star[icent] = (TH1D*) MCFiles[icent]->Get("h_theta_star");
-    h_out1[icent] = (TH1D*) MCFiles[icent]->Get("h_out1");
-    h_out2[icent] = (TH1D*) MCFiles[icent]->Get("h_out2");
+    h_theta_star_before[i_eta] = (TH1D*) MCFiles[i_eta]->Get(Form("h_theta_star_before_%d",i_eta));
+    h_theta[i_eta] = (TH1D*) MCFiles[i_eta]->Get(Form("h_theta_%d",i_eta));
+    h_theta_star[i_eta] = (TH1D*) MCFiles[i_eta]->Get(Form("h_theta_star_%d",i_eta));
+    //h_out1[i_eta] = (TH1D*) MCFiles[i_eta]->Get("h_out1");
+    //h_out2[i_eta] = (TH1D*) MCFiles[i_eta]->Get("h_out2");
  
     TF1 *Func_rho = new TF1("Func_rho","[0]*(1.-[1]+(3.*[1]-1)*(x*x))",0,1);
     TF1 *Func_A = new TF1("Func_A","[0]*(1.+[1]*(x*x))",0,1);
 
-    Func_rho->SetParameter(0,h_theta_star[icent]->GetBinContent(1));
+    Func_rho->SetParameter(0,h_theta_star[i_eta]->GetBinContent(1));
     Func_rho->SetParameter(1,1./3.);
-    h_theta_star[icent]->Fit(Func_rho,"ERQ");
+    h_theta_star[i_eta]->Fit(Func_rho,"ERQ");
     cout << "rho00 = " << Func_rho->GetParameter(1) << endl;;    
 
 
-    Func_A->SetParameter(0,h_theta[icent]->GetBinContent(1));
+    Func_A->SetParameter(0,h_theta[i_eta]->GetBinContent(1));
     Func_A->SetParameter(1,0);
-    h_theta[icent]->Fit(Func_A,"ER");
-    Fpval[icent] = Func_A->GetParameter(1);
-    Fperr[icent] = Func_A->GetParError(1);
+    h_theta[i_eta]->Fit(Func_A,"ER");
+    Fpval[i_eta] = Func_A->GetParameter(1);
+    Fperr[i_eta] = Func_A->GetParError(1);
 
 
-    TH1D *h_theta_star_clone = (TH1D*)h_theta_star[icent]->Clone("h_theta_star_clone");
+    TH1D *h_theta_star_clone = (TH1D*)h_theta_star[i_eta]->Clone("h_theta_star_clone");
     h_theta_star_clone->Sumw2();
-    h_theta_star_before[icent]->Sumw2();
-    h_theta_star_clone->Divide(h_theta_star_before[icent]); 
+    h_theta_star_before[i_eta]->Sumw2();
+    h_theta_star_clone->Divide(h_theta_star_before[i_eta]); 
     Func_A->SetParameter(0,h_theta_star_clone->GetBinContent(1));
     Func_A->SetParameter(1,0);
     h_theta_star_clone->Fit(Func_A,"ER");
 
-    Fval[icent] = Func_A->GetParameter(1);
-    Ferr[icent] = Func_A->GetParError(1);
+    Fval[i_eta] = Func_A->GetParameter(1);
+    Ferr[i_eta] = Func_A->GetParError(1);
 
-    FfromFp[icent] = -Fpval[icent]/(2.+Fpval[icent]);
-    FfromFperr[icent] = TMath::Abs((Fpval[icent]/(2.-Fpval[icent])/(2.-Fpval[icent])-1./(2.-Fpval[icent]))*Fperr[icent]);
+    FfromFp[i_eta] = -Fpval[i_eta]/(2.+Fpval[i_eta]);
+    FfromFperr[i_eta] = TMath::Abs((Fpval[i_eta]/(2.-Fpval[i_eta])/(2.-Fpval[i_eta])-1./(2.-Fpval[i_eta]))*Fperr[i_eta]);
 
     TCanvas *c_play = new TCanvas("c_play","c_play",10,10,800,800);
     c_play->SetLeftMargin(0.15);
@@ -82,7 +83,7 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
     c_play->cd();
     h_theta_star_clone->Draw("pE");
     Func_A->Draw("same");
-    c_play->SaveAs(Form("FValues/cent%d.pdf",icent));
+    c_play->SaveAs(Form("FValues/cent%d.pdf",i_eta));
 
     delete c_play;
     delete h_theta_star_clone;
@@ -91,11 +92,11 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
   }
  
   //double FfromF[6] ={0.0};
-  for(int icent = 0; icent < 9; icent++)
+  for(int i_eta = 0; i_eta < 9; i_eta++)
   {
-    //FfromF[icent] = -Fpval[icent]/(2.+Fpval[icent]);
-    cout << "cent"<<icent<< " " << std::fixed << std::setprecision(7) << "    F = " << Fval[icent] << " +/- " << Ferr[icent] << "    F* = " << Fpval[icent] << " +/- " << Fperr[icent] << "    F from F* = " << FfromFp[icent] << " +/- " << FfromFperr[icent] << endl;   
-    //cout << "pt bin: " << std::fixed << std::setprecision(5) << pt_set[icent] << "-" << pt_set[icent+1] << "GeV/c    F = " << Fval[icent] << " +/- " << Ferr[icent] << "    F' = " << Fpval[icent] << " +/- " << Fperr[icent] << "    F from F' (swapping them)= " << -Fval[icent]/(2.+Fval[icent]) << " +/- " << TMath::Abs((Fval[icent]/(2.-Fval[icent])/(2.-Fval[icent])-1./(2.-Fval[icent]))*Ferr[icent]) << endl;   
+    //FfromF[i_eta] = -Fpval[i_eta]/(2.+Fpval[i_eta]);
+    cout << "cent"<<i_eta<< " " << std::fixed << std::setprecision(7) << "    F = " << Fval[i_eta] << " +/- " << Ferr[i_eta] << "    F* = " << Fpval[i_eta] << " +/- " << Fperr[i_eta] << "    F from F* = " << FfromFp[i_eta] << " +/- " << FfromFperr[i_eta] << endl;   
+    //cout << "pt bin: " << std::fixed << std::setprecision(5) << pt_set[i_eta] << "-" << pt_set[i_eta+1] << "GeV/c    F = " << Fval[i_eta] << " +/- " << Ferr[i_eta] << "    F' = " << Fpval[i_eta] << " +/- " << Fperr[i_eta] << "    F from F' (swapping them)= " << -Fval[i_eta]/(2.+Fval[i_eta]) << " +/- " << TMath::Abs((Fval[i_eta]/(2.-Fval[i_eta])/(2.-Fval[i_eta])-1./(2.-Fval[i_eta]))*Ferr[i_eta]) << endl;   
   //out<<"-D'/(2+D'): "<<-D_theta/(2.+D_theta)<<endl;
   }
 
@@ -253,25 +254,26 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
   string FigureName = Form("./figures/Resolution/Resolutions_%s.pdf",vmsa::mBeamEnergy[energy].c_str());
   c_play->SaveAs(FigureName.c_str());
 
-  
-  double Res_12[9] = {0.};
-  //double Res_12_weight = 0;
-  for(int cent=0; cent<9; cent++) {
-    Res_12[cent] = resolution_12->GetBinContent(cent+1);
-    //Res_12_weight += 1./resolution_12->GetBinError(cent+1)/resolution_12->GetBinError(cent+1);
+  double Res_12 = 0;
+  double Res_12_weight = 0;
+  for(int cent=0; cent<=8; cent++) {
+    Res_12 += resolution_12->GetBinContent(cent+1)/resolution_12->GetBinError(cent+1)/resolution_12->GetBinError(cent+1);
+    Res_12_weight += 1./resolution_12->GetBinError(cent+1)/resolution_12->GetBinError(cent+1);
   }
-
+  Res_12 = Res_12/Res_12_weight;
+  }
+  
   if(doall)
   {
-  double eff[10][7][7];
-  double eff_error[10][7][7];
+  double eff[vmsa::eta_total][7][7];
+  double eff_error[vmsa::eta_total][7][7];
   //if(eff_mode==0)
-  TFile *eff_file = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/Eff_%s_SingleParticle_2060_fittoplateau_Mode1.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str()),"READ");
+  TFile *eff_file = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/Eff_%s_SingleParticle_2060_fittoplateau_Mode2.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str()),"READ");
   eff_file->Print();
   //else
   //  TFile *eff_file = new TFile("Eff_19GeV_SingleKaon_eta.root","READ");
 
-  for(int i=0; i<9;i++) //cent
+  for(int i=0; i<vmsa::eta_total; i++) //eta
   {
     for(int j=1; j<=1; j++) //pt
     { 
@@ -284,7 +286,7 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
         //}
 
         Title = new TString("h_mEffCos_Cent_");
-        *Title += i;
+        *Title += 10;
         *Title += "_Pt_";
         *Title += (j-1);
         TH1D *eff_hist = (TH1D*)eff_file->Get(Title->Data());
@@ -298,7 +300,7 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
   }
   eff_file->Close();
 
-  TFile *input = new TFile(Form("rho00/%s/%s/RawRhoCentSys.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str()),"READ");
+  TFile *input = new TFile(Form("rho00/%s/%s/RawRhoEtaSys.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str()),"READ");
 
   TF1 *Func_rho = new TF1("Func_rho",FuncAD,0,1,4);
   TF1 *Func_rdl = new TF1("Func_rdl","[0]*(1.-[1]+(3.*[1]-1)*(x*x))",0,1);
@@ -321,12 +323,12 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
   //TH1DMap PtCos;
   TH1F *clonePt; 
   
-  string outputname = Form("output/%s/%s/AccResRhoCentSys.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string outputname = Form("output/%s/%s/AccResRhoEtaSys.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   //if(isBesI) outputname = Form("output/%s/%s/BESI/AccRes%sPtSys.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   TFile *output = new TFile(outputname.c_str(),"RECREATE");
   output->cd();
   //Double_t ptbin_rho00[7] = {0.4,0.8,1.2, 1.8, 2.4, 3.0, 4.2};
-  Double_t centbin_rho00[10] = {80.,70.,60.,50.,40.,30.,20.,10.,5.,0.};
+  //Double_t centbin_rho00[10] = {80.,70.,60.,50.,40.,30.,20.,10.,5.,0.};
 
   for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
   {
@@ -344,19 +346,19 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
             //Double_t weight_error_rho00 = 0;
             //Double_t weight_all = 0;
 
-            Double_t cent_rho00[9] = {0};
-            Double_t cent_error_rho00[9] = {0};
-            Double_t cent_all[9] = {0};
+            Double_t eta_rho00[9] = {0};
+            Double_t eta_error_rho00[9] = {0};
+            Double_t eta_all[9] = {0};
            
             Title = new TString(Form("rhoRaw_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str()));                             
             g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method] = new TGraphAsymmErrors();
             g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetName(Title->Data());
             delete Title;
   
-            for(int i_cent = 0; i_cent < 9; ++i_cent) // Centrality loop
+            for(int i_eta = 0; i_eta < 9; ++i_eta) // Centrality loop
             {
 
-              string key = Form("Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
+              string key = Form("Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_eta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
 
               TH1F *PtCos_raw = (TH1F*)input->Get(key.c_str())->Clone("PtCos_raw");
               TH1F *PtCos = new TH1F(key.c_str(),key.c_str(), 7, 0, 1);
@@ -364,8 +366,8 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
               for(int i=1; i<=7; i++) {
                 float inte_mean = PtCos_raw->GetBinContent(i);
                 float inte_mean_error = PtCos_raw->GetBinError(i);
-                PtCos->SetBinContent(i, inte_mean/eff[i_cent][0][i-1]);
-                PtCos->SetBinError(i, inte_mean/eff[i_cent][0][i-1]*TMath::Sqrt(inte_mean_error*inte_mean_error/inte_mean/inte_mean+eff_error[i_cent][0][i-1]*eff_error[i_cent][0][i-1]));
+                PtCos->SetBinContent(i, inte_mean/eff[i_eta][0][i-1]);
+                PtCos->SetBinError(i, inte_mean/eff[i_eta][0][i-1]*TMath::Sqrt(inte_mean_error*inte_mean_error/inte_mean/inte_mean+eff_error[i_eta][0][i-1]*eff_error[i_eta][0][i-1]));
               }
 
               PtCos->GetXaxis()->SetTitleOffset(1.2);
@@ -378,13 +380,13 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
               PtCos->Draw();
               Func_rho->SetParameter(0, PtCos->GetBinContent(5));
               Func_rho->SetParameter(1, 0.3);
-              Func_rho->FixParameter(2, Fval[i_cent]);
-              Func_rho->FixParameter(3, Res_12[i_cent]);
+              Func_rho->FixParameter(2, Fval[i_eta]);
+              Func_rho->FixParameter(3, Res_12);
               //`cout << "Resolution = " << Func_rho->GetParameter(3);
               PtCos->Fit(Func_rho, "NMIQ");
               Func_rho->Draw("same");
 
-              Title = new TString(Form("fit/yield_cent_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s.pdf",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str()));
+              Title = new TString(Form("fit/yield_cent_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s.pdf",i_eta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str()));
          
               TCanvas *c1 = new TCanvas();
               c1->SetFillColor(0);
@@ -407,9 +409,9 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
               //  weight_all += weight;
               //}
 
-              cent_rho00[i_cent] = real_rho;
-              cent_error_rho00[i_cent] = real_rho_error;
-              cent_all[i_cent] = weight;
+              eta_rho00[i_eta] = real_rho;
+              eta_error_rho00[i_eta] = real_rho_error;
+              eta_all[i_eta] = weight;
 
               
               //if(i_cent == 9 && PtBin == 3 && i_dca == 0 && i_sig == 0 && i_norm == 0 && i_sigma == 0 && i_method == 1)
@@ -450,10 +452,10 @@ void fitcos_2nd_cent(const int energy = 4, const int pid = 0, bool doall = true,
               //  if(PtBin==6) cout<<" "<<weight_error_rho00<<endl;
               //  else cout<<" ";
               //}
-              double centmean = (centbin_rho00[i_cent]+centbin_rho00[i_cent+1])/2.0;
-              g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetPoint(i_cent,centmean,cent_rho00[i_cent]);
-              g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetPointError(i_cent,0.0,0.0,cent_error_rho00[i_cent],cent_error_rho00[i_cent]);
-              cout << "CentMean = " << centmean << "    rho00 = " << cent_rho00[i_cent] << " +/- " << cent_error_rho00[i_cent] << endl;
+              double etamean = (vmsa::eta_raw[i_eta]+vmsa::eta_raw[i_eta+1])/2.0;
+              g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetPoint(i_eta,etamean,eta_rho00[i_eta]);
+              g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetPointError(i_eta,0.0,0.0,eta_error_rho00[i_eta],eta_error_rho00[i_eta]);
+              cout << "CentMean = " << etamean << "    rho00 = " << eta_rho00[i_eta] << " +/- " << eta_error_rho00[i_eta] << endl;
 
               //Title = new TString(Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F));                             
               //rho00_hist[i_dca][i_sig][i_norm][i_sigma][i_method] = new TH1D(Title->Data(), Title->Data(), 7, 0.5, 7.5);

@@ -32,8 +32,6 @@ class StVecMesonAna : public TObject
     void InitME();
     void Make();
     void MakePhi();
-    void MakeRho();
-    void MakeKStar();
     void Finish();
 
   private:

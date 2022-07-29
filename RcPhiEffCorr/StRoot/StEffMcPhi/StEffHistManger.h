@@ -49,6 +49,10 @@ class StEffHistManger : public TObject
     TH1D *h_mRcEffCos[10][vmsa::BinPt];
     TH1D *h_mEffCos[10][vmsa::BinPt];
 
+    TH1D *h_mMcEffEtaCos[vmsa::BinPt][vmsa::eta_total]; // efficiency vs CosThetaStar as a function of centrality and pt
+    TH1D *h_mRcEffEtaCos[vmsa::BinPt][vmsa::eta_total];
+    TH1D *h_mEffEtaCos[vmsa::BinPt][vmsa::eta_total];
+
     TH2D *h_mMcCosEP[10][vmsa::BinPt]; // efficiency vs CosThetaStar & EP as a function of centrality and pt
     TH2D *h_mRcCosEP[10][vmsa::BinPt];
 

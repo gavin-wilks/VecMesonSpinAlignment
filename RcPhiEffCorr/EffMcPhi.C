@@ -1,7 +1,7 @@
 #include <TSystem>
 
 // root4star -b -q EffMcPhi.C\(2,0,100000024,0,0,0\)
-void EffMcPhi(const int Energy = 4, const long StartEvent = 0, const long StopEvent = 10000000024, const int PID = 0, const int Year = 0, const int Mode = 1, const char* Setting = "fittoplateau") // Energy = 0: 7GeV, 1: 11GeV, 2: 19GeV, 3: 27GeV, 4: 39GeV, 5: 62GeV, 6: 200 GeV | PID = 0: phi, 1 Kstar | Year = 0: run11, 1 run10 | Cut = 0: pr, 1: gl
+void EffMcPhi(const int Energy = 4, const long StartEvent = 0, const long StopEvent = 100000000024, const int PID = 0, const int Year = 0, const int Mode = 2, const char* Setting = "fittoplateau") // Energy = 0: 7GeV, 1: 11GeV, 2: 19GeV, 3: 27GeV, 4: 39GeV, 5: 62GeV, 6: 200 GeV | PID = 0: phi, 1 Kstar | Year = 0: run11, 1 run10 | Cut = 0: pr, 1: gl
 {
   gSystem->Load("libStEffMcPhi.so");
 

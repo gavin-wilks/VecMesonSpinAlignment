@@ -18,10 +18,10 @@ namespace tof
   float const ptMin = 0.2;
   float const ptMax = 8.0;
 
-  int const BinEta = 10;
+  int const BinEta = 15;
   // int const BinEta = 1;
-  float const etaMin = -1.0;
-  float const etaMax = 1.0;
+  float const etaMin = -1.5;
+  float const etaMax = 1.5;
   int const etaQA = 5;
 
   int const BinPhi = 12;
