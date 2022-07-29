@@ -11,16 +11,16 @@ namespace vmsa
 {
   //--------------------------------------------------
   // used in TreeProduction and FillSpinAlginment
-  int const NumBeamEnergy = 5;
+  int const NumBeamEnergy = 14;
   // event cut
-  float const mVzMaxMap[NumBeamEnergy] = {70.0,70.0,70.0,70.0,70.0}; // 7.7, 9.1, 11.5, 14.6, 19.6 (BES-II)
+  float const mVzMaxMap[NumBeamEnergy] = {70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0}; // 7.7, 9.1, 11.5, 14.6, 19.6 (BES-II)
   float const mVrMax = 2.0;
   float const mVzVpdDiffMax = 10.0;
   int const mMatchedToFMin = 2;
 
   // track cut
-  float const mSigScaleMap[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0};
-  float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0}; // for event plane reconstruction: 1.0 for BES-II
+  float const mSigScaleMap[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
+  float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0}; // for event plane reconstruction: 1.0 for BES-II
   float const mDcaTrMax = 1.0; // for pion, kaon, proton mDcaTrMax = 1.0 for flow
   float const mDcaTrMax_pid[3] = {3.0,2.0,2.0}; // cuts for daughter pions and kaons to make mother particles
   float const mDcaTrMax_phi = 3.0;
@@ -30,7 +30,7 @@ namespace vmsa
   int const mHitsMaxTPCMin = 0;
   float const mHitsRatioTPCMin = 0.52;
   float const mEtaMax = 1.0;
-  float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
+  float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
   float const mGlobPtMax = 10.0; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
@@ -153,9 +153,27 @@ namespace vmsa
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
+    {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2},
     {0.4,0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2}
   };
   float const pt_up[NumBeamEnergy][pt_rebin]  = { 
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
+    {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
     {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
     {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
     {0.8,1.2,1.8,2.4,3.0,4.2,5.4,7.2,8.0},
@@ -167,22 +185,49 @@ namespace vmsa
     {1,3,5, 8,11,14,17,20,24},
     {1,3,5, 8,11,14,17,20,24},
     {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
+    {1,3,5, 8,11,14,17,20,24},
     {1,3,5, 8,11,14,17,20,24}
-  };
+   };
   int const pt_rebin_stop[NumBeamEnergy][pt_rebin]  = {
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
+    {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24},
     {2,4,7,10,13,16,19,23,24}
   };
-  int const pt_rebin_first[NumBeamEnergy] = {0,0,0,0,0};
-  int const pt_rebin_last[NumBeamEnergy]  = {8,6,6,6,6};
-  int const pt_QA[NumBeamEnergy]    = {1,1,2,2,3};
-  int const pt_RawQA[NumBeamEnergy]    = {2,4,6,3,10};
+  int const pt_rebin_first[NumBeamEnergy] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  int const pt_rebin_last[NumBeamEnergy]  = {6,6,6,6,6,6,6,6,6,6,6,6,6,6};
+  int const pt_QA[NumBeamEnergy]    = {2,2,2,2,2,2,2,2,2,2,2,2,2,2};
+  int const pt_RawQA[NumBeamEnergy]    = {7,7,7,7,7,7,7,7,7,7,7,7,7,7};
 
   int const pt_rebinKS = 4; // maximum pt binning
   float const pt_lowKS[NumBeamEnergy][pt_rebinKS] = {
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
+    {0.4,1.0,1.5,5.0},
     {0.4,1.0,1.5,5.0},
     {0.4,1.0,1.5,5.0},
     {0.4,1.0,1.5,5.0},
@@ -194,9 +239,27 @@ namespace vmsa
     {1.0,1.5,5.0,8.0},
     {1.0,1.5,5.0,8.0},
     {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
+    {1.0,1.5,5.0,8.0},
     {1.0,1.5,5.0,8.0}
   };
   int const pt_rebin_startKS[NumBeamEnergy][pt_rebinKS] = {
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
+    {1,4,6,18},
     {1,4,6,18},
     {1,4,6,18},
     {1,4,6,18},
@@ -208,16 +271,34 @@ namespace vmsa
     {4,6,18,23},
     {4,6,18,23},
     {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
+    {4,6,18,23},
     {4,6,18,23}
   };
-  int const pt_rebin_firstKS[NumBeamEnergy] = {0,0,0,0,0};
-  int const pt_rebin_lastKS[NumBeamEnergy]  = {3,3,3,3,3};
-  int const pt_QAKS[NumBeamEnergy]    = {1,1,1,1,1};
-  int const pt_RawQAKS[NumBeamEnergy]    = {6,6,6,6,6};
+  int const pt_rebin_firstKS[NumBeamEnergy] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  int const pt_rebin_lastKS[NumBeamEnergy]  = {3,3,3,3,3,3,3,3,3,3,3,3,3,3};
+  int const pt_QAKS[NumBeamEnergy]    = {1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+  int const pt_RawQAKS[NumBeamEnergy]    = {6,6,6,6,6,6,6,6,6,6,6,6,6,6};
 
 
   int const pt_rebinKSv2 = 8; // maximum pt binning
   float const pt_lowKSv2[NumBeamEnergy][pt_rebinKSv2] = {
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
+    {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
     {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
     {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
     {0.2,0.6,1.0,1.5,2.0,3.0,4.0,5.0},
@@ -229,9 +310,27 @@ namespace vmsa
     {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
     {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
     {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
+    {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0},
     {0.6,1.0,1.5,2.0,3.0,4.0,5.0,8.0}
   };
   int const pt_rebin_startKSv2[NumBeamEnergy][pt_rebinKSv2] = {
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
+    {0,2,4,6,8,12,16,18},
     {0,2,4,6,8,12,16,18},
     {0,2,4,6,8,12,16,18},
     {0,2,4,6,8,12,16,18},
@@ -243,12 +342,21 @@ namespace vmsa
     {2,4,6,8,12,16,18,23},
     {2,4,6,8,12,16,18,23},
     {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
+    {2,4,6,8,12,16,18,23},
     {2,4,6,8,12,16,18,23}
   };
-  int const pt_rebin_firstKSv2[NumBeamEnergy] = {0,0,0,0,0};
-  int const pt_rebin_lastKSv2[NumBeamEnergy]  = {7,7,7,7,7};
-  int const pt_QAKSv2[NumBeamEnergy]    = {1,1,1,1,1};
-  int const pt_RawQAKSv2[NumBeamEnergy]    = {6,6,6,6,6};
+  int const pt_rebin_firstKSv2[NumBeamEnergy] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  int const pt_rebin_lastKSv2[NumBeamEnergy]  = {7,7,7,7,7,7,7,7,7,7,7,7,7,7};
+  int const pt_QAKSv2[NumBeamEnergy]    = {1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+  int const pt_RawQAKSv2[NumBeamEnergy]    = {6,6,6,6,6,6,6,6,6,6,6,6,6,6};
 
   std::string const Centrality[9] = {"70%-80%","60%-70%","50%-60%","40%-50%","30%-40%","20%-30%","10%-20%","5%-10%","0%-5%"}; // Centrality bin
   int const Cent_Total = 10; // centrality: 9 = 20%-60%, 0-8 from RefMultCorr
@@ -339,10 +447,10 @@ namespace vmsa
   int const Func_QA    = 0;
 
   // shared constant
-  std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
-  std::string const mBeamEnergyText[NumBeamEnergy] = {"7.7GeV","9.1GeV","11.5GeV","14.6GeV","19.6GeV"};
-  float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6};
-  int const mBeamYear[NumBeamEnergy] = {2021,2020,2020,2019,2019};
+  std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV","11GeV","14GeV","19GeV","3GeV","3p2GeV","3p5GeV","3p9GeV","4p5GeV","5p2GeV","6p2GeV","7p2GeV","7p7GeV"};
+  std::string const mBeamEnergyText[NumBeamEnergy] = {"7.7 GeV","9.1 GeV","11.5 GeV","14.6 GeV","19.6 GeV","3.0 GeV FXT","3.2 GeV FXT","3.5 GeV FXT","3.9 GeV FXT","4.5 GeV FXT","5.2 GeV FXT","6.2 GeV FXT","7.2 GeV FXT","7.7 GeV FXT"};
+  float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6,3.0,3.2,3.5,3.9,4.5,5.2,6.2,7.2,7.7};
+  int const mBeamYear[NumBeamEnergy] = {2021,2020,2020,2019,2019,2019,2019,2019,2019,2019,2019,2019,2019,2019};
 
   std::string const mPID[3]   = {"Phi","Rho","KStar"};
   float const Norm_Start[3][2]  = {{1.04,0.99},{0.41,0.30},{1.15,0.70}}; // normalise to right and left
