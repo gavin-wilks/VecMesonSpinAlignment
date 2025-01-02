@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job nProcesses="&nJobs;" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    <!--root4star -l -b -q McEtaF_Resolution.C\(&rho00;,&ptbin;,&energy;,&pid;,&cent;,&nEvents;,&rapidity;,&mode;,&etamode;,&res;,&fullEP;,&v2;,\"$JOBID\"\)-->
+    root4star -l -b -q McEtaF_Pt.C\(&rho00;,&ptbin;,&energy;,&pid;,&cent;,&nEvents;,&rapidity;,&mode;,&etamode;,&res;,&fullEP;,&v2;,&v2val;,\"$JOBID\"\)
+  </command>
+
+  <SandBox installer="ZIP">
+    <Package>
+      <!--<File>file:&codePath;/McEtaF_Resolution.C</File>-->
+      <File>file:&codePath;/McEtaF_Pt.C</File>
+      <File>file:&codePath;/Utility</File>
+    </Package>
+  </SandBox>
+
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/Log/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/&outDir;/" />
+
+</job>
+

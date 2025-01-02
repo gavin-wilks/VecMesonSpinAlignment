@@ -1,0 +1,42 @@
+#!/bin/bash
+#order=$1
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,0\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,3\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,4\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,5\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(3,0,1,0,0,0,${order},0\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(4,0,1,0,0,0,${order},0\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(3,0,1,0,0,0,${order},1\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(4,0,1,0,0,0,${order},1\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,3,${order}\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,4,${order}\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,5,${order}\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,0,2\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,3,2\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,4,2\)
+#root -l -b -q calculateFPt_EPRes_EffAcc.C\(4,0,1,0,0,5,2\)
+
+#root -l -b -q fitcos_2nd_4thOrder_etastudy_includebeta.C\(4,0,1,0,0,0\) 
+#root -l -b -q fitcos_2nd_4thOrder_etastudy_includebeta.C\(4,0,1,0,0,3\) 
+#root -l -b -q fitcos_2nd_4thOrder_etastudy_includebeta.C\(4,0,1,0,0,4\) 
+#root -l -b -q fitcos_2nd_4thOrder_etastudy_includebeta.C\(4,0,1,0,0,5\) 
+
+#root -l -b -q fitcos_2nd_2ndOrder_etastudy.C\(4,0,1,0,0,0\) 
+#root -l -b -q fitcos_2nd_2ndOrder_etastudy.C\(4,0,1,0,0,3\) 
+#root -l -b -q fitcos_2nd_2ndOrder_etastudy.C\(4,0,1,0,0,4\) 
+#root -l -b -q fitcos_2nd_2ndOrder_etastudy.C\(4,0,1,0,0,5\) 
+
+#root -l -b -q fitcos_2nd_4thOrder_etastudy.C\(4,0,1,0,0,0\) 
+#root -l -b -q fitcos_2nd_4thOrder_etastudy.C\(4,0,1,0,0,3\) 
+#root -l -b -q fitcos_2nd_4thOrder_etastudy.C\(4,0,1,0,0,4\) 
+#root -l -b -q fitcos_2nd_4thOrder_etastudy.C\(4,0,1,0,0,5\) 
+
+
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(3,0,1,0,0,0,1,-1,0,1\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(4,0,1,0,0,0,1,-1,0,1\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(3,0,1,0,0,0,2,-1,0,1\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(4,0,1,0,0,0,2,-1,0,1,0\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly_PhiPsi.C\(4,0,1,0,0,0,2,-2,0,1\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly_PhiPsi.C\(4,0,1,0,0,0,2,-3,1,1\)
+#root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(0,0,1,0,0,0,1,-10,0,1,1\)
+root -l -b -q calculateFPt_EPRes_EffAcc_Poly.C\(0,0,1,0,0,0,2,-10,0,1,1\)
