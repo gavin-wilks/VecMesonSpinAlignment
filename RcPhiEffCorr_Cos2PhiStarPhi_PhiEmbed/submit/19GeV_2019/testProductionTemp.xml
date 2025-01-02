@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job simulateSubmission="false">
+
+  <command>
+    starver &library;
+    root4star -l -b -q EffMcPhi.C\(&energy;,0,1000000000,&pid;,0,&mode;,&inputpt;,&startpt;,&stoppt;,\"noToF\",&etamode;,&order;,\"&ysigma;\",&v2;,&rho00;,&rerho1n1;,&imrho1n1;,&real;,&imag;,&hrho00;,&hrerho1n1;,&himrho1n1;,&hreal;,&himag;\)
+  </command>
+
+  <SandBox>
+    <Package>
+      <File>file:&codePath;/EffMcPhi.C</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <!--stdout discard="true"/-->
+  <stdout URL="file:&outPath;/Log/&outDir;/$JOBID.out"/>
+  <stderr URL="file:&outPath;/Log/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/&outDir;/" />
+
+</job>
+

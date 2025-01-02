@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="50" filesPerHour="10" maxFilesPerProcess="200" fileListSyntax="paths" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    root4star -l -b -q EffMcPhi.C\(\"$FILELIST\",4,0,100000000024,0,0,1,\"\"\) 
+  </command>
+
+  <SandBox installer="ZIP">
+    <Package>
+      <File>file:&codePath;/EffMcPhi.C</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/Acceptance/Lists/Phi_19GeV_Tuples.list" />
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/Log/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="Acceptance_Phi_19GeV_1.root" toURL="file:&outPath;/OutPut/&outDir;/out_$JOBID.root" />
+
+</job>
+
