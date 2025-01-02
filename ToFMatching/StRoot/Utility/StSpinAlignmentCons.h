@@ -248,13 +248,13 @@ namespace vmsa
   float const nSigVec = 2.0;
 
   float const ptEffMax = 8.0;
-  float const ptMin = 0.2;
+  float const ptMin = 0.1;
   float const ptMax = 5.0;
-  int const BinPt  = 80; // for efficiency
+  int const BinPt  = 25; // for efficiency
   // int const BinPt  = 20;
   int const BinEta = 10;
   int const BinY = 30;
-  int const BinPhi = 12;
+  int const BinPhi = 36;
   int const BinCos = 7;
 
   // used in McPhiResCorr
