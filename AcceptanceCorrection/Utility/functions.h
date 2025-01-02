@@ -2,6 +2,32 @@
 #include "TLatex.h"
 #include "TLine.h"
 
+double SpinDensity2Dcos(double *x, double *p)
+{
+  return p[5]*((1.-p[0])+(3.*p[0] -1.)*x[0]*x[0]
+               -sqrt(2)*p[1]*2*x[0]*TMath::Sqrt(1-x[0]*x[0])*cos(x[1])
+               +sqrt(2)*p[2]*2*x[0]*TMath::Sqrt(1-x[0]*x[0])*sin(x[1])
+               -2.*p[3]*(1-x[0]*x[0])*cos(2.*x[1])
+               +2.*p[4]*(1-x[0]*x[0])*sin(2.*x[1]));
+}
+double SpinDensity1Dcosset(double *x, double *p)
+{
+  return p[5]*((1.-p[0])+(3.*p[0] -1.)*p[6]*p[6]
+               -sqrt(2)*p[1]*2*p[6]*TMath::Sqrt(1-p[6]*p[6])*cos(x[0])
+               +sqrt(2)*p[2]*2*p[6]*TMath::Sqrt(1-p[6]*p[6])*sin(x[0])
+               -2.*p[3]*(1-p[6]*p[6])*cos(2.*x[0])
+               +2.*p[4]*(1-p[6]*p[6])*sin(2.*x[0]));
+}
+double SpinDensity1Dphiset(double *x, double *p)
+{
+  return p[5]*((1.-p[0])+(3.*p[0] -1.)*x[0]*x[0]
+               -sqrt(2)*p[1]*2*x[0]*TMath::Sqrt(1-x[0]*x[0])*cos(p[6])
+               +sqrt(2)*p[2]*2*x[0]*TMath::Sqrt(1-x[0]*x[0])*sin(p[6])
+               -2.*p[3]*(1-x[0]*x[0])*cos(2.*p[6])
+               +2.*p[4]*(1-x[0]*x[0])*sin(2.*p[6]));
+}
+
+
 double SpinDensity(double *x_val, double *par)
 {
   double x = x_val[0];
@@ -84,6 +110,22 @@ double EventPlaneDist(double *var, double *par)
   return y;
 }
 
+double EventPlaneDist1st(double *var, double *par)
+{
+  double DeltaPsi = var[0];
+  double chi = par[0];
+  double arg = chi/TMath::Sqrt(2.0);
+  double arg2 = -0.5*chi*chi;
+  double pi = TMath::Pi();
+  double norm = par[1];
+
+  double cos = TMath::Cos(DeltaPsi);
+  double sin2 = TMath::Sin(DeltaPsi)*TMath::Sin(DeltaPsi);
+  double y = norm*(TMath::Exp(arg2)+TMath::Sqrt(pi)*arg*cos*TMath::Exp(arg2*sin2)*(1.0+TMath::Erf(arg*cos)));
+
+  return y;
+}
+
 double v2_pT_FitFunc(double *x_val, double *par)
 {
   // Fit function for v2 vs. pT
@@ -105,6 +147,32 @@ double v2_pT_FitFunc(double *x_val, double *par)
   return v2;
 }
 
+//double v2_pT_FitFunc_Poly3(double *x_val, double *par)
+//{
+//  // Fit function for v2 vs. pT
+//  // From arXiv:nucl-th/0403030v5: Resonance decay effects on anisotrotpy parameters
+//  double v2, pT, a, b, c, d, n;
+//  pT = x_val[0];
+//  n  = par[0]; // number-of-constituent quarks
+//  a  = par[1];
+//  b  = par[2];
+//  c  = par[3];
+//  d  = par[4];
+//  e  = par[5];
+//  f  = par[6];
+//  g  = par[7];
+//  h  = par[8];
+//  //i  = par[9];
+//  //j  = par[10];
+//
+//  if(c != 0.0)
+//  {
+//    v2 = a*n/(1.0 + exp(-(pT/n - b)/c)) - d*n + e + f*pT - g*pT*pT + h*pT*pT*pT; //+ i*exp(-j*pT);
+//  }
+//  else v2 = 0.0;
+//
+//  return v2;
+//}
 double Levy(double *var, double *par)
 {
   double const m0 = 1.01940; // phi-meson mass
@@ -141,9 +209,44 @@ double pTLevy(double *var, double *par)
   return y;
 }
 
-double meanLevy(double *var, double *par)
+double LevyKStar(double *var, double *par)
 {
-  double const m0 = 1.01940; // phi-meson mass
+  double const m0 = 0.89555; // K*0-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double n    = par[1];
+  double T    = par[2];
+
+  double numer = dNdy*(n-1)*(n-2);
+  double denom = n*T*(n*T+m0*(n-2));
+  double power = pow(1+(mT-m0)/(n*T),-1.0*n);
+
+  double y = numer*power/denom;
+
+  return y;
+}
+
+double pTLevyKStar(double *var, double *par)
+{
+  double const m0 = 0.89555; // K*0-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double n    = par[1];
+  double T    = par[2];
+
+  double numer = dNdy*(n-1)*(n-2);
+  double denom = n*T*(n*T+m0*(n-2));
+  double power = pow(1+(mT-m0)/(n*T),-1.0*n);
+
+  double y = pT*numer*power/denom;
+
+  return y;
+}
+double meanLevy(double *var, double *par, double const m0)
+{
+  //double const m0 = 1.01940; // phi-meson mass
   double pT   = var[0];
   double mT   = sqrt(pT*pT+m0*m0);
   double dNdy = par[0];
@@ -194,6 +297,56 @@ double Poly(double *x_val, double *par)
 {
   double x = x_val[0];
   double y = par[0] + par[1]*x;
+
+  return y;
+}
+
+double Poly2BreitWigner(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double m0 = par[0];
+  double Gamma = par[1];
+  double Norm = par[2];
+
+  double denom = 2.0*TMath::Pi()*((x-m0)*(x-m0)+Gamma*Gamma/4.0);
+  double BW = Norm*Gamma/denom;
+
+  double Poly = par[3] + par[4]*x + par[5]*x*x;
+
+  double y = BW + Poly;
+
+  return y;
+}
+
+double Poly2(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double y = par[0] + par[1]*x + par[2]*x*x;
+
+  return y;
+}
+
+double Poly3BreitWigner(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double m0 = par[0];
+  double Gamma = par[1];
+  double Norm = par[2];
+
+  double denom = 2.0*TMath::Pi()*((x-m0)*(x-m0)+Gamma*Gamma/4.0);
+  double BW = Norm*Gamma/denom;
+
+  double Poly = par[3] + par[4]*x + par[5]*x*x + par[6]*x*x*x;
+
+  double y = BW + Poly;
+
+  return y;
+}
+
+double Poly3(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double y = par[0] + par[1]*x + par[2]*x*x + par[3]*x*x*x;
 
   return y;
 }

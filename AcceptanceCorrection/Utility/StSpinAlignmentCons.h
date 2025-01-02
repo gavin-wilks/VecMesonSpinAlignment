@@ -240,7 +240,7 @@ namespace vmsa
   // shared constant
   std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
   float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6};
-  int const mBeamYear[NumBeamEnergy] = {2010,2010,2011,2011,2019};
+  int const mBeamYear[NumBeamEnergy] = {2021,2010,2011,2011,2019};
 
   std::string const mPID[3]   = {"Phi","Rho","KStar"};
   float const Norm_Start[3][2]  = {{1.04,0.99},{0.41,0.30},{0.41,0.30}}; // normalise to right and left
@@ -254,9 +254,9 @@ namespace vmsa
   float const nSigVec = 2.0;
 
   float const ptEffMax = 8.0;
-  float const ptMin = 0.2;
+  float const ptMin = 0.1;
   float const ptMax = 5.0;
-  int const BinPt  = 80; // for efficiency
+  int const BinPt  = 50; // for efficiency
   // int const BinPt  = 20;
   int const BinEta = 10;
   int const BinY = 20;
