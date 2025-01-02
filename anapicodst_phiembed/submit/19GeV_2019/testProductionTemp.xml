@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="25" filesPerHour="10" maxFilesPerProcess="50" fileListSyntax="paths" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    csh runmakePicoDstQA.csh $FILELIST 0 &particle; $JOBID &energy; &gid; &mode; &phiswitch; 
+    <!-- &rho; &real; &imag; &re; &im; &hrho; &hreal; &himag; &hre; &him;-->
+  </command>
+
+  <SandBox>
+    <Package>
+      <File>file:&codePath;/makePicoDstQA_Phi_TTrees.C</File>
+      <File>file:&codePath;/runmakePicoDstQA_Phi_TTrees.C</File>
+      <!--File>file:&codePath;/makePicoDstQA_Phi.C</File-->
+      <!--File>file:&codePath;/runmakePicoDstQA_Phi.C</File-->
+      <File>file:&codePath;/runmakePicoDstQA.csh</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:&listPath;/&particle;_embed.list" />
+  <!--input URL="filelist:/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/anapicodst/submit/19GeV_2019/resubmit.list" /-->
+  <stdout URL="file:&outPath;/Log/Embedding/&outDir;/$JOBID.out"/>
+  <stderr URL="file:&outPath;/Log/Embedding/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/Embedding/&outDir;/" />
+
+</job>
+

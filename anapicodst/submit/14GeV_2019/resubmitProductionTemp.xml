@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="1" filesPerHour="10" maxFilesPerProcess="1" fileListSyntax="paths" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    csh runmakePicoDstQA.csh $FILELIST 0 &particle; $JOBID &energy; &gid; &mode;
+  </command>
+
+  <SandBox installer="ZIP">
+    <Package>
+      <File>file:&codePath;/makePicoDstQA.C</File>
+      <File>file:&codePath;/runmakePicoDstQA.C</File>
+      <File>file:&codePath;/runmakePicoDstQA.csh</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/anapicodst/submit/14GeV_2019/resubmit.list" />
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/Log/Embedding/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/Embedding/&outDir;/" />
+
+</job>
+
