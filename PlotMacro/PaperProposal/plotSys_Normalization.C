@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", string etamode = "eta1_eta1")
+void plotSys_Normalization(int energy = 1, int order = 2, string correction = "AccRes", string etamode = "eta1_eta1")
 {
   const string EP[2] = {"","2nd"};
   const string mBeamEnergy[2] = {"14.6 GeV","19.6 GeV"};
@@ -24,7 +24,7 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
   const float pt_high = 4.2;
   const float pt_shift[3] = {-0.1,0.1,0.2};
   const int dca_default = 0;
-  const string mLeg_dca[3] = {"dca < 2.0 cm", "dca < 2.5 cm", "dca < 3.0 cm"};
+  const string mLeg_dca[3] = {"[1.04,1.05]", "[0.99,1.0]", "Both"};
   const string mLeg_mode[4] = {"BW Inte (2#sigma)", "Counting (2#sigma)", "Counting (2.5#sigma)", "Counting (3.0#sigma)"};
 
   string inputfile = Form("../../output/AuAu%s/Phi/Poly/%sPhiPtSys_%s_Poly.root",mBeamEnergyFile[energy].c_str(),correction.c_str(),etamode.c_str());
@@ -57,7 +57,7 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
       cout << "Before creating histname" << endl;
-      string HistName = Form("rhoRaw_Centrality_9_%s_Dca_%d_Sig_0_Phi_Norm_0_%s_Poly1_F_0_Eff_0",EP[order-1].c_str(),i_dca,mMode[i_mode].c_str());
+      string HistName = Form("rhoRaw_Centrality_9_%s_Dca_0_Sig_0_Phi_Norm_%d_%s_Poly1_F_0_Eff_0",EP[order-1].c_str(),i_dca,mMode[i_mode].c_str());
       cout << "Read in Systematic Contribution from DCA Cut: " << HistName.c_str() << endl;
       g_rhoSys_Dca[i_dca][i_mode] = (TGraphAsymmErrors*)File_InPut->Get(HistName.c_str());
       g_rhoSys_Dca[i_dca][i_mode]->SetMarkerColor(mColor[i_dca]);
@@ -85,7 +85,7 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
   {
     h_frame->SetBinContent(bin_x,-10.0);
   }
-  string title_cuts = Form("DCA Cuts Systematics @ AuAu %s EP Order %d",mBeamEnergy[energy].c_str(),order);
+  string title_cuts = Form("Normalization Systematics @ AuAu %s EP Order %d",mBeamEnergy[energy].c_str(),order);
   h_frame->SetTitle(title_cuts.c_str());
   h_frame->SetStats(0);
   h_frame->GetXaxis()->SetRangeUser(pt_low,pt_high);
@@ -118,14 +118,14 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
     }
   }
 
-  string formula = "#Delta#rho_{00,sys}^{dca} = #frac{#rho_{00,max}^{dca}-#rho_{00,min}^{dca}}{#sqrt{12}}";
+  string formula = "#Delta#rho_{00,sys}^{Norm} = #frac{#rho_{00,max}^{Norm}-#rho_{00,min}^{Norm}}{#sqrt{12}}";
   // string formula = "#Delta#rho_{00,sys}^{dca} = (#rho_{00,max}^{dca}-#rho_{00,min}^{dca})/#sqrt{12}";
   plotTopLegend((char*)formula.c_str(),0.3,0.8,0.03,1,0.0,42,1);
 
   TLegend *leg_dca = new TLegend(0.2,0.2,0.5,0.4);
   leg_dca->SetBorderSize(0);
   leg_dca->SetFillColor(10);
-  leg_dca->AddEntry(g_rho_default,"default (dca < 2.0 cm)","P");
+  leg_dca->AddEntry(g_rho_default,"default [1.04,1.05]","P");
   for(int i_dca = 0; i_dca < 3; ++i_dca)
   {
     if(i_dca == dca_default) continue;
@@ -143,6 +143,6 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
   }
   leg_mode->Draw("same");
 
-  string FigName = Form("c_SysPtDca_AuAu%dGeV_order%d.pdf",mEnergy[energy],order);
+  string FigName = Form("c_SysPtNormalization_AuAu%dGeV_order%d.pdf",mEnergy[energy],order);
   c_rho00->SaveAs(FigName.c_str());
 }
