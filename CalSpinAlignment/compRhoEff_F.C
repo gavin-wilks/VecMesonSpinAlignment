@@ -17,14 +17,17 @@
 #endif
 
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 void compRhoEff_F(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9, string correction = "AccRes")
 {
   string inputfileF0 = Form("../output/AuAu%s/%s/Rho_%sSysErrors_F_0.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),correction.c_str());
   string inputfileF1 = Form("../output/AuAu%s/%s/Rho_%sSysErrors_F_1.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),correction.c_str());
+  string inputfileF2 = Form("../output/AuAu%s/%s/Rho_%sSysErrors_F_2.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),correction.c_str());
 
   TFile *File_InPutF0 = TFile::Open(inputfileF0.c_str());
   TFile *File_InPutF1 = TFile::Open(inputfileF1.c_str());
+  TFile *File_InPutF2 = TFile::Open(inputfileF2.c_str());
 
   TString StatErrorRho = Form("g_rho00_%s_%s_StatError",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   TString SysErrorRho = Form("g_rho00_%s_%s_SysError",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
@@ -33,6 +36,8 @@ void compRhoEff_F(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9, string corr
   TGraphAsymmErrors *g_SysF0    = (TGraphAsymmErrors*)((TGraphAsymmErrors*)   File_InPutF0->Get( SysErrorRho.Data()))->Clone();
   TGraphAsymmErrors *g_StatF1   = (TGraphAsymmErrors*)((TGraphAsymmErrors*)   File_InPutF1->Get(StatErrorRho.Data()))->Clone();
   TGraphAsymmErrors *g_SysF1    = (TGraphAsymmErrors*)((TGraphAsymmErrors*)   File_InPutF1->Get( SysErrorRho.Data()))->Clone();
+  TGraphAsymmErrors *g_StatF2   = (TGraphAsymmErrors*)((TGraphAsymmErrors*)   File_InPutF2->Get(StatErrorRho.Data()))->Clone();
+  TGraphAsymmErrors *g_SysF2    = (TGraphAsymmErrors*)((TGraphAsymmErrors*)   File_InPutF2->Get( SysErrorRho.Data()))->Clone();
 
   TH1F *h_frame = (TH1F*)File_InPutF1->Get("h_frame");
 
@@ -66,14 +71,15 @@ void compRhoEff_F(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9, string corr
   besi19->SetMarkerSize(1.3);
   besi19->SetMarkerColor(kBlack);
   besi19->SetLineColor(kBlack);
-  besi19->Draw("pE Z same");
+  besi19->Draw("pE same");
 
   besi19_sys->SetLineColor(kBlack);
   besi19_sys->SetMarkerStyle(20);
   besi19_sys->SetMarkerSize(1.3);
   besi19_sys->SetMarkerColor(kBlack);
   besi19_sys->SetLineColor(kBlack);
-  besi19_sys->Draw("pE [] same");
+  plotSysErrorsBox(besi19_sys,kBlack);//,energy);
+  //besi19_sys->Draw("pE [] same");
 
   //TFile *besi = TFile::Open("../data/rho00_stat_sys_Laxis.root");
   //TGraphAsymmErrors *besi19 = (TGraphAsymmErrors*)besi->Get("rho00_2ndEP_pt_stat_19;1");
@@ -96,13 +102,16 @@ void compRhoEff_F(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9, string corr
   plotTopLegend((char*)leg_besi.c_str(),0.6,0.487,0.03,1,0.0,42,0);
 
   Draw_TGAE_Point_new_Symbol(0.5,0.47,0.0,0.0,0.0,0.0,20,kBlue,1.3); 
-  string leg_count = Form("#phi F from BESII");
-  plotTopLegend((char*)leg_count.c_str(),0.6,0.467,0.03,1,0.0,42,0);
+  string leg_count0 = Form("#phi F");
+  plotTopLegend((char*)leg_count0.c_str(),0.6,0.467,0.03,1,0.0,42,0);
 
   Draw_TGAE_Point_new_Symbol(0.5,0.45,0.0,0.0,0.0,0.0,20,kOrange+7,1.3); 
-  string leg_count3D = Form("#phi F from BESI");
-  plotTopLegend((char*)leg_count3D.c_str(),0.6,0.447,0.03,1,0.0,42,0);
+  string leg_count1 = Form("#phi F+#deltaF");
+  plotTopLegend((char*)leg_count1.c_str(),0.6,0.447,0.03,1,0.0,42,0);
 
+  Draw_TGAE_Point_new_Symbol(0.5,0.43,0.0,0.0,0.0,0.0,20,kGray+2,1.3); 
+  string leg_count2 = Form("#phi F-#deltaF");
+  plotTopLegend((char*)leg_count2.c_str(),0.6,0.427,0.03,1,0.0,42,0);
   //Draw_TGAE_Point_new_Symbol(0.5,0.43,0.0,0.0,0.0,0.0,20,kOrange+7,1.3); 
   //string leg_countA = "Eff+Acc+Res Corrected #phi BES-II";
   //plotTopLegend((char*)leg_countA.c_str(),0.6,0.427,0.03,1,0.0,42,0);
@@ -122,12 +131,16 @@ void compRhoEff_F(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9, string corr
 
   g_StatF0->SetPoint(0,0,-1.0);
   g_StatF1->SetPoint(0,0,-1.0);
+  g_StatF2->SetPoint(0,0,-1.0);
   g_SysF0->SetPoint(0,0,-1.0);
   g_SysF1->SetPoint(0,0,-1.0);
+  g_SysF2->SetPoint(0,0,-1.0);
   g_StatF0->SetPoint(1,0,-1.0);
   g_StatF1->SetPoint(1,0,-1.0);
+  g_StatF2->SetPoint(1,0,-1.0);
   g_SysF0->SetPoint(1,0,-1.0);
   g_SysF1->SetPoint(1,0,-1.0);
+  g_SysF2->SetPoint(1,0,-1.0);
   
   g_StatF0->SetMarkerStyle(20);
   g_StatF0->SetMarkerColor(kBlue);
@@ -137,10 +150,10 @@ void compRhoEff_F(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9, string corr
   g_SysF0->SetMarkerStyle(20);
   g_SysF0->SetMarkerSize(1.3);
   g_SysF0->SetMarkerColor(kBlue);
-  g_SysF0->SetLineColor(kGray+2);
-  g_StatF0->Draw("pE Z same");
+  g_SysF0->SetLineColor(kBlue);
+  g_StatF0->Draw("pE  same");
 
-  plotSysErrorsBox(g_SysF0,kBlue,energy);
+  plotSysErrorsBox(g_SysF0,kBlue);//,energy);
 
   g_StatF1->SetMarkerStyle(20);
   g_StatF1->SetMarkerColor(kOrange+7);
@@ -151,9 +164,22 @@ void compRhoEff_F(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9, string corr
   g_SysF1->SetMarkerSize(1.3);
   g_SysF1->SetMarkerColor(kOrange+7);
   g_SysF1->SetLineColor(kOrange+7);
-  g_StatF1->Draw("pE Z same");
+  g_StatF1->Draw("pE  same");
 
-  plotSysErrorsBox(g_SysF1,kOrange+7,energy);
+  plotSysErrorsBox(g_SysF1,kOrange+7);//,energy);
+
+  g_StatF2->SetMarkerStyle(20);
+  g_StatF2->SetMarkerColor(kGray+2);
+  g_StatF2->SetLineColor(kGray+2);
+  g_StatF2->SetMarkerSize(1.3);
+
+  g_SysF2->SetMarkerStyle(20);
+  g_SysF2->SetMarkerSize(1.3);
+  g_SysF2->SetMarkerColor(kGray+2);
+  g_SysF2->SetLineColor(kGray+2);
+  g_StatF2->Draw("pE  same");
+
+  plotSysErrorsBox(g_SysF2,kGray+2);//,energy);
 }
 
 
@@ -175,5 +201,26 @@ void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE)
     bSys[i_energy]->SetLineWidth(1);
     bSys[i_energy]->SetLineColor(plot_color);
     bSys[i_energy]->Draw("l Same");
+  }
+}
+
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nPt = g_rho->GetN();
+  TBox *bSys[nPt];
+  for(int i_pt = 0; i_pt < g_rho->GetN(); ++i_pt) // plot sys errors
+  {
+    double pt, rho;
+    g_rho->GetPoint(i_pt,pt,rho);
+    double err = g_rho->GetErrorYhigh(i_pt);
+
+    bSys[i_pt] = new TBox(pt-0.08,rho-err,pt+0.08,rho+err);
+    bSys[i_pt]->SetFillColor(0);
+    bSys[i_pt]->SetFillStyle(0);
+    bSys[i_pt]->SetLineStyle(1);
+    bSys[i_pt]->SetLineWidth(1);
+    bSys[i_pt]->SetLineColor(plot_color);
+    bSys[i_pt]->Draw("l Same");
   }
 }

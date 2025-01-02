@@ -25,7 +25,7 @@ int Sig_start = 0;
 int Sig_stop = 3;
 float nSigVecSys[3] = {2.0,1.5,2.5};
 
-void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool random3D = false)
+void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, int ptQA = 1, int dcaQA = 0, int nsigQA = 0, int nhitQA = 0, int normQA = 0, int methodQA = 0, bool random3D = false)
 {
   //string inputfile = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/%s/rho00/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(100000);
@@ -57,13 +57,14 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
 	        string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d",i_pt,i_cent,i_theta,i_dca,i_sig,i_nhit,vmsa::mPID[pid].c_str(),i_norm);
 	        h_mMass[KEY] = (TH1F*)File_InPut->Get(KEY.c_str());
 
+	        //h_mMass[KEY]->Rebin(2);
 	        if(i_theta == vmsa::CTS_start) h_mMass_InteTheta[KEY_InteTheta] = (TH1F*)h_mMass[KEY]->Clone(KEY_InteTheta.c_str());
 	        else h_mMass_InteTheta[KEY_InteTheta]->Add(h_mMass[KEY],1.0);
 	      }
               cout << KEY_InteTheta << endl;
 	      TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
 	      f_bw->SetParameter(0,vmsa::InvMass[pid]);
-	      f_bw->SetParLimits(0,vmsa::InvMass[pid]-0.01,vmsa::InvMass[pid]+0.01);
+	      f_bw->SetParLimits(0,vmsa::InvMass[pid]-0.02,vmsa::InvMass[pid]+0.02);
 	      f_bw->SetParameter(1,vmsa::Width[pid]);
 	      //f_bw->SetParLimits(1,0.01,0.2);
 	      f_bw->SetParameter(2,1000.0);
@@ -85,7 +86,7 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
     }
   }
 
-/*#if _PlotQA_
+#if _PlotQA_
   TCanvas *c_diff = new TCanvas("c_diff","c_diff",10,10,900,900);
   c_diff->Divide(3,3);
   for(int i_theta = 0; i_theta < 9; ++i_theta)
@@ -97,7 +98,7 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
     c_diff->cd(i_theta+1)->SetGrid(0,0);
     if(i_theta < vmsa::CTS_stop)
     {
-      string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_0_%s_Norm_%d",vmsa::pt_QAKS[energy],9,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+      string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d",ptQA,9,i_theta,dcaQA,nsigQA,nhitQA,vmsa::mPID[pid].c_str(),normQA);
       h_mMass[KEY_QA]->SetTitle("");
       h_mMass[KEY_QA]->GetXaxis()->SetNdivisions(505,'N');
       h_mMass[KEY_QA]->GetXaxis()->SetLabelSize(0.03);
@@ -105,6 +106,7 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
       h_mMass[KEY_QA]->GetXaxis()->SetTitleSize(0.05);
       h_mMass[KEY_QA]->GetXaxis()->SetTitleOffset(1.2);
       h_mMass[KEY_QA]->GetXaxis()->CenterTitle();
+      h_mMass[KEY_QA]->GetXaxis()->SetRangeUser(0.75,1.08);
 
       h_mMass[KEY_QA]->GetYaxis()->SetRangeUser(h_mMass[KEY_QA]->GetMinimum(),1.1*h_mMass[KEY_QA]->GetMaximum());
       h_mMass[KEY_QA]->GetYaxis()->SetNdivisions(505,'N');
@@ -121,7 +123,7 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
     }
     if(i_theta == vmsa::CTS_stop)
     {
-      string KEY_InteTheta_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_0_%s_Norm_%d",vmsa::pt_QAKS[energy],9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+      string KEY_InteTheta_QA = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d",ptQA,9,dcaQA,nsigQA,nhitQA,vmsa::mPID[pid].c_str(),normQA);
       h_mMass_InteTheta[KEY_InteTheta_QA]->SetTitle("");
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetNdivisions(505,'N');
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetLabelSize(0.03);
@@ -129,6 +131,7 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetTitleSize(0.05);
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetTitleOffset(1.2);
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->CenterTitle();
+      h_mMass_InteTheta[KEY_InteTheta_QA]->GetXaxis()->SetRangeUser(0.75,1.08);
 
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetYaxis()->SetRangeUser(h_mMass_InteTheta[KEY_InteTheta_QA]->GetMinimum(),1.1*h_mMass_InteTheta[KEY_InteTheta_QA]->GetMaximum());
       h_mMass_InteTheta[KEY_InteTheta_QA]->GetYaxis()->SetNdivisions(505,'N');
@@ -142,17 +145,20 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
       h_mMass_InteTheta[KEY_InteTheta_QA]->SetMarkerSize(1.2);
       h_mMass_InteTheta[KEY_InteTheta_QA]->Draw("pE");
       PlotLine(vmsa::InvMass_low[pid],vmsa::InvMass_high[pid],0.0,0.0,1,2,2);
-      TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+      TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
       f_bw->SetParameter(0,Par_InteTheta[KEY_InteTheta_QA][0]);
       f_bw->SetParameter(1,Par_InteTheta[KEY_InteTheta_QA][1]);
       f_bw->SetParameter(2,Par_InteTheta[KEY_InteTheta_QA][2]);
+      f_bw->SetParameter(3,Par_InteTheta[KEY_InteTheta_QA][3]);
+      f_bw->SetParameter(4,Par_InteTheta[KEY_InteTheta_QA][4]);
+      f_bw->SetParameter(5,Par_InteTheta[KEY_InteTheta_QA][5]);
       f_bw->SetLineColor(2);
       f_bw->SetLineStyle(2);
       f_bw->SetLineWidth(2);
       f_bw->Draw("l same");
     }
   }
-#endif*/
+#endif
 
   /*
   // fit theta-differential bin to extract fit parameters for integration
@@ -299,15 +305,18 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
     }
   }
   
-/*#if _PlotQA_
+#if _PlotQA_
   for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; ++i_theta)
   {
     c_diff->cd(i_theta+1);
-    string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_0_%s_Norm_%d",vmsa::pt_QAKS[energy],9,i_theta,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
-    TF1 *f_bw = new TF1("f_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+    string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d",ptQA,9,i_theta,dcaQA,nsigQA,nhitQA,vmsa::mPID[pid].c_str(),normQA);
+    TF1 *f_bw = new TF1("f_bw",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);
     f_bw->SetParameter(0,Par[KEY_QA][0]);
     f_bw->SetParameter(1,Par[KEY_QA][1]);
     f_bw->SetParameter(2,Par[KEY_QA][2]);
+    f_bw->SetParameter(3,Par[KEY_QA][3]);
+    f_bw->SetParameter(4,Par[KEY_QA][4]);
+    f_bw->SetParameter(5,Par[KEY_QA][5]);
     f_bw->SetLineColor(4);
     f_bw->SetLineStyle(2);
     f_bw->SetLineWidth(2);
@@ -362,7 +371,7 @@ void calSpinAlignmentSysKStar(int energy = 4, int pid = 2, int year = 0, bool ra
   if(!random3D) c_diff->SaveAs("../figures/c_diff_2.pdf");
   if(random3D) c_diff->SaveAs("../figures/3DRandom/c_diff_2.pdf");
 #endif
-*/
+
   TCanvas *c_rho = new TCanvas("c_rho","c_rho",10,10,800,800);
   c_rho->cd();
   c_rho->cd()->SetLeftMargin(0.15);

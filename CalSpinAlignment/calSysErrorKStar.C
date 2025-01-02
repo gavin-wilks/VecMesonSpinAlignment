@@ -22,7 +22,7 @@ double FuncAD(double *x_val, double *par);
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE);
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
-void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string correction = "Raw", bool random3D = false, int defaultF = 0)//defaultF = 0 is BESII, defaultF = 1 is BESI
+void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string correction = "AccRes", bool random3D = false, int defaultF = 0)//defaultF = 0 is BESII, defaultF = 1 is BESI
 {
   string inputfileHframe = Form("../output/AuAu%s/%s/RawKStarPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   string inputfile = Form("../output/AuAu%s/%s/%sKStarPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),correction.c_str());
@@ -99,7 +99,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     h_frame_cos->GetXaxis()->SetTitleOffset(1.2);
     h_frame_cos->GetXaxis()->CenterTitle();
 
-    h_frame_cos->GetYaxis()->SetRangeUser(0.00256,0.00274);
+    h_frame_cos->GetYaxis()->SetRangeUser(0.016,0.02);
     h_frame_cos->GetYaxis()->SetNdivisions(505,'N');
     h_frame_cos->GetYaxis()->SetTitle("#frac{1}{N_{events}} #frac{dN^{corr}_{#phi}}{d(cos#theta*)}");
     h_frame_cos->GetYaxis()->SetTitleSize(0.05);
@@ -108,22 +108,22 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     h_frame_cos->GetYaxis()->CenterTitle();
     h_frame_cos->DrawCopy("pE");
 
-    Draw_TGAE_Point_new_Symbol(0.07,0.0027025,0.0,0.0,0.0,0.0,20,kBlack,1.3); 
-    string leg_count = "#phi Data";
-    plotTopLegend((char*)leg_count.c_str(),0.1,0.0027,0.04,1,0.0,42,0);
-    string leg_pt = "|y| < 1.0, 1.2 < p_{T} < 1.8 GeV/c";
-    plotTopLegend((char*)leg_pt.c_str(),0.1,0.002685,0.04,1,0.0,42,0);
+    Draw_TGAE_Point_new_Symbol(0.07,0.019325,0.0,0.0,0.0,0.0,20,kBlack,1.3); 
+    string leg_count = "K*^{0} Data";
+    plotTopLegend((char*)leg_count.c_str(),0.1,0.0193,0.04,1,0.0,42,0);
+    string leg_pt = "|y| < 1.0, 1.0 < p_{T} < 1.5 GeV/c";
+    plotTopLegend((char*)leg_pt.c_str(),0.1,0.019,0.04,1,0.0,42,0);
 
-    string leg_sp = "STAR Preliminary";
-    plotTopLegend((char*)leg_sp.c_str(),0.1,0.0027425,0.04,2,0.0,42,0);
+    //string leg_sp = "STAR Preliminary";
+    //plotTopLegend((char*)leg_sp.c_str(),0.1,0.0027425,0.04,2,0.0,42,0);
 
-    PlotLine(0.04,0.085,0.0027225,0.0027225,kRed,2,1);
+    PlotLine(0.04,0.085,0.019725,0.019725,kRed,2,1);
     string leg_line = "N_{0}[(1+ #frac{B'F}{2})+(A'+F)cos^{2}#theta*+(A'F- #frac{B'F}{2})cos^{4}#theta*]";
-    plotTopLegend((char*)leg_line.c_str(),0.1,0.00272,0.04,1,0.0,42,0);
+    plotTopLegend((char*)leg_line.c_str(),0.1,0.0197,0.04,1,0.0,42,0);
 
     string leg_energy = Form("Au+Au %s %d", vmsa::mBeamEnergyText[energy].c_str(), vmsa::mBeamYear[energy]);
-    plotTopLegend((char*)leg_energy.c_str(),0.55,0.00259,0.04,1,0.0,42,0);
-    plotTopLegend((char*)"20%-60%",0.65,0.00258,0.04,1,0.0,42,0);
+    plotTopLegend((char*)leg_energy.c_str(),0.55,0.0167,0.04,1,0.0,42,0);
+    plotTopLegend((char*)"20%-60%",0.65,0.0163,0.04,1,0.0,42,0);
 
     TF1 *Func_rho = new TF1("Func_rho",FuncAD,0,1,4);
     string key = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",1,9,0,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),0);
@@ -146,13 +146,13 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     PtCos->SetMarkerStyle(20);
     PtCos->Draw("pEX0 same");
     Func_rho->SetParameter(0, PtCos->GetBinContent(5));
-    Func_rho->SetParameter(1, 0.3);
-    Func_rho->FixParameter(2, 0.0160525); //hardcoded
+    Func_rho->SetParameter(1, 0.333);
+    Func_rho->FixParameter(2, 0.1527108); //hardcoded
     Func_rho->FixParameter(3, 0.331673); //hardcoded
     PtCos->Fit(Func_rho, "NMI"); 
     Func_rho->SetLineColor(kRed);
     Func_rho->Draw("same");
-    c_rhocorr->SaveAs("figures/cosinestaryields.pdf");
+    c_rhocorr->SaveAs("figures/Kstarcosinestaryields.pdf");
   }
   
   TCanvas *c_rho = new TCanvas("c_rho","c_rho",10,10,800,800);
@@ -211,47 +211,76 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
 
   for(Int_t i_point = 0; i_point < vmsa::pt_rebin_lastKS[energy]; ++i_point)
   {
-    double sysDca[vmsa::Dca_stop];
-    double sysNSig[vmsa::nSigKaon_stop];
-    double sysNHit[vmsa::mNHit_stop];
-    double sysNorm[vmsa::Norm_stop];
-    double sysSig[vmsa::Sig_stop];
-    double sysMeth[vmsa::Method_stop];
-    double sysF[2];
+    double sysDca[9];
+    double sysNSig[9];
+    double sysNHit[9];
+    //double sysNorm[msa::Norm_stop];
+    //double sysSig[vmsa::Sig_stop];
+    //double sysMeth[vmsa::Method_stop];
+    //double sysF[2];
 
     double pt_def, rho_def;
     g_mRho[KEY_Default]->GetPoint(i_point,pt_def,rho_def); 
 
     cout << "pt: " << pt_def << "   rho00: " << rho_def;
-
+    int idx = 0;
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     { 
-      string KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str());
-      if(correction == "AccRes") KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),defaultF);
-      double pt_sys, rho_sys;
-      g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
-      sysDca[i_dca] = rho_sys;
-      if(random3D) sysDca[i_dca] = 4.*(sysDca[i_dca]-1./3.)+1./3.;
+      for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+      {
+        for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
+        {
+          if(i_dca == 0 && (i_sigma != 0 || i_method == 0)) continue;
+          if(i_dca != 0 && i_sigma != 0 && i_method == 1) continue;
+          string KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,0,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str());
+          if(correction == "AccRes") KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,i_dca,0,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str(),defaultF);
+          double pt_sys, rho_sys;
+          g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
+          sysDca[idx] = rho_sys;
+          if(random3D) sysDca[idx] = 4.*(sysDca[idx]-1./3.)+1./3.;
+          idx++;
+        }
+      }
     }
+    idx = 0;
 
     for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
     {
-      string KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,i_sig,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str());
-      if(correction == "AccRes") KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,i_sig,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),defaultF);
-      double pt_sys, rho_sys;
-      g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
-      sysNSig[i_sig] = rho_sys;
-      if(random3D) sysNSig[i_sig] = 4.*(sysNSig[i_sig]-1./3.)+1./3.;
+      for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+      {
+        for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
+        {
+          if(i_sig == 0 && (i_sigma != 0 || i_method == 0)) continue;
+          if(i_sig != 0 && i_sigma != 0 && i_method == 1) continue;
+          string KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,i_sig,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str());
+          if(correction == "AccRes") KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,i_sig,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str(),defaultF);
+          double pt_sys, rho_sys;
+          g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
+          sysNSig[idx] = rho_sys;
+          if(random3D) sysNSig[idx] = 4.*(sysNSig[idx]-1./3.)+1./3.;
+          idx++;
+        }
+      }
     }
+    idx = 0;
 
     for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++) // systematic loop for nSigma
     {
-      string KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,0,i_nhit,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str());
-      if(correction == "AccRes") KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,i_nhit,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),defaultF);
-      double pt_sys, rho_sys;
-      g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
-      sysNHit[i_nhit] = rho_sys;
-      if(random3D) sysNHit[i_nhit] = 4.*(sysNHit[i_nhit]-1./3.)+1./3.;
+      for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+      {
+        for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
+        {
+          if(i_nhit == 0 && (i_sigma != 0 || i_method == 0)) continue;
+          if(i_nhit != 0 && i_sigma != 0 && i_method == 1) continue;
+          string KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,0,i_nhit,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str());
+          if(correction == "AccRes") KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,i_nhit,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str(),defaultF);
+          double pt_sys, rho_sys;
+          g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
+          sysNHit[idx] = rho_sys;
+          if(random3D) sysNHit[idx] = 4.*(sysNHit[idx]-1./3.)+1./3.;
+          idx++;
+        }
+      }
     }
 
     /*for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
@@ -262,8 +291,9 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
       g_mRho[KEY]->GetPoint(i_point,pt_sys,rho_sys);
       sysNorm[i_norm] = rho_sys;
       if(random3D) sysNorm[i_norm] = 4.*(sysNorm[i_norm]-1./3.)+1./3.;
-    }*/	 
-
+    }*/	
+ 
+    /*
     for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
     {
       string KEY = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,0,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[1].c_str());
@@ -283,7 +313,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
       sysMeth[i_method] = rho_sys;
       if(random3D) sysMeth[i_method] = 4.*(sysMeth[i_method]-1./3.)+1./3.;
     }
-
+*/
     /*if(correction == "AccRes")
     {
       for(int i_F = 0; i_F < 2; ++i_F)
@@ -296,24 +326,24 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
       }
     }*/
 
-    Double_t rho_min[5] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
+    Double_t rho_min[3] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
                             TMath::MinElement(vmsa::nSigKaon_stop,sysNSig),
-                            TMath::MinElement(vmsa::Sig_start,sysSig),
-                            TMath::MinElement(vmsa::Method_stop,sysMeth),    
+   //                         TMath::MinElement(vmsa::Sig_start,sysSig),
+  //                          TMath::MinElement(vmsa::Method_stop,sysMeth),    
                             TMath::MinElement(vmsa::mNHit_stop,sysNHit)//,    
                            // (correction == "AccRes")? TMath::MinElement(2,sysF) : 0.0
                           };
 
-    Double_t rho_max[5] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
+    Double_t rho_max[3] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
                             TMath::MaxElement(vmsa::nSigKaon_stop,sysNSig),
-                            TMath::MaxElement(vmsa::Sig_start,sysSig),
-                            TMath::MaxElement(vmsa::Method_stop,sysMeth),    
+       //                     TMath::MaxElement(vmsa::Sig_start,sysSig),
+        //                    TMath::MaxElement(vmsa::Method_stop,sysMeth),    
                             TMath::MaxElement(vmsa::mNHit_stop,sysNHit)//,    
                             //(correction == "AccRes")? TMath::MaxElement(2,sysF) : 0.0
                           };
   
     double SysError_rho = 0.0;
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 3; i++)
     {
       double sourcei = TMath::Power((rho_max[i] - rho_min[i])/TMath::Sqrt(12.0),2);
       cout << "rho_min = " << rho_min[i] << ", rho_max = " << rho_max[i] << endl;
@@ -339,13 +369,13 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   { 
   string KEY_DefaultW = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),defaultF);
 
-  double sysDca[vmsa::Dca_stop];
-  double sysNSig[vmsa::nSigKaon_stop];
-  double sysNHit[vmsa::mNHit_stop];
-  double sysNorm[vmsa::Norm_stop];
-  double sysSig[vmsa::Sig_stop];
-  double sysMeth[vmsa::Method_stop];
-  double sysF[2];
+  double sysDca[9];
+  double sysNSig[9];
+  double sysNHit[9];
+  //double sysNorm[vmsa::Norm_stop];
+  //double sysSig[vmsa::Sig_stop];
+  //double sysMeth[vmsa::Method_stop];
+  //double sysF[2];
 
   double rho_def = h_mRho[KEY_DefaultW]->GetBinContent(7); 
   double rho_defErr = h_mRho[KEY_DefaultW]->GetBinError(7); 
@@ -374,7 +404,7 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     sysNHit[i_nhit] = h_mRho[KEY]->GetBinContent(7);
   }
 
-  for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+  /*for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
   {
     string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[1].c_str(),defaultF);
     sysSig[i_sigma] = h_mRho[KEY]->GetBinContent(7);
@@ -385,31 +415,31 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
     string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[i_method].c_str(),defaultF);
     sysMeth[i_method] = h_mRho[KEY]->GetBinContent(7);
   }
-
+*/
   /*for(int i_F = 0; i_F < 2; ++i_F)
   {
     string KEY = Form("rhoFinalWeighted_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s_F_%d",i_cent,0,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),i_F);
     sysF[i_F] = h_mRho[KEY]->GetBinContent(7);
   }*/
 
-  Double_t rho_min[5] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
+  Double_t rho_min[3] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
                           TMath::MinElement(vmsa::nSigKaon_stop,sysNSig),
-                          TMath::MinElement(vmsa::Sig_start,sysSig),
-                          TMath::MinElement(vmsa::Method_stop,sysMeth),    
+       //                   TMath::MinElement(vmsa::Sig_start,sysSig),
+//                          TMath::MinElement(vmsa::Method_stop,sysMeth),    
                           TMath::MinElement(vmsa::mNHit_stop,sysNHit)//,    
                           //TMath::MinElement(2,sysF)    
                         };
 
-  Double_t rho_max[5] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
+  Double_t rho_max[3] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
                           TMath::MaxElement(vmsa::nSigKaon_stop,sysNSig),
-                          TMath::MaxElement(vmsa::Sig_start,sysSig),
-                          TMath::MaxElement(vmsa::Method_stop,sysMeth),
+    //                      TMath::MaxElement(vmsa::Sig_start,sysSig),
+   //                       TMath::MaxElement(vmsa::Method_stop,sysMeth),
                           TMath::MaxElement(vmsa::mNHit_stop,sysNHit)//,    
                           //TMath::MaxElement(2,sysF)    
                         };
   
   double SysError_rho = 0.0;
-  for(int i = 0; i < 5; i++)
+  for(int i = 0; i < 3; i++)
   {
     double sourcei = TMath::Power((rho_max[i] - rho_min[i])/TMath::Sqrt(12.0),2);
     cout << "rho_min = " << rho_min[i] << ", rho_max = " << rho_max[i] << endl;
@@ -541,10 +571,10 @@ void calSysErrorKStar(Int_t energy = 4, Int_t pid = 2, Int_t i_cent = 9, string 
   //g_StatErrors->SetPoint(1,-1.0,-1.0);
   //g_SysErrors->SetPoint(1,-1.0,-1.0);
   //g_SysErrors->Draw("pE [] same");
-  g_StatErrors->Draw("pE Z same");
+  g_StatErrors->Draw("pE same");
   c_rho_SysError->SaveAs("figures/finaloutputrho_KStar.pdf");  
-  plotSysErrorsBox(g_SysErrors,kRed);
   plotSysErrorsBox(besi_sys,kBlack);
+  plotSysErrorsBox(g_SysErrors,kRed);
 
   /*for (int ipt = 0; ipt < 4; ipt++)
   {

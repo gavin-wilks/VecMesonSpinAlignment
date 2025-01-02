@@ -12,18 +12,21 @@
 #include "../Utility/draw.h"
 #include "../Utility/StSpinAlignmentCons.h"
 #include "../Utility/type.h"
+#include "TFitResultPtr.h"
 
 #ifndef _PlotQA_
 #define _PlotQA_  1
 #endif
 
-void calSpecSys(int energy = 4, int pid = 0)
+void calSpecSys(int energy = 3, int pid = 0)
 {
-  string InPutFile_SE = Form("../data/Yields_%s_SE_%s_20220408.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string InPutFile_SE = Form("../data/Yields_%s_SE_%s_20230625_eta1_eta1.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  //if(energy == 3) InPutFile_SE = Form("../data/Yields_%s_SE_%s_eta1_eta1.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   // string InPutFile_SE = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_SE_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
   
-  string InPutFile_ME = Form("../data/Yields_%s_ME_%s_20220408.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string InPutFile_ME = Form("../data/Yields_%s_ME_%s_20230625_eta1_eta1.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  //if(energy == 3) InPutFile_ME = Form("../data/Yields_%s_ME_%s_eta1_eta1.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
   // string InPutFile_ME = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/Yields_ME_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
 
@@ -48,6 +51,9 @@ void calSpecSys(int energy = 4, int pid = 0)
 
 	    string KEY_InPutME = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_ME",i_pt,pT[i_range].c_str(),i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str());
 	    h_mInPut_ME[KEY_InPutME] = (TH1F*)File_ME->Get(KEY_InPutME.c_str())->Clone(); 
+            
+            cout << KEY_InPutSE << endl;
+            cout << KEY_InPutME << endl;
 
 	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	    {
@@ -109,17 +115,17 @@ void calSpecSys(int energy = 4, int pid = 0)
   c_peak->cd()->SetTicks(1,1);
   c_peak->cd()->SetGrid(0,0);
 
-  string KEY_SE_QA = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_SE",vmsa::pt_RawQA[energy],pT[0].c_str(),9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+  string KEY_SE_QA = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_SE",vmsa::pt_RawQA[energy],pT[0].c_str(),5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
   h_mMassSpec_SE[KEY_SE_QA]->GetYaxis()->SetRangeUser(-0.1*h_mMassSpec_SE[KEY_SE_QA]->GetMaximum(),1.1*h_mMassSpec_SE[KEY_SE_QA]->GetMaximum());
   h_mMassSpec_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  string KEY_ME_QA = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_ME",vmsa::pt_RawQA[energy],pT[0].c_str(),9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+  string KEY_ME_QA = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_ME",vmsa::pt_RawQA[energy],pT[0].c_str(),5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
   h_mMassSpec_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMassSpec_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMassSpec_ME[KEY_ME_QA]->SetFillStyle(3002);
   h_mMassSpec_ME[KEY_ME_QA]->DrawCopy("h same");
 
-  string KEY_QA = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_RawQA[energy],pT[0].c_str(),9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+  string KEY_QA = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",vmsa::pt_RawQA[energy],pT[0].c_str(),5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
   h_mMassSpec[KEY_QA]->SetLineColor(4);
   h_mMassSpec[KEY_QA]->SetFillColor(4);
   h_mMassSpec[KEY_QA]->SetFillStyle(3004);
@@ -149,16 +155,16 @@ void calSpecSys(int energy = 4, int pid = 0)
     c_pT_low->cd(i_pt+1)->SetTicks(1,1);
     c_pT_low->cd(i_pt+1)->SetGrid(0,0);
 
-    string KEY_SE_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_SE_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec_SE[KEY_SE_QA]->DrawCopy("PE");
 
-    string KEY_ME_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_ME_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec_ME[KEY_ME_QA]->SetLineColor(2);
     h_mMassSpec_ME[KEY_ME_QA]->SetFillColor(2);
     h_mMassSpec_ME[KEY_ME_QA]->SetFillStyle(3002);
     h_mMassSpec_ME[KEY_ME_QA]->DrawCopy("h same");
 
-    string KEY_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec[KEY_QA]->SetLineColor(4);
     h_mMassSpec[KEY_QA]->SetFillColor(4);
     h_mMassSpec[KEY_QA]->SetFillStyle(3004);
@@ -178,16 +184,16 @@ void calSpecSys(int energy = 4, int pid = 0)
     c_pT_high->cd(i_pt+1)->SetTicks(1,1);
     c_pT_high->cd(i_pt+1)->SetGrid(0,0);
 
-    string KEY_SE_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_SE_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec_SE[KEY_SE_QA]->DrawCopy("PE");
 
-    string KEY_ME_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_ME_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec_ME[KEY_ME_QA]->SetLineColor(2);
     h_mMassSpec_ME[KEY_ME_QA]->SetFillColor(2);
     h_mMassSpec_ME[KEY_ME_QA]->SetFillStyle(3002);
     h_mMassSpec_ME[KEY_ME_QA]->DrawCopy("h same");
 
-    string KEY_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec[KEY_QA]->SetLineColor(4);
     h_mMassSpec[KEY_QA]->SetFillColor(4);
     h_mMassSpec[KEY_QA]->SetFillStyle(3004);
@@ -218,33 +224,34 @@ void calSpecSys(int energy = 4, int pid = 0)
 	    {
 	      string KEY = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,pT[i_range].c_str(),i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	      h_mMassSpec_QA[KEY] = (TH1F*)h_mMassSpec[KEY]->Clone();
-	      TF1 *f_bw = new TF1("f_bw",PolyBreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],5);
-	      for(int i_par = 0; i_par < 5; i_par++)
+	      TF1 *f_bw = new TF1("f_bw",Poly3BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],7);
+	      for(int i_par = 0; i_par < 7; i_par++)
 	      {
 		f_bw->ReleaseParameter(i_par);
 	      }
 	      f_bw->SetParameter(0,vmsa::InvMass[pid]);
-	      f_bw->SetParLimits(0,vmsa::InvMass[pid]-1.5*vmsa::Width[pid],vmsa::InvMass[pid]+1.5*vmsa::Width[pid]);
+	      //f_bw->SetParLimits(0,vmsa::InvMass[pid]-1.5*vmsa::Width[pid],vmsa::InvMass[pid]+1.5*vmsa::Width[pid]);
+	      f_bw->SetParLimits(0,vmsa::InvMass[pid]-0.003,vmsa::InvMass[pid]+0.003);
 	      f_bw->SetParameter(1,vmsa::Width[pid]);
 	      f_bw->SetParLimits(1,0.004,0.070);
 	      f_bw->SetParameter(2,1.0);
-	      f_bw->SetParameter(3,-1.0);
-	      f_bw->SetParameter(4,1.0);
 	      f_bw->SetParameter(2,h_mMassSpec[KEY]->GetMaximum()/f_bw->GetMaximum());
 	      f_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
 	      ParFit[KEY].clear();
 	      // cout << "i_pt = " << i_pt << ", i_range = " << i_range << ", i_cent = " << i_cent << ", i_dca = " << i_dca << ", i_sig = " << i_sig << ", i_norm = " << i_norm << endl;
 	      h_mMassSpec[KEY]->Fit(f_bw,"MQNR");
-	      for(int n_par = 0; n_par < 5; n_par++)
+	      for(int n_par = 0; n_par < 7; n_par++)
 	      {
 		ParFit[KEY].push_back(static_cast<float>(f_bw->GetParameter(n_par)));
 	      }
 
-	      TF1 *f_poly = new TF1("f_poly",Poly,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],2); // poly fit for linear background
-	      f_poly->SetParameter(0,ParFit[KEY][3]);
-	      f_poly->SetParameter(1,ParFit[KEY][4]);
+	      //TF1 *f_poly = new TF1("f_poly",Poly3,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],4); // poly fit for linear background
+	      //f_poly->SetParameter(0,ParFit[KEY][3]);
+	      //f_poly->SetParameter(1,ParFit[KEY][4]);
+	      //f_poly->SetParameter(2,ParFit[KEY][5]);
+	      //f_poly->SetParameter(3,ParFit[KEY][6]);
 
-	      h_mMassSpec[KEY]->Add(f_poly,-1.0); // subtract linear background for phi differential InvMass
+	      //h_mMassSpec[KEY]->Add(f_poly,-1.0); // subtract linear background for phi differential InvMass
 	    }
 	  }
 	}
@@ -263,7 +270,7 @@ void calSpecSys(int energy = 4, int pid = 0)
     c_mMassSpec_low->cd(i_pt+1)->SetBottomMargin(0.15);
     c_mMassSpec_low->cd(i_pt+1)->SetTicks(1,1);
     c_mMassSpec_low->cd(i_pt+1)->SetGrid(0,0);
-    string KEY_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec[KEY_QA]->SetMarkerColor(1);
     h_mMassSpec[KEY_QA]->SetMarkerStyle(24);
     h_mMassSpec[KEY_QA]->SetMarkerSize(0.8);
@@ -274,8 +281,8 @@ void calSpecSys(int energy = 4, int pid = 0)
     h_mMassSpec_QA[KEY_QA]->SetMarkerSize(0.8);
     h_mMassSpec_QA[KEY_QA]->DrawCopy("PE same");
 
-    TF1 *f_bw = new TF1("f_bw",PolyBreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],5);
-    for(int i_par = 0; i_par < 5; i_par++)
+    TF1 *f_bw = new TF1("f_bw",Poly3BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],7);
+    for(int i_par = 0; i_par < 7; i_par++)
     {
       f_bw->SetParameter(i_par,ParFit[KEY_QA][i_par]);
     }
@@ -284,9 +291,11 @@ void calSpecSys(int energy = 4, int pid = 0)
     f_bw->SetLineWidth(2);
     f_bw->DrawCopy("l same");
 
-    TF1 *f_poly = new TF1("f_poly",Poly,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],2);
+    TF1 *f_poly = new TF1("f_poly",Poly3,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],4);
     f_poly->SetParameter(0,ParFit[KEY_QA][3]);
     f_poly->SetParameter(1,ParFit[KEY_QA][4]);
+    f_poly->SetParameter(2,ParFit[KEY_QA][5]);
+    f_poly->SetParameter(3,ParFit[KEY_QA][6]);
     f_poly->SetLineColor(2);
     f_poly->SetLineStyle(2);
     f_poly->SetLineWidth(4);
@@ -306,7 +315,7 @@ void calSpecSys(int energy = 4, int pid = 0)
     c_mMassSpec_high->cd(i_pt+1)->SetBottomMargin(0.15);
     c_mMassSpec_high->cd(i_pt+1)->SetTicks(1,1);
     c_mMassSpec_high->cd(i_pt+1)->SetGrid(0,0);
-    string KEY_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec[KEY_QA]->SetMarkerColor(1);
     h_mMassSpec[KEY_QA]->SetMarkerStyle(24);
     h_mMassSpec[KEY_QA]->SetMarkerSize(0.8);
@@ -317,8 +326,8 @@ void calSpecSys(int energy = 4, int pid = 0)
     h_mMassSpec_QA[KEY_QA]->SetMarkerSize(0.8);
     h_mMassSpec_QA[KEY_QA]->DrawCopy("PE same");
 
-    TF1 *f_bw = new TF1("f_bw",PolyBreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],5);
-    for(int i_par = 0; i_par < 5; i_par++)
+    TF1 *f_bw = new TF1("f_bw",Poly3BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],7);
+    for(int i_par = 0; i_par < 7; i_par++)
     {
       f_bw->SetParameter(i_par,ParFit[KEY_QA][i_par]);
     }
@@ -327,9 +336,11 @@ void calSpecSys(int energy = 4, int pid = 0)
     f_bw->SetLineWidth(2);
     f_bw->DrawCopy("l same");
 
-    TF1 *f_poly = new TF1("f_poly",Poly,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],2);
+    TF1 *f_poly = new TF1("f_poly",Poly3,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],4);
     f_poly->SetParameter(0,ParFit[KEY_QA][3]);
     f_poly->SetParameter(1,ParFit[KEY_QA][4]);
+    f_poly->SetParameter(1,ParFit[KEY_QA][5]);
+    f_poly->SetParameter(1,ParFit[KEY_QA][6]);
     f_poly->SetLineColor(2);
     f_poly->SetLineStyle(2);
     f_poly->SetLineWidth(4);
@@ -359,24 +370,83 @@ void calSpecSys(int energy = 4, int pid = 0)
 	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	    {
 	      string KEY = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,pT[i_range].c_str(),i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
-	      TF1 *f_yields_bw = new TF1("f_yields_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
-	      f_yields_bw->SetParameter(0,vmsa::InvMass[pid]);
-	      f_yields_bw->SetParLimits(0,vmsa::InvMass[pid]-0.005,vmsa::InvMass[pid]+0.005);
-	      f_yields_bw->SetParameter(1,vmsa::Width[pid]);
-	      f_yields_bw->SetParameter(2,h_mMassSpec[KEY]->GetMaximum());
+	      TF1 *f_yields_bw = new TF1("f_yields_bw",Poly3BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],7);
+	      f_yields_bw->FixParameter(0,ParFit[KEY][0]);
+	      f_yields_bw->FixParameter(1,ParFit[KEY][1]);
+	      f_yields_bw->SetParameter(2,ParFit[KEY][2]);
+	      f_yields_bw->SetParameter(3,ParFit[KEY][3]);
+	      f_yields_bw->SetParameter(4,ParFit[KEY][4]);
+	      f_yields_bw->SetParameter(5,ParFit[KEY][5]);
+	      f_yields_bw->SetParameter(6,ParFit[KEY][6]);
 	      f_yields_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
 
+              bool skip = false;
+              if(h_mMassSpec[KEY]->GetEntries() <= 1) skip = true;;
+              cout << h_mMassSpec[KEY]->GetEntries() << endl;
+              if(skip == true) cout << "SKIP" << endl;
+
+              TFitResultPtr result;
+              TF1 *f_bg = new TF1("f_bg",Poly3,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],4);  
+              double params[4];// = {result->GetParams()[3],result->GetParams()[4],result->GetParams()[5],result->GetParams()[6]};
+              TMatrixDSym covArr(4);
+       
+              if(!skip)
+              { 
+                result = h_mMassSpec[KEY]->Fit(f_yields_bw,"MQNRS");            
+                
+                f_bg->SetParameter(0,f_yields_bw->GetParameter(3));
+                f_bg->SetParameter(1,f_yields_bw->GetParameter(4));
+                f_bg->SetParameter(2,f_yields_bw->GetParameter(5));
+                f_bg->SetParameter(3,f_yields_bw->GetParameter(6));
+                f_bg->SetParError(0,f_yields_bw->GetParError(3));
+                f_bg->SetParError(1,f_yields_bw->GetParError(4));
+                f_bg->SetParError(2,f_yields_bw->GetParError(5));
+                f_bg->SetParError(3,f_yields_bw->GetParError(6));
+
+                params[0] = result->GetParams()[3];
+                params[1] = result->GetParams()[4];
+                params[2] = result->GetParams()[5];
+                params[3] = result->GetParams()[6];
+
+                covArr(0,0) = result->GetCovarianceMatrix()(3,3);
+                covArr(0,1) = result->GetCovarianceMatrix()(3,4);
+                covArr(0,2) = result->GetCovarianceMatrix()(3,5);
+                covArr(0,3) = result->GetCovarianceMatrix()(3,6);
+                covArr(1,0) = result->GetCovarianceMatrix()(4,3);
+                covArr(1,1) = result->GetCovarianceMatrix()(4,4);
+                covArr(1,2) = result->GetCovarianceMatrix()(4,5);
+                covArr(1,3) = result->GetCovarianceMatrix()(4,6);
+                covArr(2,0) = result->GetCovarianceMatrix()(5,3);
+                covArr(2,1) = result->GetCovarianceMatrix()(5,4);
+                covArr(2,2) = result->GetCovarianceMatrix()(5,5);
+                covArr(2,3) = result->GetCovarianceMatrix()(5,6);
+                covArr(3,0) = result->GetCovarianceMatrix()(6,3);
+                covArr(3,1) = result->GetCovarianceMatrix()(6,4);
+                covArr(3,2) = result->GetCovarianceMatrix()(6,5);
+                covArr(3,3) = result->GetCovarianceMatrix()(6,6);
+              }
+
 	      int NumofBin = h_mMassSpec[KEY]->FindBin(vmsa::InvMass[pid]);
-	      if(h_mMassSpec[KEY]->GetBinContent(NumofBin) > 0.0)
+	      if(!skip)
 	      {
-		h_mMassSpec[KEY]->Fit(f_yields_bw,"MQNR");
+		//h_mMassSpec[KEY]->Fit(f_yields_bw,"MQNR");
 		ParYield[KEY].clear();
 		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(0)));
 		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(1)));
 		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(2)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(3)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(4)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(5)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(6)));
 
 		for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
 		{
+                  float bin_width = h_mMassSpec[KEY]->GetBinWidth(1);
+                  float Inte_start = ParYield[KEY][0]-vmsa::nSigVecSys[i_sigma]*ParYield[KEY][1]-0.5*bin_width;
+                  float Inte_stop  = ParYield[KEY][0]+vmsa::nSigVecSys[i_sigma]*ParYield[KEY][1]+0.5*bin_width;
+                  float counts_bg = f_bg->Integral(Inte_start,Inte_stop)/bin_width;
+                  float errors_bg = f_bg->IntegralError(Inte_start,Inte_stop,params,covArr.GetMatrixArray())/bin_width;
+
 		  // bin counting
 		  float counts_gaus = 0.0;
 		  float errors_gaus = 0.0;
@@ -389,18 +459,15 @@ void calSpecSys(int energy = 4, int pid = 0)
 		  }
 		  string KEY_yields = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d",i_pt,pT[i_range].c_str(),i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma);
 		  yields_count[KEY_yields].clear();
-		  yields_count[KEY_yields].push_back(static_cast<float>(counts_gaus));
-		  yields_count[KEY_yields].push_back(static_cast<float>(TMath::Sqrt(errors_gaus)));
+		  yields_count[KEY_yields].push_back(static_cast<float>(counts_gaus-counts_bg));
+		  yields_count[KEY_yields].push_back(static_cast<float>(TMath::Sqrt(errors_gaus+errors_bg*errors_bg)));
 
 		  // integrating for breit wigner
-		  float bin_width = h_mMassSpec[KEY]->GetBinWidth(1);
-		  float Inte_start = ParYield[KEY][0]-vmsa::nSigVecSys[i_sigma]*ParYield[KEY][1]-0.5*bin_width;
-		  float Inte_stop  = ParYield[KEY][0]+vmsa::nSigVecSys[i_sigma]*ParYield[KEY][1]+0.5*bin_width;
 		  float counts_bw = f_yields_bw->Integral(Inte_start,Inte_stop)/bin_width;
 		  float errors_bw = f_yields_bw->IntegralError(Inte_start,Inte_stop)/bin_width;
 		  yields_inte[KEY_yields].clear();
-		  yields_inte[KEY_yields].push_back(static_cast<float>(counts_bw));
-		  yields_inte[KEY_yields].push_back(static_cast<float>(errors_bw));
+		  yields_inte[KEY_yields].push_back(static_cast<float>(counts_bw-counts_bg));
+		  yields_inte[KEY_yields].push_back(static_cast<float>(TMath::Sqrt(errors_bw*errors_bw+errors_bg*errors_bg)));
 		}
 	      }
 	      else
@@ -409,16 +476,20 @@ void calSpecSys(int energy = 4, int pid = 0)
 		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(0)));
 		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(1)));
 		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(2)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(3)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(4)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(5)));
+		ParYield[KEY].push_back(static_cast<float>(f_yields_bw->GetParameter(6)));
 
 		for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
 		{
 		  string KEY_yields = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d",i_pt,pT[i_range].c_str(),i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma);
 		  yields_count[KEY_yields].clear();
-		  yields_count[KEY_yields].push_back(static_cast<float>(-1.0));
+		  yields_count[KEY_yields].push_back(static_cast<float>(0.0));
 		  yields_count[KEY_yields].push_back(static_cast<float>(0.5));
 
 		  yields_inte[KEY_yields].clear();
-		  yields_inte[KEY_yields].push_back(static_cast<float>(-1.0));
+		  yields_inte[KEY_yields].push_back(static_cast<float>(0.0));
 		  yields_inte[KEY_yields].push_back(static_cast<float>(0.5));
 		}
 	      }
@@ -441,7 +512,7 @@ void calSpecSys(int energy = 4, int pid = 0)
     c_Yields_low->cd(i_pt+1)->SetTicks(1,1);
     c_Yields_low->cd(i_pt+1)->SetGrid(0,0);
 
-    string KEY_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_QA = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec[KEY_QA]->SetTitle("");
     h_mMassSpec[KEY_QA]->SetStats(0);
     h_mMassSpec[KEY_QA]->SetMarkerStyle(24);
@@ -456,10 +527,15 @@ void calSpecSys(int energy = 4, int pid = 0)
     h_mMassSpec[KEY_QA]->DrawCopy("pE");
     PlotLine(0.98,1.05,0.0,0.0,1,2,2);
 
-    TF1 *f_yields_bw = new TF1("f_yields_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+    TF1 *f_yields_bw = new TF1("f_yields_bw",Poly3BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],7);
+    cout << KEY_QA << endl;
     f_yields_bw->SetParameter(0,ParYield[KEY_QA][0]);
     f_yields_bw->SetParameter(1,ParYield[KEY_QA][1]);
     f_yields_bw->SetParameter(2,ParYield[KEY_QA][2]);
+    f_yields_bw->SetParameter(3,ParYield[KEY_QA][3]);
+    f_yields_bw->SetParameter(4,ParYield[KEY_QA][4]);
+    f_yields_bw->SetParameter(5,ParYield[KEY_QA][5]);
+    f_yields_bw->SetParameter(6,ParYield[KEY_QA][6]);
     f_yields_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
     f_yields_bw->SetLineColor(2);
     f_yields_bw->SetLineStyle(1);
@@ -483,7 +559,7 @@ void calSpecSys(int energy = 4, int pid = 0)
     c_Yields_high->cd(i_pt+1)->SetTicks(1,1);
     c_Yields_high->cd(i_pt+1)->SetGrid(0,0);
 
-    string KEY_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+    string KEY_QA = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
     h_mMassSpec[KEY_QA]->SetTitle("");
     h_mMassSpec[KEY_QA]->SetStats(0);
     h_mMassSpec[KEY_QA]->SetMarkerStyle(24);
@@ -498,10 +574,14 @@ void calSpecSys(int energy = 4, int pid = 0)
     h_mMassSpec[KEY_QA]->DrawCopy("pE");
     PlotLine(0.98,1.05,0.0,0.0,1,2,2);
 
-    TF1 *f_yields_bw = new TF1("f_yields_bw",BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);
+    TF1 *f_yields_bw = new TF1("f_yields_bw",Poly3BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],7);
     f_yields_bw->SetParameter(0,ParYield[KEY_QA][0]);
     f_yields_bw->SetParameter(1,ParYield[KEY_QA][1]);
     f_yields_bw->SetParameter(2,ParYield[KEY_QA][2]);
+    f_yields_bw->SetParameter(3,ParYield[KEY_QA][3]);
+    f_yields_bw->SetParameter(4,ParYield[KEY_QA][4]);
+    f_yields_bw->SetParameter(5,ParYield[KEY_QA][5]);
+    f_yields_bw->SetParameter(6,ParYield[KEY_QA][6]);
     f_yields_bw->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
     f_yields_bw->SetLineColor(2);
     f_yields_bw->SetLineStyle(1);
@@ -575,7 +655,7 @@ void calSpecSys(int energy = 4, int pid = 0)
   c_Pt->cd()->SetGrid(0,0);
   //c_Pt->cd()->SetLogy();
   //c_Pt->cd()->SetLogy();
-  string KEY_pT_counts_QA = Form("Spec_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_Count",9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Sig_QA);
+  string KEY_pT_counts_QA = Form("Spec_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_Count",5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Sig_QA);
   TH1F *h_play = new TH1F("h_play","h_play",110,-1.0,10.0);
   for(Int_t i_bin = 0; i_bin < 110; i_bin++)
   {
@@ -597,14 +677,14 @@ void calSpecSys(int energy = 4, int pid = 0)
   h_mPt[KEY_pT_counts_QA]->SetMarkerSize(1.0);
   h_mPt[KEY_pT_counts_QA]->DrawCopy("pE same");
 
-  string KEY_pT_inte_QA = Form("Spec_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_Inte",9,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Sig_QA);
+  string KEY_pT_inte_QA = Form("Spec_Centrality_%d_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_Inte",5,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA,vmsa::Sig_QA);
   h_mPt[KEY_pT_inte_QA]->SetMarkerColor(2);
   h_mPt[KEY_pT_inte_QA]->SetMarkerStyle(24);
   h_mPt[KEY_pT_inte_QA]->SetMarkerSize(1.0);
   h_mPt[KEY_pT_inte_QA]->DrawCopy("pE same");
 #endif
 
-  string outputfile = Form("../output/AuAu%s/%s/RawPtSys.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  string outputfile = Form("../output/AuAu%s/%s/RawPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   // string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/RawPtSys.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();

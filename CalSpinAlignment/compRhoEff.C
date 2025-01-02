@@ -17,6 +17,7 @@
 #endif
 
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 void compRhoEff(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9)
 {
@@ -183,5 +184,25 @@ void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE)
     bSys[i_energy]->SetLineWidth(1);
     bSys[i_energy]->SetLineColor(plot_color);
     bSys[i_energy]->Draw("l Same");
+  }
+
+}
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nPt = g_rho->GetN();
+  TBox *bSys[nPt];
+  for(int i_pt = 0; i_pt < g_rho->GetN(); ++i_pt) // plot sys errors
+  {
+    double pt, rho;
+    g_rho->GetPoint(i_pt,pt,rho);
+    double err = g_rho->GetErrorYhigh(i_pt);
+
+    bSys[i_pt] = new TBox(pt-0.08,rho-err,pt+0.08,rho+err);
+    bSys[i_pt]->SetFillColor(0);
+    bSys[i_pt]->SetFillStyle(0);
+    bSys[i_pt]->SetLineStyle(1);
+    bSys[i_pt]->SetLineWidth(1);
+    bSys[i_pt]->SetLineColor(plot_color);
+    bSys[i_pt]->Draw("l Same");
   }
 }

@@ -30,16 +30,22 @@
 
 using namespace std;
 
-void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date = "20220528", bool random3D = false)
+void subBackGroundPhiCent(int energy = 3, int pid = 0, int year = 0, string date = "20230625", bool random3D = false, int order = 2, std::string etamode = "eta1_eta1")
 {
   TGaxis::SetMaxDigits(4);
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);
 
-  string InPutFile_SE = Form("../data/Yields_Phi_SE_19GeV_20220527.root");
+  std::string EP[2] = {"1st","2nd"};
+
+  string InPutFile_SE = Form("../data/Yields_Phi_SE_%s_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),date.c_str(),etamode.c_str());
+  if(order == 1) InPutFile_SE = Form("../data/Yields_Phi_SE_%s_%s_%s_FirstOrder.root",vmsa::mBeamEnergy[energy].c_str(),date.c_str(),etamode.c_str());
+  //if(energy == 3) InPutFile_SE = Form("../data/Yields_Phi_SE_14GeV_%s.root",etamode.c_str());
   if(random3D) InPutFile_SE = Form("../data/3DRandom/Yields_Phi_SE_19GeV_%s_3DRandom.root",date.c_str());
   TFile *File_SE = TFile::Open(InPutFile_SE.c_str());
   
-  string InPutFile_ME = Form("../data/Yields_Phi_ME_19GeV_20220408.root");
+  string InPutFile_ME = Form("../data/Yields_Phi_ME_%s_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),date.c_str(),etamode.c_str());
+  if(order == 1) InPutFile_ME = Form("../data/Yields_Phi_ME_%s_%s_%s_FirstOrder.root",vmsa::mBeamEnergy[energy].c_str(),date.c_str(),etamode.c_str());
+  //if(energy == 3) InPutFile_ME = Form("../data/Yields_Phi_ME_14GeV_%s.root",etamode.c_str());
   if(random3D) InPutFile_ME = Form("../data/3DRandom/Yields_Phi_ME_19GeV_%s_3DRandom.root",date.c_str());
   TFile *File_ME = TFile::Open(InPutFile_ME.c_str());
 
@@ -58,19 +64,19 @@ void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
             if( i_dca != 0 && i_sig != 0 ) continue;
-	    string KEY_InPutSE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
+	    string KEY_InPutSE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_SE",i_pt,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str());
             h_mInPut_SE[KEY_InPutSE] = (TH1F*)File_SE->Get(KEY_InPutSE.c_str())->Clone(); 
 
-	    string KEY_InPutME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_ME",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str());
+	    string KEY_InPutME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_ME",i_pt,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str());
 	    h_mInPut_ME[KEY_InPutME] = (TH1F*)File_ME->Get(KEY_InPutME.c_str())->Clone(); 
 
 	    for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	    {
-	      string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
+	      string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	      h_mMass_SE[KEY_SE] = (TH1F*)h_mInPut_SE[KEY_InPutSE]->Clone(KEY_SE.c_str());
-	      string KEY_ME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
+	      string KEY_ME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	      h_mMass_ME[KEY_ME] = (TH1F*)h_mInPut_ME[KEY_InPutME]->Clone(KEY_ME.c_str());
-	      string KEY_SM = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SM",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
+	      string KEY_SM = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_SM",i_pt,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
 	      h_mMass_SM[KEY_SM] = (TH1F*)h_mMass_SE[KEY_SE]->Clone();
 	      if(i_norm < 2)
 	      {
@@ -119,17 +125,17 @@ void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date
   c_peak->cd()->SetBottomMargin(0.15);
   c_peak->cd()->SetTicks(1,1);
   c_peak->cd()->SetGrid(0,0);
-  string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SE",vmsa::pt_RawQA[energy],vmsa::centStart,vmsa::CTS_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+  string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_SE",vmsa::pt_RawQA[energy],vmsa::centStart,vmsa::CTS_start,EP[order-1].c_str(),vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
   h_mMass_SE[KEY_SE_QA]->GetYaxis()->SetRangeUser(-0.1*h_mMass_SE[KEY_SE_QA]->GetMaximum(),1.1*h_mMass_SE[KEY_SE_QA]->GetMaximum());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_ME",vmsa::pt_RawQA[energy],vmsa::centStart,vmsa::CTS_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+  string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_ME",vmsa::pt_RawQA[energy],vmsa::centStart,vmsa::CTS_start,EP[order-1].c_str(),vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
   h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
   h_mMass_ME[KEY_ME_QA]->DrawCopy("h same");
 
-  string KEY_SM_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SM",vmsa::pt_RawQA[energy],vmsa::centStart,vmsa::CTS_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+  string KEY_SM_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_SM",vmsa::pt_RawQA[energy],vmsa::centStart,vmsa::CTS_start,EP[order-1].c_str(),vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
   h_mMass_SM[KEY_SM_QA]->SetLineColor(4);
   h_mMass_SM[KEY_SM_QA]->SetFillColor(4);
   h_mMass_SM[KEY_SM_QA]->SetFillStyle(3004);
@@ -150,43 +156,62 @@ void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date
   // QA Plots for pT bins
   TCanvas *c_pT = new TCanvas("c_pT","c_pT",10,10,1400,1400);
   c_pT->Divide(5,5);
-  for(int i_pt = vmsa::pt_start; i_pt < vmsa::pt_stop; i_pt++) // pt loop
+
+  string outputname = Form("figures/%s/%s/centralitystudy/InvMassDistributions_%s_Order%d.pdf",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),order);
+  string output_start = Form("%s[",outputname.c_str());
+  
+  c_pT->Print(output_start.c_str());
+  for(int itheta = 0; itheta < 7; itheta++)
   {
-    c_pT->cd(i_pt+1);
-    c_pT->cd(i_pt+1)->SetLeftMargin(0.15);
-    c_pT->cd(i_pt+1)->SetBottomMargin(0.15);
-    c_pT->cd(i_pt+1)->SetTicks(1,1);
-    c_pT->cd(i_pt+1)->SetGrid(0,0);
-    string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,vmsa::centStart,vmsa::CTS_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
-    h_mMass_SE[KEY_SE_QA]->GetYaxis()->SetRangeUser(-0.1*h_mMass_SE[KEY_SE_QA]->GetMaximum(),1.1*h_mMass_SE[KEY_SE_QA]->GetMaximum());
-    h_mMass_SE[KEY_SE_QA]->DrawCopy();
-
-    string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,vmsa::centStart,vmsa::CTS_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
-    h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
-    h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
-    h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
-    h_mMass_ME[KEY_ME_QA]->DrawCopy("h same");
-
-    string KEY_SM_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SM",i_pt,vmsa::centStart,vmsa::CTS_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
-    h_mMass_SM[KEY_SM_QA]->SetLineColor(4);
-    h_mMass_SM[KEY_SM_QA]->SetFillColor(4);
-    h_mMass_SM[KEY_SM_QA]->SetFillStyle(3004);
-    h_mMass_SM[KEY_SM_QA]->DrawCopy("h same");
-
-    string pT_range = Form("[%.2f,%.2f]",vmsa::ptRawStart[i_pt],vmsa::ptRawStop[i_pt]);
-    plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
-
-    if(vmsa::Norm_QA == 0 || vmsa::Norm_QA == 2)
+    for(int icent = 0; icent < 9; icent++)
     {
-      PlotLine(vmsa::Norm_Start[pid][0],vmsa::Norm_Start[pid][0],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
-      PlotLine(vmsa::Norm_Stop[pid][0],vmsa::Norm_Stop[pid][0],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
-    }
-    if(vmsa::Norm_QA == 1 || vmsa::Norm_QA == 2)
-    {
-      PlotLine(vmsa::Norm_Start[pid][1],vmsa::Norm_Start[pid][1],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
-      PlotLine(vmsa::Norm_Stop[pid][1],vmsa::Norm_Stop[pid][1],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
+      for(int i_pt = vmsa::pt_start; i_pt < vmsa::pt_stop; i_pt++) // pt loop
+      {
+        c_pT->cd(i_pt+1);
+        c_pT->cd(i_pt+1)->SetLeftMargin(0.15);
+        c_pT->cd(i_pt+1)->SetBottomMargin(0.15);
+        c_pT->cd(i_pt+1)->SetTicks(1,1);
+        c_pT->cd(i_pt+1)->SetGrid(0,0);
+        string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_SE",i_pt,icent,itheta,EP[order-1].c_str(),vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+        //cout << KEY_SE_QA << endl;
+        h_mMass_SE[KEY_SE_QA]->GetYaxis()->SetRangeUser(-0.1*h_mMass_SE[KEY_SE_QA]->GetMaximum(),1.1*h_mMass_SE[KEY_SE_QA]->GetMaximum());
+        h_mMass_SE[KEY_SE_QA]->SetTitle(Form("Cent %d, %d/7<|cos(#theta*)|<%d/7",icent,itheta,itheta+1));
+        h_mMass_SE[KEY_SE_QA]->DrawCopy();
+
+        string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_ME",i_pt,icent,itheta,EP[order-1].c_str(),vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+        //cout << KEY_ME_QA << endl;
+        h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
+        h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
+        h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
+        h_mMass_ME[KEY_ME_QA]->DrawCopy("h same");
+
+        string KEY_SM_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_SM",i_pt,icent,itheta,EP[order-1].c_str(),vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+        //cout << KEY_SM_QA << endl;
+        h_mMass_SM[KEY_SM_QA]->SetLineColor(4);
+        h_mMass_SM[KEY_SM_QA]->SetFillColor(4);
+        h_mMass_SM[KEY_SM_QA]->SetFillStyle(3004);
+        h_mMass_SM[KEY_SM_QA]->DrawCopy("h same");
+
+        string pT_range = Form("[%.2f,%.2f]",vmsa::ptRawStart[i_pt],vmsa::ptRawStop[i_pt]);
+        plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
+
+        if(vmsa::Norm_QA == 0 || vmsa::Norm_QA == 2)
+        {
+          PlotLine(vmsa::Norm_Start[pid][0],vmsa::Norm_Start[pid][0],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
+          PlotLine(vmsa::Norm_Stop[pid][0],vmsa::Norm_Stop[pid][0],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
+        }
+        if(vmsa::Norm_QA == 1 || vmsa::Norm_QA == 2)
+        {
+          PlotLine(vmsa::Norm_Start[pid][1],vmsa::Norm_Start[pid][1],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
+          PlotLine(vmsa::Norm_Stop[pid][1],vmsa::Norm_Stop[pid][1],0,h_mMass_ME[KEY_ME_QA]->GetMaximum(),4,2,2);
+        }
+      }
+      c_pT->Update();
+      c_pT->Print(outputname.c_str());
     }
   }
+  string output_stop = Form("%s]",outputname.c_str());
+  c_pT->Print(output_stop.c_str()); // close pdf file
 #endif
 
   // pT rebin
@@ -203,21 +228,24 @@ void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date
           if( i_dca != 0 && i_sig != 0 ) continue;
 	  for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
 	  {
-	    string KEY = Form("Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
-	    for(int i_pt = vmsa::pt_CentStart; i_pt <= vmsa::pt_CentStop; i_pt++)
+	    for(int pt_bin = vmsa::pt_rebin_first_cent[energy]; pt_bin <= vmsa::pt_rebin_last_cent[energy]; pt_bin++) // pt loop
 	    {
-              cout << "pT = " << vmsa::pt_bin[i_pt] << ", ";
-	      string KEY_SM = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_SM",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
-	      if(i_pt == vmsa::pt_CentStart)
+              //cout << "pt bin " << pt_bin << " = [" << vmsa::ptRawStart[vmsa::pt_rebin_start_cent[energy][pt_bin]] << ", " << vmsa::ptRawStop[vmsa::pt_rebin_stop_cent[energy][pt_bin]] << "]" << endl;
+	      string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d",pt_bin,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
+	      for(int i_pt = vmsa::pt_rebin_start_cent[energy][pt_bin]; i_pt <= vmsa::pt_rebin_stop_cent[energy][pt_bin]; i_pt++)
 	      {
-	        h_mMass[KEY] = (TH1F*)h_mMass_SM[KEY_SM]->Clone(KEY.c_str());
-	      }
-	      else
-	      {
-	        h_mMass[KEY]->Add(h_mMass_SM[KEY_SM],1.0);
+                //cout << "ipt = [" << vmsa::ptRawStart[i_pt] << ", " << vmsa::ptRawStop[i_pt] << "]" << endl;
+		string KEY_SM = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_SM",i_pt,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
+		if(i_pt == vmsa::pt_rebin_start_cent[energy][pt_bin])
+		{
+		  h_mMass[KEY] = (TH1F*)h_mMass_SM[KEY_SM]->Clone(KEY.c_str());
+		}
+		else
+		{
+		  h_mMass[KEY]->Add(h_mMass_SM[KEY_SM],1.0);
+		}
 	      }
 	    }
-            cout << endl;
 	  }
 	}
       }
@@ -226,30 +254,49 @@ void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date
 
 #if _PlotQA_
   // QA Plots for pT rebins
-  /*TCanvas *c_pT_rebin = new TCanvas("c_pT_rebin","c_pT_rebin",10,10,1400,1400);
+  TCanvas *c_pT_rebin = new TCanvas("c_pT_rebin","c_pT_rebin",10,10,1400,1400);
   c_pT_rebin->Divide(5,5);
-  for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; i_pt++) // pt loop
-  {
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetLeftMargin(0.15);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetBottomMargin(0.15);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetTicks(1,1);
-    c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetGrid(0,0);
-    string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,vmsa::centStart,vmsa::CTS_start,vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
-    h_mMass[KEY_QA]->SetMarkerStyle(24);
-    h_mMass[KEY_QA]->SetMarkerSize(1.2);
-    h_mMass[KEY_QA]->SetLineColor(kGray+2);
-    h_mMass[KEY_QA]->DrawCopy("pE");
-    // cout << "KEY_QA = " << KEY_QA.c_str() << endl;
 
-    string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low[energy][i_pt],vmsa::pt_up[energy][i_pt]);
-    plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
-    PlotLine(vmsa::InvMass_low[pid],vmsa::InvMass_high[pid],0.0,0.0,1,2,2);
-  }*/
+  outputname = Form("figures/%s/%s/centralitystudy/InvMassBackgroundSubtracted_Rebinned_%s_Order%d.pdf",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),order);
+  output_start = Form("%s[",outputname.c_str());
+  
+  c_pT_rebin->Print(output_start.c_str());
+
+  for(int itheta = 0; itheta < 7; itheta++)
+  {
+    for(int icent = 0; icent < 9; icent++)
+    {
+      for(int i_pt = vmsa::pt_rebin_first_cent[energy]; i_pt <= vmsa::pt_rebin_last_cent[energy]; i_pt++) // pt loop
+      {
+        c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1);
+        c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetLeftMargin(0.15);
+        c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetBottomMargin(0.15);
+        c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetTicks(1,1);
+        c_pT_rebin->cd(vmsa::pt_rebin_start[energy][i_pt]+1)->SetGrid(0,0);
+        string KEY_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,icent,itheta,EP[order-1].c_str(),vmsa::Dca_start,vmsa::nSigKaon_start,vmsa::mPID[pid].c_str(),vmsa::Norm_QA);
+        cout << KEY_QA << endl;
+        h_mMass[KEY_QA]->SetMarkerStyle(24);
+        h_mMass[KEY_QA]->SetMarkerSize(1.2);
+        h_mMass[KEY_QA]->SetLineColor(kGray+2);
+        h_mMass[KEY_QA]->SetTitle(Form("Cent %d, %d/7<|cos(#theta*)|<%d/7",icent,itheta,itheta+1));
+        h_mMass[KEY_QA]->DrawCopy("pE");
+        // cout << "KEY_QA = " << KEY_QA.c_str() << endl;
+
+        string pT_range = Form("[%.2f,%.2f]",vmsa::pt_low_cent[energy][i_pt],vmsa::pt_up_cent[energy][i_pt]);
+        plotTopLegend((char*)pT_range.c_str(),0.2,0.7,0.08,1,0.0,42,1);
+        PlotLine(vmsa::InvMass_low[pid],vmsa::InvMass_high[pid],0.0,0.0,1,2,2);
+      }
+      c_pT_rebin->Update();
+      c_pT_rebin->Print(outputname.c_str());
+    }
+  }
+  output_stop = Form("%s]",outputname.c_str());
+  c_pT_rebin->Print(output_stop.c_str()); // close pdf file
+  
 #endif
 
   // Poly + Breit Wignar fit to phi integrated InvMass
-  TH1FMap h_mMass_theta;
+  /*TH1FMap h_mMass_theta;
   vecFMap ParFit_theta;
   for(int i_cent = vmsa::centStart; i_cent < vmsa::centStop; i_cent++) // Centrality loop
   {
@@ -289,7 +336,7 @@ void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date
       }
     }
   }
-
+*/
 #if _PlotQA_
   // QA plots for Poly+Breit_Wignar fits for phi integrated InvMass
   /*TCanvas *c_mMass_theta = new TCanvas("c_mMass_theta","c_mMass_theta",10,10,1400,1400);
@@ -433,24 +480,28 @@ void subBackGroundPhiCent(int energy = 4, int pid = 0, int year = 0, string date
 #endif
 
   // write background subtracted histograms to output file
-  string outputfile = Form("../output/AuAu%s/%s/InvMassSubBgCent.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  string outputfile = Form("../output/AuAu%s/%s/InvMassSubBgCent_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),etamode.c_str());
+  if(order == 1) outputfile = Form("../output/AuAu%s/%s/InvMassSubBgCent_%s_FirstOrder.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),etamode.c_str());
   if(random3D) outputfile = Form("../output/AuAu%s/%s/3DRandom/InvMassSubBgCent.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   // string outputfile = Form("/Users/xusun/Data/SpinAlignment/AuAu%s/InvMassSubBg.root",vmsa::mBeamEnergy[energy].c_str());
   TFile *File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   File_OutPut->cd();
-  for(int i_cent = vmsa::centStart; i_cent < vmsa::centStop; i_cent++) // Centrality loop
+  for(int i_pt = vmsa::pt_rebin_first_cent[energy]; i_pt <= vmsa::pt_rebin_last_cent[energy]; i_pt++) // pt loop
   {
-    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+    for(int i_cent = vmsa::centStart; i_cent < vmsa::centStop; i_cent++) // Centrality loop
     {
-      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
       {
-        if( i_dca != 0 && i_sig != 0 ) continue;
-        for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
+        for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
         {
-          for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+          if( i_dca != 0 && i_sig != 0 ) continue;
+          for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
           {
-            string KEY = Form("Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d",i_cent,i_theta,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
-            h_mMass[KEY]->Write();
+            for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
+            {
+              string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d",i_pt,i_cent,i_theta,EP[order-1].c_str(),i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm);
+              h_mMass[KEY]->Write();
+            }
           }
         }
       }

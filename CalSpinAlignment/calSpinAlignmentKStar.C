@@ -46,13 +46,13 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
     {
 	for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	{
-	  string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_SE[KEY_SE] = (TH1F*)File_SE->Get(KEY_SE.c_str())->Clone(); 
 	  int Norm_bin_start = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Start[pid][0]);
 	  int Norm_bin_stop  = h_mMass_SE[KEY_SE]->FindBin(vmsa::Norm_Stop[pid][0]);
 	  float Inte_SE = h_mMass_SE[KEY_SE]->Integral(Norm_bin_start,Norm_bin_stop);
 
-	  string KEY_ME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_ME",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_ME = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_ME",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  h_mMass_ME[KEY_ME] = (TH1F*)File_ME->Get(KEY_ME.c_str())->Clone(); 
 	  float Inte_ME = h_mMass_ME[KEY_ME]->Integral(Norm_bin_start,Norm_bin_stop);
 	  h_mMass_ME[KEY_ME]->Scale(Inte_SE/Inte_ME);
@@ -67,10 +67,10 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
   // QA Plots for SE vs. ME
   TCanvas *cy6 = new TCanvas("cy6","cy6",10,10,800,600);
   cy6->cd();
-  string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",6,9,3,vmsa::mPID[pid].c_str());
+  string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",6,9,3,vmsa::mPID[pid].c_str());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_ME",6,9,3,vmsa::mPID[pid].c_str());
+  string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_ME",6,9,3,vmsa::mPID[pid].c_str());
   h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
@@ -85,10 +85,10 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
 
   TCanvas *cy7 = new TCanvas("cy7","cy7",10,10,800,600);
   cy7->cd();
-  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",7,9,3,vmsa::mPID[pid].c_str());
+  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",7,9,3,vmsa::mPID[pid].c_str());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_ME",7,9,3,vmsa::mPID[pid].c_str());
+  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_ME",7,9,3,vmsa::mPID[pid].c_str());
   h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
@@ -103,10 +103,10 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
 
   TCanvas *cy5 = new TCanvas("cy5","cy5",10,10,800,600);
   cy5->cd();
-  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",5,9,3,vmsa::mPID[pid].c_str());
+  KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",5,9,3,vmsa::mPID[pid].c_str());
   h_mMass_SE[KEY_SE_QA]->DrawCopy("PE");
 
-  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_ME",5,9,3,vmsa::mPID[pid].c_str());
+  KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_ME",5,9,3,vmsa::mPID[pid].c_str());
   h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
   h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
@@ -131,10 +131,10 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
     c_pT->cd(i_pt+1)->SetBottomMargin(0.15);
     c_pT->cd(i_pt+1)->SetTicks(1,1);
     c_pT->cd(i_pt+1)->SetGrid(0,0);
-    string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
+    string KEY_SE_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
     h_mMass_SE[KEY_SE_QA]->DrawCopy();
 
-    string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_ME",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
+    string KEY_ME_QA = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_ME",i_pt,9,vmsa::CTS_start,vmsa::mPID[pid].c_str());
     h_mMass_ME[KEY_ME_QA]->SetLineColor(2);
     h_mMass_ME[KEY_ME_QA]->SetFillColor(2);
     h_mMass_ME[KEY_ME_QA]->SetFillStyle(3002);
@@ -163,11 +163,11 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
 	for(int pt_binKS = vmsa::pt_rebin_firstKS[energy]; pt_binKS < vmsa::pt_rebin_lastKS[energy]; pt_binKS++) // pt loop
 	{
 	  string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_%s_SM",pt_binKS,i_cent,i_theta,vmsa::mPID[pid].c_str());
-	  string KEY_SBR = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",pt_binKS,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_SBR = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",pt_binKS,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	  for(int i_pt = vmsa::pt_rebin_startKS[energy][pt_binKS]; i_pt <= vmsa::pt_rebin_stopKS[energy][pt_binKS]; i_pt++)
 	  {
 	    string KEY_SM = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
-	    string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	    string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
 	    if(i_pt == vmsa::pt_rebin_startKS[energy][pt_binKS])
 	    {
 	      h_mMass[KEY] = (TH1F*)h_mMass_SM[KEY_SM]->Clone();
@@ -223,7 +223,7 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
 	  for(int i_theta = vmsa::CTS_start; i_theta < vmsa::CTS_stop; i_theta++) // cos(theta*) loop
 	  {
 	    string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
-            h_mMass[KEY]->Rebin(2);
+            //h_mMass[KEY]->Rebin(2);
 	    if(i_theta == vmsa::CTS_start) h_mMass_theta[KEY_theta] = (TH1F*)h_mMass[KEY]->Clone();
 	    else h_mMass_theta[KEY_theta]->Add(h_mMass[KEY],1.0);
 	  }
@@ -514,7 +514,7 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
 	{
 	  // bin counting
 	  string KEY = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_%s_SM",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
-	  string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_1_Sig_0_NHit_0_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
+	  string KEY_SE = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_0_Sig_0_NHit_0_%s_SE",i_pt,i_cent,i_theta,vmsa::mPID[pid].c_str());
           cout << KEY << endl;
 	  float counts = 0.0;
 	  float errors = 0.0;
@@ -732,6 +732,89 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
   leg_temp->Draw("same");
   c_mMass_psi->SaveAs("./figures/KStar/phi_SpinAlighment.png");
 */
+{
+    TCanvas *c_rhocorr = new TCanvas("c_rhocorr","c_rhocorr",10,10,600,600);
+    c_rhocorr->cd();
+    c_rhocorr->cd()->SetLeftMargin(0.15);
+    c_rhocorr->cd()->SetBottomMargin(0.15);
+    c_rhocorr->cd()->SetTicks(1,1);
+    c_rhocorr->cd()->SetGrid(0,0);
+
+    TH1F *h_frame_cos = new TH1F("h_frame_cos","h_frame_cos",100,0.7,1.1);
+    for(int i_bin = 0; i_bin < 100; ++i_bin)
+    {
+      h_frame_cos->SetBinContent(i_bin+1,-10.0);
+      h_frame_cos->SetBinError(i_bin+1,1.0);
+    }
+    h_frame_cos->SetTitle("");
+    h_frame_cos->SetStats(0);
+    h_frame_cos->GetXaxis()->SetRangeUser(0.75,1.08);
+    h_frame_cos->GetXaxis()->SetNdivisions(505,'N');
+    h_frame_cos->GetXaxis()->SetLabelSize(0.03);
+    h_frame_cos->GetXaxis()->SetTitle("M(K^{+/-},#pi^{-/+}) (GeV/c^{2})");
+    h_frame_cos->GetXaxis()->SetTitleSize(0.05);
+    h_frame_cos->GetXaxis()->SetTitleOffset(1.2);
+    h_frame_cos->GetXaxis()->CenterTitle();
+
+    h_frame_cos->GetYaxis()->SetNdivisions(505,'N');
+    h_frame_cos->GetYaxis()->SetTitle("Raw Yields (arb. units)");
+    h_frame_cos->GetYaxis()->SetTitleSize(0.05);
+    h_frame_cos->GetYaxis()->SetMaxDigits(2);
+    h_frame_cos->GetYaxis()->SetLabelSize(0.03);
+    h_frame_cos->GetYaxis()->CenterTitle();
+
+  
+  h_mMass_total[KEY_theta_QA]->SetTitle("Integrated Yields");
+  h_mMass_total[KEY_theta_QA]->SetMarkerColor(1);
+  h_mMass_total[KEY_theta_QA]->SetMarkerStyle(24);
+  h_mMass_total[KEY_theta_QA]->SetMarkerSize(0.8);
+  TH1F *h_copy = (TH1F*) h_mMass_total[KEY_theta_QA]->Clone();
+  //h_copy->Scale(1./459885291.);
+  h_frame_cos->GetYaxis()->SetRangeUser(1.1*h_copy->GetMinimum(),1.4*h_copy->GetMaximum());
+  h_frame_cos->DrawCopy("pE");
+  h_copy->SetMarkerSize(1.2);
+  h_copy->Draw("pE same");
+  TF1 *f_bw_QA = new TF1("f_bw_QA",Poly2BreitWigner,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],6);;
+  f_bw_QA->FixParameter(0,ParBW[KEY_theta_QA][0]);
+  f_bw_QA->FixParameter(1,ParBW[KEY_theta_QA][1]);
+  f_bw_QA->FixParameter(2,ParBW[KEY_theta_QA][2]);
+  f_bw_QA->FixParameter(3,ParBW[KEY_theta_QA][3]);
+  f_bw_QA->FixParameter(4,ParBW[KEY_theta_QA][4]);
+  f_bw_QA->FixParameter(5,ParBW[KEY_theta_QA][5]);
+  f_bw_QA->SetRange(vmsa::BW_Start[pid],vmsa::BW_Stop[pid]);
+  f_bw_QA->SetLineColor(kGray+2);
+  f_bw_QA->Draw("l same");
+
+  TF1 *f_bg_QA = new TF1("f_bg_QA",Poly2,vmsa::BW_Start[pid],vmsa::BW_Stop[pid],3);;
+  f_bg_QA->FixParameter(0,ParBW[KEY_theta_QA][3]);
+  f_bg_QA->FixParameter(1,ParBW[KEY_theta_QA][4]);
+  f_bg_QA->FixParameter(2,ParBW[KEY_theta_QA][5]);
+  f_bg_QA->SetLineColor(kGray+2);
+  f_bg_QA->SetLineStyle(2);
+  f_bg_QA->Draw("l same");
+
+    string leg_pt = "1.5 < p_{T} < 5.0 GeV/c";
+    plotTopLegend((char*)leg_pt.c_str(),0.77,1.5e6,0.04,1,0.0,42,0);
+    //leg_pt = "|y| < 1.0";
+    //plotTopLegend((char*)leg_pt.c_str(),0.988,0.00022,0.04,1,0.0,42,0);
+
+    //string leg_sp = "STAR Preliminary";
+    //plotTopLegend((char*)leg_sp.c_str(),0.9925,0.00034,0.04,2,0.0,42,0);
+
+    //PlotLine(0.987,0.991,0.00018,0.00018,kGray+2,2,1);
+    //string leg_line = "BW+res.";
+    //plotTopLegend((char*)leg_line.c_str(),0.992,0.00018,0.04,1,0.0,42,0);
+    //PlotLine(0.987,0.991,0.00016,0.00016,kGray+2,2,2);
+    //leg_line = "res.";
+    //plotTopLegend((char*)leg_line.c_str(),0.992,0.00016,0.04,1,0.0,42,0);
+
+    //string leg_energy = "Au+Au 19.6 GeV Run-2019 & 20-60%";
+    //plotTopLegend((char*)leg_energy.c_str(),0.988,0.00028,0.04,1,0.0,42,0);
+    //:wq
+//plotTopLegend((char*)"20%-60%",0.65,0.00258,0.04,1,0.0,42,0);
+  c_rhocorr->SaveAs("figures/PreliminaryRawYields.eps");
+
+  }
 #endif
 #if _PlotQA_
   // QA InvMass vs. phi for gaussian and breit wigner fits
@@ -1145,13 +1228,13 @@ void calSpinAlignmentKStar(int energy = 4, int pid = 2, int year = 0, double nSi
   PlotLine(0.0,5.0,1.0/3.0,1.0/3.0,1,2,2);
 
   string KEY_Rho00_Count_QA = Form("Rho00_Count_Centrality_%d_%s",9,vmsa::mPID[pid].c_str());
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho00[KEY_Rho00_Count_QA] ,24,4,1.1);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho00[KEY_Rho00_Count_QA] ,24,4,0,1.1);
   Draw_TGAE_Point_new_Symbol(2.5,0.52,0.0,0.0,0.0,0.0,24,4,1.3);
   string leg_count = "#phi (bin counting)";
   plotTopLegend((char*)leg_count.c_str(),2.6,0.517,0.03,1,0.0,42,0);
 
   string KEY_Rho00_BW_QA = Form("Rho00_BW_Centrality_%d_%s",9,vmsa::mPID[pid].c_str());
-  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho00[KEY_Rho00_BW_QA] ,24,2,1.1);
+  Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho00[KEY_Rho00_BW_QA] ,24,2,0,1.1);
   Draw_TGAE_Point_new_Symbol(2.5,0.54,0.0,0.0,0.0,0.0,24,2,1.3);
   string leg_bw = "#phi (bw integrating)";
   plotTopLegend((char*)leg_bw.c_str(),2.6,0.537,0.03,1,0.0,42,0);

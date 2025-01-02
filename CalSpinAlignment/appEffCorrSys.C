@@ -59,15 +59,24 @@ TH1F* CalEffCorr(TH1F *h_counts, TF1 *f_eff, std::string HistName)
 }
 
 // used for 20%-60% and eta_gap = 0.05 only
-void appEffCorrSys(int energy = 4, int pid = 0, int ptQA = 2, bool isBesI = false, bool random3D = true)
+void appEffCorrSys(int energy = 4, int pid = 0, int ptQA = 2, bool isBesI = false, int order = 2, bool random3D = false, int etamode = 5)
 {
-  string InPutRho = Form("../output/AuAu%s/%s/RawPhiPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  std::string etastring;
+  if(etamode == 0) etastring = "eta1_eta1";
+  if(etamode == 1) etastring = "eta1_eta1p5";
+  if(etamode == 2) etastring = "eta1p5_eta1p5";
+  if(etamode == 3) etastring = "eta0p4";
+  if(etamode == 4) etastring = "eta0p6";
+  if(etamode == 5) etastring = "eta0p8";
+
+  string InPutRho = Form("../output/AuAu%s/%s/RawPhiPtSys_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),etastring.c_str());
+  if(order == 1) InPutRho = Form("../output/AuAu%s/%s/RawPhiPtSys_Psi1.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   if(random3D) InPutRho = Form("../output/AuAu%s/%s/3DRandom/RawPhiPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   if(isBesI) InPutRho = Form("../data/BESI/RawRhoPtSys.root");
   TFile *File_Rho = TFile::Open(InPutRho.c_str());
   cout << InPutRho << endl;
 
-  string InPutEff = Form("../data/Eff_%s_SingleParticle_2060.root",vmsa::mBeamEnergy[energy].c_str());
+  string InPutEff = Form("./efficiencies/%s/%s/Eff_%s_SingleParticle_noToF_Mode0_EtaMode%d.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str(),etamode);
   if(isBesI) InPutEff = Form("../../../FileTransfers/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str());
   cout << InPutEff << endl;
 
@@ -93,18 +102,18 @@ void appEffCorrSys(int energy = 4, int pid = 0, int ptQA = 2, bool isBesI = fals
 	      string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
               cout << KEY_rho << endl;
 	      g_mRho[KEY_rho] = new TGraphAsymmErrors();
-	      for(int i_pt = vmsa::pt_rebin_first[energy]; i_pt < vmsa::pt_rebin_last[energy]; ++i_pt) // pt loop
+	      for(int i_pt = /*vmsa::pt_rebin_first[energy]*/2; i_pt < 6/*vmsa::pt_rebin_last[energy]*/; ++i_pt) // pt loop
 	      {
 		string KEY_counts = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_pt,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-                //cout << KEY_counts << endl;
+                cout << KEY_counts << endl;
 		h_mCounts[KEY_counts] = (TH1F*)File_Rho->Get(KEY_counts.c_str());
-		//h_mCounts[KEY_counts]->Print();
+		h_mCounts[KEY_counts]->Print();
 		string KEY_Eff = Form("h_mEffCos_Cent_9_Pt_%d",i_pt); // 20%-60%
-                //cout << KEY_Eff << endl;
+                cout << KEY_Eff << endl;
 		h_mEff[KEY_Eff] = (TH1D*)File_Eff->Get(KEY_Eff.c_str());
 		TF1 *f_poly = new TF1("f_poly","pol0",0.0,1.0);
 		h_mEff[KEY_Eff]->Fit(f_poly,"NQ");
-		//h_mEff[KEY_Eff]->Print();
+		h_mEff[KEY_Eff]->Print();
                 
                 //cout << "Did I fit?" << endl;
 	        h_mCountsEff[KEY_counts] = CalEffCorr(h_mCounts[KEY_counts],h_mEff[KEY_Eff],KEY_counts);
@@ -130,7 +139,7 @@ void appEffCorrSys(int energy = 4, int pid = 0, int ptQA = 2, bool isBesI = fals
     }
   }
 
-#if _PlotQA_
+/*#if _PlotQA_
 
     double binpt[7] = {0.4,0.8,1.2,1.8,2.4,3.0,4.2};
     TCanvas *c_Counts = new TCanvas("c_Counts","c_Counts",10,10,1000,800);
@@ -212,14 +221,14 @@ void appEffCorrSys(int energy = 4, int pid = 0, int ptQA = 2, bool isBesI = fals
       c_Counts->SaveAs("figures/Preliminary/yieldsvscos.pdf");
     }
 #endif
-
-  TCanvas *c_rho = new TCanvas("c_rho","c_rho",10,10,800,800);
+*/
+  /*TCanvas *c_rho = new TCanvas("c_rho","c_rho",10,10,800,800);
   c_rho->cd();
   c_rho->cd()->SetLeftMargin(0.15);
   c_rho->cd()->SetBottomMargin(0.15);
   c_rho->cd()->SetTicks(1,1);
   c_rho->cd()->SetGrid(0,0);
-  TH1F *h_frame = new TH1F("h_frame","h_frame",100,-0.05,9.95);
+*/  TH1F *h_frame = new TH1F("h_frame","h_frame",100,-0.05,9.95);
   for(int i_bin = 0; i_bin < 100; ++i_bin)
   {
     h_frame->SetBinContent(i_bin+1,-10.0);
@@ -241,7 +250,7 @@ void appEffCorrSys(int energy = 4, int pid = 0, int ptQA = 2, bool isBesI = fals
   h_frame->GetYaxis()->SetTitleSize(0.05);
   h_frame->GetYaxis()->SetLabelSize(0.03);
   h_frame->GetYaxis()->CenterTitle();
-  h_frame->DrawCopy("pE");
+ /* h_frame->DrawCopy("pE");
   PlotLine(0.0,5.0,1.0/3.0,1.0/3.0,1,2,2);
 
   for(int i_cent = 9; i_cent < 10; ++i_cent) // Centrality loop
@@ -258,15 +267,15 @@ void appEffCorrSys(int energy = 4, int pid = 0, int ptQA = 2, bool isBesI = fals
 	    for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	    {
 	      string KEY_rho = Form("rhoRaw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-	      Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
+	      //Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mRho[KEY_rho],24,i_sigma+10*i_method+1,1.1);
 	    }
 	  }
 	}
       }
     }
-  }
+  }*/
 
-  string OutPutFile = Form("../output/AuAu%s/%s/EffPhiPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  string OutPutFile = Form("../output/AuAu%s/%s/EffPhiPtSys_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),etastring.c_str());
   if(random3D) OutPutFile = Form("../output/AuAu%s/%s/3DRandom/EffPhiPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   if(isBesI) OutPutFile = Form("../output/AuAu%s/%s/BESI/EffPhiPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
   TFile *File_OutPut = new TFile(OutPutFile.c_str(),"RECREATE");
