@@ -35,6 +35,7 @@
 #include <map>
 
 // ROOT headers
+#include "Rtypes.h"
 #include "TString.h"
 #include "BadRun.h"
 
@@ -47,8 +48,10 @@ class StRefMultCorr {
   /// "refmult"   - reference multiplicity defined in |eta|<0.5
   /// "refmult2"  - reference multiplicity defined in 0.5<|eta|<1.0
   /// "refmult3"  - reference multiplicity defined in |eta|<0.5 without protons
+  /// "fxtmult"   - reference multiplicity for fixed-target program defined as number of primary tracks (without cuts!)
   /// "toftray"   - TOF tray multiplicity
   /// "grefmult"  - global reference multiplicity defined in |eta|<0.5,dca<3,nHitsFit>10
+  /// "fxtmult"   - number of primary tracks for the fixed-target mode of the experiment
   /// Specify the type of data sets (in case there are multiple prameters/definitions in the same runs)
   /// "Def"
   /// "VpdMB5"
@@ -113,8 +116,11 @@ class StRefMultCorr {
   /// Print all parameters
   void print(const Option_t* option="") const ;
 
+  /// Print debug information
+  void setVerbose(const Bool_t& verbose) { mVerbose = verbose; }
+
  private:
-  /// refmult, refmult2, refmult3 or toftray (case insensitive)
+  /// grefmult, refmult, refmult2, refmult3 or toftray (case insensitive), fxtmult
   const TString mName;
   /// Specify triggers, in case there are multiple parameters/definitions in the same runs 
   const TString mSubName;
@@ -185,8 +191,21 @@ class StRefMultCorr {
   std::vector<Double_t> mVzEdgeForWeight ; /// vz edge value
   std::vector<Double_t> mgRefMultTriggerCorrDiffVzScaleRatio ; /// Scale factor for global refmult
 
-  /////// Added from official package in StRoot/StRefMultCorr 
-  const Int_t getRefX() const;  /// X= 1 (normal RefMult), 2, 3, 4
+  /// @brief The choise of reference muliplicity to be used:
+  /// 0 gRefMult
+  /// 1 RefMult
+  /// 2 RefMult2
+  /// 3 RefMult3
+  /// 4 RefMult4
+  /// 5 FxtMult
+  Short_t mRefX;
+  /// @brief Print debug information (default: kFALSE)
+  Bool_t mVerbose;
+
+  /// @brief Return reference multiplicity specified by the constructer
+  /// @return 0 - gRefMult, 1 - refMult, 2 - refMult2, 3 - refMult3, 4 - refMult4, 5 - fxtMult
+  const Int_t getRefX() const;  
+
   const Int_t getNumberOfDatasets() const; /// Number of definitions for each X
   void readHeaderFile();   //// alternative of read() in rev<=1.9 
   void readBadRunsFromHeaderFile();  /// alternative of readBadRuns() in rev<=1.9 
@@ -197,7 +216,15 @@ class StRefMultCorr {
   std::vector<std::string> StringSplit( const std::string str, const char sep ) const;
 
   // Read scale factor from header file
-  void readScaleForWeight(const Int_t nRefmultBin, const Double_t *weight) ;
+  void readScaleForWeight(const Int_t nRefmultBin, const Double_t *weight);
+
+  /// Calculate maximal or minimal refMult value for pile-up 
+  /// rejection (b parameters for refMultMax, c parameters for refMultMin)
+  Double_t calcPileUpRefMult(Double_t ntofmatch, Double_t x0, Double_t x1, 
+                             Double_t x2, Double_t x3, Double_t x4) const;
+  /// Check if refMult is between refMultLow and refMultHi values (for pile-up rejection)
+  Bool_t isInPileUpRefMultLimits(Double_t refMult, Double_t low, Double_t hi) const 
+  { return ( low < refMult && refMult < hi); }
 
   ClassDef(StRefMultCorr, 0)
 };

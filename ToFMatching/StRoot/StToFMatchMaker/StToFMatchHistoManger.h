@@ -9,6 +9,7 @@ class TH1F;
 class TH1D;
 class TH2F;
 class TH3D;
+class TH3F;
 
 class StToFMatchHistoManger : public TObject
 {
@@ -23,7 +24,12 @@ class StToFMatchHistoManger : public TObject
     void FillQA_Proton(Float_t dEdx, Float_t Mass2, Float_t p);
     void FillQA_Event(Float_t vz, Float_t refMult);
     void WriteQA();
-    
+
+    void InitHistQA();
+    void FillEventHistQA(float reweight, int cent, float vx, float vy, float vz, float ntof, float refmult);
+    void FillTrackHistQA(float reweight, int cent, int charge, float dca, float nhits, float nhitsratio, float p, float dedx);
+    void WriteHistQA();    
+
     void InitHist();
     int findEta(float eta);
     int findPhi(float phi);
@@ -34,18 +40,22 @@ class StToFMatchHistoManger : public TObject
   private:
 
     // QA plots
-    TH2F *h_mDEdx;
-    TH2F *h_mMass2;
 
-    TH2F *h_mDEdx_Pion;
-    TH2F *h_mMass2_Pion;
-    TH2F *h_mDEdx_Kaon;
-    TH2F *h_mMass2_Kaon;
-    TH2F *h_mDEdx_Proton;
-    TH2F *h_mMass2_Proton;
+    //TH2F *h_mDEdx_Pion[10];
+    //TH2F *h_mMass2_Pion[10];
+    //TH2F *h_mMass2_Kaon[10];
+    //TH2F *h_mDEdx_Proton[10];
+    //TH2F *h_mMass2_Proton[10];
 
-    TH1F *h_mVz;
-    TH1F *h_mRefMult;
+    TH1F *h_mDca[2][10];
+    TH1F *h_mNHits[2][10];
+    TH1F *h_mNHitsRatio[2][10];
+    TH2F *h_mDEdx_Kaon[2][10];
+
+    TH3F *h_mVertex[10];
+    TH1F *h_mNToFMatch[10];
+    TH1F *h_mRefMult[10]; 
+
 
     TH3D *h_mTracks_TPC[2][3][10]; // pt, eta, phi distribution as a function of charge | pid | centrality => 9 for miniBias <= temporary
     TH3D *h_mTracks_ToF[2][3][10];

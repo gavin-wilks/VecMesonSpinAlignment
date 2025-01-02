@@ -4,7 +4,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TF1.h"
-#include "../../RcPhiEffCorr/StRoot/Utility/StSpinAlignmentCons.h"
+#include "../../Utility/StSpinAlignmentCons.h"
 #include "../../Utility/draw.h"
 
 using namespace std;
@@ -19,6 +19,7 @@ void plotMcKStarEff(int energy = 4, int cent = 9, int pid = 2)
   //string inputfile = Form("/star/u/gwilks3/Workspace/FileTransfers/Eff_%s_SingleKaon_second.root",vmsa::mBeamEnergy[energy].c_str());
   // string InPutFile = Form("/project/projectdirs/starprod/rnc/xusun/OutPut/AuAu%s/SpinAlignment/Phi/Efficiency/Eff_%s_SingleKaon.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mBeamEnergy[energy].c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
+
   TH1D *h_mEff[vmsa::pt_rebinKS];
   for(int i_pt = vmsa::pt_rebin_firstKS[energy]; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
   {
@@ -40,12 +41,12 @@ void plotMcKStarEff(int energy = 4, int cent = 9, int pid = 2)
   string legEnergy = Form("AuAu %s 20%%-60%%",vmsa::mBeamEnergy[energy].c_str());
   h_frame->SetTitle("");
   h_frame->SetStats(0);
-  h_frame->GetXaxis()->SetTitle("cos(#theta*)");
+  h_frame->GetXaxis()->SetTitle("cos#theta*");
   h_frame->GetXaxis()->CenterTitle();
   h_frame->GetXaxis()->SetLabelSize(0.04);
   h_frame->GetXaxis()->SetNdivisions(505);
 
-  h_frame->GetYaxis()->SetTitle("efficiency");
+  h_frame->GetYaxis()->SetTitle("Efficiency");
   h_frame->GetYaxis()->SetTitleSize(0.04);
   h_frame->GetYaxis()->CenterTitle();
   h_frame->GetYaxis()->SetLabelSize(0.04);
@@ -60,7 +61,7 @@ void plotMcKStarEff(int energy = 4, int cent = 9, int pid = 2)
   double slopeVal[6];
   double slopeErr[6];
 
-  for(int i_pt = vmsa::pt_rebin_firstKS[energy]; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
+  for(int i_pt = 1/*vmsa::pt_rebin_firstKS[energy]*/; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
   {
     h_mEff[i_pt]->SetMarkerStyle(vmsa::Style[i_pt]);
     h_mEff[i_pt]->SetMarkerColor(vmsa::Color[i_pt]);
@@ -84,7 +85,7 @@ void plotMcKStarEff(int energy = 4, int cent = 9, int pid = 2)
   }
   plotTopLegend((char*)legEnergy.c_str(),0.17,0.5,0.05,1,0.0,42,0,1);
 
-  for(int i_pt = vmsa::pt_rebin_firstKS[energy]; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
+  for(int i_pt = 1/*vmsa::pt_rebin_firstKS[energy]*/; i_pt < vmsa::pt_rebin_lastKS[energy]; ++i_pt)
   {
     cout << "pT bin: " << i_pt << endl;
     cout << "y-int = " << intVal[i_pt] << " +/- " << intErr[i_pt] << endl;

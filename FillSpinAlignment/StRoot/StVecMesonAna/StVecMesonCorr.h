@@ -4,10 +4,12 @@
 #include "TObject.h"
 #include "TVector2.h"
 #include "TString.h"
+#include "TProfile.h"
 
 class TLorentzVector;
 class TProfile2D;
 class TFile;
+class TProfile; 
 
 class StVecMesonCorr : public TObject
 {
@@ -38,13 +40,19 @@ class StVecMesonCorr : public TObject
 
     // Resolution Correction
     void InitResolutionCorr();
+    void InitResolution1Corr();
     Float_t getResolution2_EP(Int_t); // centrality
+    Float_t getResolution1_EP(Int_t); // centrality
     Float_t getResolution2_Full_EP(Int_t);
 
   private:
     TFile *mInPutFile_ReCenter; // input file for ReCenter Correction
     TFile *mInPutFile_Shift; // input file for Shift Correction
     TFile *mInPutFile_Res; // input file for Resolution Correction
+
+    TProfile *p_mRes1;
+
+    double mRes1[9];
 
     Int_t mEnergy;
 

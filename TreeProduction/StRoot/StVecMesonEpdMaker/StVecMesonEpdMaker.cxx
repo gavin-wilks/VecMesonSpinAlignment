@@ -88,6 +88,7 @@ StVecMesonEpdMaker::StVecMesonEpdMaker(const char* name, StPicoDstMaker *picoMak
     mInPut_EpdCorrections = Form("StRoot/Utility/EpdCorrections/file_%s_EpdCorrections_5.root",vmsa::mBeamEnergy[energy].c_str());
     mOutPut_EpdCorrections = Form("file_%s_EpdCorrections_%d_%s.root",vmsa::mBeamEnergy[energy].c_str(),mMode,jobCounter);
     mOutPut_EpdResults = Form("file_%s_EpdFlow_%d_%s.root",vmsa::mBeamEnergy[energy].c_str(),mMode,jobCounter);  
+    mOutPut_EpdTree = Form("file_%s_EpdTree_%d_%s.root",vmsa::mBeamEnergy[energy].c_str(),mMode,jobCounter);  
   }
  
   //if(mMode == 0)
@@ -135,19 +136,217 @@ Int_t StVecMesonEpdMaker::Init()
 
     mEpdGeom = new StEpdGeom;
   }
-
+  ////////////////////19GeV////////////////////////////////////
   // On second pass
   //double mResCorr[9] = {0.224327, 0.291191, 0.365294, 0.424694, 0.456142, 0.453143, 0.391865, 0.280205, 0.157329};
   //double mEtaLin[9] = {-0.00455916, -0.00580228, -0.00706776, -0.0075328, -0.00726617, -0.00634251, -0.00438439, -0.00214997, -0.000634274};
   //double mEtaCub[9] = {0.000418717, 0.000568683, 0.000739452, 0.000859493, 0.000899388, 0.000842957, 0.000625815, 0.000327728, 0.000105771};
 
-  double mResCorr[9] = {0.170333, 0.236634, 0.311019, 0.373951, 0.412054, 0.415775, 0.363042, 0.260374, 0.145185};
-  double mEtaLin[9] = {-0.00331161, -0.00466038, -0.00593718, -0.0066493, -0.00662886, -0.00585393, -0.00412081, -0.00205545, -0.000625279};
-  double mEtaCub[9] = {0.00030976, 0.000457207, 0.000623666, 0.000755677, 0.000815535, 0.000775468, 0.000583732, 0.000308166, 9.95871e-05};  
+  //These were used for the calculations of first order EP 07.25.23
+  //double mResCorr[9] = {0.170333, 0.236634, 0.311019, 0.373951, 0.412054, 0.415775, 0.363042, 0.260374, 0.145185};
+  //double mEtaLin[9] = {-0.00331161, -0.00466038, -0.00593718, -0.0066493, -0.00662886, -0.00585393, -0.00412081, -0.00205545, -0.000625279};
+  //double mEtaCub[9] = {0.00030976, 0.000457207, 0.000623666, 0.000755677, 0.000815535, 0.000775468, 0.000583732, 0.000308166, 9.95871e-05};  
+  //double mResCorr[9] = {0.224685, 
+  //                      0.291379,  
+  //                      0.365383, 
+  //                      0.424785, 
+  //                      0.456162,  
+  //                      0.45317, 
+  //                      0.39187, 
+  //                      0.280201, 
+  //                      0.15764  };
+  //double mEtaLin[9]  = {-0.0292269,  
+  //                      -0.0314238,  
+  //                      -0.0316285,  
+  //                      -0.0303283,  
+  //                      -0.0278316,  
+  //                      -0.0239867,  
+  //                      -0.0182498,  
+  //                      -0.0117371,  
+  //                      -0.00569207};
+  //double mEtaCub[9]  = {0.00438347,
+  //                      0.00482629,
+  //                      0.00508872,
+  //                      0.00513154,
+  //                      0.00495127,
+  //                      0.00448002,
+  //                      0.00357418,
+  //                      0.00241255,
+  //                      0.00123005};  
+  //double mEtaPen[9]  = {-0.000111087,
+  //                      -0.000125016,
+  //                      -0.000134844,
+  //                      -0.000137884,
+  //                      -0.000133588,
+  //                      -0.000119625,
+  //                      -9.22724e-05,
+  //                      -5.94487e-05,
+  //                      -2.76481e-05 };  
+  ////////////////////19GeV////////////////////////////////////
+  
+  ////////////////////14GeV////////////////////////////////////
+  //Step 2
+  //double mResCorr[9] = {0.0450576,0.0954252,0.157199,0.212543,0.241313,0.227459,0.158003,0.0747298,0.0209963};
+  //double mEtaLin[9]  = {-0.0111086,  
+  //                      -0.00844079, 
+  //                      -0.00679944, 
+  //                      -0.00557779, 
+  //                      -0.00490544, 
+  //                      -0.00472932, 
+  //                      -0.00472795, 
+  //                      -0.00392229, 
+  //                      -0.00265778 };
+  //double mEtaCub[9]  = {0.00117667,
+  //                      0.00108301,
+  //                      0.00105404,
+  //                      0.00104891,
+  //                      0.00106755,
+  //                      0.00109486,
+  //                      0.00107246,
+  //                      0.000884676,
+  //                      0.000576359 };  
 
+
+  //Step 4
+ // double mResCorr[9] = {0.241968, 
+ //                       0.33582,  
+ //                       0.421192, 
+ //                       0.484115, 
+ //                       0.51549,  
+ //                       0.504948, 
+ //                       0.429918, 
+ //                       0.306553, 
+ //                       0.16876  };
+ // double mEtaLin[9]  = {-0.0292269,  
+ //                       -0.0314238,  
+ //                       -0.0316285,  
+ //                       -0.0303283,  
+ //                       -0.0278316,  
+ //                       -0.0239867,  
+ //                       -0.0182498,  
+ //                       -0.0117371,  
+ //                       -0.00569207};
+ // double mEtaCub[9]  = {0.00438347,
+ //                       0.00482629,
+ //                       0.00508872,
+ //                       0.00513154,
+ //                       0.00495127,
+ //                       0.00448002,
+ //                       0.00357418,
+ //                       0.00241255,
+ //                       0.00123005};  
+ // double mEtaPen[9]  = {-0.000111087,
+ //                       -0.000125016,
+ //                       -0.000134844,
+ //                       -0.000137884,
+ //                       -0.000133588,
+ //                       -0.000119625,
+ //                       -9.22724e-05,
+ //                       -5.94487e-05,
+ //                       -2.76481e-05 };  
+  ////////////////////14GeV////////////////////////////////////
+
+
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+  ///////////////////7GeV///////////////////////////////
+  //Step 4
+  double mResCorr[9] = {0.297253 , 
+                        0.407885 ,  
+                        0.529893 , 
+                        0.61722  , 
+                        0.656006 ,  
+                        0.642065 , 
+                        0.559243 , 
+                        0.41847  , 
+                        0.247904  };
+  double mEtaLin[9]  = {-0.031259  ,  
+                        -0.0293681 ,  
+                        -0.0258445 ,  
+                        -0.0214797 ,  
+                        -0.0164175 ,  
+                        -0.0116493 ,  
+                        -0.00706739,  
+                        -0.00231646,  
+                        0.000859103 };
+  double mEtaCub[9]  = {0.00669991,
+                        0.00667246,
+                        0.006465  ,
+                        0.00615914,
+                        0.00571772,
+                        0.00516288,
+                        0.00425327,
+                        0.002838  ,
+                        0.00137633 };  
+  double mEtaPen[9]  = {-0.000214735,
+                        -0.000214311,
+                        -0.000208228,
+                        -0.000199414,
+                        -0.000186786,
+                        -0.000170227,
+                        -0.000140454,
+                        -9.35121e-05,
+                        -4.4525e-05  };  
+  //double mResCorr[9] = {0.268017, 
+  //                      0.371106,  
+  //                      0.482396, 
+  //                      0.555192, 
+  //                      0.571931,  
+  //                      0.528314, 
+  //                      0.416299, 
+  //                      0.274221, 
+  //                      0.143131 };
+  //double mEtaLin[9]  = {-0.0310754 ,  
+  //                      -0.0292315 ,  
+  //                      -0.0258458 ,  
+  //                      -0.0214541 ,  
+  //                      -0.0164429 ,  
+  //                      -0.0118205 ,  
+  //                      -0.00749114,  
+  //                      -0.00299885,  
+  //                      6.78313e-05 };
+  //double mEtaCub[9]  = {0.00667561,
+  //                      0.00665336,
+  //                      0.00646191,
+  //                      0.00614917,
+  //                      0.00571188,
+  //                      0.00517537,
+  //                      0.0043032 ,
+  //                      0.00292514,
+  //                      0.00150812 };  
+  //double mEtaPen[9]  = {-0.000213877,
+  //                      -0.000213597,
+  //                      -0.000207965,
+  //                      -0.000198859,
+  //                      -0.000186238,
+  //                      -0.000170057,
+  //                      -0.000141211,
+  //                      -9.5511e-05 ,
+  //                      -4.90999e-05 };  
+ 
   for(unsigned int i = 0; i < 9; i++){
     mEtaLin[i] = mEtaLin[i]/mResCorr[i];
     mEtaCub[i] = mEtaCub[i]/mResCorr[i];
+    mEtaPen[i] = mEtaPen[i]/mResCorr[i];
   }
   
   if(mMode == 0 || mMode == 1 || mMode == 2)
@@ -173,7 +372,7 @@ Int_t StVecMesonEpdMaker::Init()
     for (int ix=1; ix<101; ix++){
       for (int iy=1; iy<11; iy++){
         double eta = wt1.GetXaxis()->GetBinCenter(ix);
-        if(iy  < 10) wt1.SetBinContent(ix,iy,mEtaLin[iy-1]*eta+mEtaCub[iy-1]*eta*eta*eta);
+        if(iy  < 10) wt1.SetBinContent(ix,iy,mEtaLin[iy-1]*eta+mEtaCub[iy-1]*eta*eta*eta+mEtaPen[iy-1]*eta*eta*eta*eta*eta);
         if(iy == 10) wt1.SetBinContent(ix,iy,1.0);
       }
     }
@@ -183,19 +382,21 @@ Int_t StVecMesonEpdMaker::Init()
   if(mMode == 4 || mMode == 6)
   {
     mFile_EpdResults = new TFile(mOutPut_EpdResults.c_str(),"RECREATE");
+    mFile_EpdTree = new TFile(mOutPut_EpdTree.c_str(),"RECREATE");
 
     mEventPlaneProManager->initEpdRes();
     mEventPlaneProManager->initEpdFlow();
     mEventPlaneProManager->initEpdFlowEta();
     mEventPlaneHistoManager->initEpdEp();
     mEventPlaneHistoManager->initEpdQ();
+
     mVecMesonProManger->InitD12();
 
     TH2D wt1("Order1etaWeight","Order1etaWeight",100,1.5,6.5,10,0,10);
     for (int ix=1; ix<101; ix++){
       for (int iy=1; iy<11; iy++){
         double eta = wt1.GetXaxis()->GetBinCenter(ix);
-        if(iy  < 10) wt1.SetBinContent(ix,iy,mEtaLin[iy-1]*eta+mEtaCub[iy-1]*eta*eta*eta);
+        if(iy  < 10) wt1.SetBinContent(ix,iy,mEtaLin[iy-1]*eta+mEtaCub[iy-1]*eta*eta*eta+mEtaPen[iy-1]*eta*eta*eta*eta*eta);
         if(iy == 10) wt1.SetBinContent(ix,iy,1.0);
       }
     }
@@ -221,7 +422,7 @@ Int_t StVecMesonEpdMaker::Init()
     mVecMesonCorrection->InitShiftCorrection();
     mVecMesonCorrection->InitResolutionCorr();
   }
-
+  cout << "Initialized" << endl;
   return kStOK;
 }
 
@@ -240,17 +441,20 @@ Int_t StVecMesonEpdMaker::Finish()
   if(mMode == 4 || mMode == 6)
   {
     mFile_EpdResults->cd();
-    //mEventPlaneProManager->writeEpdRes();
-    //mEventPlaneProManager->writeEpdFlow();
-    //mEventPlaneProManager->writeEpdFlowEta();
+    mEventPlaneProManager->writeEpdRes();
+    mEventPlaneProManager->writeEpdFlow();
+    mEventPlaneProManager->writeEpdFlowEta();
     mEventPlaneHistoManager->writeEpdEp();
     mEventPlaneHistoManager->writeEpdQ();
     mVecMesonProManger->WriteD12();
-    //if(mFlag_PID == 0) mVecMesonTree->WriteMass2Phi();
-    //if(mFlag_PID == 1) mVecMesonTree->WriteMass2Rho();
-    //if(mFlag_PID == 2) mVecMesonTree->WriteMass2KStar();
-
     mFile_EpdResults->Close();
+   
+    if(mFlag_PID == 0 && mMode == 6) 
+    {
+      mFile_EpdTree->cd();
+      mVecMesonTree->WriteMass2Phi();
+      mFile_EpdTree->Close();
+    }
   }
 
   return kStOK;
@@ -318,19 +522,26 @@ Int_t StVecMesonEpdMaker::Make()
     return kStErr;
   }
 
+  //cout << "After bad run cut " << endl;
 
   bool isPileUpEvent = false;
   // IMPORTANT: vertex position is needed for Au+Au 19.6 GeV 2019
   if (mRefMultCorr->isPileUpEvent( refMult, nBTofMatched, vz ) ) isPileUpEvent = true;
   mRefMultCorr->initEvent(refMult,vz,zdcX); 
 
+  //cout << "Is pile up event? " << isPileUpEvent << endl;
+
   const Int_t cent9 = mRefMultCorr->getCentralityBin9();       // 0: 70-80%, 1: 60-70%, ..., 6: 10-20%, 7: 5-10%, 8: 0-5%
+
+  //cout << "Centrality = " << cent9 << endl;
 
   // Event Cut
   //const  double refMultCorr = mVecMesonCut->getRefMultReweight(vz, refMult);
   //const Int_t cent9 = mVecMesonCut->getCentrality(refMultCorr);
+  //cout << "Before event level cuts" << endl;
   if(!isPileUpEvent && mVecMesonCut->passEventCut(mPicoDst) && cent9 > -0.5) // event cut
   {
+    //cout << "After event level cuts" << endl;
     int vz_sign = 0;
     if(vz > -70.0 && vz <= -30.0) vz_sign = 0;
     if(vz > -30.0 && vz <= 0.0  ) vz_sign = 1;
@@ -351,8 +562,10 @@ Int_t StVecMesonEpdMaker::Make()
     StEpdEpInfo result;
     if (mMode < 7 && mMode >= 0)
     {
+      //cout << "About to call ->Results" << endl;
       result = mEpFinder->Results(mPicoDst->picoArray(StPicoArrays::EpdHit),pv,cent9);
       mEpdEpManager->initEpdEp(cent9,runIndex);
+      //cout << "About to call ->Results" << endl;
     }
     //mMode == 0 sets phi-weighting and mMode == 1 sets the psi shift corrections
     if(mMode == 2 || mMode == 4 || mMode == 6)
@@ -360,12 +573,12 @@ Int_t StVecMesonEpdMaker::Make()
      // These two TProfile plots will be used to set eta weights in an external macro.
       //cout << "We are in mMode == 2" << endl;
 
-    //  mEventPlaneProManager->fillEpdRes(result,cent9,runIndex);
+      mEventPlaneProManager->fillEpdRes(result,cent9,runIndex);
 
       if(mPicoDst->numberOfEpdHits() > 0)
       {
         //cout << "Number of Epd Hits = " << mPicoDst->numberOfEpdHits() << endl;
-        /*for(unsigned int iEpd = 0; iEpd < mPicoDst->numberOfEpdHits(); iEpd++)
+        for(unsigned int iEpd = 0; iEpd < mPicoDst->numberOfEpdHits(); iEpd++)
         {
 
           //cout << "Before grabbing the epdHit" << endl;
@@ -417,13 +630,9 @@ Int_t StVecMesonEpdMaker::Make()
             //cout << "Filling east flow" << endl;
             if(mMode == 4 || mMode == 6)mEventPlaneProManager->fillEpdFlow(v1,cent9,1,runIndex);
           }
-        }*/
-        //cout << "Outside of the loop" << endl;
+        }
         mEventPlaneHistoManager->fillEpdEp(result, cent9);
-        //cout << "Filled EPD EP" << endl; 
         mEventPlaneHistoManager->fillEpdQ(result, cent9);
-        //cout << "Filled EPD Q" << endl;
-        //cout << "Successfully ran make for EPD" << endl;
       }
     }
 
@@ -446,7 +655,8 @@ Int_t StVecMesonEpdMaker::Make()
       //    mVecMesonHistoManger->FillQA_Detector(dEdx,Mass2,p);
       //  }
       //}
-      if(mMode == 4 || mMode == 6)  // fill re-center parameter
+      //if(mMode == 4 || mMode == 6)  // fill re-center parameter
+      if(mMode == 6)  // fill re-center parameter
       {	
         if(mVecMesonCut->passTrackEP(track,mPicoEvent)) // track cut
 	{
@@ -591,53 +801,63 @@ Int_t StVecMesonEpdMaker::Make()
     //  }
     //}
 
-    if(mMode == 4 || mMode == 6)
+    if(mMode == 6)
+    //if(mMode == 4 || mMode == 6)
     { // phi meson
       //if(mVecMesonCorrection->passTrackFullNumCut())
       //{
 	// get QVector of sub event
-	////TVector2 Q1East = result.EastPhiWeightedQ(1);
-        ////TVector2 Q1West = result.WestPhiWeightedQ(1);
-	//TVector2 Q2Full = mVecMesonCorrection->getQVector(2); // full 
-	//Int_t NumTrackEast = mVecMesonCorrection->getNumTrack(0);
-	//Int_t NumTrackWest = mVecMesonCorrection->getNumTrack(1);
-	//Int_t NumTrackFull = mVecMesonCorrection->getNumTrack(2);
-	//Int_t NumTrackFullEast = mVecMesonCorrection->getNumTrack(3);
-	//Int_t NumTrackFullWest = mVecMesonCorrection->getNumTrack(4);
+	TVector2 Q1East = result.EastPhiWeightedQ(1);
+        TVector2 Q1West = result.WestPhiWeightedQ(1);
+        //cout << "Q1East = " << Q1East.X() << "," << Q1East.Y() << ",  Q1West = " << Q1West.X() << "," << Q1West.Y() << endl; 
+	TVector2 Q2Full = mVecMesonCorrection->getQVector(2); // full 
+	Int_t NumTrackEast = mVecMesonCorrection->getNumTrack(0);
+	Int_t NumTrackWest = mVecMesonCorrection->getNumTrack(1);
+	Int_t NumTrackFull = mVecMesonCorrection->getNumTrack(2);
+	Int_t NumTrackFullEast = mVecMesonCorrection->getNumTrack(3);
+	Int_t NumTrackFullWest = mVecMesonCorrection->getNumTrack(4);
 
 	Float_t Psi1 = result.FullPhiWeightedAndShiftedPsi(1);
+	Float_t Psi1_east = result.EastPhiWeightedAndShiftedPsi(1);
+	Float_t Psi1_west = result.WestPhiWeightedAndShiftedPsi(1);
+        if(Psi1 > TMath::Pi()) Psi1 -= 2.0*TMath::Pi();
+
+
         if(mVecMesonCorrection->passTrackFullNumCut())
         {
           Float_t Psi2 = mVecMesonCorrection->calShiftAngle2Full_EP(runIndex,cent9,vz_sign);
           mVecMesonProManger->FillD12(cent9,Psi1,Psi2); 
         }
 
+
 	// get N_prim, N_non_prim, N_Tof_match
-	////Int_t N_prim = mVecMesonCut->getNpirm();
-	////Int_t N_non_prim = mVecMesonCut->getNnonprim();
-	////Int_t N_Tof_match = mVecMesonCut->getMatchedToF();
+
+	Int_t N_prim = mVecMesonCut->getNpirm();
+	Int_t N_non_prim = mVecMesonCut->getNnonprim();
+	Int_t N_Tof_match = mVecMesonCut->getMatchedToF();
 
 	// pass the event information to StVecMesonTree
-	////mVecMesonTree->clearEvent();
-	////mVecMesonTree->passEvent(N_prim, N_non_prim, N_Tof_match);
+	mVecMesonTree->clearEvent();
+	mVecMesonTree->passEvent(N_prim, N_non_prim, N_Tof_match);
 	// pass re-centered event plane to StVecMesonTree
-	////mVecMesonTree->passEventPlane(Q1East,Q1West);
-
+	mVecMesonTree->passEventPlane(Q1East,Q1West,Psi1_east,Psi1_west,Psi1);
+        //cout << "Everything prepped for event mixing" << endl;
 	// pass NumOfTrack to StVecMesonTree
-	//mVecMesonTree->passNumTrack(NumTrackEast,NumTrackWest,NumTrackFull,NumTrackFullEast,NumTrackFullWest);
-        ////if(mFlag_PID == 0)
-        ////{
-	////  mVecMesonTree->MixEvent_Phi(mFlag_ME,mPicoDst,cent9,vz,Psi1);
-        ////}
-        ////if(mFlag_PID == 1)
-        ////{
-	////  mVecMesonTree->MixEvent_Rho(mFlag_ME,mPicoDst,cent9,vz,Psi1);
-        ////}
-        ////if(mFlag_PID == 2)
-        ////{
-	////  mVecMesonTree->MixEvent_KStar(mFlag_ME,mPicoDst,cent9,vz,Psi1);
-        ////}
+	mVecMesonTree->passNumTrack(NumTrackEast,NumTrackWest,NumTrackFull,NumTrackFullEast,NumTrackFullWest);
+        if(mFlag_PID == 0)
+        {
+	  mVecMesonTree->MixEvent_Phi(mFlag_ME,mPicoDst,cent9,vz,Psi1);
+        }
+        //if(mFlag_PID == 1)
+        //{
+	//  mVecMesonTree->MixEvent_Rho(mFlag_ME,mPicoDst,cent9,vz,Psi1);
+        //}
+        //if(mFlag_PID == 2)
+        //{
+	//  mVecMesonTree->MixEvent_KStar(mFlag_ME,mPicoDst,cent9,vz,Psi1);
+        //}
       //}
+        //cout << "Mixed the events" << endl;
     }
     mVecMesonCorrection->clear();
   }

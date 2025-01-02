@@ -21,13 +21,15 @@ outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 
 ##########Mode Selection##########
 pid=0 #0 = phi
-ptbin=$1
-nJobs=500
-nEvents=20000
+ptbin=$1 
 rho00=$2
 rapidity=$3
 cent=$4
 mode=$5
+etamode=$6
+nJobs=$7
+#EP_res=$7
+nEvents=250000
 
 #mode=2
 #pid=KStar
@@ -39,7 +41,7 @@ mode=$5
 # outDir=Phi/Forest
 ##########Mode Selection##########
 
-outDir=AcceptanceCorrection/VaryInput_rho00
+outDir=AcceptanceCorrection/EtaModeStudy_FirstOrder
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -49,7 +51,7 @@ mkdir -p ${outPath}/Log/${outDir}
 mkdir -p ${outPath}/OutPut/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities cent=$cent,mode=$mode,rapidity=$rapidity,rho00=$rho00,ptbin=$ptbin,pid=$pid,energy=$energy,nJobs=$nJobs,nEvents=$nEvents,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities etamode=$etamode,cent=$cent,mode=$mode,rapidity=$rapidity,rho00=$rho00,ptbin=$ptbin,pid=$pid,energy=$energy,nJobs=$nJobs,nEvents=$nEvents,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########

@@ -58,7 +58,7 @@ int StUtility::findRunIndex(int runId)
 bool StUtility::read_in_runIndex()
 {
   // std::string inputfile = Form("StRoot/StEventPlaneMaker/runIndex_%s.txt",vmsa::mBeamEnergy[mEnergy].c_str());
-  std::string inputfile = Form("StRoot/Utility/RunIndex/runIndex_%s.txt",vmsa::mBeamEnergy[mEnergy].c_str());
+  std::string inputfile = Form("StRoot/Utility/RunIndex/runIndex_%s_%d.txt",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamYear[mEnergy]);
   std::cout << "inputfile = " << inputfile.c_str() << std::endl;
   std::ifstream file_runIndex ( inputfile.c_str() );
   if ( !file_runIndex.is_open() )

@@ -18,7 +18,7 @@ class StUtility;
 class StVecMesonAna : public TObject
 {
   public:
-    StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode); // X_flag: 0 for Same Event, 1 for Mixed Event | List: number of list to use | mode: 0 for phi, 1 for rho, 2 for Kstar
+    StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode, Int_t etamode, Int_t rapidityflag); // X_flag: 0 for Same Event, 1 for Mixed Event | List: number of list to use | mode: 0 for phi, 1 for rho, 2 for Kstar
     ~StVecMesonAna();
 
     void setInputDir(const TString inputdir);
@@ -42,7 +42,10 @@ class StVecMesonAna : public TObject
     TFile *mFile_OutPut;
     TChain *mInPut;
     Int_t mEnergy;
+    Int_t mEtaMode;
+    float mEtaCut;
     Int_t mX_flag; // 0 for Same Event, 1 for Mixed Event
+    Int_t mRapidityFlag;
     const Char_t *mList;
     Int_t mMode; // 0 for phi, 1 for rho, 2 for Kstar
     const Char_t *mJobId;

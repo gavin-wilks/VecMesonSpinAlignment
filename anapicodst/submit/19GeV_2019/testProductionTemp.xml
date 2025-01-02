@@ -7,7 +7,7 @@
     csh runmakePicoDstQA.csh $FILELIST 0 &particle; $JOBID &energy; &gid; &mode;
   </command>
 
-  <SandBox installer="ZIP">
+  <SandBox>
     <Package>
       <File>file:&codePath;/makePicoDstQA.C</File>
       <File>file:&codePath;/runmakePicoDstQA.C</File>

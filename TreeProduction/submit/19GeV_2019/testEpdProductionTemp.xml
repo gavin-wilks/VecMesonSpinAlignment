@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="5" filesPerHour="15" maxFilesPerProcess="15" fileListSyntax="xrootd" simulateSubmission="false">
+<job minFilesPerProcess="20" filesPerHour="20" maxFilesPerProcess="40" fileListSyntax="xrootd" simulateSubmission="false">
 
   <command>
     starver &library;
-    root4star -l -b -q VecMesonEpdTree.C\(\"$FILELIST\",\"$JOBID\",&mode;,&energy;,&flag_ME;,&flag_PID;\) </command>
+    root4star -l -b -q VecMesonEpdTree.C\(\"$FILELIST\",\"$JOBID\",&mode;,&energy;,&flag_ME;,&flag_PID;\) 
+  </command>
 
   <SandBox installer="ZIP">
     <Package>

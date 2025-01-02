@@ -341,9 +341,44 @@ double pTLevy(double *var, double *par)
   return y;
 }
 
-double meanLevy(double *var, double *par)
+double LevyKStar(double *var, double *par)
 {
-  double const m0 = 1.01940; // phi-meson mass
+  double const m0 = 0.89555; // K*0-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double n    = par[1];
+  double T    = par[2];
+
+  double numer = dNdy*(n-1)*(n-2);
+  double denom = n*T*(n*T+m0*(n-2));
+  double power = pow(1+(mT-m0)/(n*T),-1.0*n);
+
+  double y = numer*power/denom;
+
+  return y;
+}
+
+double pTLevyKStar(double *var, double *par)
+{
+  double const m0 = 0.89555; // K*0-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double n    = par[1];
+  double T    = par[2];
+
+  double numer = dNdy*(n-1)*(n-2);
+  double denom = n*T*(n*T+m0*(n-2));
+  double power = pow(1+(mT-m0)/(n*T),-1.0*n);
+
+  double y = pT*numer*power/denom;
+
+  return y;
+}
+double meanLevy(double *var, double *par, double const m0)
+{
+  //double const m0 = 1.01940; // phi-meson mass
   double pT   = var[0];
   double mT   = sqrt(pT*pT+m0*m0);
   double dNdy = par[0];

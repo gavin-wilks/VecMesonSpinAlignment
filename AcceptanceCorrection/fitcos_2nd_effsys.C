@@ -35,9 +35,9 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
   double FfromFperr[6]={0.0};
   double FvalBESI[6] = {0.0,-0.00989006, -0.0102287, -0.0102549, -0.00800524, -0.00767692};
 
-  for(int ipt = 0; ipt < 6; ipt++)
+  for(int ipt = 2; ipt < 6; ipt++)
   {
-    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
+    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/50MEvents_OnlyEtaCut/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
     //if(ipt == 2) MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9_00004999.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
@@ -102,7 +102,7 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
     Fval[5] = -0.000652552;
   }
   //double FfromF[6] ={0.0};
-  for(int ipt = 0; ipt < 6; ipt++)
+  for(int ipt = 2; ipt < 6; ipt++)
   {
     //FfromF[ipt] = -Fpval[ipt]/(2.+Fpval[ipt]);
     cout << "pt bin: " <<  pt_set[ipt] << "-" << pt_set[ipt+1] << std::fixed << std::setprecision(7) << "GeV/c    F = " << Fval[ipt] << " +/- " << Ferr[ipt] << "    F* = " << Fpval[ipt] << " +/- " << Fperr[ipt] << "    F from F* = " << FfromFp[ipt] << " +/- " << FfromFperr[ipt] << endl;   
@@ -406,7 +406,7 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
           {
             for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
             {
-            for(int i_F = 0; i_F < 2; i_F++)
+            for(int i_F = 0; i_F < 1; i_F++)
             {
             for(int i_eff = 0; i_eff < 2; i_eff++)
             {
@@ -419,7 +419,7 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
               Double_t pt_error_rho00[6] = {0};
               Double_t pt_all[6] = {0};
 
-              for(Int_t PtBin=1; PtBin<=6; PtBin++) 
+              for(Int_t PtBin=3; PtBin<=6; PtBin++) 
               {
                 string key = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",PtBin-1,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
 
@@ -450,9 +450,11 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
                 PtCos->SetMarkerStyle(21);
                 PtCos->Draw();
                 Func_rho->SetParameter(0, PtCos->GetBinContent(5));
-                Func_rho->SetParameter(1, 0.3);
+                Func_rho->SetParameter(1, 0.3333);
                 if(i_F == 0) Func_rho->FixParameter(2, Fval[PtBin-1]);
-                if(i_F == 1) Func_rho->FixParameter(2, FvalBESI[PtBin-1]);
+                //if(i_F == 1) Func_rho->FixParameter(2, Fval[PtBin-1]+Ferr[PtBin-1]);
+                //if(i_F == 2) Func_rho->FixParameter(2, Fval[PtBin-1]-Ferr[PtBin-1]);
+                //if(i_F == 1) Func_rho->FixParameter(2, FvalBESI[PtBin-1]);
                 Func_rho->FixParameter(3, Res_12);
                 if(random3D) Func_rho->FixParameter(3, 0.);
                 cout << "Resolution = " << Func_rho->GetParameter(3);
@@ -488,7 +490,7 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
                 pt_all[PtBin-1] += weight;
 
               
-                if(i_cent == 9 && PtBin == 3 && i_dca == 0 && i_sig == 0 && i_norm == 0 && i_sigma == 0 && i_method == 1 && i_F == 1 && i_eff == 0)
+                if(i_cent == 9 && PtBin == 3 && i_dca == 0 && i_sig == 0 && i_norm == 0 && i_sigma == 0 && i_method == 1 && i_F == 0 && i_eff == 0)
                 { 
                    string name = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_F_%d_Eff_%d",PtBin-1,i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str(),i_F,i_eff);                             
                    cout << name.c_str() << endl; 
@@ -508,7 +510,7 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
               weight_rho00 = weight_rho00/weight_all;
               weight_error_rho00 = TMath::Sqrt(weight_error_rho00)/weight_all;
 
-              for(int PtBin=1; PtBin<=6; PtBin++) {
+              for(int PtBin=3; PtBin<=6; PtBin++) {
                 pt_rho00[PtBin-1] = pt_rho00[PtBin-1]/pt_all[PtBin-1];
                 pt_error_rho00[PtBin-1] = TMath::Sqrt(pt_error_rho00[PtBin-1])/pt_all[PtBin-1];
               }
@@ -516,13 +518,13 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
               cout<<"rho00"<<endl;
               cout<<weight_rho00<<" +/- "<<weight_error_rho00<<endl;
 
-              for(int PtBin=1; PtBin<=6; PtBin++) {
+              for(int PtBin=3; PtBin<=6; PtBin++) {
                 cout<<pt_rho00[PtBin-1];
                 if(PtBin==6) cout<<" "<<weight_rho00<<endl;
                 else cout<<" ";
               }
 
-              for(int PtBin=1; PtBin<=6; PtBin++) {
+              for(int PtBin=3; PtBin<=6; PtBin++) {
                 cout<<pt_error_rho00[PtBin-1];
                 if(PtBin==6) cout<<" "<<weight_error_rho00<<endl;
                 else cout<<" ";
@@ -532,7 +534,7 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
 
               g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method] = new TGraphAsymmErrors();
               g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetName(Title->Data());
-              for(Int_t PtBin=1; PtBin<=6; PtBin++) {
+              for(Int_t PtBin=3; PtBin<=6; PtBin++) {
                 double ptmean = (ptbin_rho00[PtBin]+ptbin_rho00[PtBin-1])/2.0;
                 g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetPoint(PtBin-1,ptmean,pt_rho00[PtBin-1]);
                 g_rho00[i_dca][i_sig][i_norm][i_sigma][i_method]->SetPointError(PtBin-1,0.0,0.0,pt_error_rho00[PtBin-1],pt_error_rho00[PtBin-1]);
@@ -544,7 +546,7 @@ void fitcos_2nd_effsys(const int energy = 4, const int pid = 0, bool doall = tru
               rho00_hist[i_dca][i_sig][i_norm][i_sigma][i_method] = new TH1D(Title->Data(), Title->Data(), 7, 0.5, 7.5);
               rho00_hist[i_dca][i_sig][i_norm][i_sigma][i_method]->SetBinContent(7,weight_rho00);
               rho00_hist[i_dca][i_sig][i_norm][i_sigma][i_method]->SetBinError(7,weight_error_rho00);
-              for(Int_t PtBin=1; PtBin<=6; PtBin++) {
+              for(Int_t PtBin=3; PtBin<=6; PtBin++) {
                 rho00_hist[i_dca][i_sig][i_norm][i_sigma][i_method]->SetBinContent(PtBin,pt_rho00[PtBin-1]);
                 rho00_hist[i_dca][i_sig][i_norm][i_sigma][i_method]->SetBinError(PtBin,pt_error_rho00[PtBin-1]);
               }

@@ -6,6 +6,7 @@
 #include "StThreeVectorF.hh"
 #include "StVecMesonMEKey.h"
 #include <vector>
+#include <map>
 #include "TVector2.h"
 #include "TLorentzVector.h"
 #include "StRoot/Utility/StSpinAlignmentCons.h"
@@ -27,6 +28,13 @@ class TVector2;
 class StVecMesonHist;
 class StVecMesonHistoFlow;
 class TLorentzVector;
+class MEKey;
+
+typedef std::map<MEKey, std::vector<Int_t> > vectorIntMap;
+typedef std::map<MEKey, std::vector<Float_t> > vectorFloatMap;
+typedef std::map<MEKey, std::vector<StPhysicalHelixD> > vectorHelixMap;
+typedef std::map<MEKey, std::vector<TLorentzVector> > vectorLorentzMap;
+typedef std::map<MEKey, std::vector<StThreeVectorF> > vectorStThreeFMap;
 
 class StVecMesonTree
 {
@@ -35,15 +43,21 @@ class StVecMesonTree
     virtual ~StVecMesonTree();
 
     //KStar-meson specific functions
+    void InitPhi();
+    void doPhi(Int_t,Int_t,Int_t,Int_t);
+    void MixEvent_Phi(Int_t,StPicoDst*,Int_t,Float_t,Float_t,Int_t,Float_t,Int_t);
+    void FillPhi(StMesonTrack*,Int_t,Int_t,Int_t);
+    void clear_phi(Int_t,Int_t,Int_t,Int_t);
+    void WriteMass2Phi();
+    /////////////////////////////////
+    //KStar-meson specific functions
     void InitKStar();
     void doKStar(Int_t,Int_t,Int_t,Int_t);
     void MixEvent_KStar(Int_t,StPicoDst*,Int_t,Float_t,Float_t,Int_t,Float_t,Int_t);
     void FillKStar(StMesonTrack*,Int_t,Int_t,Int_t);
     void clear_kstar(Int_t,Int_t,Int_t,Int_t);
-    //void size_kstar(Int_t,Int_t,Int_t);
-    /////////////////////////////////
-
     void WriteMass2KStar();
+    /////////////////////////////////
 
     void clearEvent();
     void passEvent(Int_t,Int_t,Int_t); // N_prim,N_non_prim,N_Tof_match
@@ -66,23 +80,24 @@ class StVecMesonTree
     TH2F *h_PidEdxRig;
     TH2F *h_PiM2Rig;
     TH2F *h_PiInvBetaRig;
-    Int_t mEventCounter2[9][vmsa::Bin_VertexZ][vmsa::Bin_Psi]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
 
     // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin, 3 = mixed event bin, 4 = charge bin(0 for pos, 1 for neg) || push_back->track
-    vectorHelixMap mHelix;
-    vectorFloatMap mMomentum;
-    vectorFloatMap mMass2;
-    vectorFloatMap mDca;
-    vectorFloatMap mNHitsFit;
-    vectorFloatMap mNSigma;
-    vectorIntMap mCharge;
-
     TTree *mTree;
     StMesonEvent *mMesonEvent;
     StMesonEvent *mMesonEventRK;
     StMesonEvent *mMesonEventRP;
     StMesonTrack *mMesonTrack;
 
+    vectorFloatMap mMass2;
+    vectorFloatMap mDca;
+    vectorFloatMap mNHitsFit;
+    vectorFloatMap mNSigma;
+    vectorIntMap mCharge;
+    vectorHelixMap mHelix;
+    vectorFloatMap mMomentum;
+
+
+    Int_t mEventCounter2[9][vmsa::Bin_VertexZ][vmsa::Bin_Psi]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
     // event information | 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin || push_back->event
     std::vector<StThreeVectorF> mPrimaryvertex[9][vmsa::Bin_VertexZ][vmsa::Bin_Psi];
     //std::vector<Int_t> mRefMult[9][vmsa::Bin_VertexZ][vmsa::Bin_Psi];

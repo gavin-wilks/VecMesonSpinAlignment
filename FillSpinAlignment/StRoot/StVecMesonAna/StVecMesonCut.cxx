@@ -58,8 +58,8 @@ bool StVecMesonCut::passTrackEP(TLorentzVector lTrack, Float_t dca)
 
   // pt cut 0.2 - 2.0 GeV/c
   Float_t pt = lTrack.Perp();
-  Float_t p = lTrack.P();
-  if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax && p < vmsa::mPrimMomMax))
+  //Float_t p = lTrack.P();
+  if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax))
   {
     return kFALSE;
   }

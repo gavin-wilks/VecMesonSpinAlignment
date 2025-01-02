@@ -4,7 +4,7 @@
 #include "Utility/type.h"
 #include <string>
 
-void fitcos_2nd_updated(const int energy = 4, const int pid = 0, bool doall = false, bool isBesI = false, bool random3D = false) {
+void fitcos_2nd_updated(const int energy = 4, const int pid = 0, bool doall = true, bool isBesI = false, bool random3D = false) {
 
   gROOT->Reset();
   gStyle->SetOptDate(0);
@@ -37,7 +37,7 @@ void fitcos_2nd_updated(const int energy = 4, const int pid = 0, bool doall = fa
 
   for(int ipt = 2; ipt < 6; ipt++)
   {
-    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9_v20080.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
+    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/50MEvents_OnlyEtaCut/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
     //if(ipt == 2) MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9_00004999.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
@@ -375,7 +375,7 @@ void fitcos_2nd_updated(const int energy = 4, const int pid = 0, bool doall = fa
           {
             for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
             {
-            for(int i_F = 0; i_F < 2; i_F++)
+            for(int i_F = 0; i_F < 3; i_F++)
             {
   
               Double_t weight_rho00 = 0;
@@ -411,7 +411,8 @@ void fitcos_2nd_updated(const int energy = 4, const int pid = 0, bool doall = fa
                 Func_rho->SetParameter(0, PtCos->GetBinContent(5));
                 Func_rho->SetParameter(1, 0.3);
                 if(i_F == 0) Func_rho->FixParameter(2, Fval[PtBin-1]);
-                if(i_F == 1) Func_rho->FixParameter(2, FvalBESI[PtBin-1]);
+                if(i_F == 1) Func_rho->FixParameter(2, Fval[PtBin-1]+Ferr[PtBin-1]);
+                if(i_F == 2) Func_rho->FixParameter(2, Fval[PtBin-1]-Ferr[PtBin-1]);
                 Func_rho->FixParameter(3, Res_12);
                 if(random3D) Func_rho->FixParameter(3, 0.);
                 cout << "Resolution = " << Func_rho->GetParameter(3);

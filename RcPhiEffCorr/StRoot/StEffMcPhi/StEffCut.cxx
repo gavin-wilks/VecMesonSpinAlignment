@@ -15,14 +15,14 @@ StEffCut::~StEffCut()
 //-----------------------------------------------------------------------------------------------------
 bool StEffCut::passTrackCutPhi(McVecMeson McPhi)
 {
-  if(fabs(McPhi.McY) > vmsa::mEtaMax) return kFALSE; // eta cut
+  if(fabs(McPhi.McY) > vmsa::acceptanceRapidity) return kFALSE; // rapidity cut
 
   return kTRUE;
 }
 
 bool StEffCut::passTrackCutPhi(RcVecMeson RcPhi)
 {
-  if(fabs(RcPhi.RcY) > vmsa::mEtaMax) return kFALSE; // eta cut
+  if(fabs(RcPhi.RcY) > vmsa::acceptanceRapidity) return kFALSE; // rapidity cut
 
   return kTRUE;
 }
@@ -31,25 +31,28 @@ bool StEffCut::passTrackCutPhi(RcVecMeson RcPhi)
 //-----------------------------------------------------------------------------------------------------
 bool StEffCut::passTrackCut(McDecayDau McKaon)
 {
-  if(fabs(McKaon.McEta) > vmsa::mEtaMax) return kFALSE; // eta cut for some reason
+  //temporarily remove eta cut since we are combining acceptance effect
+ // if(fabs(McKaon.McEta) > vmsa::mEtaMax) return kFALSE; // eta cut for some reason
 
   float pt = McKaon.McPt;
-  //float momentum = McKaon.McPt*cosh(McKaon.McEta);
+  float momentum = McKaon.McPt*cosh(McKaon.McEta);
   // primary pt and momentum cut: PtMin > 0.1, PMax < 10.0
-  if(!(pt > vmsa::mGlobPtMin && pt < vmsa::mGlobPtMax)) return kFALSE;
+  if(!(/*pt > vmsa::mGlobPtMin &&*/ momentum < vmsa::mPrimMomMax)) return kFALSE;
   
   return kTRUE;
 }
 
 bool StEffCut::passTrackCut(RcDecayDau RcKaon)
 {
-  if(RcKaon.RcTpc < 0.5) return kFALSE; // no matched track
-  if(fabs(RcKaon.RcEta) > vmsa::mEtaMax) return kFALSE; // eta cut
+  if(RcKaon.RcTpc < 0.5) return kFALSE; // no matched track TPC tracking
+  if(RcKaon.RcTof < 0.5) return kFALSE; // no matched track TOF matching
+  //temporarily remove eta cut since we are combining acceptance effect
+ // if(fabs(RcKaon.RcEta) > vmsa::mEtaMax) return kFALSE; // eta cut
 
   float pt = RcKaon.RcPt;
-  //float momentum = RcKaon.RcPt*cosh(RcKaon.RcEta);
+  float momentum = RcKaon.RcPt*cosh(RcKaon.RcEta);
   // primary pt and momentum cut: PtMin = 0.1
-  if(!(pt > vmsa::mGlobPtMin && pt < vmsa::mGlobPtMax)) return kFALSE;
+  if(!(pt > vmsa::mGlobPtMin && momentum < vmsa::mPrimMomMax)) return kFALSE;
 
   return kTRUE;
 }

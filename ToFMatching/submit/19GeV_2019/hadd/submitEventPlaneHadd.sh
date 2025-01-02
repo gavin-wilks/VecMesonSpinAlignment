@@ -17,7 +17,7 @@ outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Mode Selection##########
 #mode=0
 #outDir=ReCenterParameter
-outDir=ToFMatchingKStar
+outDir=ToFMatching_DCA2_nsigma0p5_240bins
 outFile=file_19GeV_${outDir}
 ##########Mode Selection##########
 

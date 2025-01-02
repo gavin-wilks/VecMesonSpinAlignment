@@ -11,15 +11,17 @@
 #energy=1  # 19p6GeV
 #library=SL21c
 listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction/submit/19GeV_2019/hadd
-outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
+outPath=/gpfs01/star/pwg/hadd/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
 ##########Mode Selection##########
 #mode=0
 #outDir=ReCenterPar
-outDir=ShiftPar
+#outDir=ShiftPar
 #outDir=EpdFlow
-outFile=file_19GeV_${outDir}
+#outFile=file_19GeV_${outDir}
+outDir=PID_20240918_20ptbins_24etabins_24phibins
+outFile=file_PID_19GeV
 ##########Mode Selection##########
 
 mkdir -p ${outPath}/hadd/TreeProductionLog/${outDir}

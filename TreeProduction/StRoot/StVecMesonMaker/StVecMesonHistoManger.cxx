@@ -31,6 +31,139 @@ void StVecMesonHistoManger::InitQA()
   h_mRefMult = new TH1F("h_mRefMult","h_mRefMult",1000,-0.5,999.5);
 }
 
+void StVecMesonHistoManger::InitPID()
+{
+  //for(int icent = 0; icent < 10; icent++)
+  //{
+    //for(int ic = 0; ic < 2; ic++)
+    //{
+    //  for(int ipt = 0; ipt < 20; ipt++)
+    //  {
+    //    for(int ieta = 0; ieta < 30; ieta++)
+    //    {
+    //      for(int iphi = 0; iphi < 1; iphi++)
+    //      {
+    //        string HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d",9,ic,ipt,ieta,iphi);
+    //        h_mPID[HistName] = new TH2F(HistName.c_str(),HistName.c_str(),150,-7.5,7.5,300,-0.5,1.5);
+    //        //h_mPID[ic][ipt][ieta][iphi] = new TH2F(HistName.c_str(),HistName.c_str(),150,-7.5,7.5,300,-0.5,1.5);
+    //        //h_mPID[icent][ic][ipt][ieta] = new TH2F(HistName.c_str(),HistName.c_str(),200,-10,10,500,-0.5,1.5);
+    //      }
+    //    }
+    //  }
+    //}
+  //}
+  
+  for(int icent = 0; icent < 10; icent++)
+  {
+    for(int ic = 0; ic < 2; ic++)
+    {
+      for(int ipt = 0; ipt < 20; ipt++)
+      {
+        for(int ieta = 0; ieta < 36; ieta++)
+        {
+          for(int iphi = 0; iphi < 24; iphi++)
+          {
+            string HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_nsig",icent,ic,ipt,ieta,iphi);
+            h_mPID_1D[HistName] = new TH1F(HistName.c_str(),HistName.c_str(),300,-7.5,7.5);
+            //HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_m2",icent,ic,ipt,ieta,iphi);
+            //h_mPID_1D[HistName] = new TH1F(HistName.c_str(),HistName.c_str(),300,-0.5,1.5);
+            //h_mPID[HistName] = new TH2F(HistName.c_str(),HistName.c_str(),150,-7.5,7.5,300,-0.5,1.5);
+            //h_mPID[ic][ipt][ieta][iphi] = new TH2F(HistName.c_str(),HistName.c_str(),150,-7.5,7.5,300,-0.5,1.5);
+            //h_mPID[icent][ic][ipt][ieta] = new TH2F(HistName.c_str(),HistName.c_str(),200,-10,10,500,-0.5,1.5);
+          }
+        }
+      }
+    }
+  }
+}
+
+void StVecMesonHistoManger::FillPID(int cent, short charge, double pt, double eta, double phi, double nsig, double mass2)
+{
+  
+  float ptedges[21] = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.5,3.5};
+
+  int chargeidx = -1; 
+  if(charge < 0) chargeidx = 0;  
+  else if(charge > 0) chargeidx = 1;  
+
+  for(int ipt = 0; ipt < 20; ipt++)
+  {
+    if(pt >= ptedges[ipt] && pt < ptedges[ipt+1])
+    {
+      for(int ieta = 0; ieta < 36; ieta++)
+      {
+        if(eta >= (double(ieta)-18.)/12. && eta < (double(ieta)-17.)/12. )
+        {
+          for(int iphi = 0; iphi < 24; iphi++)
+          {
+            if(phi >= TMath::Pi()*(double(iphi)-12.)/12. && phi < TMath::Pi()*(double(iphi)-11.)/12. )
+            {
+              //string HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d",cent,chargeidx,ipt,ieta);
+              //h_mPID[HistName]->Fill(nsig,mass2);
+              //h_mPID[cent][chargeidx][ipt][ieta]->Fill(nsig,mass2);
+              string HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_nsig",cent,chargeidx,ipt,ieta,iphi);
+              h_mPID_1D[HistName]->Fill(nsig);
+              //if(mass2 > 0.16 && mass2 < 0.36) h_mPID_1D[HistName]->Fill(nsig);
+              //if(mass2 > -900.0)
+              //{
+              //  HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_m2",cent,chargeidx,ipt,ieta,iphi);
+              //  if(nsig > -2.5 && nsig < 2.5) h_mPID_1D[HistName]->Fill(mass2);
+              //}
+              if(cent >= 2 && cent <= 5)
+              {
+                //string HistName = Form("h_mPID_cent9_charge%d_pt%d_eta%d",chargeidx,ipt,ieta);
+                HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_nsig",9,chargeidx,ipt,ieta,iphi);
+
+                //if(mass2 > 0.16 && mass2 < 0.36) h_mPID_1D[HistName]->Fill(nsig);
+                h_mPID_1D[HistName]->Fill(nsig);
+                //if(mass2 > -900.0)
+                //{
+                //  HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_m2",9,chargeidx,ipt,ieta,iphi);
+                //  if(nsig > -2.5 && nsig < 2.5) h_mPID_1D[HistName]->Fill(mass2);
+                //}
+                //h_mPID[HistName]->Fill(nsig,mass2);
+                //h_mPID[chargeidx][ipt][ieta][iphi]->Fill(nsig,mass2);
+                //h_mPID[HistName]->Fill(nsig,mass2);
+              }
+              //cout << "Filled for cent = " << cent << endl;
+              break;
+            }
+          }
+          break;
+        }
+      }
+      break;
+    }
+  }
+}
+
+void StVecMesonHistoManger::WritePID()
+{
+  for(int icent = 0; icent < 10; icent++)
+  {
+    for(int ic = 0; ic < 2; ic++)
+    {
+      for(int ipt = 0; ipt < 20; ipt++)
+      {
+        for(int ieta = 0; ieta < 36; ieta++)
+        {
+          for(int iphi = 0; iphi < 24; iphi++)
+          {
+            //string HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d",icent,ic,ipt,ieta);
+            string HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_nsig",icent,ic,ipt,ieta,iphi);
+            //h_mPID[HistName]->Write();
+            h_mPID_1D[HistName]->Write();
+            //HistName = Form("h_mPID_cent%d_charge%d_pt%d_eta%d_phi%d_m2",icent,ic,ipt,ieta,iphi);
+            //h_mPID[HistName]->Write();
+            //h_mPID_1D[HistName]->Write();
+            //h_mPID[ic][ipt][ieta][iphi]->Write();
+          }
+        }
+      }
+    }
+  }
+}
+
 void StVecMesonHistoManger::FillQA_Detector(Float_t dEdx, Float_t Mass2, Float_t p)
 {
   h_mDEdx->Fill(p,dEdx);

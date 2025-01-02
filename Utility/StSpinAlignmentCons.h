@@ -22,8 +22,8 @@ namespace vmsa
   float const mSigScaleMap[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
   float const mDcaEPMax[NumBeamEnergy] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0}; // for event plane reconstruction: 1.0 for BES-II
   float const mDcaTrMax = 1.0; // for pion, kaon, proton mDcaTrMax = 1.0 for flow
-  float const mDcaTrMax_pid[3] = {3.0,2.0,2.0}; // cuts for daughter pions and kaons to make mother particles
-  float const mDcaTrMax_phi = 3.0;
+  float const mDcaTrMax_pid[3] = {2.0,2.0,2.0}; // cuts for daughter pions and kaons to make mother particles
+  float const mDcaTrMax_phi = 2.0;
   float const mDcaTrMax_KStar = 2.0; // for phi meson mDcaTrMax = 2.0 to fill a tree and apply an additional cut
   int const mHitsDedxMin = 5;
   int const mHitsFitTPCMin = 15;
@@ -134,6 +134,13 @@ namespace vmsa
   //int const eta_total = 20;
   //float const eta_raw[eta_total+1] = {-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
 
+  int const y_total = 14; // pt bin
+  int const y_start = 0;
+  int const y_stop  = 14;
+  float const yRawStart[y_total] = {-1.5,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8,1.0,1.2    };
+  float const yRawStop[y_total]  = {     -1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.5};
+  double const y_bin[y_total+1]  = {-1.5,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.5};
+
   int const pt_total = 25; // pt bin
   int const pt_start = 0;
   int const pt_stop  = 25;
@@ -215,6 +222,10 @@ namespace vmsa
   //int const eta_rebin_total = 4;
   //int const eta_rebin[cent_rebin_total+1] = {0,3,5,7,9};
 
+
+
+  int const cent_rebin_total = 3;
+  int const cent_rebin[cent_rebin_total+1] = {0,4,7,9};
 
   int const pt_totalKS = 24; // pt bin
   int const pt_startKS = 0;
@@ -773,6 +784,78 @@ namespace vmsa
   int const pt_QA_y[NumBeamEnergy]          = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   int const pt_RawQA_y[NumBeamEnergy]       = {7,7,7,7,7,7,7,7,7,7,7,7,7,7};
 
+
+  int const pt_rebin_cent = 3; // maximum pt binning
+  float const pt_low_cent[NumBeamEnergy][pt_rebin_cent] = {
+    {1.0,1.6,2.4},
+    {1.0,1.6,2.4},
+    {1.0,1.6,2.4},
+    {1.0,1.6,2.4},
+    {1.0,1.6,2.4}
+  };
+  float const pt_up_cent[NumBeamEnergy][pt_rebin_cent]  = {
+    {1.6,2.4,5.0},
+    {1.6,2.4,5.0},
+    {1.6,2.4,5.0},
+    {1.6,2.4,5.0},
+    {1.6,2.4,5.0}
+  };
+  int const pt_rebin_start_cent[NumBeamEnergy][pt_rebin_cent] = {
+    {3,6,10},
+    {3,6,10},
+    {3,6,10},
+    {3,6,10},
+    {3,6,10}   
+  };
+  int const pt_rebin_stop_cent[NumBeamEnergy][pt_rebin_cent]  = {
+    {5,9,17},
+    {5,9,17},
+    {5,9,17},
+    {5,9,17},
+    {5,9,17}
+  };
+  int const pt_rebin_first_cent[NumBeamEnergy] = {0,0,0,0,0};
+  int const pt_rebin_last_cent[NumBeamEnergy]  = {2,2,2,2,2};
+  int const pt_QA_cent[NumBeamEnergy]          = {2,2,2,2,2};
+  int const pt_RawQA_cent[NumBeamEnergy]       = {7,7,7,7,7};
+
+
+  //Rapidity Dependence Study 
+  int const pt_rebin_y = 2; // maximum pt binning
+  float const pt_low_y[NumBeamEnergy][pt_rebin_y] = {
+    {1.0,2.0},
+    {1.0,2.0},
+    {1.0,2.0},
+    {1.0,2.0},
+    {1.0,2.0}
+  };
+  float const pt_up_y[NumBeamEnergy][pt_rebin_y]  = {
+    {2.0,5.0},
+    {2.0,5.0},
+    {2.0,5.0},
+    {2.0,5.0},
+    {2.0,5.0}
+  };
+  int const pt_rebin_start_y[NumBeamEnergy][pt_rebin_y] = {
+    {3,8},
+    {3,8},
+    {3,8},
+    {3,8},
+    {3,8}
+   };
+  int const pt_rebin_stop_y[NumBeamEnergy][pt_rebin_y]  = {
+    {7,17},
+    {7,17},
+    {7,17},
+    {7,17},
+    {7,17}
+  };
+  int const pt_rebin_first_y[NumBeamEnergy] = {0,0,0,0,0};
+  int const pt_rebin_last_y[NumBeamEnergy]  = {1,1,1,1,1};
+  int const pt_QA_y[NumBeamEnergy]          = {0,0,0,0,0};
+  int const pt_RawQA_y[NumBeamEnergy]       = {7,7,7,7,7};
+
+
   int const pt_rebinKS = 4; // maximum pt binning
   float const pt_lowKS[NumBeamEnergy][pt_rebinKS] = {
     {0.4,1.0,1.5,5.0},
@@ -1169,13 +1252,13 @@ namespace vmsa
   float const nSigVecKS = 2.0;
 
   float const ptEffMax = 5.0;
-  float const ptMin = 0.2;
+  float const ptMin = 0.1;
   float const ptMax = 5.0;
-  int const BinPt  = 80; // for efficiency
+  int const BinPt  = 40; // for efficiency
   // int const BinPt  = 20;
-  int const BinEta = 10;
+  int const BinEta = 20;
   int const BinY = 20;
-  int const BinPhi = 12;
+  int const BinPhi = 24;
   int const BinCos = 7;
 
   // used in McPhiResCorr

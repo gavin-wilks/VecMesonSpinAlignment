@@ -22,8 +22,8 @@ outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Mode Selection##########
 pid=2 #0 = phi
 ptbin=$1
-nJobs=500
-nEvents=20000
+nJobs=1000
+nEvents=50000
 rho00=$2
 
 #mode=2
@@ -36,7 +36,7 @@ rho00=$2
 # outDir=Phi/Forest
 ##########Mode Selection##########
 
-outDir=AcceptanceCorrection/KStar_PtBinned
+outDir=AcceptanceCorrection/KStarSubhashInputAndFit_noPt
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh

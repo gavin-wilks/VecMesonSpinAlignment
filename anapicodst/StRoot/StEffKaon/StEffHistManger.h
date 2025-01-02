@@ -1,7 +1,7 @@
 #ifndef StEffHistManger_h
 #define StEffHistManger_h
 #include "TObject.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 //#include "../../../Utility/type.h"
 #include <map>
 #include <string>

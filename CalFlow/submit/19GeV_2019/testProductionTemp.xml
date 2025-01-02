@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="1" filesPerHour="10" maxFilesPerProcess="10" fileListSyntax="paths" simulateSubmission="false">
+<job minFilesPerProcess="10" filesPerHour="10" maxFilesPerProcess="25" fileListSyntax="paths" simulateSubmission="false">
 
   <command>
     starver &library;
-    root4star -l -b -q FillFlow.C\(\"$FILELIST\",\"$JOBID\",&energy;,&flag_ME;,&mode;\)
+    root4star -l -b -q FillFlow.C\(\"$FILELIST\",\"$JOBID\",&energy;,&flag_ME;,&mode;,&etamode;,1\)
   </command>
 
   <SandBox installer="ZIP">
@@ -15,7 +15,7 @@
     </Package>
   </SandBox>
 
-  <input URL="filelist:&listPath;/&pid;_&SM;_Forest.list" />
+  <input URL="filelist:&listPath;/&pid;_&SM;_Forest_eta1p5_TPC.list" />
   <stdout discard="true"/>
   <stderr URL="file:&outPath;/Log/FlowYields/&outDir;/&SM;_$JOBID.err"/>
 

@@ -32,6 +32,12 @@ void StUtility::initRunIndex()
   if(isOpen_badRunList) std::cout << "Bad Run List read in!" << std::endl;
 }
 
+void StUtility::initEventPlane()
+{ 
+  bool isOpen_ep = read_in_EventPlane();
+  if(isOpen_ep) std::cout << "Event Planes read in!" << std::endl;
+}
+
 int StUtility::findRunIndex(int runId)
 {
   // print map_runIndex content:
@@ -124,5 +130,86 @@ bool StUtility::isBadRun(int runId)
   std::vector<int>::iterator it_runId = std::find(vec_badRunId.begin(), vec_badRunId.end(), runId);
 
   return ( it_runId != vec_badRunId.end() ); // true if can be found in bad run list
+}
+
+bool StUtility::read_in_EventPlane()
+{
+  map_ep_west.clear();
+  map_ep_east.clear();
+  map_ep_full.clear();
+  // std::string inputfile = Form("StRoot/StEventPlaneMaker/runIndex_%s.txt",vmsa::mBeamEnergy[mEnergy].c_str());
+  std::string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/EventPlane/EP_%s_%d.txt",vmsa::mBeamEnergy[mEnergy].c_str(),vmsa::mBeamYear[mEnergy]);
+  std::cout << "inputfile = " << inputfile.c_str() << std::endl;
+  std::ifstream file_ep ( inputfile.c_str() );
+  if ( !file_ep.is_open() )
+  {
+    std::cout << "Abort. Fail to read in run Index file: " << inputfile << std::endl;
+    return false;
+  }
+
+  int temp_runIndex = 0, temp_eventId = 0;
+  float ep_west = 0.0, ep_east = 0.0, ep_full = 0.0;
+  std::cout << "reading event planes: " << std::endl;
+  while (file_ep >> temp_runIndex >> temp_eventId >> ep_west >> ep_east >> ep_full)
+  {
+    // std::cout << "runId = " << temp_runId << ", runIndex = " << temp_runIndex << std::endl;
+    map_ep_west[temp_eventId] = ep_west;
+    map_ep_east[temp_eventId] = ep_east;
+    map_ep_full[temp_eventId] = ep_full;
+  }
+  file_ep.close();
+
+  return true;
+}
+
+float StUtility::findEPwest(int eventId)
+{
+  std::map<int,float>::iterator it_eventId = map_ep_west.find(eventId);
+  if(it_eventId == map_ep_west.end())
+  {
+    //std::cout << "StUtility -> could not find in full event list! & send signal to kill the run!" << std::endl;
+    return -999;
+  }
+  else
+  {
+    //std::cout << "StUtility -> eventId: " << it_eventId->first << " => ep_west: " << it_eventId->second << std::endl;
+    return it_eventId->second;
+  }
+
+  return -999;
+}
+
+float StUtility::findEPeast(int eventId)
+{
+  std::map<int,float>::iterator it_eventId = map_ep_east.find(eventId);
+  if(it_eventId == map_ep_east.end())
+  {
+    //std::cout << "StUtility -> could not find in full event list! & send signal to kill the run!" << std::endl;
+    return -999;
+  }
+  else
+  {
+    //std::cout << "StUtility -> eventId: " << it_eventId->first << " => ep_east: " << it_eventId->second << std::endl;
+    return it_eventId->second;
+  }
+
+  return -999;
+}
+
+float StUtility::findEPfull(int eventId)
+{
+  std::map<int,float>::iterator it_eventId = map_ep_full.find(eventId);
+  if(it_eventId == map_ep_full.end())
+  {
+    //std::cout << "StUtility -> could not find in full event list! & send signal to kill the run!" << std::endl;
+    return -999;
+  }
+  else
+  {
+    //std::cout << "StUtility -> eventId: " << it_eventId->first << " => ep_full: " << it_eventId->second << std::endl;
+    return it_eventId->second;
+  }
+
+  return -999;
 }
 

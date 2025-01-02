@@ -35,9 +35,9 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
   double FfromFperr[6]={0.0};
   double FvalBESI[6] = {0.0,-0.00989006, -0.0102287, -0.0102549, -0.00800524, -0.00767692};
 
-  for(int ipt = 0; ipt < 3; ipt++)
+  for(int ipt = 1; ipt < 3; ipt++)
   {
-    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/BESIBin/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
+    MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/KStarSubhashInputAndFit_noPt/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
     //if(ipt == 2) MCFiles[ipt] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/McAcceptanceOutput_pt%d_energy%d_pid%d_cent9_00004999.root",vmsa::mPID[pid].c_str(),ipt+1,energy,pid),"READ");
 
@@ -102,7 +102,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
     Fval[5] = -0.000652552;
   }
   //double FfromF[6] ={0.0};
-  for(int ipt = 0; ipt < 3; ipt++)
+  for(int ipt = 1; ipt < 3; ipt++)
   {
     //FfromF[ipt] = -Fpval[ipt]/(2.+Fpval[ipt]);
     cout << "pt bin: " <<  pt_set[ipt] << "-" << pt_set[ipt+1] << std::fixed << std::setprecision(7) << "GeV/c    F = " << Fval[ipt] << " +/- " << Ferr[ipt] << "    F* = " << Fpval[ipt] << " +/- " << Fperr[ipt] << "    F from F* = " << FfromFp[ipt] << " +/- " << FfromFperr[ipt] << endl;   
@@ -132,6 +132,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
   TH1D *resolution_1 = new TH1D("resolution_1","resolution_1", 9, -0.5, 8.5);
   TH1D *resolution_12 = new TH1D("resolution_12","resolution_12", 9, -0.5, 8.5);
   TH1D *resolution_2 = new TH1D("resolution_2","resolution_2", 9, -0.5, 8.5);
+  TH1D *resolution_sub2 = new TH1D("resolution_sub2","resolution_sub2", 9, -0.5, 8.5);
 
   TGraphAsymmErrors *g_res1  = new TGraphAsymmErrors();
   TGraphAsymmErrors *g_res2  = new TGraphAsymmErrors();
@@ -172,7 +173,8 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
 
     resolution_2->SetBinContent(cent+1,ResZ_2);
     resolution_2->SetBinError(cent+1,ResErrZ_2);
-
+    resolution_sub2->SetBinContent(cent+1,CosMean_2);
+    resolution_sub2->SetBinError(cent+1,CosError_2);
     cout<<"Cent"<<cent_set[cent+1]<<"_"<<cent_set[cent]<<": "<<ResZ<<" +/- "<<ResErrZ<<" "<<ResZ_2<<" +/- "<<ResErrZ_2<<" "<<mean<<" +/- "<<mean*TMath::Sqrt(error)<<endl;
 
     g_res1->SetPoint(cent,centCent[cent],ResZ);
@@ -270,8 +272,10 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
   if(!isBesI)
   {
   for(int cent=2; cent<=5; cent++) {
-    Res_12 += resolution_12->GetBinContent(cent+1)/resolution_12->GetBinError(cent+1)/resolution_12->GetBinError(cent+1);
-    Res_12_weight += 1./resolution_12->GetBinError(cent+1)/resolution_12->GetBinError(cent+1);
+    //Res_12 += resolution_12->GetBinContent(cent+1)/resolution_12->GetBinError(cent+1)/resolution_12->GetBinError(cent+1);
+    //Res_12_weight += 1./resolution_12->GetBinError(cent+1)/resolution_12->GetBinError(cent+1);
+    Res_12 += resolution_2->GetBinContent(cent+1)/resolution_2->GetBinError(cent+1)/resolution_2->GetBinError(cent+1);
+    Res_12_weight += 1./resolution_2->GetBinError(cent+1)/resolution_2->GetBinError(cent+1);
   }
   Res_12 = Res_12/Res_12_weight;
   cout << Res_12;
@@ -395,7 +399,7 @@ void fitcos_2nd_KStar(const int energy = 4, const int pid = 2, bool doall = true
                 Double_t pt_error_rho00[6] = {0};
                 Double_t pt_all[6] = {0};
 
-                for(Int_t PtBin=1; PtBin<=3; PtBin++) 
+                for(Int_t PtBin=2; PtBin<=3; PtBin++) 
                 {
                   string key = Form("pt_%d_Centrality_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_Norm_%d_Sigma_%d_%s",PtBin-1,i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
                   cout << key << endl;
@@ -584,7 +588,7 @@ Double_t resEventPlane(Double_t chi) {
   return res;
 }
 
-double FuncAD(double *x_val, double *par) {
+/*double FuncAD(double *x_val, double *par) {
 
   double CosTheta = x_val[0];
   double N = par[0];
@@ -600,5 +604,42 @@ double FuncAD(double *x_val, double *par) {
 
   return N*result;
 
+}*/
+
+double FuncAD(double *x_val, double *par) {
+
+  double CosTheta = x_val[0];
+  double N = par[0];
+  double rho = par[1];
+  double D = par[2];
+  double R = par[3];
+
+  double A = (3.*rho-1.)/(1.-rho);
+  double As = A*(1.+3.*R)/(4.+A*(1.-R));
+  double Bs = A*(1.-R)/(4.+A*(1.-R));
+
+  double result = (1.+Bs*D/2.) + (As+D-D*Bs)*CosTheta*CosTheta + (As*D+Bs*D/2.)*CosTheta*CosTheta*CosTheta*CosTheta;
+
+  return N*result;
+
 }
+
+/*double FuncAFG(double *x_val, double *par) {
+
+  double CosTheta = x_val[0];
+  double N = par[0];
+  double rho = par[1];
+  double F = par[2];
+  double G = par[3];
+  double R = par[4];
+
+  double A = (3.*rho-1.)/(1.-rho);
+  double As = A*(1.+3.*R)/(4.+A*(1.-R));
+  double Bs = A*(1.-R)/(4.+A*(1.-R));
+
+  double result = (1.+Bs*D/2.) + (As+D)*CosTheta*CosTheta + (As*D-Bs*D/2.)*CosTheta*CosTheta*CosTheta*CosTheta;
+
+  return N*result;
+
+}*/
 

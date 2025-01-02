@@ -14,9 +14,9 @@ codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignmen
 # outPath=/star/data01/pwg/sunxuhit/AuAu54GeV_2017
 
 energy=4  # 19GeV
-library=SL21c
+library=SL23d
 listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/PidFlow/FileList/19p6GeV_2019
-outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
+outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
 ##########Mode Selection##########
@@ -41,8 +41,8 @@ outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Mixed Event Selection##########
 
 #flag_PID=2 # 0 for phi | 1 for rho | 2 for kstar
-pid=2
-outDir=ToFMatching/KStar/
+pid=0
+outDir=ToFMatching/Phi_PhiEff_OriginalBinning_DCA2_isPrimary_AddEventPlaneInfo_20240830_nsig0p5_240bins
 #chunk=10
 
 mkdir -p JOBS/report
@@ -53,7 +53,7 @@ mkdir -p ${outPath}/Log/${outDir}
 mkdir -p ${outPath}/OutPut/${outDir}
 
 ##########Test Production##########
-#star-submit-template -template testProductionTemp.xml -entities pid=$pid,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities pid=$pid,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -61,6 +61,6 @@ mkdir -p ${outPath}/OutPut/${outDir}
 ##########Full Production##########
 
 ##########Re-Submit##########
-star-submit-template -template resubmitProductionTemp.xml -entities pid=$pid,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template resubmitProductionTemp.xml -entities pid=$pid,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 
 ##########Re-Submit##########

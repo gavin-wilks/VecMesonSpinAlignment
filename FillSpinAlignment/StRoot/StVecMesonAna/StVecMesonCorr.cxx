@@ -339,3 +339,30 @@ Float_t StVecMesonCorr::getResolution2_Full_EP(Int_t Cent9)
   }
 }
 
+//--------------------------------------------------------
+// Resolution Correction
+void StVecMesonCorr::InitResolution1Corr()
+{
+  TString InPutFile_Res = Form("StRoot/Utility/EpdResolution/Resolution_file_%s_EpdCorrections_4.root",vmsa::mBeamEnergy[mEnergy].c_str());
+  if(mEnergy == 3 || mEnergy == 0) InPutFile_Res = Form("StRoot/Utility/EpdResolution/Resolution_file_%s_EpdCorrections_6.root",vmsa::mBeamEnergy[mEnergy].c_str());
+  mInPutFile_Res = TFile::Open(InPutFile_Res.Data());
+  p_mRes1 = (TProfile*)mInPutFile_Res->Get("AveCosDeltaPsi1");
+
+  for(int i_cent = 0; i_cent < 9; i_cent++)
+  {
+    float_t res_raw = p_mRes1->GetBinContent(p_mRes1->FindBin(i_cent));
+    if(res_raw <= 0)
+    {
+      mRes1[i_cent] = -999.0;
+    }
+    else
+    {
+      mRes1[i_cent] = TMath::Sqrt(res_raw);
+    }
+  }
+}
+
+Float_t StVecMesonCorr::getResolution1_EP(Int_t Cent9)
+{
+  return mRes1[Cent9];
+}

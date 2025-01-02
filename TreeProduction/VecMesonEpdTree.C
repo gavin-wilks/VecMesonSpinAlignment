@@ -9,7 +9,7 @@ class StPicoEvent;
 
 StChain *chain;
 
-void VecMesonEpdTree(const Char_t *inputFile="submit/19GeV_2019/resubmit.list", const Char_t *jobId = "lastbit", const Int_t Mode = 4, const Int_t energy = 4, const Int_t flag_ME = 0, const Int_t flag_PID = 0)
+void VecMesonEpdTree(const Char_t *inputFile="../FileListGenerators/7GeV_2021/pico_prod_random_test.list", const Char_t *jobId = "lastbit", const Int_t Mode = 6, const Int_t energy = 0, const Int_t flag_ME = 0, const Int_t flag_PID = 0)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // Mode: 0 for re-center correction, 1 for shift correction, 2 for resolution calculation, 3 for phi meson

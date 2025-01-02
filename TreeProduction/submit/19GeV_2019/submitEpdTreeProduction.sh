@@ -32,30 +32,31 @@ outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 #mode=3
 #outDir=Phi/Forest
 mode=4
-outDir=D12
+#outDir=
 ##########Mode Selection##########
 
-##########Mixed Event Selection##########
-flag_ME=0 # 0 for SE | 1 for ME
-SM=SE
-#flag_ME=1 # 0
-#SM=ME
+###########Mixed Event Selection##########
+#flag_ME=0 # 0 for SE | 1 for ME
+#SM=SE
+flag_ME=1 # 0
+SM=ME
 ##########Mixed Event Selection##########
 
 flag_PID=0 # 0 for phi | 1 for rho | 2 for kstar
 
 
-#outDir=Phi/Forest/Phi${SM}
+outDir=Phi/Forest/FirstOrderPhi${SM}
+#outDir=Phi/D12
 
-#mkdir -p JOBS/report
-#mkdir -p JOBS/csh
-#mkdir -p JOBS/list
+mkdir -p JOBS/report
+mkdir -p JOBS/csh
+mkdir -p JOBS/list
 
-#mkdir -p ${outPath}/Log/SpinAlignment/${outDir}
-#mkdir -p ${outPath}/OutPut/SpinAlignment/${outDir}
+mkdir -p ${outPath}/Log/SpinAlignment/${outDir}
+mkdir -p ${outPath}/OutPut/SpinAlignment/${outDir}
 
 ##########Test Production##########
-star-submit-template -template ${codePath}/submit/19GeV_2019/testEpdProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template ${codePath}/submit/19GeV_2019/testEpdProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -63,8 +64,8 @@ star-submit-template -template ${codePath}/submit/19GeV_2019/testEpdProductionTe
 ##########Full Production##########
 
 ##########Re-Submit##########
-#star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template resubmitEpdProductionTemp.xml -entities mode=$mode,energy=$energy,flag_ME=$flag_ME,flag_PID=$flag_PID,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 
 ##########Re-Submit##########
 
-rm schedTemplateExp.xml
+#rm schedTemplateExp.xml

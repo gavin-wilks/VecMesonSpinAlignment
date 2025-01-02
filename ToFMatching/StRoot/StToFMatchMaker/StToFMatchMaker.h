@@ -30,6 +30,7 @@ class StToFMatchMaker : public StMaker {
     static StRefMultCorr *mRefMultCorr;
     StToFMatchCut *mToFMatchCut;
     StToFMatchHistoManger *mToFMatchHistoManger;
+    float AngleShift(float phi);
     
     StUtility *mUtility;
 

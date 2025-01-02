@@ -23,6 +23,12 @@ class StMesonTrack : public TObject
     Float_t mNSigB;
     Float_t mDcaA; // distance of closest approach of particle A * charge
     Float_t mDcaB;
+    Float_t mNHitsFitA; // distance of closest approach of particle A * charge
+    Float_t mNHitsFitB;
+    Float_t mNHitsMaxA; // distance of closest approach of particle A * charge
+    Float_t mNHitsMaxB;
+    Float_t mDEdxA; // distance of closest approach of particle A * charge
+    Float_t mDEdxB;
     Int_t mChargeA; // charge, 0 => + | 1 => -
     Int_t mChargeB; 
     TLorentzVector mTrackA; // Lorentz Vector for track A (px, py, pz, mass2)
@@ -32,7 +38,7 @@ class StMesonTrack : public TObject
 
   public:
     StMesonTrack() :
-      mMass2A(-999.9),mMass2B(-999.9),mNSigA(-999.9),mNSigB(-999.9),mDcaA(-999.9),mDcaB(-999.9),mTrackA(0,0,0,0),mTrackB(0,0,0,0),mFlagA(-1),mFlagB(-1)
+      mMass2A(-999.9),mMass2B(-999.9),mNSigA(-999.9),mNSigB(-999.9),mDcaA(-999.9),mDcaB(-999.9),mNHitsFitA(-999.9),mNHitsFitB(-999.9),mNHitsMaxA(-999.9),mNHitsMaxB(-999.9),mDEdxA(-999.9),mDEdxB(-999.9),mTrackA(0,0,0,0),mTrackB(0,0,0,0),mFlagA(-1),mFlagB(-1)
   {
   }
     ~StMesonTrack() {}
@@ -44,6 +50,12 @@ class StMesonTrack : public TObject
     void setNSigB(Float_t f)                   { mNSigB = f;    }
     void setDcaA(Float_t f)                    { mDcaA = f;         }
     void setDcaB(Float_t f)                    { mDcaB = f;         }
+    void setNHitsFitA(Float_t f)               { mNHitsFitA = f;         }
+    void setNHitsFitB(Float_t f)               { mNHitsFitB = f;         }
+    void setNHitsMaxA(Float_t f)               { mNHitsMaxA = f;         }
+    void setNHitsMaxB(Float_t f)               { mNHitsMaxB = f;         }
+    void setDEdxA(Float_t f)                   { mDEdxA = f;         }
+    void setDEdxB(Float_t f)                   { mDEdxB = f;         }
     void setChargeA(Int_t f)                   { mChargeA = f;      }
     void setChargeB(Int_t f)                   { mChargeB = f;      }
     void setTrackA(TLorentzVector f)           { mTrackA = f;       }
@@ -58,6 +70,12 @@ class StMesonTrack : public TObject
     Float_t getNSigB() const                   { return mNSigB; }
     Float_t getDcaA() const                    { return mDcaA;      }
     Float_t getDcaB() const                    { return mDcaB;      }
+    Float_t getNHitsFitA() const               { return mNHitsFitA;      }
+    Float_t getNHitsFitB() const               { return mNHitsFitB;      }
+    Float_t getNHitsMaxA() const               { return mNHitsMaxA;      }
+    Float_t getNHitsMaxB() const               { return mNHitsMaxB;      }
+    Float_t getDEdxA() const                   { return mDEdxA;      }
+    Float_t getDEdxB() const                   { return mDEdxB;      }
     Int_t getChargeA() const                   { return mChargeA;   }
     Int_t getChargeB() const                   { return mChargeB;   }
     TLorentzVector getTrackA() const           { return mTrackA;    }
@@ -89,6 +107,9 @@ class StMesonEvent : public TObject
     TVector2 mQ2East;
     TVector2 mQ2West;
     TVector2 mQ2Full;
+    double mPsiEast;
+    double mPsiWest;
+    double mPsiFull;
     Int_t   mNumTrackEast;
     Int_t   mNumTrackWest;
     Int_t   mNumTrackFull;
@@ -104,7 +125,10 @@ class StMesonEvent : public TObject
     mQ2East.Set(-999.9,-999.9); // QVector2 East
     mQ2West.Set(-999.9,-999.9); // QVector2 West
     mQ2Full.Set(-999.9,-999.9); // QVector2 West
-
+    mPsiEast = 0.0;
+    mPsiWest = 0.0;
+    mPsiFull = 0.0;
+     
     mNumTrackEast = 0;
     mNumTrackWest = 0;
     mNumTrackFull = 0;
@@ -163,6 +187,15 @@ class StMesonEvent : public TObject
     // QVector2 Full 
     void       setQ2Full(TVector2 r)                   { mQ2Full = r;              }
     TVector2   getQ2Full() const                       { return mQ2Full;           }
+    // ---------------------------------------QVector---------------------------------------------
+    void       setPsiEast(double r)                    { mPsiEast = r;            }
+    double     getPsiEast() const                      { return mPsiEast;         }
+
+    void       setPsiWest(double r)                    { mPsiWest = r;            }
+    double     getPsiWest() const                      { return mPsiWest;         }
+
+    void       setPsiFull(double r)                    { mPsiFull = r;            }
+    double     getPsiFull() const                      { return mPsiFull;         }
     // ---------------------------------------QVector---------------------------------------------
 
     // -----------------------------------Number of Tracks----------------------------------------

@@ -1,5 +1,5 @@
 #include "StRoot/StVecMesonMaker/StVecMesonCut.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 #include "StRoot/StPicoEvent/StPicoDst.h"
 #include "StRoot/StPicoEvent/StPicoEvent.h"
 #include "StRoot/StPicoEvent/StPicoBTofPidTraits.h"
@@ -36,10 +36,10 @@ bool StVecMesonCut::isMinBias(StPicoEvent *picoEvent)
   //std::cout << "year: " << picoEvent->year() << std::endl;
   //std::cout << "day: " << picoEvent->day() << std::endl;
   //std::cout << "triggerIds: " << picoEvent->triggerIds()[0] << std::endl;  
-  if(mEnergy == 0 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 7.7GeV_2019
+  if(mEnergy == 0 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(810010) || picoEvent->isTrigger(810020) || picoEvent->isTrigger(810030) || picoEvent->isTrigger(810040) )) return false; // 7.7GeV_2019
   if(mEnergy == 1 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 9.1GeV_2019
   if(mEnergy == 2 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 11.5GeV_2019
-  if(mEnergy == 3 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(650001) || picoEvent->isTrigger(650011) || picoEvent->isTrigger(650021) || picoEvent->isTrigger(650031) || picoEvent->isTrigger(650041) || picoEvent->isTrigger(650051) )) return false; // 14.6GeV_2019
+  if(mEnergy == 3 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(650000) )) return false; // 14.6GeV_2019
   if(mEnergy == 4 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 19.6GeV_2019
   return true;
 }
@@ -230,7 +230,7 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
   //{
   //  return kFALSE;
   //}
-  if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kFALSE;
+  if(numOfBTofMatch < vmsa::mMatchedToFMin) return kFALSE;
 
   return kTRUE;
 }
@@ -272,8 +272,9 @@ Float_t StVecMesonCut::getPrimaryMass2(StPicoTrack *picoTrack, StPicoDst *picoDs
   double mass2 = -999.9;
   // StPicoTrack *picoTrack = (StPicoTrack*)picoDst->track(i_track); // return ith track
   int tofIndex = picoTrack->bTofPidTraitsIndex(); // return ToF PID traits
-  if(tofIndex >= 0)
-  {
+  cout << "tofIndext = " << tofIndex << endl;
+  //if(tofIndex >= 0)
+  //{
     StPicoBTofPidTraits *tofTrack = picoDst->btofPidTraits(tofIndex);
     const double beta = tofTrack->btofBeta();
     // const double Momentum = picoTrack->pMom().mag(); // primary momentum for 54GeV_2017
@@ -289,7 +290,7 @@ Float_t StVecMesonCut::getPrimaryMass2(StPicoTrack *picoTrack, StPicoDst *picoDs
     {
       mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
     }
-  }
+  //}
 
   return mass2;
 }
@@ -416,7 +417,7 @@ bool StVecMesonCut::passTrackMeson(StPicoTrack *track, StPicoEvent *picoEvent, I
   }
 
   // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Perp() < vmsa::mGlobPtMax))
+  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
   {
     return kFALSE;
   }

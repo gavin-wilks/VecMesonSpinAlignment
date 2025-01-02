@@ -16,8 +16,9 @@ StVecMesonHistoManger::~StVecMesonHistoManger()
 }
 //-------------------------------------------------------------
 
-void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 for Mixed Event
+void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode, Int_t rapidityflag) // 0 for Same Event, 1 for Mixed Event
 {
+  mRapidityFlag = rapidityflag;
   // flow analysis
   for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin 
   {
@@ -29,10 +30,17 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
+            if( i_dca != 0 && i_sig != 0) continue;
 	    TString Mode[2] = {"SE","ME"};
 	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2] = new TH1F(KEY_Mass2.Data(),KEY_Mass2.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
 	    h_mMass2[KEY_Mass2]->Sumw2();
+            for(Int_t i_y = 0; i_y < vmsa::y_total; i_y++)
+            {
+	      KEY_Mass2 = Form("y_%d_pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_y,i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass2[KEY_Mass2] = new TH1F(KEY_Mass2.Data(),KEY_Mass2.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
+	      h_mMass2[KEY_Mass2]->Sumw2();
+            }
 	  }
 	}
       }
@@ -68,6 +76,7 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
     {
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
+        if( i_dca != 0 && i_sig != 0) continue;
 	TString Mode[2] = {"SE","ME"};
 	TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_cent,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	h_mMass_Yields[KEY_Mass2_Yields] = new TH1F(KEY_Mass2_Yields.Data(),KEY_Mass2_Yields.Data(),200,vmsa::InvMass_low[mode],vmsa::InvMass_high[mode]);
@@ -101,9 +110,13 @@ void StVecMesonHistoManger::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Even
   }*/
 }
 //-------------------------------------------------------------
-void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t PhiPsi, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
+void StVecMesonHistoManger::FillSys(Float_t pt, Float_t y, Int_t cent9, Float_t PhiPsi, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
 {
   TString Mode[2] = {"SE","ME"};
+  //cout << "res2 = " << Res2 << endl;
+  //cout << "PhiPsi = " << PhiPsi << endl;
+  //cout << "cent9 = " << cent9 << endl;
+  //cout << "pt = " << pt << endl;
   if(Res2 > 0.0)
   {
     for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt_bin
@@ -114,7 +127,8 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t PhiPsi, Int
 	{
 	  if(PhiPsi >= vmsa::PhiPsi_low[i_theta] && PhiPsi < vmsa::PhiPsi_up[i_theta])
 	  {
-	    // spin alignment
+//	    cout << "Filling PhiPsi = " << i_theta << " cent9 = " << cent9 << " i_pt = " << i_pt << endl;
+            // spin alignment
 	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,cent9,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2]->Fill(InvMass,(reweight/Res2));
             //if (cent9) cout << "Fill Centrality 0" << endl;
@@ -125,18 +139,48 @@ void StVecMesonHistoManger::FillSys(Float_t pt, Int_t cent9, Float_t PhiPsi, Int
 	    h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
 	    if(cent9 == 8 || cent9 == 7)
             {
-	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_10_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      KEY_Mass2Sys = Form("pt_%d_Centrality_10_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
             }
 	    if(cent9 <= 6 && cent9 >= 4 )
             {
-	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_11_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      KEY_Mass2Sys = Form("pt_%d_Centrality_11_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
             }
 	    if(cent9 <= 3 && cent9 >= 0)
             {
-	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_12_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      KEY_Mass2Sys = Form("pt_%d_Centrality_12_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
+            }
+
+            for(int iy = 0; iy < vmsa::y_total; iy++)
+            {
+              if(y >= vmsa::ystart[iy] && y < vmsa::ystop[iy]) 
+              {
+	        TString KEY_Mass2y = Form("y_%d_pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",iy,i_pt,cent9,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	        h_mMass2[KEY_Mass2y]->Fill(InvMass,(reweight/Res2));
+                //if (cent9) cout << "Fill Centrality 0" << endl;
+                //cout << "Fill h_mMass2" << endl;
+                //cout << "pt = " << i_pt << "  Cent = " << cent9 << "  CosThetaStar = " << i_theta << endl;
+          
+	        TString KEY_Mass2Sysy = Form("y_%d_pt_%d_Centrality_9_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",iy,i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	        h_mMass2[KEY_Mass2Sysy]->Fill(InvMass,(reweight/Res2));
+	        if(cent9 == 8 || cent9 == 7)
+                {
+	          KEY_Mass2Sysy = Form("y_%d_pt_%d_Centrality_10_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",iy,i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	          h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
+                }
+	        if(cent9 <= 6 && cent9 >= 4 )
+                {
+	          KEY_Mass2Sysy = Form("y_%d_pt_%d_Centrality_11_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",iy,i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	          h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
+                }
+	        if(cent9 <= 3 && cent9 >= 0)
+                {
+	          KEY_Mass2Sysy = Form("y_%d_pt_%d_Centrality_12_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",iy,i_pt,i_theta,dcaSys,nSigSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	          h_mMass2[KEY_Mass2Sys]->Fill(InvMass,(reweight/Res2));
+                }
+              }
             }
      
 	    // raw pt spectra
@@ -201,8 +245,14 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
 	{
 	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
 	  {
+            if( i_dca != 0 && i_sig != 0) continue;
 	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	    h_mMass2[KEY_Mass2]->Write();
+            for(Int_t i_y = 0; i_y < vmsa::y_total; i_y++)
+            {
+	      KEY_Mass2 = Form("y_%d_pt_%d_Centrality_%d_PhiPsi_%d_2nd_Dca_%d_Sig_%d_%s_%s",i_y,i_pt,i_cent,i_theta,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+	      h_mMass2[KEY_Mass2]->Write();
+            }
 	  }
 	}
       }
@@ -216,6 +266,7 @@ void StVecMesonHistoManger::WriteSys(Int_t X_flag, Int_t mode)
     {
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
       {
+        if( i_dca != 0 && i_sig != 0) continue;
 	TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_%s_%s",i_cent,i_dca,i_sig,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
 	h_mMass_Yields[KEY_Mass2_Yields]->Write();
       }

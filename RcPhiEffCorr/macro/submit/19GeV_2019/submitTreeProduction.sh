@@ -24,9 +24,12 @@ pid=0 #0 = phi
 particle=Phi
 cut=0 #idk
 year=0 #idk
-nJobs=1500
-nEvents=200000
-
+pt=$1
+cent=$2
+mode=$3
+fitmode=$4
+nJobs=$5
+nEvents=12500
 #mode=2
 #pid=KStar
 
@@ -37,7 +40,7 @@ nEvents=200000
 # outDir=Phi/Forest
 ##########Mode Selection##########
 
-outDir=${particle}_fittoeta
+outDir=${particle}_yabs1_EPRes_yspectraflat_fixedEPRes_20240724_nov2_flatpT_flatRP_phiEff_PhiEmbed_MaxFunctionCalls50000
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -47,7 +50,8 @@ mkdir -p ${outPath}/Log/CosEff/${outDir}
 mkdir -p ${outPath}/OutPut/CosEff/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities particle=$particle,year=$year,pid=$pid,cut=$cut,energy=$energy,nJobs=$nJobs,nEvents=$nEvents,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities fitmode=$fitmode,pt=$pt,cent=$cent,mode=$mode,particle=$particle,pid=$pid,energy=$energy,nJobs=$nJobs,nEvents=$nEvents,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template testKStarProductionTemp.xml -entities fitmode=$fitmode,pt=$pt,cent=$cent,mode=$mode,particle=$particle,pid=$pid,energy=$energy,nJobs=$nJobs,nEvents=$nEvents,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########

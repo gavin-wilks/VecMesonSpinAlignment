@@ -89,6 +89,9 @@ class StMesonEvent : public TObject
     TVector2 mQ2East;
     TVector2 mQ2West;
     TVector2 mQ2Full;
+    double mPsiEast;
+    double mPsiWest;
+    double mPsiFull;
     Int_t   mNumTrackEast;
     Int_t   mNumTrackWest;
     Int_t   mNumTrackFull;
@@ -104,7 +107,10 @@ class StMesonEvent : public TObject
     mQ2East.Set(-999.9,-999.9); // QVector2 East
     mQ2West.Set(-999.9,-999.9); // QVector2 West
     mQ2Full.Set(-999.9,-999.9); // QVector2 West
-
+    mPsiEast = 0.0;
+    mPsiWest = 0.0;
+    mPsiFull = 0.0;
+     
     mNumTrackEast = 0;
     mNumTrackWest = 0;
     mNumTrackFull = 0;
@@ -163,6 +169,15 @@ class StMesonEvent : public TObject
     // QVector2 Full 
     void       setQ2Full(TVector2 r)                   { mQ2Full = r;              }
     TVector2   getQ2Full() const                       { return mQ2Full;           }
+    // ---------------------------------------QVector---------------------------------------------
+    void       setPsiEast(double r)                    { mPsiEast = r;            }
+    double     getPsiEast() const                      { return mPsiEast;         }
+
+    void       setPsiWest(double r)                    { mPsiWest = r;            }
+    double     getPsiWest() const                      { return mPsiWest;         }
+
+    void       setPsiFull(double r)                    { mPsiFull = r;            }
+    double     getPsiFull() const                      { return mPsiFull;         }
     // ---------------------------------------QVector---------------------------------------------
 
     // -----------------------------------Number of Tracks----------------------------------------

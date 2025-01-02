@@ -30,14 +30,14 @@ void readTofEff(int energy);
 void readTofEffFit(int energy);
 void getKinematics(TLorentzVector& lKStar, double const mass);
 void setDecayChannels(int const pid);
-void decayAndFill(int const kf, TLorentzVector* lKStar, TClonesArray& daughters);
-void fill(int const kf, TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const& lPi);
+void decayAndFill(int const kf, int const cent, TLorentzVector* lKStar, TClonesArray& daughters);
+void fill(int const kf, int const centrality, TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const& lPi);
 bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector const& lKaon);
 void findHist(TLorentzVector const& lKaon, int iParticleIndex, float Psi2, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
 float AngleShift(float phi);
 void findHist_ToF(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin); // iParticleIndex = 0 => K+
-TF1* readv2(int energy, int pid);
-TF1* readspec(int energy, int pid);
+TF1* readv2(int energy, int pid, int centrality);
+TF1* readspec(int energy, int pid, int centrality);
 void write();
 
 TPythia6Decayer* pydecay;
@@ -69,7 +69,10 @@ TH2F *h_phiRP;
 
 TFile *File_OutPut;
 
-void toyMcKStarDecay(const int energy = 4, const int pid = 2, const int year = 0, const int cut = 0, const int NMax = 2000000, const char* jobID = "last2MforKStar")
+Double_t pt_set[3] = {1.0, 1.5, 5.0};
+int pt_bin;
+
+void toyMcKStarDecay(const int energy = 4, const int pt = 0, const int centrality = 9, const int pid = 2, const int year = 0, const int cut = 0, const int NMax = 1000, const char* jobID = "testing")
 {
   TStopwatch* stopWatch = new TStopwatch();
   stopWatch->Start();
@@ -78,10 +81,11 @@ void toyMcKStarDecay(const int energy = 4, const int pid = 2, const int year = 0
   //readTofEff(energy);
   //readTofEffFit(energy);
 
+  pt_bin = pt;
   // v2 & spectra implementation
-  //f_v2   = readv2(energy,pid);
-  //f_spec = readspec(energy,pid);
-  //f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
+  f_v2   = readv2(energy,pid,centrality);
+  f_spec = readspec(energy,pid,centrality);
+  f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
 
   h_Tracks = new TH3F("h_Tracks","h_Tracks",20,vmsa::ptMin,vmsa::ptMax,vmsa::BinY,-1.0,1.0,36,-TMath::Pi(),TMath::Pi());
   h_phiRP = new TH2F("h_phiRP","h_phiRP",20,vmsa::ptMin,vmsa::ptMax,36,-TMath::Pi(),TMath::Pi()); // QA histogram for v2 sample
@@ -100,7 +104,7 @@ void toyMcKStarDecay(const int energy = 4, const int pid = 2, const int year = 0
 
     getKinematics(*lKStar,vmsa::InvMass[pid]);
     // if (fabs(lKStar->Phi()) > TMath::Pi()) continue;
-    decayAndFill(vmsa::decayMother[pid],lKStar,ptl);
+    decayAndFill(vmsa::decayMother[pid],centrality,lKStar,ptl);
 
     if (i_ran % 1000 == 1) McKStarMeson->AutoSave("SaveSelf");
   }
@@ -115,14 +119,14 @@ void toyMcKStarDecay(const int energy = 4, const int pid = 2, const int year = 0
 
 void getKinematics(TLorentzVector& lKStar, double const mass)
 {
-  double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptEffMax); // sample with flat distribution
-  // double const pt = f_spec->GetRandom(vmsa::ptMin, vmsa::ptMax); // sample with measured spectra
+  //double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptEffMax); // sample with flat distribution
+  double const pt = f_spec->GetRandom(pt_set[pt_bin], pt_set[pt_bin+1]); // sample with measured spectra
   double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
   // double const phi = TMath::TwoPi() * gRandom->Rndm(); // sample flat distribution
-  double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
-  //f_flow->ReleaseParameter(0);
-  //f_flow->SetParameter(0,f_v2->Eval(pt));
-  //double const phi = f_flow->GetRandom(); // sample with measured v2
+  //double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
+  f_flow->ReleaseParameter(0);
+  f_flow->SetParameter(0,f_v2->Eval(pt));
+  double const phi = f_flow->GetRandom(); // sample with measured v2
 
   double const mT = sqrt(mass * mass + pt * pt);
   double const pz = mT * sinh(y);
@@ -157,7 +161,7 @@ void setDecayChannels(int const pid)
  // }
 }
 
-void decayAndFill(int const kf, TLorentzVector* lKStar, TClonesArray& daughters)
+void decayAndFill(int const kf, int const cent, TLorentzVector* lKStar, TClonesArray& daughters)
 {
   float const randAnti = gRandom->Uniform(0.0,1.0);
   bool anti = false;
@@ -180,19 +184,15 @@ void decayAndFill(int const kf, TLorentzVector* lKStar, TClonesArray& daughters)
     {
       case 321:
 	ptl0->Momentum(lK);
- //       cout << "321" << endl;
 	break;
       case -321:
 	ptl0->Momentum(lK);
-//        cout << "-321" << endl;
 	break;
       case 211:
         ptl0->Momentum(lPi); 
-  //      cout << "211" << endl;
         break;
       case -211:
         ptl0->Momentum(lPi);
-    //    cout << "-211" << endl;
         break;
       default:
 	break;
@@ -200,14 +200,14 @@ void decayAndFill(int const kf, TLorentzVector* lKStar, TClonesArray& daughters)
   }
   daughters.Clear("C");
 
-  fill(kf,lKStar,lK,lPi);
+  fill(kf,cent,lKStar,lK,lPi);
 }
 
-void fill(int const kf, TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const& lPi)
+void fill(int const kf, int const centrality, TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const& lPi)
 {
-  int const centrality = floor(vmsa::NCentMax * gRandom->Rndm());
-  float const Psi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
-  //float const Psi2 = 0.0; // fixed event plane angle
+  //int const centrality = floor(vmsa::NCentMax * gRandom->Rndm());
+  //float const Psi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
+  float const Psi2 = 0.0; // fixed event plane angle
   // cout << "centrality = " << centrality << ", Psi2 = " << Psi2 << endl;
   // int const centrality = floor(2 * gRandom->Rndm());
   TLorentzVector lRcKStar = lK + lPi; // phi meson reconstruction
@@ -288,7 +288,7 @@ bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector c
    if (iParticleIndex == 0)
    {
      // string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
-     string KEY_TPC = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
      h_TPC = h_EffKplus[KEY_TPC];
 
      //string KEY_ToF = Form("h_mEfficiency_Kplus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
@@ -302,7 +302,7 @@ bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector c
    if (iParticleIndex == 2)
    {
      // string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
-     string KEY_TPC = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
      h_TPC = h_EffPiplus[KEY_TPC];
 
      //string KEY_ToF = Form("h_mEfficiency_Piplus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
@@ -316,7 +316,7 @@ bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector c
    if (iParticleIndex == 1)
    {
      // string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
-     string KEY_TPC = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
      h_TPC = h_EffKminus[KEY_TPC];
 
      //string KEY_ToF = Form("h_mEfficiency_Kminus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
@@ -330,7 +330,7 @@ bool tpcReconstructed(int iParticleIndex, int cent, float Psi2, TLorentzVector c
    if (iParticleIndex == 3)
    {
      // string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
-     string KEY_TPC = Form("h_mEff_Cent_9_Eta_%d_Phi_%d",EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff @ 20-60%
      h_TPC = h_EffPiminus[KEY_TPC];
 
      //string KEY_ToF = Form("h_mEfficiency_Piminus_Cent_9_Eta_%d_Phi_%d",EtaBin_ToF,PhiBin_ToF); // get ToF eff @ 20-60%
@@ -654,23 +654,120 @@ void readTofEffFit(int energy)
   }
 }
 
-TF1* readv2(int energy, int pid)
-{
-  string InPutV2 = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/KStar/MonteCarlo/Data/KStar_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
-  TFile *File_v2 = TFile::Open(InPutV2.c_str());
-  TGraphAsymmErrors *g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
-  TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc,vmsa::ptMin,vmsa::ptMax,5);
-  f_v2->FixParameter(0,2);
-  f_v2->SetParameter(1,0.1);
-  f_v2->SetParameter(2,0.1);
-  f_v2->SetParameter(3,0.1);
-  f_v2->SetParameter(4,0.1);
-  f_v2->SetLineColor(2);
-  f_v2->SetLineWidth(2);
-  f_v2->SetLineStyle(2);
-  g_v2->Fit(f_v2,"N");
+//TF1* readv2(int energy, int pid)
+//{
+//  string InPutV2 = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/KStar/MonteCarlo/Data/KStar_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
+//  TFile *File_v2 = TFile::Open(InPutV2.c_str());
+//  TGraphAsymmErrors *g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
+//  TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc,vmsa::ptMin,vmsa::ptMax,5);
+//  f_v2->FixParameter(0,2);
+//  f_v2->SetParameter(1,0.1);
+//  f_v2->SetParameter(2,0.1);
+//  f_v2->SetParameter(3,0.1);
+//  f_v2->SetParameter(4,0.1);
+//  f_v2->SetLineColor(2);
+//  f_v2->SetLineWidth(2);
+//  f_v2->SetLineStyle(2);
+//  g_v2->Fit(f_v2,"N");
+//
+//  /*
+//  TCanvas *c_v2 = new TCanvas("c_v2","c_v2",10,10,800,800);
+//  c_v2->cd()->SetLeftMargin(0.15);
+//  c_v2->cd()->SetBottomMargin(0.15);
+//  c_v2->cd()->SetTicks(1,1);
+//  c_v2->cd()->SetGrid(0,0);
+//  TH1F *h_v2 = new TH1F("h_v2","h_v2",100,0.0,10.0);
+//  for(int i_bin = 1; i_bin < 101; ++i_bin)
+//  {
+//    h_v2->SetBinContent(i_bin,-10.0);
+//    h_v2->SetBinError(i_bin,1.0);
+//  }
+//  h_v2->SetTitle("");
+//  h_v2->SetStats(0);
+//  h_v2->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+//  h_v2->GetXaxis()->CenterTitle();
+//  h_v2->GetYaxis()->SetTitle("v_{2}");
+//  h_v2->GetYaxis()->CenterTitle();
+//  h_v2->GetYaxis()->SetRangeUser(0.0,0.2);
+//  h_v2->Draw("pE");
+//  g_v2->Draw("pE same");
+//  f_v2->Draw("l same");
+//  */
+//
+//  return f_v2;
+//}
+//
+//TF1* readspec(int energy, int pid)
+//{
+//  string InPutSpec = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/KStar/MonteCarlo/Data/KStar_Spec.root",vmsa::mBeamEnergy[energy].c_str());
+//  TFile *File_Spec = TFile::Open(InPutSpec.c_str());
+//  TGraphAsymmErrors *g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
+//  TF1 *f_Levy = new TF1("f_Levy",Levy,vmsa::ptMin,vmsa::ptMax,3);
+//  f_Levy->SetParameter(0,1);
+//  f_Levy->SetParameter(1,10);
+//  f_Levy->SetParameter(2,0.1);
+//  f_Levy->SetLineStyle(2);
+//  f_Levy->SetLineColor(4);
+//  f_Levy->SetLineWidth(2);
+//  g_spec->Fit(f_Levy,"N");
+//
+//  TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
+//  f_spec->SetParameter(0,f_Levy->GetParameter(0));
+//  f_spec->SetParameter(1,f_Levy->GetParameter(1));
+//  f_spec->SetParameter(2,f_Levy->GetParameter(2));
+//  f_spec->SetLineStyle(2);
+//  f_spec->SetLineColor(2);
+//  f_spec->SetLineWidth(2);
+//
+//  /*
+//  TCanvas *c_spec = new TCanvas("c_spec","c_spec",10,10,800,800);
+//  c_spec->cd()->SetLeftMargin(0.15);
+//  c_spec->cd()->SetBottomMargin(0.15);
+//  c_spec->cd()->SetTicks(1,1);
+//  c_spec->cd()->SetGrid(0,0);
+//  c_spec->SetLogy();
+//  TH1F *h_spec = new TH1F("h_spec","h_spec",100,0.0,10.0);
+//  for(int i_bin = 1; i_bin < 101; ++i_bin)
+//  {
+//    h_spec->SetBinContent(i_bin,-10.0);
+//    h_spec->SetBinError(i_bin,1.0);
+//  }
+//  h_spec->SetTitle("");
+//  h_spec->SetStats(0);
+//  h_spec->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+//  h_spec->GetXaxis()->CenterTitle();
+//  h_spec->GetYaxis()->SetTitle("dN/p_{T}dp_{T}");
+//  h_spec->GetYaxis()->CenterTitle();
+//  h_spec->GetYaxis()->SetRangeUser(1E-6,10);
+//  h_spec->Draw("pE");
+//  g_spec->Draw("pE same");
+//  f_Levy->Draw("l same");
+//  f_spec->Draw("l same");
+//  */
+//
+//  return f_spec;
+//}
 
-  /*
+TF1* readv2(int energy, int pid, int centrality)
+{
+  string InPutV2 = Form("/gpfs01/star/pwg/subhash/Public/Kstar_spec_data/kstarv2_200_Run11.root");
+  cout << InPutV2 << endl;
+  TFile *File_v2 = TFile::Open(InPutV2.c_str());
+  TH1F *g_v2 = (TH1F*)File_v2->Get("hkstarv2_200");
+  //TF1 *f_v2 = (TF1*)File_v2->Get("v2Fit");
+ // TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc_Poly3,vmsa::ptMin,vmsa::ptMax,9);
+ // f_v2->FixParameter(0,2);
+ // f_v2->SetParameter(1,0.1);
+ // f_v2->SetParameter(2,0.1);
+ // f_v2->SetParameter(3,0.1);
+ // f_v2->SetParameter(4,0.1);
+ // f_v2->SetLineColor(2);
+ // f_v2->SetLineWidth(2);
+ // f_v2->SetLineStyle(2);
+ // g_v2->Fit(f_v2,"N");
+
+  TF1 *f_v2 = f_Kstarv2_200 = new TF1("f_Kstarv2_200","(2*7.74602e-02/(1+exp(-( (x/2) - 5.31219e-01)/1.40637e-01) )) - 2*2.43233e-03", 0, 10.0); 
+ 
   TCanvas *c_v2 = new TCanvas("c_v2","c_v2",10,10,800,800);
   c_v2->cd()->SetLeftMargin(0.15);
   c_v2->cd()->SetBottomMargin(0.15);
@@ -692,26 +789,89 @@ TF1* readv2(int energy, int pid)
   h_v2->Draw("pE");
   g_v2->Draw("pE same");
   f_v2->Draw("l same");
-  */
+  c_v2->SaveAs("v2.pdf");
+
+
 
   return f_v2;
 }
 
-TF1* readspec(int energy, int pid)
+TF1* readspec(int energy, int pid, int centrality)
 {
-  string InPutSpec = Form("/star/data01/pwg/sunxuhit/AuAu%s/SpinAlignment/KStar/MonteCarlo/Data/KStar_Spec.root",vmsa::mBeamEnergy[energy].c_str());
-  TFile *File_Spec = TFile::Open(InPutSpec.c_str());
-  TGraphAsymmErrors *g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
-  TF1 *f_Levy = new TF1("f_Levy",Levy,vmsa::ptMin,vmsa::ptMax,3);
-  f_Levy->SetParameter(0,1);
-  f_Levy->SetParameter(1,10);
-  f_Levy->SetParameter(2,0.1);
+  TCanvas *c1 = new TCanvas();
+  c1->SetFillColor(0);
+  c1->SetGrid(0,0);
+  c1->SetTitle(0);
+  c1->SetBottomMargin(0.15);
+  c1->SetLeftMargin(0.15);
+
+  string centString[9] = {"6080","6080","4060","4060","3040","2030","2010","010","010"};
+  string InPutSpec;
+  TH1F *g_spec;
+  if(centrality < 9)
+  {
+    string InPutSpec = Form("/gpfs01/star/pwg/subhash/Public/Kstar_spec_data/Both_kstarmeson_PhPsi_Bg1_f0.77_1.04_H_c%s_Levy_%s_def_FW.root",centString[centrality].c_str(),vmsa::mBeamEnergy[energy].c_str());
+    cout << InPutSpec << endl;
+    TFile *File_Spec = TFile::Open(InPutSpec.c_str());
+    g_spec = (TH1F*)File_Spec->Get("hcorr_yield");
+  }
+  if(centrality == 9)
+  {
+    //TGraphAsymmErrors *g_temp[3];
+    for(int i = 3; i < 6; i++)
+    {
+      string InPutSpec = Form("/gpfs01/star/pwg/subhash/Public/Kstar_spec_data/Both_kstarmeson_PhPsi_Bg1_f0.77_1.04_H_c%s_Levy_%s_def_FW.root",centString[i].c_str(),vmsa::mBeamEnergy[energy].c_str());
+      cout << InPutSpec << endl;
+      TFile *File_Spec = TFile::Open(InPutSpec.c_str());
+      if(i == 3) g_spec = (TH1F*)File_Spec->Get("hcorr_yield")->Clone();
+      else g_spec->Add((TH1F*)File_Spec->Get("hcorr_yield"));
+    }
+    //const int nPoints = g_temp[i]->GetN();
+    //double xval[nPoints]  = {0.0};
+    //double sum[nPoints]   = {0.0};
+    //double errxl[nPoints] = {0.0};
+    //double errxh[nPoints] = {0.0};
+    //double erryl[nPoints] = {0.0};
+    //double erryh[nPoints] = {0.0};
+    //for(int i = 3; i < 6; i++)
+    //{
+    //  for(int ip = 0; ip < nPoints; ip++)
+    //  {  
+    //    double x,y;
+    //    g_temp[i]->GetPoint(j,x,y);
+    //    cout << "i = " << i << ", j = " << j << ", x = " << x << "< y = " << y << endl;
+    //    xval[j]  += x*y; 
+    //    sum[j]   += y; 
+    //    errxl[j] += (g_temp[i]->GetErrorXlow(j)*g_temp[i]->GetErrorXlow(j));
+    //    errxh[j] += (g_temp[i]->GetErrorXhigh(j)*g_temp[i]->GetErrorXhigh(j));
+    //    erryl[j] += (g_temp[i]->GetErrorYlow(j)*g_temp[i]->GetErrorYlow(j));
+    //    erryh[j] += (g_temp[i]->GetErrorYhigh(j)*g_temp[i]->GetErrorYhigh(j));
+    //  }
+    //}
+    //for(int ip = 0; ip < nPoints; ip++)
+    //{
+    //  xval[j] /= sum[j];
+    //  errxl[j] = TMath::Sqrt(errxl[j]); 
+    //  errxh[j] = TMath::Sqrt(errxh[j]);
+    //  erryl[j] = TMath::Sqrt(erryl[j]);
+    //  erryh[j] = TMath::Sqrt(erryh[j]); 
+    //  g_spec->SetPoint(ip,xval[j],sum[j]);
+    //  g_spec->SetPointError(ip,errxl[j],errxh[j],erryl[j],erryh[j]);
+    //}  
+  }
+
+  TF1 *f_Levy = new TF1("f_Levy",LevyKStar,vmsa::ptMin,vmsa::ptMax,3);
+  f_Levy->SetParameter(0,10);
+  f_Levy->SetParameter(1,1000);
+  f_Levy->SetParameter(2,0.05);
   f_Levy->SetLineStyle(2);
   f_Levy->SetLineColor(4);
   f_Levy->SetLineWidth(2);
   g_spec->Fit(f_Levy,"N");
 
-  TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
+
+//  TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
+  TF1 *f_spec = new TF1("f_spec",pTLevyKStar,pt_set[pt_bin], pt_set[pt_bin+1], 3);
   f_spec->SetParameter(0,f_Levy->GetParameter(0));
   f_spec->SetParameter(1,f_Levy->GetParameter(1));
   f_spec->SetParameter(2,f_Levy->GetParameter(2));
@@ -719,9 +879,39 @@ TF1* readspec(int energy, int pid)
   f_spec->SetLineColor(2);
   f_spec->SetLineWidth(2);
 
-  /*
+
+
+/*
+  TF1 *f_Expo = new TF1("f_Expo",Expo,vmsa::ptMin,vmsa::ptMax,2);
+//  TF1 *f_Expo = new TF1("f_Expo","gaus(0)",vmsa::ptMin,vmsa::ptMax);
+  f_Expo->SetParameter(0,10);
+  f_Expo->SetParameter(1,1);
+  g_spec->Fit(f_Expo,"N");
+
+  TF1 *f_spec = new TF1("f_spec",Expo,0.01,5.1,2);
+//  TF1 *f_spec = new TF1("f_spec","gaus(0)",0.01,5.1);
+  f_spec->SetParameter(0,f_Expo->GetParameter(0));
+  f_spec->SetParameter(1,f_Expo->GetParameter(1));
+  f_spec->SetParameter(2,f_Expo->GetParameter(2));
+*/
+
+
+  g_spec->GetXaxis()->SetTitle("p_{T}(GeV/c)");
+  g_spec->GetXaxis()->SetLabelSize(0.05);
+  g_spec->GetXaxis()->SetTitleSize(0.05);
+  g_spec->GetXaxis()->SetTitleOffset(1.0);
+  g_spec->GetYaxis()->SetTitle("d^{2}N/2#pip_{T}dp_{T}dy");
+  g_spec->GetYaxis()->SetLabelSize(0.05);
+  g_spec->GetYaxis()->SetTitleSize(0.05);
+  g_spec->GetYaxis()->SetTitleOffset(1.1);
+  g_spec->Draw("ap");
+  f_Levy->Draw("same");
+  c1->SetLogy();
+  c1->SaveAs("pt.pdf");
+
+
+  
   TCanvas *c_spec = new TCanvas("c_spec","c_spec",10,10,800,800);
-  c_spec->cd()->SetLeftMargin(0.15);
   c_spec->cd()->SetBottomMargin(0.15);
   c_spec->cd()->SetTicks(1,1);
   c_spec->cd()->SetGrid(0,0);
@@ -743,7 +933,16 @@ TF1* readspec(int energy, int pid)
   g_spec->Draw("pE same");
   f_Levy->Draw("l same");
   f_spec->Draw("l same");
-  */
+  
+  TCanvas *c10 = new TCanvas("c_ptdist","c_ptdist",10,10,800,800);
+  c10->cd();
+  c10->SetFillColor(0);
+  c10->SetGrid(0,0);
+  c10->SetTitle(0);
+  c10->SetBottomMargin(0.15);
+  c10->SetLeftMargin(0.15);
+  f_spec->Draw();
+  f_spec->SaveAs("indivitualptspec.pdf");
 
   return f_spec;
 }

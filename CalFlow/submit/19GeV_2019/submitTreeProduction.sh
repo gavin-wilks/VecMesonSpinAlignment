@@ -16,7 +16,7 @@ codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignmen
 energy=4  # 19GeV
 library=SL21c
 listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/FileLists/19GeV_2019
-outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
+outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 #outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
@@ -35,13 +35,15 @@ pid=Phi
 ##########Mode Selection##########
 
 ##########Mixed Event Selection##########
-flag_ME=0 # 0 for SE | 1 for ME
-SM=SE
+flag_ME=$1 # 0 for SE | 1 for ME
+SM=$2
 #flag_ME=1 # 0
 #SM=ME
 ##########Mixed Event Selection##########
+etamode=$3
 
-outDir=${pid}${SM}
+
+outDir=${pid}${SM}_RapidityDependence_EtaMode${etamode}
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -51,7 +53,7 @@ mkdir -p ${outPath}/Log/FlowYields/${outDir}
 mkdir -p ${outPath}/OutPut/FlowYields/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities etamode=$etamode,pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########

@@ -18,7 +18,7 @@ echo "${numjobs}"
 rm missingjobs.log
 for((j=0; j<${numjobs}; j++ ))
 do
-if [ "`ls -d -1 /gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/Embedding/${mpart}/${part}/${part}_${jobid}_${j}.root`" !=  "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/Embedding/${mpart}/${part}/${part}_${jobid}_${j}.root" ]
+if [ "`ls -d -1 /gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/Embedding/${mpart}/${part}_eta1_0p1pt5/${part}_${jobid}_${j}.root`" !=  "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/Embedding/${mpart}/${part}_eta1_0p1pt5/${part}_${jobid}_${j}.root" ]
 
 then
   echo "${j}" | tee -a  missingjobs.log

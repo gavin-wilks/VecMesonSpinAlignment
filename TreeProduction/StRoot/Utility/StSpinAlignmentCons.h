@@ -115,7 +115,7 @@ namespace vmsa
   // mix event
   int const Bin_Centrality = 9;
   int const Bin_VertexZ = 10;
-  int const Bin_Phi_Psi = 5;
+  int const Bin_Phi_Psi = 10;
   int const Bin_Phi_Psi1 = 10;
   int const Bin_Rho_Psi = 5;
   int const Bin_KStar_Psi = 5;
@@ -248,7 +248,7 @@ namespace vmsa
   // shared constant
   std::string const mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
   float const mEnergyValue[NumBeamEnergy] = {7.7,9.1,11.5,14.6,19.6};
-  int const mBeamYear[NumBeamEnergy] = {2019,2019,2019,2019,2019};
+  int const mBeamYear[NumBeamEnergy] = {2021,2019,2019,2019,2019};
 
   std::string const mPID[3]   = {"Phi","Rho","KStar"};
   float const Norm_Start[3][2]  = {{1.04,0.99},{0.41,0.30},{0.41,0.30}}; // normalise to right and left

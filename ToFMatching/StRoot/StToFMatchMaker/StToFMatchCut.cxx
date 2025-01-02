@@ -38,10 +38,10 @@ bool StToFMatchCut::isMinBias(StPicoEvent *picoEvent)
   //std::cout << "year: " << picoEvent->year() << std::endl;
   //std::cout << "day: " << picoEvent->day() << std::endl;
   //std::cout << "triggerIds: " << picoEvent->triggerIds()[0] << std::endl;  
-  if(mEnergy == 0 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 7.7GeV_2019
+  if(mEnergy == 0 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(810010) || picoEvent->isTrigger(810020) || picoEvent->isTrigger(810030) || picoEvent->isTrigger(810040) )) return false; // 7.7GeV_2019
   if(mEnergy == 1 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 9.1GeV_2019
   if(mEnergy == 2 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 11.5GeV_2019
-  if(mEnergy == 3 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(650001) || picoEvent->isTrigger(650011) || picoEvent->isTrigger(650021) || picoEvent->isTrigger(650031) || picoEvent->isTrigger(650041) || picoEvent->isTrigger(650051) )) return false; // 14.6GeV_2019
+  if(mEnergy == 3 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(650000) )) return false; // 14.6GeV_2019
   if(mEnergy == 4 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 19.6GeV_2019
   return true;
 }
@@ -234,7 +234,7 @@ bool StToFMatchCut::passEventCut(StPicoDst *pico)
   //{
   //  return kFALSE;
   //}
-  if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kFALSE;
+  if(numOfBTofMatch < vmsa::mMatchedToFMin) return kFALSE;
 
   return kTRUE;
 }
@@ -262,7 +262,7 @@ Float_t StToFMatchCut::getMass2(StPicoTrack *picoTrack, StPicoDst *picoDst)
   double mass2 = -999.9;
   // StPicoTrack *picoTrack = (StPicoTrack*)picoDst->track(i_track); // return ith track
   int tofIndex = picoTrack->bTofPidTraitsIndex(); // return ToF PID traits
-  int etofIndex = picoTrack->eTofPidTraitsIndex(); // return ToF PID traits
+  //int etofIndex = picoTrack->eTofPidTraitsIndex(); // return ToF PID traits
   if(tofIndex >= 0)
   {
     StPicoBTofPidTraits *tofTrack = picoDst->btofPidTraits(tofIndex);
@@ -281,24 +281,24 @@ Float_t StToFMatchCut::getMass2(StPicoTrack *picoTrack, StPicoDst *picoDst)
       mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
     }
   }
-  if(etofIndex >= 0)
-  {
-    StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
-    const double beta = etofTrack->beta();
-    // const double Momentum = picoTrack->pMom().mag(); // primary momentum for 54GeV_2017
-    // const double Momentum = picoTrack->pMom().Mag(); // primary momentum for 27GeV_2018
-    TVector3 primMom; // temp fix for StThreeVectorF & TVector3
-    const double primPx    = picoTrack->pMom().x(); // x works for both TVector3 and StThreeVectorF
-    const double primPy    = picoTrack->pMom().y();
-    const double primPz    = picoTrack->pMom().z();
-    primMom.SetXYZ(primPx,primPy,primPz);
-    const double Momentum = primMom.Mag(); // primary momentum
+  //if(etofIndex >= 0)
+  //{
+  //  StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
+  //  const double beta = etofTrack->beta();
+  //  // const double Momentum = picoTrack->pMom().mag(); // primary momentum for 54GeV_2017
+  //  // const double Momentum = picoTrack->pMom().Mag(); // primary momentum for 27GeV_2018
+  //  TVector3 primMom; // temp fix for StThreeVectorF & TVector3
+  //  const double primPx    = picoTrack->pMom().x(); // x works for both TVector3 and StThreeVectorF
+  //  const double primPy    = picoTrack->pMom().y();
+  //  const double primPz    = picoTrack->pMom().z();
+  //  primMom.SetXYZ(primPx,primPy,primPz);
+  //  const double Momentum = primMom.Mag(); // primary momentum
 
-    if(etofTrack->matchFlag() > 0 && etofTrack->tof() != 0 && beta != 0)
-    {
-      mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
-    }
-  }
+  //  if(etofTrack->matchFlag() > 0 && etofTrack->tof() != 0 && beta != 0)
+  //  {
+  //    mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
+  //  }
+  //}
 
   return mass2;
 }
@@ -334,6 +334,13 @@ Float_t StToFMatchCut::getV0Mass2(StPicoTrack *picoTrack, StPicoDst *picoDst)
 
 bool StToFMatchCut::passTrackBasic(StPicoTrack *track, StPicoEvent *picoEvent)
 {
+  
+  // Explicit Primary Track Cut  
+  if(!track->isPrimary())
+  { 
+    return kFALSE;
+  }
+
   // nHitsFit cut
   if(track->nHitsFit() < vmsa::mHitsFitTPCMin)
   {
@@ -358,7 +365,7 @@ bool StToFMatchCut::passTrackBasic(StPicoTrack *track, StPicoEvent *picoEvent)
   }
 
   // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Perp() < vmsa::mGlobPtMax))
+  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
   {
     return kFALSE;
   }
@@ -428,15 +435,15 @@ bool StToFMatchCut::passToFMatchCut(StPicoTrack* picoTrack, StPicoEvent* picoEve
   if(!passTrackBasic(picoTrack,picoEvent)) return kFALSE;
 
   int tofIndex = picoTrack->bTofPidTraitsIndex(); // return ToF PID traits
-  int etofIndex = picoTrack->eTofPidTraitsIndex(); // return ToF PID traits
-  if(tofIndex < 0 && etofIndex < 0) return kFALSE;
+  //int etofIndex = picoTrack->eTofPidTraitsIndex(); // return ToF PID traits
+  if(tofIndex < 0 /*&& etofIndex < 0*/) return kFALSE;
   
   StPicoBTofPidTraits *tofTrack = picoDst->btofPidTraits(tofIndex);
-  StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
+  //StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
   const double betaBToF = tofTrack->btofBeta();
-  const double betaEToF = etofTrack->beta();
+  //const double betaEToF = etofTrack->beta();
 
-  if(! (tofTrack->btofMatchFlag() > 0 && tofTrack->btof() != 0 && betaBToF != 0) && ! (etofTrack->matchFlag() > 0 && etofTrack->tof() != 0 && betaEToF != 0)) return kFALSE; 
+  if(! (tofTrack->btofMatchFlag() > 0 && tofTrack->btof() != 0 && betaBToF != 0) /*&& ! (etofTrack->matchFlag() > 0 && etofTrack->tof() != 0 && betaEToF != 0)*/) return kFALSE; 
 
   return kTRUE;
 }

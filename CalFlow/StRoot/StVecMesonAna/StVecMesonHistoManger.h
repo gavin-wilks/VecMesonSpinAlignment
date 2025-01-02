@@ -14,8 +14,8 @@ class StVecMesonHistoManger
     StVecMesonHistoManger();
     ~StVecMesonHistoManger();
 
-    void InitSys(Int_t X_flag, Int_t mode);
-    void FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t Mass2, Double_t reweight, Int_t X_flag, Int_t mode);
+    void InitSys(Int_t X_flag, Int_t mode, Int_t rapidityflag);
+    void FillSys(Float_t pt, Float_t y, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t Mass2, Double_t reweight, Int_t X_flag, Int_t mode);
     void FillDcaSys(Float_t,Float_t,Int_t);
     void FillSigSys(Float_t,Float_t,Int_t);
     void WriteSys(Int_t X_flag, Int_t mode);
@@ -50,6 +50,7 @@ class StVecMesonHistoManger
 
     TH1FMap h_mDca;
     TH1FMap h_mSigKaon;
+    Int_t mRapidityFlag;
 
   ClassDef(StVecMesonHistoManger,1)
 };

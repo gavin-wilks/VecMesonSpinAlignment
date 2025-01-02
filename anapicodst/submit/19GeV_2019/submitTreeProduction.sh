@@ -21,13 +21,13 @@ outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 
 ##########Mode Selection##########
 
-pid=KStar
-mode=2 # 0 for phi, 1 for rho, 2 for KStar
-particle=Piplus
-gid=8 # pi+ = 8 | pi- = 9 | K+ = 11 | K- = 12   
+pid=Phi
+mode=0 # 0 for phi, 1 for rho, 2 for KStar
+particle=Kminus
+gid=12 # pi+ = 8 | pi- = 9 | K+ = 11 | K- = 12   
 ##########Mode Selection##########
 
-outDir=${pid}/${particle}
+outDir=${pid}/${particle}_eta1_0p1pt5
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -37,7 +37,7 @@ mkdir -p ${outPath}/Log/Embedding/${outDir}
 mkdir -p ${outPath}/OutPut/Embedding/${outDir}
 
 ##########Test Production##########
-#star-submit-template -template testProductionTemp.xml -entities mode=$mode,gid=$gid,particle=$particle,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities mode=$mode,gid=$gid,particle=$particle,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -45,5 +45,5 @@ mkdir -p ${outPath}/OutPut/Embedding/${outDir}
 ##########Full Production##########
 
 ##########Re-Submit##########
-star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,gid=$gid,particle=$particle,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template resubmitProductionTemp.xml -entities mode=$mode,gid=$gid,particle=$particle,energy=$energy,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Re-Submit##########

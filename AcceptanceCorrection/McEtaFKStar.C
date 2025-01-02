@@ -48,7 +48,7 @@ TH1F *h_theta, *h_theta_before, *h_theta_star, *h_theta_star_before, *h_out1, *h
 TProfile *cos2phi;
 TF1 *cut_pt = new TF1("cut_pt","1",0,1);
 
-Double_t pt_set[7] = {0.4, 0.8, 1.2, 1.8, 2.4, 3.0, 4.2};
+Double_t pt_set[4] = {0.4, 1.0, 1.5, 5.0};
 int pt_bin;
 
 TFile *eff_file;
@@ -61,7 +61,7 @@ TPythia6Decayer* pydecay;
 
 TFile *File_OutPut;
 
-void McEtaFKStar(double Nrho=3333, int SetPt=3, int energy = 4, int pid = 2, int cent = 9, int const NMax = 100, const char* jobID = "1")
+void McEtaFKStar(double Nrho=3333, int SetPt=2, int energy = 4, int pid = 2, int cent = 9, int const NMax = 10, const char* jobID = "1")
 {
   string outputfile = Form("McAcceptanceOutput_pt%d_energy%d_pid%d_cent%d_%s.root",SetPt,energy,pid,cent,jobID);
   File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
@@ -99,16 +99,16 @@ void McEtaFKStar(double Nrho=3333, int SetPt=3, int energy = 4, int pid = 2, int
   //c1->SetBottomMargin(0.15);
   //c1->SetLeftMargin(0.15);
 
-  //f_v2   = readv2(energy,pid,cent);
+  f_v2   = readv2(energy,pid,cent);
   //f_v2->Draw();
   ///c1->SaveAs("v2.pdf");
   //f_v2   = readv2(6,pid,cent);
-  //f_spec = readspec(energy,pid,cent);
+  f_spec = readspec(energy,pid,cent);
   //f_y = new TF1("f_y","0 + exp(-100*x*x)", -6.0,6.0);
   //f_gaus = new TF1("f_gaus", "exp(-x*x/(2*[0]*[0]))/(sqrt(2.*TMath::Pi()*[0]*[0]))", -TMath::Pi(), TMath::Pi());
 
 
-  //f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
+  f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
 
   float rhoPhy = Nrho*rhoDelta;
   f_rhoPhy = new TF1("f_rhoPhy",SpinDensity,-1.0,1.0,2);
@@ -147,21 +147,24 @@ void McEtaFKStar(double Nrho=3333, int SetPt=3, int energy = 4, int pid = 2, int
 
 TF1* readv2(int energy, int pid, int centrality)
 {
-  string InPutV2 = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
+  string InPutV2 = Form("/gpfs01/star/pwg/subhash/Public/Kstar_spec_data/kstarv2_200_Run11.root");
+  cout << InPutV2 << endl;
   TFile *File_v2 = TFile::Open(InPutV2.c_str());
-  TGraphAsymmErrors *g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
-  TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc,vmsa::ptMin,vmsa::ptMax,5);
-  f_v2->FixParameter(0,2);
-  f_v2->SetParameter(1,0.1);
-  f_v2->SetParameter(2,0.1);
-  f_v2->SetParameter(3,0.1);
-  f_v2->SetParameter(4,0.1);
-  f_v2->SetLineColor(2);
-  f_v2->SetLineWidth(2);
-  f_v2->SetLineStyle(2);
-  g_v2->Fit(f_v2,"N");
+  TH1F *g_v2 = (TH1F*)File_v2->Get("hkstarv2_200");
+  //TF1 *f_v2 = (TF1*)File_v2->Get("v2Fit");
+ // TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc_Poly3,vmsa::ptMin,vmsa::ptMax,9);
+ // f_v2->FixParameter(0,2);
+ // f_v2->SetParameter(1,0.1);
+ // f_v2->SetParameter(2,0.1);
+ // f_v2->SetParameter(3,0.1);
+ // f_v2->SetParameter(4,0.1);
+ // f_v2->SetLineColor(2);
+ // f_v2->SetLineWidth(2);
+ // f_v2->SetLineStyle(2);
+ // g_v2->Fit(f_v2,"N");
 
-  
+  TF1 *f_v2 = f_Kstarv2_200 = new TF1("f_Kstarv2_200","(2*7.74602e-02/(1+exp(-( (x/2) - 5.31219e-01)/1.40637e-01) )) - 2*2.43233e-03", 0, 10.0); 
+ 
   TCanvas *c_v2 = new TCanvas("c_v2","c_v2",10,10,800,800);
   c_v2->cd()->SetLeftMargin(0.15);
   c_v2->cd()->SetBottomMargin(0.15);
@@ -199,14 +202,65 @@ TF1* readspec(int energy, int pid, int centrality)
   c1->SetBottomMargin(0.15);
   c1->SetLeftMargin(0.15);
 
-  string InPutSpec = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_Spec.root",vmsa::mBeamEnergy[energy].c_str());
-  TFile *File_Spec = TFile::Open(InPutSpec.c_str());
-  TGraphAsymmErrors *g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
+  string centString[9] = {"6080","6080","4060","4060","3040","2030","2010","010","010"};
+  string InPutSpec;
+  TH1F *g_spec;
+  if(centrality < 9)
+  {
+    string InPutSpec = Form("/gpfs01/star/pwg/subhash/Public/Kstar_spec_data/Both_kstarmeson_PhPsi_Bg1_f0.77_1.04_H_c%s_Levy_%s_def_FW.root",centString[centrality].c_str(),vmsa::mBeamEnergy[energy].c_str());
+    cout << InPutSpec << endl;
+    TFile *File_Spec = TFile::Open(InPutSpec.c_str());
+    g_spec = (TH1F*)File_Spec->Get("hcorr_yield");
+  }
+  if(centrality == 9)
+  {
+    //TGraphAsymmErrors *g_temp[3];
+    for(int i = 3; i < 6; i++)
+    {
+      string InPutSpec = Form("/gpfs01/star/pwg/subhash/Public/Kstar_spec_data/Both_kstarmeson_PhPsi_Bg1_f0.77_1.04_H_c%s_Levy_%s_def_FW.root",centString[i].c_str(),vmsa::mBeamEnergy[energy].c_str());
+      cout << InPutSpec << endl;
+      TFile *File_Spec = TFile::Open(InPutSpec.c_str());
+      if(i == 3) g_spec = (TH1F*)File_Spec->Get("hcorr_yield")->Clone();
+      else g_spec->Add((TH1F*)File_Spec->Get("hcorr_yield"));
+    }
+    //const int nPoints = g_temp[i]->GetN();
+    //double xval[nPoints]  = {0.0};
+    //double sum[nPoints]   = {0.0};
+    //double errxl[nPoints] = {0.0};
+    //double errxh[nPoints] = {0.0};
+    //double erryl[nPoints] = {0.0};
+    //double erryh[nPoints] = {0.0};
+    //for(int i = 3; i < 6; i++)
+    //{
+    //  for(int ip = 0; ip < nPoints; ip++)
+    //  {  
+    //    double x,y;
+    //    g_temp[i]->GetPoint(j,x,y);
+    //    cout << "i = " << i << ", j = " << j << ", x = " << x << "< y = " << y << endl;
+    //    xval[j]  += x*y; 
+    //    sum[j]   += y; 
+    //    errxl[j] += (g_temp[i]->GetErrorXlow(j)*g_temp[i]->GetErrorXlow(j));
+    //    errxh[j] += (g_temp[i]->GetErrorXhigh(j)*g_temp[i]->GetErrorXhigh(j));
+    //    erryl[j] += (g_temp[i]->GetErrorYlow(j)*g_temp[i]->GetErrorYlow(j));
+    //    erryh[j] += (g_temp[i]->GetErrorYhigh(j)*g_temp[i]->GetErrorYhigh(j));
+    //  }
+    //}
+    //for(int ip = 0; ip < nPoints; ip++)
+    //{
+    //  xval[j] /= sum[j];
+    //  errxl[j] = TMath::Sqrt(errxl[j]); 
+    //  errxh[j] = TMath::Sqrt(errxh[j]);
+    //  erryl[j] = TMath::Sqrt(erryl[j]);
+    //  erryh[j] = TMath::Sqrt(erryh[j]); 
+    //  g_spec->SetPoint(ip,xval[j],sum[j]);
+    //  g_spec->SetPointError(ip,errxl[j],errxh[j],erryl[j],erryh[j]);
+    //}  
+  }
 
-  TF1 *f_Levy = new TF1("f_Levy",Levy,vmsa::ptMin,vmsa::ptMax,3);
-  f_Levy->SetParameter(0,1);
-  f_Levy->SetParameter(1,10);
-  f_Levy->SetParameter(2,0.1);
+  TF1 *f_Levy = new TF1("f_Levy",LevyKStar,vmsa::ptMin,vmsa::ptMax,3);
+  f_Levy->SetParameter(0,10);
+  f_Levy->SetParameter(1,1000);
+  f_Levy->SetParameter(2,0.05);
   f_Levy->SetLineStyle(2);
   f_Levy->SetLineColor(4);
   f_Levy->SetLineWidth(2);
@@ -214,7 +268,7 @@ TF1* readspec(int energy, int pid, int centrality)
 
 
 //  TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
-  TF1 *f_spec = new TF1("f_spec",pTLevy,pt_set[pt_bin-1], pt_set[pt_bin], 3);
+  TF1 *f_spec = new TF1("f_spec",pTLevyKStar,pt_set[pt_bin-1], pt_set[pt_bin], 3);
   f_spec->SetParameter(0,f_Levy->GetParameter(0));
   f_spec->SetParameter(1,f_Levy->GetParameter(1));
   f_spec->SetParameter(2,f_Levy->GetParameter(2));
@@ -253,13 +307,13 @@ TF1* readspec(int energy, int pid, int centrality)
   c1->SaveAs("pt.pdf");
 
 
-  /*
-  TCanvas *c_spec = new TCanvas("c_spec","c_spec",10,10,800,800);
-  c_spec->cd()->SetBottomMargin(0.15);
-  c_spec->cd()->SetTicks(1,1);
-  c_spec->cd()->SetGrid(0,0);
-  c_spec->SetLogy();
-  TH1F *h_spec = new TH1F("h_spec","h_spec",100,0.0,10.0);
+  
+  //TCanvas *c_spec = new TCanvas("c_spec","c_spec",10,10,800,800);
+  //c_spec->cd()->SetBottomMargin(0.15);
+  //c_spec->cd()->SetTicks(1,1);
+  //c_spec->cd()->SetGrid(0,0);
+  //c_spec->SetLogy();
+  TH1F *h_spec = new TH1F("h_spec","h_spec",100,0.0,5.5);
   for(int i_bin = 1; i_bin < 101; ++i_bin)
   {
     h_spec->SetBinContent(i_bin,-10.0);
@@ -269,32 +323,47 @@ TF1* readspec(int energy, int pid, int centrality)
   h_spec->SetStats(0);
   h_spec->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   h_spec->GetXaxis()->CenterTitle();
-  h_spec->GetYaxis()->SetTitle("dN/p_{T}dp_{T}");
+  h_spec->GetYaxis()->SetTitle("d^{2}N/2#pip_{T}dp_{T}dy");
   h_spec->GetYaxis()->CenterTitle();
-  h_spec->GetYaxis()->SetRangeUser(1E-6,10);
+  h_spec->GetYaxis()->SetRangeUser(1E-5,100);
   h_spec->Draw("pE");
   g_spec->Draw("pE same");
   f_Levy->Draw("l same");
-  f_spec->Draw("l same");
-  */
+  //f_spec->Draw("l same");
+  
+  TCanvas *c10 = new TCanvas("c_ptdist","c_ptdist",10,10,800,800);
+  c10->cd();
+  c10->SetFillColor(0);
+  c10->SetGrid(0,0);
+  c10->SetTitle(0);
+  c10->SetBottomMargin(0.15);
+  c10->SetLeftMargin(0.15);
+  h_spec->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+  h_spec->GetXaxis()->CenterTitle();
+  h_spec->GetYaxis()->SetTitle("dN/p_{T}dp_{T}");
+  h_spec->GetYaxis()->CenterTitle();
+  h_spec->GetYaxis()->SetRangeUser(0,10);
+  h_spec->Draw("pE");
+  f_spec->Draw("same");
+  f_spec->SaveAs("indivitualptspec.pdf");
 
   return f_spec;
 }
 
 void getKinematics(TLorentzVector& lPhi, double const mass)
 {
- // f_flow->ReleaseParameter(0);
+  f_flow->ReleaseParameter(0);
 //  double const pt = f_spec->GetRandom(vmsa::ptMin, vmsa::ptMax);
-  //double const pt = f_spec->GetRandom(pt_set[pt_bin-1], pt_set[pt_bin]);
-  double const pt = gRandom->Uniform(pt_set[pt_bin-1], pt_set[pt_bin]);
+  double const pt = f_spec->GetRandom(pt_set[pt_bin-1], pt_set[pt_bin]);
+  //double const pt = gRandom->Uniform(pt_set[pt_bin-1], pt_set[pt_bin]);
 //  double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
   double const y = gRandom->Uniform(-1., 1.);
   //double const y = gRandom->Uniform(-2., 2.);
 //  double const y = f_y->GetRandom(-2,2);
- // f_flow->SetParameter(0,f_v2->Eval(pt));
- // double const phi = f_flow->GetRandom();
+  f_flow->SetParameter(0,f_v2->Eval(pt));
+  double const phi = f_flow->GetRandom();
 
-  double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
+  // double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
   // double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptMax);
   // double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
   // double const phi = TMath::TwoPi() * gRandom->Rndm();
@@ -366,8 +435,8 @@ void fill(TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const
   double PhiPt = lKStar->Pt();
   double KEta = lK.Eta();
   double PiEta = lPi.Eta();
-  double KPt = lK.Pt();
-  double PiPt = lPi.Pt();
+  //double KPt = lK.Pt();
+  //double PiPt = lPi.Pt();
 
   TVector3 nQ(0.0,-1.0,0.0); // direction of angular momentum with un-smeared EP
   TVector3 zQ(0.0,0.0,1.0);
@@ -375,7 +444,7 @@ void fill(TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const
   float CosThetaStarEP = vMcKpBoosted.Dot(nQ);
   float CosThetaStarZP = vMcKpBoosted.Dot(zQ);
 
-  //if(!Sampling(f_rhoPhy,CosThetaStarEP)) return;
+  if(!Sampling(f_rhoPhy,CosThetaStarEP)) return;
 
   double eta_gap = vmsa::mEtaMax;
   //double pt_gap = 0.2;
@@ -383,10 +452,10 @@ void fill(TLorentzVector* lKStar, TLorentzVector const& lK, TLorentzVector const
   //double ratio = TMath::Abs(pt_plus-pt_minus);
 
   h_theta_star_before->Fill(TMath::Abs(CosThetaStarEP));
-  h_theta_before->Fill(TMath::Abs(CosThetaStarEP));
+  h_theta_before->Fill(TMath::Abs(CosThetaStarZP));
 
 //  if(TMath::Abs(KplusEta)<=eta_gap && TMath::Abs(KminusEta)<=eta_gap)
-  if(TMath::Abs(KEta)<eta_gap && TMath::Abs(PiEta)<eta_gap && KPt > 0.1 && KPt < 10.0 && PiPt > 0.1 && PiPt < 10.0)
+  if(TMath::Abs(KEta)<=eta_gap && TMath::Abs(PiEta)<=eta_gap)
   {
     h_theta->Fill(TMath::Abs(CosThetaStarZP));
     h_theta_star->Fill(TMath::Abs(CosThetaStarEP));

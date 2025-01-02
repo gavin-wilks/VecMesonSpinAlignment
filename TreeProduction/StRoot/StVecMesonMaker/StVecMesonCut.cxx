@@ -37,10 +37,10 @@ bool StVecMesonCut::isMinBias(StPicoEvent *picoEvent)
   //std::cout << "year: " << picoEvent->year() << std::endl;
   //std::cout << "day: " << picoEvent->day() << std::endl;
   //std::cout << "triggerIds: " << picoEvent->triggerIds()[0] << std::endl;  
-  if(mEnergy == 0 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 7.7GeV_2019
+  if(mEnergy == 0 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(810010) || picoEvent->isTrigger(810020) || picoEvent->isTrigger(810030) || picoEvent->isTrigger(810040) )) return false; // 7.7GeV_2019
   if(mEnergy == 1 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 9.1GeV_2019
   if(mEnergy == 2 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 11.5GeV_2019
-  if(mEnergy == 3 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(650001) || picoEvent->isTrigger(650011) || picoEvent->isTrigger(650021) || picoEvent->isTrigger(650031) || picoEvent->isTrigger(650041) || picoEvent->isTrigger(650051) )) return false; // 14.6GeV_2019
+  if(mEnergy == 3 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(650000) )) return false; // 14.6GeV_2019
   if(mEnergy == 4 && vmsa::mBeamYear[mEnergy] == picoEvent->year() && !( picoEvent->isTrigger(640001) || picoEvent->isTrigger(640011) || picoEvent->isTrigger(640021) || picoEvent->isTrigger(640031) || picoEvent->isTrigger(640041) || picoEvent->isTrigger(640051) )) return false; // 19.6GeV_2019
   return true;
 }
@@ -232,7 +232,7 @@ bool StVecMesonCut::passEventCut(StPicoDst *pico)
   //{
   //  return kFALSE;
   //}
-  if(numOfBTofMatch <= vmsa::mMatchedToFMin) return kFALSE;
+  if(numOfBTofMatch < vmsa::mMatchedToFMin) return kFALSE;
 
   return kTRUE;
 }
@@ -266,11 +266,11 @@ Float_t StVecMesonCut::getBeta(StPicoTrack *picoTrack, StPicoDst *picoDst)
     StPicoBTofPidTraits *tofTrack = picoDst->btofPidTraits(tofIndex);
     beta = tofTrack->btofBeta();
   }
-  if(etofIndex >= 0)
+  /*if(etofIndex >= 0)
   {
     StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
     beta = etofTrack->beta();
-  }
+  }*/
   
 
   return beta;
@@ -300,7 +300,7 @@ Float_t StVecMesonCut::getPrimaryMass2(StPicoTrack *picoTrack, StPicoDst *picoDs
       mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
     }
   }
-  if(etofIndex >= 0)
+  /*if(etofIndex >= 0)
   {
     StPicoETofPidTraits *etofTrack = picoDst->etofPidTraits(etofIndex);
     const double beta = etofTrack->beta();
@@ -317,7 +317,7 @@ Float_t StVecMesonCut::getPrimaryMass2(StPicoTrack *picoTrack, StPicoDst *picoDs
     {
       mass2 = Momentum*Momentum*(1.0/(beta*beta) - 1.0);
     }
-  }
+  }*/
 
   return mass2;
 }
@@ -374,6 +374,12 @@ bool StVecMesonCut::passSigKaonCut(StPicoTrack* track, Int_t pid)
 
 bool StVecMesonCut::passTrackBasic(StPicoTrack *track)
 {
+  // Explicit Primary Track Cut  
+  if(!track->isPrimary())
+  { 
+    return kFALSE;
+  }
+
   // nHitsFit cut
   if(track->nHitsFit() < vmsa::mHitsFitTPCMin)
   {
@@ -419,7 +425,7 @@ bool StVecMesonCut::passTrackEP(StPicoTrack *track, StPicoEvent *picoEvent)
   // pt cut 0.15 - 2.0 GeV/c
   Float_t pt = track->pMom().Perp();
   Float_t p  = track->pMom().Mag();
-  if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax))
+  if(!(pt > vmsa::mPrimPtMin[mEnergy] && pt < vmsa::mPrimPtMax && p < vmsa::mPrimMomMax))
   {
     return kFALSE;
   }
@@ -445,7 +451,7 @@ bool StVecMesonCut::passTrackMeson(StPicoTrack *track, StPicoEvent *picoEvent, I
   }
 
   // primary pt and momentum cut: PtMin = 0.1
-  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Perp() < vmsa::mGlobPtMax))
+  if(!(track->pMom().Perp() > vmsa::mGlobPtMin && track->pMom().Mag() < vmsa::mPrimMomMax))
   {
     return kFALSE;
   }

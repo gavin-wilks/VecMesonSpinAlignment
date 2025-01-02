@@ -105,10 +105,10 @@ Int_t StVecMesonMaker::Init()
     mVecMesonTree = new StVecMesonTree(mEnergy,mFlag_ME);
     mFile_PID = new TFile(mOutPut_PID.Data(),"RECREATE");
     mFile_PID->cd();
-    //if(mFlag_PID == 0)
-    //{
-    //  mVecMesonTree->InitPhi();
-    //}
+    if(mFlag_PID == 0)
+    {
+      mVecMesonTree->InitPhi();
+    }
     //if(mFlag_PID == 1)
     //{
     //  mVecMesonTree->InitRho();
@@ -162,7 +162,7 @@ Int_t StVecMesonMaker::Finish()
     if(mOutPut_PID != "")
     {
       mFile_PID->cd();
-      //if(mFlag_PID == 0) mVecMesonTree->WriteMass2Phi();
+      if(mFlag_PID == 0) mVecMesonTree->WriteMass2Phi();
       //if(mFlag_PID == 1) mVecMesonTree->WriteMass2Rho();
       if(mFlag_PID == 2) mVecMesonTree->WriteMass2KStar();
       mFile_PID->Close();
@@ -453,6 +453,7 @@ Int_t StVecMesonMaker::Make()
 
     if(mMode == 3)
     { // phi meson
+      //cout << "in mMode == 3" << endl;
       if(mVecMesonCorrection->passTrackFullNumCut())
       {
 	// get QVector of sub event
@@ -488,9 +489,17 @@ Int_t StVecMesonMaker::Make()
         //{
 	//  mVecMesonTree->MixEvent_Rho(mFlag_ME,mPicoDst,cent9,vz,Psi2);
         //}
+        if(mFlag_PID == 0)
+        {
+          //cout << "Start Event Mixing" << endl;
+	  mVecMesonTree->MixEvent_Phi(mFlag_ME,mPicoDst,cent9,vz,Psi2,runIndex,reweight,vz_sign);
+          //cout << "End Event Mixing" << endl;
+        }
         if(mFlag_PID == 2)
         {
+          //cout << "Start Event Mixing" << endl;
 	  mVecMesonTree->MixEvent_KStar(mFlag_ME,mPicoDst,cent9,vz,Psi2,runIndex,reweight,vz_sign);
+          //cout << "End Event Mixing" << endl;
         }
       }
     }

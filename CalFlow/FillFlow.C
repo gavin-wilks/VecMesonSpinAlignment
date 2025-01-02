@@ -1,7 +1,7 @@
 #include <TSystem>
 #include "TStopwatch.h"
 
-void FillFlow(const char* list = "submit/19GeV_2019/resubmit.list", const char *jobId = "LastBit", const Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 0)
+void FillFlow(const char* list = "../FileLists/19GeV_2019/Phi_SE_Forest_eta1p5_test.list", const char *jobId = "LastBit", const Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 0, const Int_t etamode = 0, const Int_t rapidityflag = 1)
 {
   // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
   // X_flag: 0 for Same Event, 1 for Mixed Event
@@ -24,7 +24,7 @@ void FillFlow(const char* list = "submit/19GeV_2019/resubmit.list", const char *
 
   cout << "Start to Read Trees!" << endl;
 
-  StVecMesonAna *mVecMesonAna = new StVecMesonAna(list,jobId,energy,X_flag,mode);
+  StVecMesonAna *mVecMesonAna = new StVecMesonAna(list,jobId,energy,X_flag,mode,etamode,rapidityflag);
   mVecMesonAna->Init();
   mVecMesonAna->Make();
   mVecMesonAna->Finish();

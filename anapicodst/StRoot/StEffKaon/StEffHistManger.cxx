@@ -4,7 +4,7 @@
 #include "TH3D.h"
 #include "TMath.h"
 #include <iostream>
-#include "../Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
 // #include <string>
 
 ClassImp(StEffHistManger)
@@ -24,19 +24,19 @@ void StEffHistManger::InitHist()
   for(int i_cent = 0; i_cent < 10; ++i_cent)
   {
     std::string HistName = Form("h_mMcTracks_%d",i_cent);
-    h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,vmsa::ptMin,vmsa::ptMax,vmsa::BinEta,-vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-TMath::Pi(),TMath::Pi());
+    //h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     h_mMcTracks[i_cent]->Sumw2();
-    // h_mMcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     HistName = Form("h_mRcTracks_%d",i_cent);
-    h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-1.0*TMath::Pi(),TMath::Pi());
+    //h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
+    h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,vmsa::ptMin,vmsa::ptMax,vmsa::BinEta,-vmsa::mEtaMax,vmsa::mEtaMax,vmsa::BinPhi,-TMath::Pi(),TMath::Pi());
     h_mRcTracks[i_cent]->Sumw2();
-    // h_mRcTracks[i_cent] = new TH3D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinEta,-1.0,1.0,vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
     HistName = Form("h_mPtGl_%d",i_cent);
     h_mPtGl[i_cent] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinPt*10,0.0,24.0);
     HistName = Form("h_mPtPr_%d",i_cent);
     h_mPtPr[i_cent] = new TH2D(HistName.c_str(),HistName.c_str(),vmsa::BinPt,0.0,vmsa::ptEffMax,vmsa::BinPt*10,0.0,24.0);
   }
-  h_FrameEta = new TH1D("h_FrameEta","h_FrameEta",vmsa::BinEta,-1.0*vmsa::mEtaMax,vmsa::mEtaMax);
+  h_FrameEta = new TH1D("h_FrameEta","h_FrameEta",vmsa::BinEta,vmsa::mEtaMax,vmsa::mEtaMax);
   h_FramePhi = new TH1D("h_FramePhi","h_FramePhi",vmsa::BinPhi,-TMath::Pi(),TMath::Pi());
   //h_FramePhi = new TH1D("h_FramePhi","h_FramePhi",vmsa::BinPhi,-0.5*TMath::Pi(),0.5*TMath::Pi());
   flag_eff = 0;
@@ -60,11 +60,12 @@ float StEffHistManger::AngleShift(float phi)
   return phi_shift;
 }
 
-void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float psiEast, float psiWest)
+void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float psiWest, float psiEast)
 {
   h_mMcTracks[cent]->Fill(pt,eta,phi);
-  h_mMcTracks[9]->Fill(pt,eta,phi);
+  if(cent >= 2 && cent <= 5) h_mMcTracks[9]->Fill(pt,eta,phi);
   //if(eta > -1.0*vmsa::mEtaMax && eta < 0.0)
+  //
   //{ // east eta cut
   //  float phi_shift = AngleShift(phi-psiWest);
   //  h_mMcTracks[cent]->Fill(pt,eta,phi_shift);
@@ -78,10 +79,10 @@ void StEffHistManger::FillHistMc(int cent, float pt, float eta, float phi, float
   //}
 }
 
-void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float psiEast, float psiWest)
+void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float psiWest, float psiEast)
 {
   h_mRcTracks[cent]->Fill(pt,eta,phi);
-  h_mRcTracks[9]->Fill(pt,eta,phi);
+  if(cent >= 2 && cent <= 5) h_mRcTracks[9]->Fill(pt,eta,phi);
   //if(eta > -1.0*vmsa::mEtaMax && eta < 0.0)
   //{ // east eta cut
   //  float phi_shift = AngleShift(phi-psiWest);
@@ -99,9 +100,9 @@ void StEffHistManger::FillHistRc(int cent, float pt, float eta, float phi, float
 void StEffHistManger::FillHistPt(int cent, float McPt, float gRcPt, float pRcPt)
 {
   h_mPtGl[cent]->Fill(McPt,gRcPt-McPt);
-  h_mPtGl[9]->Fill(McPt,gRcPt-McPt);
+  if(cent >= 2 && cent <= 5) h_mPtGl[9]->Fill(McPt,gRcPt-McPt);
   h_mPtPr[cent]->Fill(McPt,pRcPt-McPt);
-  h_mPtPr[9]->Fill(McPt,pRcPt-McPt);
+  if(cent >= 2 && cent <= 5) h_mPtPr[9]->Fill(McPt,pRcPt-McPt);
 }
 
 TH1D* StEffHistManger::CalEffError(TH1D *h_Mc, TH1D *h_Rc, std::string HistName)

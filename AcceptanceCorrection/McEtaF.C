@@ -30,8 +30,8 @@ TF1* readv2(int energy, int pid, int centrality);
 TF1* readspec(int energy, int pid, int centrality);
 void getKinematics(TLorentzVector& lPhi, double const mass);
 void setDecayChannels(int const pid);
-void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters);
-void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus);
+void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters, int cent);
+void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus, int centrality);
 void write(int energy,int Nrho);
 TVector3 CalBoostedVector(TLorentzVector const lMcDau, TLorentzVector *lMcVec);
 bool Sampling(TF1 *f_rhoPhy,float CosThetaStar);
@@ -41,6 +41,7 @@ float EventPlaneSmearing(TF1 *f_gaus);
 double FuncAD(double *x_val, double *par);
 
 // histograms
+TF1 *f_vz;
 TH2F *h_cos, *h_eff, *h_ptcut;
 TH2F *h_cos_narrow, *h_eff_narrow, *h_ptcut_narrow;
 TProfile *resolution;
@@ -49,6 +50,10 @@ TProfile *cos2phi;
 TF1 *cut_pt = new TF1("cut_pt","1",0,1);
 
 Double_t pt_set[7] = {0.4,0.8,1.2,1.8,2.4,3.0,4.2};
+Double_t pt_centset[7] = {1.0,1.6,2.4,3.4,5.0};
+Double_t pt_tuple_low[4] = {1.0,2.0,3.0,2.0};
+Double_t pt_tuple_high[4] = {3.0,4.0,5.0,5.0};
+
 int pt_bin;
 int mMode;
 int tableNum[5][9] = {{6,6,5,5,4,3,2,1,1},
@@ -72,12 +77,20 @@ TH1D *eff_hist;
 TF1 *f_v2, *f_spec, *f_flow, *f_rhoPhy, *f_y, *f_gaus;
 
 TPythia6Decayer* pydecay;
+TNtuple* McPhiMeson;
 
 TFile *File_OutPut;
 
-void McEtaF(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent = 8, int const NMax = 10, double rapidity = 1.0, int mode = 1, const char* jobID = "1")
+int mEtaMode = 0;
+
+double mPsi2 = 0.0;
+
+void McEtaF(double Nrho=3333, int SetPt=6, int energy = 4, int pid = 0, int cent = 9, int const NMax = 10, double rapidity = 1.5, int mode = 0, int etamode = 3, const char* jobID = "1")
 {
-  string outputfile = Form("McAcceptanceOutput_pt%d_energy%d_pid%d_cent%d_%s.root",SetPt,energy,pid,cent,jobID);
+  mEtaMode = etamode;
+  string outputfile;
+  if(mode == 0) outputfile = Form("McAcceptanceOutput_pt%d_energy%d_pid%d_cent%d_EtaMode_%d_%s.root",SetPt,energy,pid,cent,mEtaMode,jobID);
+  if(mode != 0) outputfile = Form("McAcceptanceOutput_pt%d_energy%d_pid%d_cent%d_%s.root",SetPt,energy,pid,cent,jobID);
   File_OutPut = new TFile(outputfile.c_str(),"RECREATE");
   cout << "Output set to" << outputfile << endl;
 
@@ -87,20 +100,30 @@ void McEtaF(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent
   float const rhoDelta = 0.0001; //rhoDelta = 0.01
 
 
+  int BufSize = (int)pow(2., 16.);
+  // int Split = 1;
+
+  const char* varlist = "Centrality:McPt:McP:McEta:McY:McPhi:McCos:McCosTheta:McKpEta:McKmEta"; // reconstructed phi
+
+  McPhiMeson = new TNtuple("McPhiMeson", "McPhiMeson", varlist, BufSize);
+
+
   mMode = mode;
 
   pt_bin = SetPt; 
-  if(mode == 1) 
-  {
-    pt_bin = 1;
-    pt_set[1] = 5.0;
-    pt_set[0] = 1.0;
-  }
+  //if(mode == 3) 
+  //{
+  //  pt_bin = 1;
+  //  pt_set[1] = 5.0;
+  //  pt_set[0] = 1.0;
+  //}
 
   yinput = rapidity;
 
   cout << "ptbin = " <<  pt_bin << "     yinput = " << yinput << endl;
-  cout << "pt range = [" << pt_set[pt_bin-1] << "," << pt_set[pt_bin] << "] GeV/c" << endl;  
+  if(mMode == 0) cout << "pt range = [" << pt_set[pt_bin-1] << "," << pt_set[pt_bin] << "] GeV/c" << endl;  
+  if(mMode == 1) cout << "pt range = [" << 1.0 << "," << 2.0 << "] GeV/c" << endl;  
+  if(mMode == 3) cout << "pt range = [" << pt_tuple_low[pt_bin-1] << "," << pt_tuple_high[pt_bin-1] << "] GeV/c" << endl;  
 
   string Info = Form("sampling rhophy = %.2f with %d tracks!!!!",rhoDelta*Nrho,NMax);
   cout << Info.c_str() << endl;
@@ -119,6 +142,31 @@ void McEtaF(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent
   h_out1 = new TH1F("h_out1","h_out1", 7, 0, 1);
   h_out2 = new TH1F("h_out2","h_out2", 7, 0, 1);
 
+  TString InPutFile_ReC = Form("Utility/ReCenterParameter/file_%s_ReCenterPar.root",vmsa::mBeamEnergy[energy].c_str());
+  TFile *mInPutFile_ReC = TFile::Open(InPutFile_ReC.Data());
+
+  TH1F *h_vz = (TH1F*)mInPutFile_ReC->Get("h_mVz");
+ 
+  f_vz = new TF1("f_vz","[0] + [1]*cos([2]*(x-[3]))",-69.0,69.0);
+
+  TCanvas *c_vz = new TCanvas("c_vz","c_vz",10,10,800,800);
+  c_vz->cd()->SetLeftMargin(0.15);
+  c_vz->cd()->SetBottomMargin(0.15);
+  c_vz->cd()->SetTicks(1,1);
+  c_vz->cd()->SetGrid(0,0);
+  h_vz->Draw("hE");
+  f_vz->SetParameter(0,3500000);
+  f_vz->SetParameter(0,500000);
+  f_vz->SetParameter(2,1/50.);
+  f_vz->SetParameter(3,-15);
+  h_vz->Fit(f_vz,"N");
+  f_vz->SetLineColor(kRed);
+  f_vz->Draw("l same");
+    
+
+  //Float_t Res_raw = p_res2->GetBinContent(p_res2->FindBin(cent));
+  //Res = TMath::Sqrt(Res_raw);
+
 
 
   f_v2   = readv2(energy,pid,cent);
@@ -135,6 +183,8 @@ void McEtaF(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent
   //f_y = new TF1("f_y","0 + exp(-100*x*x)", -6.0,6.0);
   //f_gaus = new TF1("f_gaus", "exp(-x*x/(2*[0]*[0]))/(sqrt(2.*TMath::Pi()*[0]*[0]))", -TMath::Pi(), TMath::Pi());
 
+  //f_gaus = new TF1("f_gaus", EventPlaneGaus, -TMath::Pi()/2., TMath::Pi(), 1);
+  //f_gaus->FixParameter(0, EP_res);
 
   f_flow = new TF1("f_flow",flowSample,-TMath::Pi(),TMath::Pi(),1);
 
@@ -161,7 +211,9 @@ void McEtaF(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent
     cout << "=> processing data: " << 100.0*i_ran/ static_cast<float>(NMax) << "%" << endl;
 
     getKinematics(*lPhi,vmsa::InvMass[pid]);
-    decayAndFill(vmsa::decayMother[pid],lPhi,ptl);
+    decayAndFill(vmsa::decayMother[pid],lPhi,ptl,cent);
+
+    if (mMode == 3 && i_ran % 1000 == 1) McPhiMeson->AutoSave("SaveSelf");
   }
   cout << "=> processing data: 100%" << endl;
   cout << "work done!" << endl;
@@ -176,8 +228,8 @@ void McEtaF(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent
 TF1* readv2(int energy, int pid, int centrality)
 {
   //string centFile[9] = {"4080","4080","4080","4080","1040","1040","1040","0010","0010"};
-  string InPutV2 = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
-  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && mMode == 1) InPutV2 = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/HEPData-ins1395151-v2-root.root";
+  string InPutV2 = Form("/gpfs01/star/pwg/sunxuhit/BackupData/SpinAlignment/data/AuAu%s/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
+  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) InPutV2 = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/HEPData-ins1395151-v2-root.root";
   TFile *File_v2 = TFile::Open(InPutV2.c_str());
   std::cout << "v2 file: " << InPutV2 << endl;
 
@@ -185,7 +237,7 @@ TF1* readv2(int energy, int pid, int centrality)
 
   if(mMode == 0) g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
 
-  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && mMode == 1) 
+  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) 
   {
     TDirectory *dir = (TDirectory*) File_v2->Get(Form("Table %d",tableNumV2[energy][centrality]));
     dir->cd(); 
@@ -300,14 +352,14 @@ TF1* readspec(int energy, int pid, int centrality)
                                   {0.4457,0.5494,0.6535,0.8033,0.9501,1.1463,1.4869,1.8407,2.2211,2.7186,3.3745},  
                                   {0.4457,0.5494,0.6535,0.8033,0.9501,1.1463,1.4869,1.8407,2.2211,2.7186,3.3745} } };
 
-  string InPutSpec = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_Spec.root",vmsa::mBeamEnergy[energy].c_str());
-  if((energy == 4 || energy == 2 || energy == 0) && mMode == 1) InPutSpec = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/pTspectra/HEPData-ins1378002-v1-root.root";
+  string InPutSpec = Form("/gpfs01/star/pwg/sunxuhit/BackupData/SpinAlignment/data/AuAu%s/Phi/MonteCarlo/Data/Phi_Spec.root",vmsa::mBeamEnergy[energy].c_str());
+  if((energy == 4 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) InPutSpec = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/pTspectra/HEPData-ins1378002-v1-root.root";
   TFile *File_Spec = TFile::Open(InPutSpec.c_str());
   cout << "Input spectra" << InPutSpec << endl;
  
   TGraphAsymmErrors *g_spec;
   if(mMode == 0) g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
-  if((energy == 4 || energy == 2 || energy == 0) && mMode == 1) 
+  if((energy == 4 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) 
   {
     TDirectory *dir = (TDirectory*) File_Spec->Get(Form("Table %d",tableNum[energy][centrality]));
     dir->cd(); 
@@ -333,7 +385,11 @@ TF1* readspec(int energy, int pid, int centrality)
 
 
 //  TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
-  TF1 *f_spec = new TF1("f_spec",pTLevy,pt_set[pt_bin-1], pt_set[pt_bin], 3);
+  TF1 *f_spec;
+  if(mMode == 0) f_spec = new TF1("f_spec",pTLevy,pt_set[pt_bin-1], pt_set[pt_bin], 3);
+  if(mMode == 1) f_spec = new TF1("f_spec",pTLevy,pt_tuple_low[pt_bin-1], pt_tuple_high[pt_bin-1], 3);
+  //if(mMode == 3) f_spec = new TF1("f_spec",pTLevy, 1.0, 5.0, 3);
+  if(mMode == 3) f_spec = new TF1("f_spec",pTLevy,pt_tuple_low[pt_bin-1], pt_tuple_high[pt_bin-1], 3);
   f_spec->SetParameter(0,f_Levy->GetParameter(0));
   f_spec->SetParameter(1,f_Levy->GetParameter(1));
   f_spec->SetParameter(2,f_Levy->GetParameter(2));
@@ -413,15 +469,28 @@ void getKinematics(TLorentzVector& lPhi, double const mass)
 {
   f_flow->ReleaseParameter(0);
 //  double const pt = f_spec->GetRandom(vmsa::ptMin, vmsa::ptMax);
-  double const pt = f_spec->GetRandom(pt_set[pt_bin-1], pt_set[pt_bin]);
+  double pt; 
+  if(mMode == 0) pt = f_spec->GetRandom(pt_set[pt_bin-1], pt_set[pt_bin]);
+  if(mMode == 1) pt = f_spec->GetRandom(1.0, 2.0);
+  //if(mMode == 3) pt = f_spec->GetRandom(1.0, 5.0);
+  if(mMode == 3) pt = f_spec->GetRandom(pt_tuple_low[pt_bin-1],pt_tuple_high[pt_bin-1]);
   //double const pt = gRandom->Uniform(pt_set[pt_bin-1], pt_set[pt_bin]);
 //  double const y = gRandom->Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
   //double const y = gRandom->Uniform(-1., 1.);
-  double const y = gRandom->Uniform(-yinput, yinput);
+  double y;
+  if(mMode == 0 || mMode == 3) y = gRandom->Uniform(-yinput, yinput);
+  if(mMode == 1) y = gRandom->Uniform(0.2, 0.4);
+  //if(mMode == 2) y = gRandom->Uniform(-y_set[y_bin], yinput);
 //  double const y = f_y->GetRandom(-2,2);
   f_flow->SetParameter(0,f_v2->Eval(pt));
-  double const phi = f_flow->GetRandom();
+  double phi = f_flow->GetRandom();
 
+  if(mMode == 0)
+  {
+    mPsi2 = 0.0;
+    mPsi2 = gRandom->Uniform(-TMath::Pi()/2.,TMath::Pi()/2.);
+    phi = phi + mPsi2;
+  }
   //cout << "pt = " << pt << "     y = " << y << "     phi = " << phi << endl;
 
   //double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
@@ -446,8 +515,9 @@ void setDecayChannels(int const pid)
   TPythia6::Instance()->SetMRPY(1,(int)PYSeed); // Random seed
 }
 
-void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters)
+void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters, int cent)
 {
+  //pydecay->SetV(1, 1, );
   pydecay->Decay(kf, lPhi);
   pydecay->ImportParticles(&daughters);
 
@@ -473,10 +543,10 @@ void decayAndFill(int const kf, TLorentzVector* lPhi, TClonesArray& daughters)
   }
   daughters.Clear("C");
 
-  fill(lPhi,lKplus,lKminus);
+  fill(lPhi,lKplus,lKminus,cent);
 }
 
-void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus)
+void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector const& lKminus, int centrality)
 {
   TVector3 vMcKpBoosted = CalBoostedVector(lKplus,lPhi); // boost Kplus back to phi-meson rest frame
 
@@ -484,33 +554,61 @@ void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector con
   double PhiPt = lPhi->Pt();
   double KplusEta = lKplus.Eta();
   double KminusEta = lKminus.Eta();
-  double KplusPt = lKplus.Pt();
-  double KminusPt = lKminus.Pt();
+  //double KplusPt = lKplus.Pt();
+  //double KminusPt = lKminus.Pt();
 
   TVector3 nQ(0.0,-1.0,0.0); // direction of angular momentum with un-smeared EP
+  if(mMode == 0) nQ.SetXYZ(TMath::Sin(mPsi2),-1.0*TMath::Cos(mPsi2),0.0);
   TVector3 zQ(0.0,0.0,1.0);
 
   float CosThetaStarEP = vMcKpBoosted.Dot(nQ);
   float CosThetaStarZP = vMcKpBoosted.Dot(zQ);
 
-  if(!Sampling(f_rhoPhy,CosThetaStarEP)) return;
+  //if(!Sampling(f_rhoPhy,TMath::Abs(CosThetaStarEP))) return;
 
-  double eta_gap = vmsa::mEtaMax;
+  double eta_gap = 1.0;
+  if(mEtaMode == 0) eta_gap = 1.0;
+  if(mEtaMode == 3) eta_gap = 0.4;
+  if(mEtaMode == 4) eta_gap = 0.6;
+  if(mEtaMode == 5) eta_gap = 0.8;
   //double pt_gap = 0.2;
   //double pt_plus=lKplus.Pt(), pt_minus=lKminus.Pt();
   //double ratio = TMath::Abs(pt_plus-pt_minus);
+  float arr[10];
+  int iArr = 0;
+  if(mMode == 3)
+  {
+    arr[iArr++] = centrality; // McPhi
+    arr[iArr++] = lPhi->Pt();
+    arr[iArr++] = lPhi->P();
+    arr[iArr++] = lPhi->PseudoRapidity();
+    arr[iArr++] = lPhi->Rapidity();
+    arr[iArr++] = lPhi->Phi();
+    arr[iArr++] = CosThetaStarZP;
+    arr[iArr++] = CosThetaStarEP;
+    arr[iArr++] = KplusEta;
+    arr[iArr++] = KminusEta;
+    
+    McPhiMeson->Fill(arr);
+  }
 
-  h_theta_before->Fill(TMath::Abs(CosThetaStarZP));
-  h_theta_star_before->Fill(TMath::Abs(CosThetaStarEP));
-
+  if(mMode != 3)
+  {
+    h_theta_before->Fill(TMath::Abs(CosThetaStarZP));
+    h_theta_star_before->Fill(TMath::Abs(CosThetaStarEP));
+  }
   //cout << "Before:  K+ eta = " << KplusEta << "     K- eta = " << KminusEta << "     phi rapidity = " << PhiRapidity << endl;
 //  if(TMath::Abs(KplusEta)<=eta_gap && TMath::Abs(KminusEta)<=eta_gap)
-  if(TMath::Abs(KplusEta)<eta_gap && TMath::Abs(KminusEta)<eta_gap && KplusPt > 0.1 && KminusPt > 0.1 && KminusPt < 10.0 && KplusPt < 10.0)
+  if(TMath::Abs(KplusEta)<=eta_gap && TMath::Abs(KminusEta)<=eta_gap)// && KplusPt > 0.1 && KminusPt > 0.1 && KminusPt < 10.0 && KplusPt < 10.0)
   {
    // cout << "AFTER:  K+ eta = " << KplusEta << "     K- eta = " << KminusEta << "     phi rapidity = " << PhiRapidity << endl;
-    h_theta->Fill(TMath::Abs(CosThetaStarZP));
-    h_theta_star->Fill(TMath::Abs(CosThetaStarEP));
+    if(mMode != 3)
+    {
+      h_theta->Fill(TMath::Abs(CosThetaStarZP));
+      h_theta_star->Fill(TMath::Abs(CosThetaStarEP));
+    }
   }
+
 
   /*if((TMath::Abs(KplusEta)<=eta_gap && TMath::Abs(KminusEta)>eta_gap) || (TMath::Abs(KplusEta)>eta_gap && TMath::Abs(KminusEta)<=eta_gap)) {
     h_out1->Fill(TMath::Abs(CosThetaStarEP));
@@ -613,10 +711,16 @@ void write(int energy, int Nrho)
 */
 
   File_OutPut->cd();
-  h_theta_star_before->Write();
-  h_theta->Write();
-  h_theta_before->Write();
-  h_theta_star->Write();
+
+  if(mMode != 3)
+  {
+    h_theta_star_before->Write();
+    h_theta->Write();
+    h_theta_before->Write();
+    h_theta_star->Write();
+  }
+
+  if(mMode == 3) McPhiMeson->Write();
   //h_out1->Write();
   //h_out2->Write();
   File_OutPut->Close();

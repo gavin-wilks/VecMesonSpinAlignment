@@ -34,7 +34,10 @@ StVecMesonTree::~StVecMesonTree()
 
 void StVecMesonTree::InitPhi()
 {
+  cout << "StVecMesonTree::InitPhi()" << endl;
+  cout << "StVecMesonCut" << endl;
   mVecMesonCut = new StVecMesonCut(mEnergy);
+  cout << "Creating Histograms" << endl;
   TString HistName = "Mass2_pt";
   h_Mass2 = new TH2F(HistName.Data(),HistName.Data(),20,0.2,5.0,200,0.98,1.08);
   HistName = "K_dEdx_Rig";
@@ -44,22 +47,28 @@ void StVecMesonTree::InitPhi()
   HistName = "K_InvBeta_Rig";
   h_KInvBetaRig = new TH2F(HistName.Data(),HistName.Data(),400,-4.5,4.5,300,-0.0,3.0);
 
-
+  cout << "clearing everything" << endl;
   for(Int_t cent = 0; cent < vmsa::Bin_Centrality; cent++)
   {
     for(Int_t vz = 0; vz < vmsa::Bin_VertexZ; vz++)
     {
       for(Int_t phi_psi = 0; phi_psi < vmsa::Bin_Phi_Psi; phi_psi++)
       {
+        cout << "cent = " << cent << ",  vz = " << vz << ",  phi_psi = " << phi_psi << endl;
+        cout << "Set event counter to 0 " << endl;
         mEventCounter2[cent][vz][phi_psi] = 0;
+        cout << "clear_phi" << endl;
 	clear_phi(cent,vz,phi_psi);
       }
     }
   }
-
+  cout << "Creating a StMesonEvent" << endl;
   mMesonEvent = new StMesonEvent();
+  cout << "Creating a TTree" << endl;
   mTree = new TTree(vmsa::vm_tree[0].Data(),vmsa::vm_tree[0].Data());
+  cout << "Creating a branch" << endl;
   mTree->Branch(vmsa::vm_branch[0].Data(),"StMesonEvent",&mMesonEvent);
+  cout << "SetAutoSave" << endl;
   mTree->SetAutoSave(5000000);
 }
 
@@ -141,10 +150,10 @@ void StVecMesonTree::InitKStar()
 
 void StVecMesonTree::WriteMass2Phi()
 {
-  h_Mass2->Write();
-  h_KdEdxRig->Write();
-  h_KM2Rig->Write();
-  h_KInvBetaRig->Write(); 
+  //h_Mass2->Write();
+  //h_KdEdxRig->Write();
+  //h_KM2Rig->Write();
+  //h_KInvBetaRig->Write(); 
   mTree->Write("",TObject::kOverwrite);
 }
 
@@ -454,6 +463,7 @@ void StVecMesonTree::doPhi(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_P
       for(Int_t n_kplus = 0; n_kplus < mHelix[key_plus].size(); n_kplus++) // first track loop over K+ candidates
       {
 	StThreeVectorF p_vecA = mHelix[key_plus][n_kplus].cat(mHelix[key_plus][n_kplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
+        //cout << "p_vecA = (" << p_vecA.x() << ", " << p_vecA.y() << ", " << p_vecA.z() << ")" << endl;
 	p_vecA *= mMomentum[key_plus][n_kplus];
 	ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassKaon);
 
@@ -1149,6 +1159,9 @@ void StVecMesonTree::MixEvent_Phi(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, F
   Int_t Bin_Event = mEventCounter2[cent9][Bin_vz][Bin_Psi2];
 
   const Double_t MAGFIELDFACTOR = kilogauss;
+  //cout << "Tesla     = " << tesla << endl;
+  //cout << "KiloGauss = " << kilogauss << endl;
+  //cout << "Gauss     = " << gauss << endl;
   const Int_t nTracks = pico->numberOfTracks();
 
   // store Event Information
@@ -1188,38 +1201,51 @@ void StVecMesonTree::MixEvent_Phi(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, F
       //Float_t scale_nSigma_factor = vmsa::mSigScaleMap[mEnergy];
       Float_t Polarity = static_cast<Float_t>(track->charge());
       Float_t momentum = track->pMom().Mag();
-      Float_t Mass2_low = 0.10;
-      Float_t Mass2_up = 0.40;
+      Float_t eta = track->pMom().PseudoRapidity();
+      Float_t pT = track->pMom().Pt();
+      Float_t Mass2_low = 0.16;
+      Float_t Mass2_up = 0.36;
 
       Int_t charge = 0; // k+
       if(Polarity < 0) charge = 1; // k-
 
-      if(mVecMesonCut->passSigKaonCut(track,0))
+      if(mVecMesonCut->passSigKaonCut(track,0)) 
       {
-	if(
-	    (momentum < 0.65 && ((Mass2 > Mass2_low && Mass2 < Mass2_up) || Mass2 < -10.0)) // dE/dx + ToF
-	    || (momentum >= 0.65 && (Mass2 > Mass2_low && Mass2 < Mass2_up)) // dE/dx + ToF(always)
-	  )
-	{
-          StThreeVectorD primMom; 
-          primMom.setX(track->pMom().x());
-          primMom.setY(track->pMom().y());
-          primMom.setZ(track->pMom().z());
-          StThreeVectorD primVer; 
-          primVer.setX(event->primaryVertex().x());
-          primVer.setY(event->primaryVertex().y());
-          primVer.setZ(event->primaryVertex().z());
-	  MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
-	  mMass2[key].push_back(static_cast<Float_t>(Mass2)); // mass2
-	  mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
-	  mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
-	  mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaKaon()))); // nSigma
-	  mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
-	  mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
-          h_KdEdxRig->Fill(momentum*Polarity,track->dEdx());
-          h_KM2Rig->Fill(momentum*Polarity,Mass2);
-          h_KInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
-	}
+	//if(
+	//    (momentum < 0.65 && ((Mass2 > Mass2_low && Mass2 < Mass2_up) || Mass2 < -10.0)) // dE/dx + ToF
+	//    || (momentum >= 0.65 && (Mass2 > Mass2_low && Mass2 < Mass2_up)) // dE/dx + ToF(always)
+	//  )
+// GAVIN COMMENTING OUT THIS SECTION 07.24.2024 
+// The point of commenting this out is to implement a mixed selection of kaons. 
+        //cout << "fabs(eta) = " << fabs(eta) << endl;
+    	//if( fabs(eta) <= 1.0 && (Mass2 < Mass2_low || Mass2 > Mass2_up) ) continue;
+        //if( fabs(eta) > 1.0) continue;
+// GAVIN COMMENTING OUT THIS SECTION 07.24.2024 
+// The point of commenting this out is to implement a mixed selection of kaons. 
+
+    	//if( pT < 0.9 && fabs(eta) <= 1.0 && (Mass2 < Mass2_low || Mass2 > Mass2_up) ) continue;
+        if( fabs(eta) > 1.0) continue;
+	
+        StThreeVectorD primMom; 
+        primMom.setX(track->pMom().x());
+        primMom.setY(track->pMom().y());
+        primMom.setZ(track->pMom().z());
+        StThreeVectorD primVer; 
+        primVer.setX(event->primaryVertex().x());
+        primVer.setY(event->primaryVertex().y());
+        primVer.setZ(event->primaryVertex().z());
+	MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
+	mMass2[key].push_back(static_cast<Float_t>(Mass2)); // mass2
+	mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
+	mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
+	mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaKaon()))); // nSigma
+	mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
+        //cout << "MagneticField = " << event->bField() << "    MAGFIELDFACTOR = " << MAGFIELDFACTOR << "    product = " << event->bField()*MAGFIELDFACTOR << endl; 
+	mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
+        h_KdEdxRig->Fill(momentum*Polarity,track->dEdx());
+        h_KM2Rig->Fill(momentum*Polarity,Mass2);
+        h_KInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
+	
       }
     }
   }
@@ -1471,6 +1497,7 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
 	  mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaKaon()))); // nSigma
 	  mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
 	  mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
+          cout << "MagneticField = " << event->bField() << "    MAGFIELDFACTOR = " << MAGFIELDFACTOR << endl; 
           //cout << "Fill track information" << endl;
           //cout << "dEdx = " << track->dEdx() << "   Mass2 = " << Mass2 << "   InvBeta = " << 1.0/mVecMesonCut->getBeta(track,pico) << endl; 
           mCharge[key].push_back(static_cast<Int_t>(charge));

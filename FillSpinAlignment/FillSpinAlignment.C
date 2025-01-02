@@ -1,9 +1,9 @@
 #include <TSystem>
 #include "TStopwatch.h"
 
-void FillSpinAlignment(const char* list = "submit/19GeV_2019/resubmit.list"/*"../FileLists/19GeV_2019/Phi_SE_Forest_test.list"*/, const char *jobId = "LastBit", const Int_t energy = 4, const Int_t X_flag = 0, const Int_t mode = 0)
+void FillSpinAlignment(const char* list = "../FileLists/19GeV_2019/Phi_ME_eta1p5_cent2060_TPCOnly_test.list", const char *jobId = "TESTING", const Int_t energy = 4, const Int_t X_flag = 1, const Int_t mode = 0, const Int_t etamode = 0)
 {
-  // mBeamEnergy[NumBeamEnergy] = {"7GeV","11GeV","19GeV","27GeV","39GeV","62GeV","200GeV"};
+  // mBeamEnergy[NumBeamEnergy] = {"7GeV","9GeV","11GeV","14GeV","19GeV"};
   // X_flag: 0 for Same Event, 1 for Mixed Event
   // List: different number for different TTree list
   // mode: 0 for phi meson, 1 for K*, 2 for K0S
@@ -24,7 +24,7 @@ void FillSpinAlignment(const char* list = "submit/19GeV_2019/resubmit.list"/*"..
 
   cout << "Start to Read Trees!" << endl;
 
-  StVecMesonAna *mVecMesonAna = new StVecMesonAna(list,jobId,energy,X_flag,mode);
+  StVecMesonAna *mVecMesonAna = new StVecMesonAna(list,jobId,energy,X_flag,mode,etamode);
   mVecMesonAna->Init();
   mVecMesonAna->Make();
   mVecMesonAna->Finish();

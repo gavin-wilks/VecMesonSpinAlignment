@@ -5,17 +5,19 @@
 #include <map>
 
 class TH1F;
+class TProfile;
 
 typedef std::map<TString,TH1F*> TH1FMap;
+typedef std::map<TString,TProfile*> TProMap;
 
 class StVecMesonHistoManger
 {
   public:
-    StVecMesonHistoManger();
+    StVecMesonHistoManger(Int_t EP_mode);
     ~StVecMesonHistoManger();
 
     void InitSys(Int_t X_flag, Int_t mode);
-    void FillSys(Float_t pt, Float_t eta, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t Mass2, Double_t reweight, Int_t X_flag, Int_t mode);
+    void FillSys(Float_t pt, Float_t eta, Int_t cent9, Float_t CosThetaStar, Float_t PhiPsi, Float_t Cos2PhiStarPhi, Int_t dcaSys, Int_t nSigSys, Float_t Res2, Float_t Mass2, Double_t reweight, Int_t X_flag, Int_t mode);
     void FillDcaSys(Float_t,Float_t,Int_t);
     void FillSigSys(Float_t,Float_t,Int_t);
     void WriteSys(Int_t X_flag, Int_t mode);
@@ -31,6 +33,7 @@ class StVecMesonHistoManger
     // 2 = cos(theta*)
     // 3 = dca => 2.0, 2.5 and 3.0
     // 4 = nSigmaKaon => 2.5, 2.0 and 3.0
+    TProMap p_mMass2;
     TH1FMap h_mMass2;
     TH1FMap h_mMass2_EP;
 
@@ -50,6 +53,8 @@ class StVecMesonHistoManger
 
     TH1FMap h_mDca;
     TH1FMap h_mSigKaon;
+
+    std::string EP_string = "";
 
   ClassDef(StVecMesonHistoManger,1)
 };

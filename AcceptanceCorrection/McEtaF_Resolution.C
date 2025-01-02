@@ -72,6 +72,62 @@ double CentralityValues[9] = {75.0,65.0,55.0,45.0,35.0,25.0,15.0,7.5,2.5};
 
 double yinput;
 
+double cos2betaBefore = 0.0;
+double cos4betaBefore = 0.0;
+double cos2betaAfter = 0.0;
+double cos4betaAfter = 0.0;
+
+double cos2betaBeforeP = 0.0;
+double cos4betaBeforeP = 0.0;
+double cos2betaAfterP = 0.0;
+double cos4betaAfterP = 0.0;
+
+TH1F* h_cosbetaBefore     = new TH1F("h_cosbetaBefore", "h_cosbetaBefore", 50, -1, 1);
+TH1F* h_cos2betaBefore    = new TH1F("h_cos2betaBefore","h_cos2betaBefore", 50, -1, 1);
+TH1F* h_cos4betaBefore    = new TH1F("h_cos4betaBefore","h_cos4betaBefore", 50, -1, 1);
+TH1F* h_cosbetaAfter[4]      = new TH1F("h_cosbetaAfter","h_cosbetaAfter", 50, -1, 1);
+TH1F* h_cos2betaAfter[4]     = new TH1F("h_cos2betaAfter","h_cos2betaAfter", 50, -1, 1);
+TH1F* h_cos4betaAfter[4]     = new TH1F("h_cos4betaAfter","h_cos4betaAfter", 50, -1, 1);
+   
+TH1F* h_cosbetaBeforeP    = new TH1F("h_cosbetaBeforeP","h_cosbetaBeforeP", 50, -1, 1);
+TH1F* h_cos2betaBeforeP   = new TH1F("h_cos2betaBeforeP","h_cos2betaBeforeP", 50, -1, 1);
+TH1F* h_cos4betaBeforeP   = new TH1F("h_cos4betaBeforeP","h_cos4betaBeforeP", 50, -1, 1);
+TH1F* h_cosbetaAfterP[4]     = new TH1F("h_cosbetaAfterP","h_cosbetaAfterP", 50, -1, 1);
+TH1F* h_cos2betaAfterP[4]    = new TH1F("h_cos2betaAfterP","h_cos2betaAfterP", 50, -1, 1);
+TH1F* h_cos4betaAfterP[4]    = new TH1F("h_cos4betaAfterP","h_cos4betaAfterP", 50, -1, 1);
+
+
+TProfile* p_cosbetaBefore     = new TProfile("p_cosbetaBefore", "p_cosbetaBefore",     7, 0.0, 1.0);
+TProfile* p_cos2betaBefore    = new TProfile("p_cos2betaBefore","p_cos2betaBefore",    7, 0.0, 1.0);
+TProfile* p_cos4betaBefore    = new TProfile("p_cos4betaBefore","p_cos4betaBefore",    7, 0.0, 1.0);
+TProfile* p_cosbetaAfter[4]      = new TProfile("p_cosbetaAfter",  "p_cosbetaAfter",      7, 0.0, 1.0);
+TProfile* p_cos2betaAfter[4]     = new TProfile("p_cos2betaAfter", "p_cos2betaAfter",     7, 0.0, 1.0);
+TProfile* p_cos4betaAfter     = new TProfile("p_cos4betaAfter", "p_cos4betaAfter",     7, 0.0, 1.0);
+
+TProfile* p_cosbetaBeforeP    = new TProfile("p_cosbetaBeforeP", "p_cosbetaBeforeP",   7, 0.0, 1.0);
+TProfile* p_cos2betaBeforeP   = new TProfile("p_cos2betaBeforeP","p_cos2betaBeforeP",  7, 0.0, 1.0);
+TProfile* p_cos4betaBeforeP   = new TProfile("p_cos4betaBeforeP","p_cos4betaBeforeP",  7, 0.0, 1.0);
+TProfile* p_cosbetaAfterP     = new TProfile("p_cosbetaAfterP",  "p_cosbetaAfterP",    7, 0.0, 1.0);
+TProfile* p_cos2betaAfterP    = new TProfile("p_cos2betaAfterP", "p_cos2betaAfterP",   7, 0.0, 1.0);
+TProfile* p_cos4betaAfterP    = new TProfile("p_cos4betaAfterP", "p_cos4betaAfterP",   7, 0.0, 1.0);
+   
+TH1F* h_betaBefore    = new TH1F("h_betaBefore",  "h_betaBefore",   50, 0.0, 2.0*TMath::Pi());
+TH1F* h_tstarBefore   = new TH1F("h_tstarBefore", "h_tstarBefore",  50, 0.0, TMath::Pi());
+TH1F* h_betaAfter     = new TH1F("h_betaAfter",   "h_betaAfter",    50, 0.0, 2.0*TMath::Pi());
+TH1F* h_tstarAfter    = new TH1F("h_tstarAfter",  "h_tstarAfter",   50, 0.0, TMath::Pi());
+
+TH1F* h_betaBeforeP   = new TH1F("h_betaBeforeP", "h_betaBeforeP",  50, 0.0, 2.0*TMath::Pi());
+TH1F* h_tstarBeforeP  = new TH1F("h_tstarBeforeP","h_betaBeforeP",  50, 0.0, TMath::Pi());
+TH1F* h_betaAfterP    = new TH1F("h_betaAfterP",  "h_betaAfterP",   50, 0.0, 2.0*TMath::Pi());
+TH1F* h_tstarAfterP   = new TH1F("h_tstarAfterP", "h_betaAfterP",   50, 0.0, TMath::Pi());
+
+TH2F* h_betatstarBefore    = new TH2F("h_betatstarBefore",  "h_betatstarBefore",  50, 0.0, TMath::Pi(), 50, 0.0, 2.0*TMath::Pi());
+TH2F* h_betatstarAfter     = new TH2F("h_betatstarAfter",   "h_betatstarAfter",   50, 0.0, TMath::Pi(), 50, 0.0, 2.0*TMath::Pi());
+
+TH2F* h_betatstarBeforeP    = new TH2F("h_betatstarBeforeP",  "h_betatstarBeforeP",  50, 0.0, TMath::Pi(), 50, 0.0, 2.0*TMath::Pi());
+TH2F* h_betatstarAfterP     = new TH2F("h_betatstarAfterP",   "h_betatstarAfterP",   50, 0.0, TMath::Pi(), 50, 0.0, 2.0*TMath::Pi());
+
+
 double cos2r2 = 0.0;
 double cos2del = 0.0;
 double cosdel = 0.0;
@@ -102,8 +158,13 @@ double mPsi2RP = 0.0;
 
 double mNEvents = 0;
 
-void McEtaF_Resolution(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent = 5, int const NMax = 5000, double rapidity = 1.5, int mode = 1, int etamode = 0, double Res = 0.4, bool fullEP = 0, const char* jobID = "1")
+bool v2flag;
+
+double v2value;
+
+void McEtaF_Resolution(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 0, int cent = 4, int const NMax = 5000, double rapidity = 1.0, int mode = 1, int etamode = 3, double Res = 0.4, bool fullEP = 0, bool v2on = 0, const char* jobID = "1")
 {
+  v2flag = v2on;
   mNEvents = NMax;
   mEtaMode = etamode;
   string outputfile;
@@ -116,13 +177,13 @@ void McEtaF_Resolution(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 
   int   const BinPt    = vmsa::BinPt;
   int   const BinY     = vmsa::BinY;
   int   const BinPhi   = vmsa::BinPhi;
-  float const rhoDelta = 0.0001; //rhoDelta = 0.01
+  float const rhoDelta = 0.0001; //rhoDelta = 0.0001
 
 
   int BufSize = (int)pow(2., 16.);
   // int Split = 1;
 
-  const char* varlist = "Centrality:McPt:McP:McEta:McY:McPhi:McCos:McCosTheta:McKpEta:McKmEta:McCosRP"; // reconstructed phi
+  const char* varlist = "Centrality:McPt:McP:McEta:McY:McPhi:McCos:McCosTheta:McKpEta:McKmEta:McKpPt:McKmPt:McCosRP"; // reconstructed phi
 
   McPhiMeson = new TNtuple("McPhiMeson", "McPhiMeson", varlist, BufSize);
 
@@ -153,13 +214,38 @@ void McEtaF_Resolution(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 
   //  cout << "res = " <<  double(i)/100. << ",   chi = " << f_res->GetX(double(i)/100.) << endl;
   //}
   cout << "mChi = " << mChi << endl;
-  f_pDel = new TF1("deltaPsi",EventPlaneDistDel,-TMath::Pi(),TMath::Pi(),2);
+  f_pDel = new TF1("deltaPsi",EventPlaneDist,-TMath::Pi()/2.0,TMath::Pi()/2.0,2);
   f_pDel->FixParameter(0,mChi);
   f_pDel->FixParameter(1,1.0/(2.0*TMath::Pi()));
 
+  
+  TCanvas *c_del = new TCanvas("c_del","c_del",10,10,800,800);
+  c_del->cd()->SetLeftMargin(0.15);
+  c_del->cd()->SetBottomMargin(0.15);
+  c_del->cd()->SetTicks(1,1);
+  c_del->cd()->SetGrid(0,0);
+  TH1F *h_del = new TH1F("h_del","h_del",100,-10.0,10.0);
+  for(int i_bin = 1; i_bin < 101; ++i_bin)
+  {
+    h_del->SetBinContent(i_bin,-10.0);
+    h_del->SetBinError(i_bin,1.0);
+  }
+  h_del->GetXaxis()->SetRangeUser(-TMath::Pi()/2.0,TMath::Pi()/2.0);
+  h_del->SetTitle("");
+  h_del->SetStats(0);
+  h_del->GetXaxis()->SetTitle("#Delta");
+  h_del->GetXaxis()->CenterTitle();
+  h_del->GetYaxis()->SetTitle("arb. units");
+  h_del->GetYaxis()->CenterTitle();
+  h_del->GetYaxis()->SetRangeUser(0.0,1.0);
+  h_del->Draw("pE");
+  //g_del->Draw("pE same");
+  f_pDel->Draw("l same");
+  c_del->SaveAs("del.pdf");
+
   cout << "ptbin = " <<  pt_bin << "     yinput = " << yinput << endl;
   if(mMode == 0) cout << "pt range = [" << pt_set[pt_bin-1] << "," << pt_set[pt_bin] << "] GeV/c" << endl;  
-  if(mMode == 1) cout << "pt range = [" << 1.0 << "," << 2.0 << "] GeV/c" << endl;  
+  if(mMode == 1) cout << "pt range = [" << 1.2 << "," << 1.8 << "] GeV/c" << endl;  
   if(mMode == 3) cout << "pt range = [" << pt_tuple_low[pt_bin-1] << "," << pt_tuple_high[pt_bin-1] << "] GeV/c" << endl;  
 
   string Info = Form("sampling rhophy = %.2f with %d tracks!!!!",rhoDelta*Nrho,NMax);
@@ -187,6 +273,7 @@ void McEtaF_Resolution(double Nrho=3333, int SetPt=1, int energy = 4, int pid = 
 
 
   f_v2   = readv2(energy,pid,cent);
+  v2value = f_v2->Eval(1.5); 
  // TCanvas *c2 = new TCanvas("c2","c2");
  // c2->SetFillColor(0);
  // c2->SetGrid(0,0);
@@ -246,20 +333,21 @@ TF1* readv2(int energy, int pid, int centrality)
 {
   //string centFile[9] = {"4080","4080","4080","4080","1040","1040","1040","0010","0010"};
   string InPutV2 = Form("/gpfs01/star/pwg/sunxuhit/BackupData/SpinAlignment/data/AuAu%s/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
-  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) InPutV2 = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/HEPData-ins1395151-v2-root.root";
+  //if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) InPutV2 = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/HEPData-ins1395151-v2-root.root";
   TFile *File_v2 = TFile::Open(InPutV2.c_str());
   std::cout << "v2 file: " << InPutV2 << endl;
 
   TGraphAsymmErrors *g_v2;
 
   if(mMode == 0) g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
+  if(mMode == 1) g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
 
-  if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) 
-  {
-    TDirectory *dir = (TDirectory*) File_v2->Get(Form("Table %d",tableNumV2[energy][centrality]));
-    dir->cd(); 
-    g_v2 = (TGraphAsymmErrors*)dir->Get("Graph1D_y1");
-  }
+  //if((energy == 4 || energy == 3 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) 
+  //{
+  //  TDirectory *dir = (TDirectory*) File_v2->Get(Form("Table %d",tableNumV2[energy][centrality]));
+  //  dir->cd(); 
+  //  g_v2 = (TGraphAsymmErrors*)dir->Get("Graph1D_y1");
+  //}
 
   TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc,vmsa::ptMin,vmsa::ptMax,5);
   f_v2->FixParameter(0,2);
@@ -370,25 +458,26 @@ TF1* readspec(int energy, int pid, int centrality)
                                   {0.4457,0.5494,0.6535,0.8033,0.9501,1.1463,1.4869,1.8407,2.2211,2.7186,3.3745} } };
 
   string InPutSpec = Form("/gpfs01/star/pwg/sunxuhit/BackupData/SpinAlignment/data/AuAu%s/Phi/MonteCarlo/Data/Phi_Spec.root",vmsa::mBeamEnergy[energy].c_str());
-  if((energy == 4 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) InPutSpec = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/pTspectra/HEPData-ins1378002-v1-root.root";
+  //if((energy == 4 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) InPutSpec = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/pTspectra/HEPData-ins1378002-v1-root.root";
   TFile *File_Spec = TFile::Open(InPutSpec.c_str());
   cout << "Input spectra" << InPutSpec << endl;
  
   TGraphAsymmErrors *g_spec;
   if(mMode == 0) g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
-  if((energy == 4 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) 
-  {
-    TDirectory *dir = (TDirectory*) File_Spec->Get(Form("Table %d",tableNum[energy][centrality]));
-    dir->cd(); 
-    g_spec = (TGraphAsymmErrors*)dir->Get("Graph1D_y1");
-    for(int i = 0; i < g_spec->GetN(); i++)
-    {
-      double x,y;
-      g_spec->GetPoint(i,x,y);
-      g_spec->SetPoint(i,ptvalues[energy][centrality][i],y);
-      g_spec->SetPointError(i,fabs(ptvalues[energy][centrality][i]-ptlow[energy][i]),fabs(ptvalues[energy][centrality][i]-pthigh[energy][i]),g_spec->GetErrorYlow(i),g_spec->GetErrorYhigh(i));
-    }
-  }
+  if(mMode == 1) g_spec = (TGraphAsymmErrors*)File_Spec->Get("g_spec");
+  //if((energy == 4 || energy == 2 || energy == 0) && (mMode == 1 || mMode == 3)) 
+  //{
+  //  TDirectory *dir = (TDirectory*) File_Spec->Get(Form("Table %d",tableNum[energy][centrality]));
+  //  dir->cd(); 
+  //  g_spec = (TGraphAsymmErrors*)dir->Get("Graph1D_y1");
+  //  for(int i = 0; i < g_spec->GetN(); i++)
+  //  {
+  //    double x,y;
+  //    g_spec->GetPoint(i,x,y);
+  //    g_spec->SetPoint(i,ptvalues[energy][centrality][i],y);
+  //    g_spec->SetPointError(i,fabs(ptvalues[energy][centrality][i]-ptlow[energy][i]),fabs(ptvalues[energy][centrality][i]-pthigh[energy][i]),g_spec->GetErrorYlow(i),g_spec->GetErrorYhigh(i));
+  //  }
+  //}
 
   TF1 *f_Levy = new TF1("f_Levy",Levy,vmsa::ptMin,vmsa::ptMax,3);
   f_Levy->SetParameter(0,1);
@@ -404,7 +493,8 @@ TF1* readspec(int energy, int pid, int centrality)
 //  TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
   TF1 *f_spec;
   if(mMode == 0) f_spec = new TF1("f_spec",pTLevy,pt_set[pt_bin-1], pt_set[pt_bin], 3);
-  if(mMode == 1) f_spec = new TF1("f_spec",pTLevy,pt_tuple_low[pt_bin-1], pt_tuple_high[pt_bin-1], 3);
+  //if(mMode == 1) f_spec = new TF1("f_spec",pTLevy,pt_tuple_low[pt_bin-1], pt_tuple_high[pt_bin-1], 3);
+  if(mMode == 1) f_spec = new TF1("f_spec",pTLevy,1.2, 1.8, 3);
   //if(mMode == 3) f_spec = new TF1("f_spec",pTLevy, 1.0, 5.0, 3);
   if(mMode == 3) f_spec = new TF1("f_spec",pTLevy,pt_tuple_low[pt_bin-1], pt_tuple_high[pt_bin-1], 3);
   f_spec->SetParameter(0,f_Levy->GetParameter(0));
@@ -488,7 +578,8 @@ void getKinematics(TLorentzVector& lPhi, double const mass)
 //  double const pt = f_spec->GetRandom(vmsa::ptMin, vmsa::ptMax);
   double pt; 
   if(mMode == 0) pt = f_spec->GetRandom(pt_set[pt_bin-1], pt_set[pt_bin]);
-  if(mMode == 1) pt = f_spec->GetRandom(1.0, 2.0);
+  //if(mMode == 1) pt = f_spec->GetRandom(1.2, 1.8);
+  if(mMode == 1) pt = 1.5;
   //if(mMode == 3) pt = f_spec->GetRandom(1.0, 5.0);
   if(mMode == 3) pt = f_spec->GetRandom(pt_tuple_low[pt_bin-1],pt_tuple_high[pt_bin-1]);
   //double const pt = gRandom->Uniform(pt_set[pt_bin-1], pt_set[pt_bin]);
@@ -505,26 +596,17 @@ void getKinematics(TLorentzVector& lPhi, double const mass)
   //  else y = gRandom->Uniform(-1.0,-0.8);
   //}
   //cout << " y = " << y << endl;
-  Psi2 = gRandom->Uniform(-TMath::Pi()/2.0,TMath::Pi()/2.0);
-  //mRP = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
-  //if(mMode == 2) y = gRandom->Uniform(-y_set[y_bin], yinput);
-//  double const y = f_y->GetRandom(-2,2);
-//
-  //double Psi2EP = gRandom->Uniform(-TMath::Pi()/2.,TMath::Pi()/2.);
-  //double Psi2RP =;
-  
+
+  //Let's assume for the time being that the RP angle is always 0;
+  Psi2 = 0.0; 
+
   double delta = f_pDel->GetRandom();
   mDelta = delta;
 
-  f_flow->SetParameter(0,f_v2->Eval(pt));
-  double phi = f_flow->GetRandom();
-  //double phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
-  double defaultphi = phi;
+  mPsi2 = Psi2 + delta; // EP, the RP is smeared by delta
+  mPsi2RP = Psi2;       // RP
 
-  //mPsi2 = (mRP - delta)/2.0;
-  mPsi2 = Psi2 + delta;
-  mPsi2RP = Psi2;
-
+  //Angle wrapping
   while(mPsi2 > 0.5*TMath::Pi())
   {
     mPsi2 -= TMath::Pi();
@@ -534,16 +616,31 @@ void getKinematics(TLorentzVector& lPhi, double const mass)
     mPsi2 += TMath::Pi();
   }
 
-  //phi = phi + Psi2;// + delta;
-  phi = phi + mPsi2;// + delta;
+  double phi = 0.0;  
+  if(v2flag)
+  {
+    f_flow->SetParameter(0,v2value);//f_v2->Eval(pt));
+    //f_flow->SetParameter(0,f_v2->Eval(pt));
+    //f_flow->SetParameter(0,1.5*f_v2->Eval(pt)); //scale up by 50%
+    phi = f_flow->GetRandom(); // This is actually phi - RP
+    phi += mPsi2RP; //Therefore we must add RP
+  }  
+  else 
+  {
+    phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
+  }
 
-  cos2r2  += TMath::Cos(2.0*(mPsi2-mRP));
+
+  //phi = phi + Psi2;// + delta;
+  //phi = phi + mPsi2;// + delta;
+
+  cos2r2  += TMath::Cos(2.0*(mPsi2-mPsi2RP));
   cos2del += TMath::Cos(2.0*delta);
   cosdel  += TMath::Cos(delta);
   sin2del += TMath::Sin(2.0*delta);
   sindel  += TMath::Sin(delta);
 
-  cout << "mRP = " << mRP << ",     mPsi2 = " << mPsi2 << ",    delta = " << delta << endl;
+  //cout << "mRP = " << mRP << ",     mPsi2 = " << mPsi2 << ",    delta = " << delta << endl;
 
   //mPsi2RP = Psi2;
   //cout << "Original Psi2 EP = " << mPsi2 << endl;
@@ -713,6 +810,9 @@ void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector con
   //vMcKpBoostedInEP.Print();
 
   //if( vMcKpBoostedInRP.GetX() >= 0.0 && vMcKpBoostedInRP.GetZ() >= 0.0) 
+  double c2betaBW = TMath::Cos(2.0*Beta);
+  double c2betapBW = TMath::Cos(2.0*BetaP);
+
   if( vMcKpBoostedInRP.X() >= 0.0 && vMcKpBoostedInRP.Z() <  0.0) Beta = Beta + 2*TMath::Pi();
   if( vMcKpBoostedInRP.X() <  0.0 && vMcKpBoostedInRP.Z() >= 0.0) Beta = TMath::Pi() - Beta;
   if( vMcKpBoostedInRP.X() <  0.0 && vMcKpBoostedInRP.Z() <  0.0) Beta = TMath::Pi() - Beta;
@@ -720,6 +820,38 @@ void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector con
   if( vMcKpBoostedInEP.X() >= 0.0 && vMcKpBoostedInEP.Z() <  0.0) BetaP = BetaP + 2*TMath::Pi();
   if( vMcKpBoostedInEP.X() <  0.0 && vMcKpBoostedInEP.Z() >= 0.0) BetaP = TMath::Pi() - BetaP;
   if( vMcKpBoostedInEP.X() <  0.0 && vMcKpBoostedInEP.Z() <  0.0) BetaP = TMath::Pi() - BetaP;
+
+  //cout << "cos(2beta)  difference =  " << c2betaBW-TMath::Cos(2.0*Beta) << endl;
+  //cout << "cos(2beta') difference =  " << c2betapBW-TMath::Cos(2.0*BetaP) << endl;
+
+  cos2betaBefore  += TMath::Cos(2.0*Beta);
+  cos2betaBeforeP += TMath::Cos(2.0*BetaP);
+  cos4betaBefore  += TMath::Cos(4.0*Beta);
+  cos4betaBeforeP += TMath::Cos(4.0*BetaP);
+
+  h_cosbetaBefore->Fill(TMath::Cos(Beta));
+  h_cosbetaBeforeP->Fill(TMath::Cos(BetaP));
+  h_cos2betaBefore->Fill(TMath::Cos(2.0*Beta));
+  h_cos2betaBeforeP->Fill(TMath::Cos(2.0*BetaP));
+  h_cos4betaBefore->Fill(TMath::Cos(4.0*Beta));
+  h_cos4betaBeforeP->Fill(TMath::Cos(4.0*BetaP));
+
+  p_cosbetaBefore->Fill(TMath::Abs(CosThetaStarRP),TMath::Cos(Beta));
+  p_cosbetaBeforeP->Fill(TMath::Abs(CosThetaStarEP),TMath::Cos(BetaP));
+  p_cos2betaBefore->Fill(TMath::Abs(CosThetaStarRP),TMath::Cos(2.0*Beta));
+  p_cos2betaBeforeP->Fill(TMath::Abs(CosThetaStarEP),TMath::Cos(2.0*BetaP));
+  p_cos4betaBefore->Fill(TMath::Abs(CosThetaStarRP),TMath::Cos(4.0*Beta));
+  p_cos4betaBeforeP->Fill(TMath::Abs(CosThetaStarEP),TMath::Cos(4.0*BetaP));
+
+  h_betaBefore->Fill(Beta);    
+  h_tstarBefore->Fill(TMath::ACos(CosThetaStarRP));   
+                  
+  h_betaBeforeP->Fill(BetaP);   
+  h_tstarBeforeP->Fill(TMath::ACos(CosThetaStarEP));  
+                       
+  h_betatstarBefore->Fill(TMath::ACos(CosThetaStarRP),Beta);                           
+  h_betatstarBeforeP->Fill(TMath::ACos(CosThetaStarEP),BetaP);   
+
   //cout << "True Beta = " << Beta << "       True Beta' = " << BetaP << endl;
 
   //TMatrixD RotIntoRPFrame(3,3);
@@ -760,6 +892,7 @@ void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector con
   if(mEtaMode == 3) eta_gap = 0.4;
   if(mEtaMode == 4) eta_gap = 0.6;
   if(mEtaMode == 5) eta_gap = 0.8;
+  if(mEtaMode == 6) eta_gap = 0.2;
   //double pt_gap = 0.2;
   //double pt_plus=lKplus.Pt(), pt_minus=lKminus.Pt();
   //double ratio = TMath::Abs(pt_plus-pt_minus);
@@ -804,6 +937,34 @@ void fill(TLorentzVector* lPhi, TLorentzVector const& lKplus, TLorentzVector con
 
       h2_theta_star->Fill(TMath::Abs(CosThetaStarEP),BetaP);
       h2_theta_star_RP->Fill(TMath::Abs(CosThetaStarRP),Beta);
+ 
+      cos2betaAfter  += TMath::Cos(2.0*Beta);
+      cos2betaAfterP += TMath::Cos(2.0*BetaP);
+      cos4betaAfter  += TMath::Cos(4.0*Beta);
+      cos4betaAfterP += TMath::Cos(4.0*BetaP);
+
+      h_cosbetaAfter->Fill(TMath::Cos(Beta));
+      h_cosbetaAfterP->Fill(TMath::Cos(BetaP));
+      h_cos2betaAfter->Fill(TMath::Cos(2.0*Beta));
+      h_cos2betaAfterP->Fill(TMath::Cos(2.0*BetaP));
+      h_cos4betaAfter->Fill(TMath::Cos(4.0*Beta));
+      h_cos4betaAfterP->Fill(TMath::Cos(4.0*BetaP));
+
+      p_cosbetaAfter->Fill(TMath::Abs(CosThetaStarRP),TMath::Cos(Beta));
+      p_cosbetaAfterP->Fill(TMath::Abs(CosThetaStarEP),TMath::Cos(BetaP));
+      p_cos2betaAfter->Fill(TMath::Abs(CosThetaStarRP),TMath::Cos(2.0*Beta));
+      p_cos2betaAfterP->Fill(TMath::Abs(CosThetaStarEP),TMath::Cos(2.0*BetaP));
+      p_cos4betaAfter->Fill(TMath::Abs(CosThetaStarRP),TMath::Cos(4.0*Beta));
+      p_cos4betaAfterP->Fill(TMath::Abs(CosThetaStarEP),TMath::Cos(4.0*BetaP));
+
+      h_betaAfter->Fill(Beta);    
+      h_tstarAfter->Fill(TMath::ACos(CosThetaStarRP));   
+                      
+      h_betaAfterP->Fill(BetaP);   
+      h_tstarAfterP->Fill(TMath::ACos(CosThetaStarEP));  
+                           
+      h_betatstarAfter->Fill(TMath::ACos(CosThetaStarRP),Beta);                           
+      h_betatstarAfterP->Fill(TMath::ACos(CosThetaStarEP),BetaP);   
     }
   }
 
@@ -923,6 +1084,50 @@ void write(int energy, int Nrho)
     h2_theta_star_before->Write();
     h2_theta_star_RP->Write();
     h2_theta_star_RP_before->Write();
+
+    h_cosbetaBefore->Write();
+    h_cos2betaBefore->Write();
+    h_cos4betaBefore->Write(); 
+    h_cosbetaAfter->Write();  
+    h_cos2betaAfter->Write();  
+    h_cos4betaAfter->Write();  
+    h_cosbetaBeforeP->Write();
+    h_cos2betaBeforeP->Write();
+    h_cos4betaBeforeP->Write();
+    h_cosbetaAfterP->Write(); 
+    h_cos2betaAfterP->Write(); 
+    h_cos4betaAfterP->Write(); 
+
+    p_cosbetaBefore->Write();
+    p_cos2betaBefore->Write();
+    p_cos4betaBefore->Write(); 
+    p_cosbetaAfter->Write();  
+    p_cos2betaAfter->Write();  
+    p_cos4betaAfter->Write();  
+    p_cosbetaBeforeP->Write();
+    p_cos2betaBeforeP->Write();
+    p_cos4betaBeforeP->Write();
+    p_cosbetaAfterP->Write(); 
+    p_cos2betaAfterP->Write(); 
+    p_cos4betaAfterP->Write(); 
+
+
+    h_betaBefore->Write();    
+    h_tstarBefore->Write();   
+    h_betaAfter->Write();     
+    h_tstarAfter->Write();    
+                    
+    h_betaBeforeP->Write();   
+    h_tstarBeforeP->Write();  
+    h_betaAfterP->Write();    
+    h_tstarAfterP->Write();   
+                       
+    h_betatstarBefore->Write();  
+    h_betatstarAfter->Write();   
+                       
+    h_betatstarBeforeP->Write(); 
+    h_betatstarAfterP->Write();  
+
   }
 
   if(mMode == 3) McPhiMeson->Write();
@@ -942,7 +1147,36 @@ void write(int energy, int Nrho)
   cout << "sin(2*delta) = " << sin2del << endl;
   cout << "sin(delta)   = " << sindel << endl;
   
+  cos2betaBefore  /= mNEvents;
+  cos4betaBefore  /= mNEvents;
+  cos2betaAfter   /= mNEvents;
+  cos4betaAfter   /= mNEvents;
 
+  cos2betaBeforeP /= mNEvents;
+  cos4betaBeforeP /= mNEvents;
+  cos2betaAfterP  /= mNEvents;
+  cos4betaAfterP  /= mNEvents;
+
+  cout << "BY HAND" << endl;
+  cout << "cos(2*beta) BEFORE  =  " << cos2betaBefore   << endl;
+  cout << "cos(4*beta) BEFORE  =  " << cos4betaBefore   << endl;
+  cout << "cos(2*beta) AFTER   =  " << cos2betaAfter    << endl;
+  cout << "cos(4*beta) AFTER   =  " << cos4betaAfter    << endl;
+  cout << "cos(2*beta') BEFORE =  " << cos2betaBeforeP << endl; 
+  cout << "cos(4*beta') BEFORE =  " << cos4betaBeforeP << endl; 
+  cout << "cos(2*beta') AFTER  =  " << cos2betaAfterP  << endl; 
+  cout << "cos(4*beta') AFTER  =  " << cos4betaAfterP  << endl; 
+
+
+  cout << "TH1F MEAN AND ERROR" << endl;
+  cout << "cos(2*beta) BEFORE  =  " << h_cos2betaBefore->GetMean()   << " +/- " <<   h_cos2betaBefore->GetMeanError()     <<  endl;
+  cout << "cos(4*beta) BEFORE  =  " << h_cos4betaBefore->GetMean()   << " +/- " <<   h_cos4betaBefore->GetMeanError()     <<  endl;
+  cout << "cos(2*beta) AFTER   =  " << h_cos2betaAfter->GetMean()    << " +/- " <<   h_cos2betaAfter->GetMeanError()      <<  endl;
+  cout << "cos(4*beta) AFTER   =  " << h_cos4betaAfter->GetMean()    << " +/- " <<   h_cos4betaAfter->GetMeanError()      <<  endl;
+  cout << "cos(2*beta') BEFORE =  " << h_cos2betaBeforeP->GetMean()  << " +/- " <<   h_cos2betaBeforeP->GetMeanError()    <<  endl; 
+  cout << "cos(4*beta') BEFORE =  " << h_cos4betaBeforeP->GetMean()  << " +/- " <<   h_cos4betaBeforeP->GetMeanError()    <<  endl; 
+  cout << "cos(2*beta') AFTER  =  " << h_cos2betaAfterP->GetMean()   << " +/- " <<   h_cos2betaAfterP->GetMeanError()     <<  endl; 
+  cout << "cos(4*beta') AFTER  =  " << h_cos4betaAfterP->GetMean()   << " +/- " <<   h_cos4betaAfterP->GetMeanError()     <<  endl; 
 }
 
 double FuncAD(double *x_val, double *par) {

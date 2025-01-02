@@ -28,7 +28,7 @@ namespace vmsa
   int const mHitsFitTPCMin = 15;
   int const mHitsMaxTPCMin = 0;
   float const mHitsRatioTPCMin = 0.52;
-  float const mEtaMax = 1.0;
+  float const mEtaMax = 1.5;
   float const mPrimPtMin[NumBeamEnergy] = {0.15,0.15,0.15,0.15,0.15}; // for event plane reconstruction and for pion, kaon, proton
   float const mGlobPtMin = 0.1; // for phi, Lambda, K0s
   float const mPrimPtMax = 2.0;
@@ -101,12 +101,20 @@ namespace vmsa
   float const mEta_Gap = 0.05;
   float const mShiftOrder[5] = {2.0, 4.0, 6.0, 8.0, 10.0};
 
-  int const pt_total = 25; // pt bin
+  int const pt_total = 10; // pt bin
   int const pt_start = 0;
-  int const pt_stop  = 25;
-  float const ptRawStart[pt_total] = {0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2};
-  float const ptRawStop[pt_total]  = {0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
-  double const pt_bin[pt_total+1] = {0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.4,3.8,4.2,4.6,5.0,5.4,5.8,6.2,6.6,7.2,8.0};
+  int const pt_stop  = 10;
+  //float const ptRawStart[pt_total] = {0.2,0.4,0.6,0.8,1.0,1.2,1.5,1.8,2.2,2.4,2.7,3.2,3.8,4.2    };
+  //float const ptRawStop[pt_total]  = {    0.4,0.6,0.8,1.0,1.2,1.5,1.8,2.2,2.4,2.7,3.2,3.8,4.2,5.0};
+  //double const pt_bin[pt_total+1]  = {0.2,0.4,0.6,0.8,1.0,1.2,1.5,1.8,2.2,2.4,2.7,3.2,3.8,4.2,5.0};
+  
+  float const ptRawStart[pt_total] = {0.2,0.4,0.6,0.8,1.0,1.2,1.6,2.0,2.4,3.2    };
+  float const ptRawStop[pt_total]  = {    0.4,0.6,0.8,1.0,1.2,1.6,2.0,2.4,3.2,5.0};
+  double const pt_bin[pt_total+1]  = {0.2,0.4,0.6,0.8,1.0,1.2,1.6,2.0,2.4,3.2,5.0};
+
+  int const y_total = 14; 
+  float const ystart[y_total] = {-1.5,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8,1.0,1.2    };
+  float const ystop[y_total]  = {     -1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.5};
 
   // mix event
   int const Bin_Centrality = 9;
@@ -167,10 +175,10 @@ namespace vmsa
   int const Cent_QA    = 0;
 
   double const Pi = TMath::Pi();
-  double const PiOver10 = Pi/10.0;
-  int const PhiPsi_total = 10;
-  double const PhiPsi_low[10] = {0.0,1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0};
-  double const PhiPsi_up[10]  = {1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0, Pi/2.0 };
+  double const PiOver9 = Pi/9.0;
+  int const PhiPsi_total = 9;
+  double const PhiPsi_low[9] = {0.0,1.0*PiOver9/2.0, 2.0*PiOver9/2.0, 3.0*PiOver9/2.0, 4.0*PiOver9/2.0, 5.0*PiOver9/2.0, 6.0*PiOver9/2.0, 7.0*PiOver9/2.0, 8.0*PiOver9/2.0};
+  double const PhiPsi_up[9]  = {    1.0*PiOver9/2.0, 2.0*PiOver9/2.0, 3.0*PiOver9/2.0, 4.0*PiOver9/2.0, 5.0*PiOver9/2.0, 6.0*PiOver9/2.0, 7.0*PiOver9/2.0, 8.0*PiOver9/2.0, Pi/2.0 };
 
   int const CTS_total = 7; // cos(theta*) bin
   int const CTS_start = 0;

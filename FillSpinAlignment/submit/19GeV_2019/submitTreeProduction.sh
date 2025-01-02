@@ -14,7 +14,7 @@ codePath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignmen
 # outPath=/star/data01/pwg/sunxuhit/AuAu54GeV_2017
 
 energy=4  # 19GeV
-library=SL21c
+library=SL23d
 listPath=/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/FileLists/19GeV_2019
 outPath=/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
@@ -36,11 +36,12 @@ pid=Phi
 ##########Mixed Event Selection##########
 #flag_ME=0 # 0 for SE | 1 for ME
 #SM=SE
-flag_ME=1 # 0
-SM=ME
+etamode=$1
+flag_ME=$2 # 0
+SM=$3
 ##########Mixed Event Selection##########
 
-outDir=${pid}${SM}_3DRandom
+outDir=${pid}${SM}_EtaMode${etamode}_20241003_eta1p5_cent2060_TPCOnly_extrainfo
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -50,7 +51,7 @@ mkdir -p ${outPath}/Log/SpinAlignmentYields/${outDir}
 mkdir -p ${outPath}/OutPut/SpinAlignmentYields/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+star-submit-template -template testProductionTemp.xml -entities etamode=$etamode,pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Test Production##########
 
 ##########Full Production##########
@@ -58,5 +59,5 @@ star-submit-template -template testProductionTemp.xml -entities pid=$pid,mode=$m
 ##########Full Production##########
 
 ##########Re-Submit##########
-#star-submit-template -template resubmitProductionTemp.xml -entities pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
+#star-submit-template -template resubmitProductionTemp.xml -entities etamode=$etamode,pid=$pid,mode=$mode,energy=$energy,flag_ME=$flag_ME,SM=$SM,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir
 ##########Re-Submit##########

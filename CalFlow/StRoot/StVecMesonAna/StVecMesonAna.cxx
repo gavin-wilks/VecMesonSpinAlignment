@@ -24,9 +24,16 @@ char* StVecMesonAna::VM_EVENT_TREE = NULL;
 char* StVecMesonAna::VM_EVENT_BRANCH = NULL;
 
 //----------------------------------------------------
-StVecMesonAna::StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode)
+StVecMesonAna::StVecMesonAna(const Char_t *list, const Char_t *jobId, Int_t energy, Int_t X_flag, Int_t mode, Int_t etamode, Int_t rapidityflag)
 {
   mEnergy = energy;
+  mEtaMode = etamode;
+  if(mEtaMode == 0) mEtaCut = 1.0;
+  if(mEtaMode == 3) mEtaCut = 0.4;
+  if(mEtaMode == 4) mEtaCut = 0.6;
+  if(mEtaMode == 5) mEtaCut = 0.8;
+  
+  mRapidityFlag = rapidityflag; 
   mX_flag = X_flag;
   mList = list;
   mJobId = jobId;
@@ -72,7 +79,7 @@ void StVecMesonAna::Init()
   mVecMesonCorr->InitReCenterCorrection();
   mVecMesonCorr->InitShiftCorrection();
   mVecMesonCorr->InitResolutionCorr();
-  mVecMesonHistoManger->InitSys(mX_flag,mMode);
+  mVecMesonHistoManger->InitSys(mX_flag,mMode,mRapidityFlag);
   //mVecMesonHistoManger->InitSys_EP(mX_flag,mMode);
 
   TString outputfile = Form("Yields_%s_%s_%s_%s.root",vmsa::mPID[mMode].c_str(),vmsa::MixEvent[mX_flag].Data(),vmsa::mBeamEnergy[mEnergy].c_str(),mJobId);
@@ -136,8 +143,8 @@ void StVecMesonAna::Init()
 void StVecMesonAna::Make()
 {
   if(mMode == 0) MakePhi();
-  if(mMode == 1) MakeRho();
-  if(mMode == 2) MakeKStar();
+  //if(mMode == 1) MakeRho();
+  //if(mMode == 2) MakeKStar();
 }
 
 
@@ -175,7 +182,7 @@ void StVecMesonAna::MakePhi()
 
   for(int i_event = 0; i_event < numOfEvents; ++i_event)
   {
-    if(i_event%100==0) cout << "processing events:  " << i_event << "/" << numOfEvents << endl;
+    if(i_event%1000==0) cout << "processing events:  " << i_event << "/" << numOfEvents << endl;
     mInPut->GetEntry(i_event+1); 
     // get Event Header
     PrimaryVertex    = mMeson_event->getPrimaryVertex();
@@ -260,28 +267,42 @@ void StVecMesonAna::MakePhi()
 
 	Float_t pA = lTrackA.P();
 	Float_t pB = lTrackB.P();
+	Float_t etaA = lTrackA.PseudoRapidity();
+	Float_t etaB = lTrackB.PseudoRapidity();
 	TLorentzVector lTrack = lTrackA + lTrackB; // phi-meson
 	Float_t pt_lTrack = lTrack.Perp();
+        //cout << "etaA = " << etaA << "   etaB = " << etaB << "   m2A = " << m2A << "    m2B = " << m2B << "     nsA = " << nsA << "    nsB = " << nsB << "    dcaA = " << dcaA << "    dcaB = " << dcaB << endl
+
 	if(
-	    (m2A > 0.16 && m2A < 0.36) && (m2B > 0.16 && m2B < 0.36)
+	    //((m2A > 0.16 && m2A < 0.36) && (m2B > 0.16 && m2B < 0.36)) 
+	    ((m2A > 0.16 && m2A < 0.36) && (m2B > 0.16 && m2B < 0.36))
 	  )
 	{
+          if( fabs(etaA) > mEtaCut || fabs(etaB) > mEtaCut ) continue;
+          //cout << "passed the track selection requirements" << endl;
 	  Float_t rapidity_lTrack = lTrack.Rapidity();
 	  //if(TMath::Abs(lTrackA.Rapidity()) > vmsa::mEtaMax) continue;
 	  //if(TMath::Abs(lTrackB.Rapidity()) > vmsa::mEtaMax) continue;
-	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
+          //cout << "phi meson rapidity = " << TMath::Abs(rapidity_lTrack) << endl; 
+	  if(TMath::Abs(rapidity_lTrack) > 1.5) continue;
 	  Float_t InvMass_lTrack = lTrack.M();
 	  TVector3 vBetaPhi = -1.0*lTrack.BoostVector(); // get phi beta
 	  TLorentzVector lKpRest = lTrackA;
 
 	  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
 	  {
+            //cout << "in dca loop" << endl;
 	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
+            //cout << "pass dca cut " << endl;
 	    for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigmaKaon
 	    {
+              if( i_dca != 0 && i_sig != 0) continue;
+              //cout << "in nsig loop" << endl;
 	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
+              //cout << "pass nsig cut " << endl;
 	      if(mVecMesonCut->passEtaEast(lTrack)) // phi neg eta(east)
 	      { // Below is West Only
+                //cout << "pass eta east" << endl;
 		TVector2 Q2Vector = Q2West;
 		// subtract auto-correlation from pos eta(west) event plane
 		if(flagA == 0 && mVecMesonCut->passTrackEP(lTrackA,dcaA) && mVecMesonCut->passTrackEtaWest(lTrackA)) // trackB
@@ -306,11 +327,13 @@ void StVecMesonAna::MakePhi()
                 if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
                 PhiMinusPsi = TMath::Abs(PhiMinusPsi);
                 //std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
-                mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+                //std::cout << "FillSys" << endl;
+                mVecMesonHistoManger->FillSys(pt_lTrack,rapidity_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 
 	      if(mVecMesonCut->passEtaWest(lTrack)) // phi pos eta (west)
 	      { // Below is East Only
+                //cout << "pass eta west" << endl;
 		TVector2 Q2Vector = Q2East;
 		// subtract auto-correlation from pos eta(west) event plane
 		if(flagA == 0 && mVecMesonCut->passTrackEP(lTrackA,dcaA) && mVecMesonCut->passTrackEtaEast(lTrackA)) // trackB
@@ -335,7 +358,8 @@ void StVecMesonAna::MakePhi()
                 if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
                 PhiMinusPsi = TMath::Abs(PhiMinusPsi);
                 //std::cout << "  CorrectedDiff = " << PhiMinusPsi << std::endl;
-                mVecMesonHistoManger->FillSys(pt_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+                //std::cout << "FillSys" << endl;
+                mVecMesonHistoManger->FillSys(pt_lTrack,rapidity_lTrack,cent9,PhiMinusPsi,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
 	      }
 	    }
 	  }
@@ -348,464 +372,490 @@ void StVecMesonAna::MakePhi()
 }
 
 // loop rho meson Same Event
-void StVecMesonAna::MakeRho()
-{
-  //Long64_t start_event_use;
-  //Long64_t stop_event_use;
-
-  //start_event_use = mStartEvent;
-  //stop_event_use  = mStopEvent;
-  mInPut->SetBranchAddress( VM_EVENT_BRANCH, &mMeson_event);
-  long numOfEvents = (long)mInPut->GetEntries();
-  mInPut->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
-
-  // Initialise Event Head
-  StThreeVectorF PrimaryVertex(0.0,0.0,0.0);
-  Int_t          RunId = 0;
-  Int_t          EventId = 0;
-  Int_t          RefMult = 0;
-  Int_t          Centrality = 0;
-  Int_t          N_prim = 0;
-  Int_t          N_non_prim = 0;
-  Int_t          N_Tof_match = 0;
-  Float_t        ZDCx = 0.0; 
-  Float_t        BBCx = 0.0; 
-  Float_t        VzVpd = 0.0;
-  Int_t          NumTrackUsed = 0;
-  // ---------------------------------------QVector---------------------------------------------
-  TVector2 Q2East(0.0,0.0);
-  TVector2 Q2West(0.0,0.0);
-  TVector2 Q2Full(0.0,0.0);
-  // -----------------------------------Number of Tracks----------------------------------------
-  Int_t   NumTrackEast = 0;
-  Int_t   NumTrackWest = 0;
-  Int_t   NumTrackFull = 0;
-  Int_t   NumTrackFullEast = 0;
-  Int_t   NumTrackFullWest = 0;
-
-  //for(Long64_t counter = start_event_use; counter < stop_event_use; counter++)
-  //{
-  //  if (!mInPut->GetEntry( counter )) // take the event -> information is stored in event
-  //   break;  // end of data chunk
-  for(int i_event = 0; i_event < numOfEvents; ++i_event)
-  {
-    if(i_event%1000==0) cout << "processing events:  " << i_event << "/" << numOfEvents << endl;
- 
-    // get Event Header
-    PrimaryVertex    = mMeson_event->getPrimaryVertex();
-    RunId            = mMeson_event->getRunId();
-    EventId          = mMeson_event->getEventId();
-    RefMult          = mMeson_event->getRefMult();
-    Centrality       = mMeson_event->getCentrality();
-    N_prim           = mMeson_event->getN_prim();
-    N_non_prim       = mMeson_event->getN_non_prim();
-    N_Tof_match      = mMeson_event->getN_Tof_match();
-    ZDCx             = mMeson_event->getZDCx(); 
-    BBCx             = mMeson_event->getBBCx(); 
-    VzVpd            = mMeson_event->getVzVpd();
-    NumTrackUsed     = mMeson_event->getNumTracks();
-    Q2East           = mMeson_event->getQ2East();
-    Q2West           = mMeson_event->getQ2West();
-    Q2Full           = mMeson_event->getQ2Full();
-    NumTrackEast     = mMeson_event->getNumTrackEast();
-    NumTrackWest     = mMeson_event->getNumTrackWest();
-    NumTrackFull     = mMeson_event->getNumTrackFull();
-    NumTrackFullEast = mMeson_event->getNumTrackFullEast();
-    NumTrackFullWest = mMeson_event->getNumTrackFullWest();
-
-    // Initialise Track 
-    Float_t m2A = -999.9;
-    Float_t m2B = -999.9;
-    Float_t nsA = -999.9;
-    Float_t nsB = -999.9;
-    Float_t dcaA = -999.9;
-    Float_t dcaB = -999.9;
-    TLorentzVector lTrackA(0.0,0.0,0.0,0.0);
-    TLorentzVector lTrackB(0.0,0.0,0.0,0.0);
-    Int_t flagA = -1;
-    Int_t flagB = -1;
-
-    // vz sign
-    Int_t vz_sign;
-    if(PrimaryVertex.z() > 0.0)
-    {
-      vz_sign = 0;
-    }
-    else
-    {
-      vz_sign = 1;
-    }
-
-    // Centrality
-    mRefMultCorr->init(RunId);
-    if(mEnergy == 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); // 200 GeV
-    if(mEnergy != 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z());
-    const Int_t cent9 = Centrality;
-    const Double_t reweight = mRefMultCorr->getWeight();
-
-    // runIndex
-    //mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
-    //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
-    // cout << runIndex << endl;
-
-    const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
- 
-
-    //if (counter != 0  &&  counter % 1000 == 0)
-    //  cout << "." << flush;
-    //if (counter != 0  &&  counter % 10000 == 0)
-    //{
-    //  if((stop_event_use-start_event_use) > 0)
-    //  {
-    //	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
-    //	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
-    //  }
-    //}
-
-    // get Track Information
-    if(mVecMesonCorr->passTrackEtaNumCut(NumTrackEast,NumTrackWest))
-    {
-      for(UShort_t nTracks = 0; nTracks < NumTrackUsed; nTracks++) // loop over all tracks of the actual event
-      {
-	mMeson_track = mMeson_event->getTrack(nTracks);
-	m2A = mMeson_track->getMass2A();
-	m2B = mMeson_track->getMass2B();
-	nsA = mMeson_track->getNSigA();
-	nsB = mMeson_track->getNSigB();
-	dcaA = mMeson_track->getDcaA();
-	dcaB = mMeson_track->getDcaB();
-	lTrackA = mMeson_track->getTrackA();
-	lTrackB = mMeson_track->getTrackB();
-	flagA = mMeson_track->getFlagA();
-	flagB = mMeson_track->getFlagB();
-
-	Float_t pA = lTrackA.P();
-	Float_t pB = lTrackB.P();
-	TLorentzVector lTrack = lTrackA + lTrackB; // phi-meson
-	Float_t pt_lTrack = lTrack.Perp();
-
-	if(
-	    // ((fabs(pA) <= 0.65 && m2A < -10) || (m2A > 0 && ((fabs(pA) < 1.5 && m2A > 0.16 && m2A < 0.36) || (fabs(pA) >= 1.5 && m2A > 0.125 && m2A < 0.36)) )) &&
-	    // ((fabs(pB) <= 0.65 && m2B < -10) || (m2B > 0 && ((fabs(pB) < 1.5 && m2B > 0.16 && m2B < 0.36) || (fabs(pB) >= 1.5 && m2B > 0.125 && m2B < 0.36)) )) &&
-	    // // (pt_lTrack < 0.8 || (pt_lTrack >= 0.8 && ( (m2A > 0.16 && m2A < 0.36) || (m2B > 0.16 && m2B < 0.36)))) &&
-	    // (
-	    //  ((m2A < -10 && nsA < 3.0 && nsA > -1.5) || (m2A > 0.16 && m2A < 0.36)) &&
-	    //  ((m2B < -10 && nsB < 3.0 && nsB > -1.5) || (m2B > 0.16 && m2B < 0.36))
-	    // )
-	    (m2A > -0.2 && m2A < 0.15) && (m2B > -0.2 && m2B < 0.15)
-	  )
-	{
-	  // Float_t eta_lTrack = lTrack.Eta();
-	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
-	  Float_t rapidity_lTrack = lTrack.Rapidity();
-	  if(TMath::Abs(rapidity_lTrack) > 1.0) continue;
-
-	  Float_t InvMass_lTrack = lTrack.M();
-	  TVector3 vBetaRho = -1.0*lTrack.BoostVector(); // get phi beta
-	  TLorentzVector lPipRest = lTrackA;
-	  lPipRest.Boost(vBetaRho); // boost pi+ back to phi rest frame
-	  TVector3 vPipRest = lPipRest.Vect().Unit(); // pi+ momentum direction in phi rest frame
-
-	  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
-	  {
-	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
-	    mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
-
-	    for(Int_t i_sig = vmsa::nSigPion_start; i_sig < vmsa::nSigPion_stop; i_sig++) // systematic loop for nSigmaPion
-	    {
-	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
-	      mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
-
-	      if(mVecMesonCut->passEtaEast(lTrackA)) // Pi+ neg eta(east)
-	      { // Below is West Only
-		TVector2 Q2Vector = Q2West;
-		// subtract auto-correlation from pos eta(west) event plane
-		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
-		{
-		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
-		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
-		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(cent9,runIndex,vz_sign);
-		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
-		}
-		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
-		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
-
-		TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
-		TVector3 nQ = nQ_West.Unit();
-		Double_t CosThetaStar = vPipRest.Dot(nQ);
-		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-
-		TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
-		TVector3 nQ_EP = nQ_West_EP.Unit();
-		Double_t CosThetaStar_EP = vPipRest.Dot(nQ_EP);
-		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-	      }
-
-	      if(mVecMesonCut->passEtaWest(lTrackA)) // Pi+ pos eta (west)
-	      { // Below is East Only
-		TVector2 Q2Vector = Q2East;
-		// subtract auto-correlation from pos eta(west) event plane
-		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
-		{
-		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
-		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
-		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(cent9,runIndex,vz_sign);
-		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
-		}
-		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
-		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
-
-		TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane
-		TVector3 nQ = nQ_East.Unit();
-		Double_t CosThetaStar = vPipRest.Dot(nQ);
-		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-
-		TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
-		TVector3 nQ_EP = nQ_East_EP.Unit();
-		Double_t CosThetaStar_EP = vPipRest.Dot(nQ_EP);
-		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  //cout << "." << flush;
-  //cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
-  cout << endl;
-}
-
-// loop rho meson Same Event
-void StVecMesonAna::MakeKStar()
-{
-  //Long64_t start_event_use;
-  //Long64_t stop_event_use;
-
-  //start_event_use = mStartEvent;
-  //stop_event_use  = mStopEvent;
-  mInPut->SetBranchAddress( VM_EVENT_BRANCH, &mMeson_event);
-  long numOfEvents = (long)mInPut->GetEntries();
-  mInPut->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
-
-  // Initialise Event Head
-  StThreeVectorF PrimaryVertex(0.0,0.0,0.0);
-  Int_t          RunId = 0;
-  Int_t          EventId = 0;
-  Int_t          RefMult = 0;
-  Int_t          Centrality = 0;
-  Int_t          N_prim = 0;
-  Int_t          N_non_prim = 0;
-  Int_t          N_Tof_match = 0;
-  Float_t        ZDCx = 0.0; 
-  Float_t        BBCx = 0.0; 
-  Float_t        VzVpd = 0.0;
-  Int_t          NumTrackUsed = 0;
-  // ---------------------------------------QVector---------------------------------------------
-  TVector2 Q2East(0.0,0.0);
-  TVector2 Q2West(0.0,0.0);
-  TVector2 Q2Full(0.0,0.0);
-  // -----------------------------------Number of Tracks----------------------------------------
-  Int_t   NumTrackEast = 0;
-  Int_t   NumTrackWest = 0;
-  Int_t   NumTrackFull = 0;
-  Int_t   NumTrackFullEast = 0;
-  Int_t   NumTrackFullWest = 0;
-
-  //for(Long64_t counter = start_event_use; counter < stop_event_use; counter++)
-  //{
-  //  if (!mInPut->GetEntry( counter )) // take the event -> information is stored in event
-  //   break;  // end of data chunk
-  for(int i_event = 0; i_event < numOfEvents; ++i_event)
-  {
-    if(i_event%1000==0) cout << "processing events:  " << i_event << "/" << numOfEvents << endl;
- 
-    // get Event Header
-    PrimaryVertex    = mMeson_event->getPrimaryVertex();
-    RunId            = mMeson_event->getRunId();
-    EventId          = mMeson_event->getEventId();
-    RefMult          = mMeson_event->getRefMult();
-    Centrality       = mMeson_event->getCentrality();
-    N_prim           = mMeson_event->getN_prim();
-    N_non_prim       = mMeson_event->getN_non_prim();
-    N_Tof_match      = mMeson_event->getN_Tof_match();
-    ZDCx             = mMeson_event->getZDCx(); 
-    BBCx             = mMeson_event->getBBCx(); 
-    VzVpd            = mMeson_event->getVzVpd();
-    NumTrackUsed     = mMeson_event->getNumTracks();
-    Q2East           = mMeson_event->getQ2East();
-    Q2West           = mMeson_event->getQ2West();
-    Q2Full           = mMeson_event->getQ2Full();
-    NumTrackEast     = mMeson_event->getNumTrackEast();
-    NumTrackWest     = mMeson_event->getNumTrackWest();
-    NumTrackFull     = mMeson_event->getNumTrackFull();
-    NumTrackFullEast = mMeson_event->getNumTrackFullEast();
-    NumTrackFullWest = mMeson_event->getNumTrackFullWest();
-
-    // Initialise Track 
-    Float_t m2A = -999.9;
-    Float_t m2B = -999.9;
-    Float_t nsA = -999.9;
-    Float_t nsB = -999.9;
-    Float_t dcaA = -999.9;
-    Float_t dcaB = -999.9;
-    TLorentzVector lTrackA(0.0,0.0,0.0,0.0);
-    TLorentzVector lTrackB(0.0,0.0,0.0,0.0);
-    Int_t flagA = -1;
-    Int_t flagB = -1;
-
-    // vz sign
-    Int_t vz_sign;
-    if(PrimaryVertex.z() > 0.0)
-    {
-      vz_sign = 0;
-    }
-    else
-    {
-      vz_sign = 1;
-    }
-
-    // Centrality
-    mRefMultCorr->init(RunId);
-    if(mEnergy == 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); // 200 GeV
-    if(mEnergy != 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z());
-    const Int_t cent9 = Centrality;
-    const Double_t reweight = mRefMultCorr->getWeight();
-
-    // runIndex
-    //mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
-    //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
-    // cout << runIndex << endl;
-
-    const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
- 
-
-    //if (counter != 0  &&  counter % 1000 == 0)
-    //  cout << "." << flush;
-    //if (counter != 0  &&  counter % 10000 == 0)
-    //{
-    //  if((stop_event_use-start_event_use) > 0)
-    //  {
-    //	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
-    //	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
-    //  }
-    //}
-
-    // get Track Information
-    if(mVecMesonCorr->passTrackEtaNumCut(NumTrackEast,NumTrackWest))
-    {
-      for(UShort_t nTracks = 0; nTracks < NumTrackUsed; nTracks++) // loop over all tracks of the actual event
-      {
-	mMeson_track = mMeson_event->getTrack(nTracks);
-	m2A = mMeson_track->getMass2A();
-	m2B = mMeson_track->getMass2B();
-	nsA = mMeson_track->getNSigA();
-	nsB = mMeson_track->getNSigB();
-	dcaA = mMeson_track->getDcaA();
-	dcaB = mMeson_track->getDcaB();
-	lTrackA = mMeson_track->getTrackA();
-	lTrackB = mMeson_track->getTrackB();
-	flagA = mMeson_track->getFlagA();
-	flagB = mMeson_track->getFlagB();
-
-	Float_t pA = lTrackA.P();
-	Float_t pB = lTrackB.P();
-	TLorentzVector lTrack = lTrackA + lTrackB; // KStar-meson
-	Float_t pt_lTrack = lTrack.Perp();
-
-	if(
-	    // ((fabs(pA) <= 0.65 && m2A < -10) || (m2A > 0 && ((fabs(pA) < 1.5 && m2A > 0.16 && m2A < 0.36) || (fabs(pA) >= 1.5 && m2A > 0.125 && m2A < 0.36)) )) &&
-	    // ((fabs(pB) <= 0.65 && m2B < -10) || (m2B > 0 && ((fabs(pB) < 1.5 && m2B > 0.16 && m2B < 0.36) || (fabs(pB) >= 1.5 && m2B > 0.125 && m2B < 0.36)) )) &&
-	    // // (pt_lTrack < 0.8 || (pt_lTrack >= 0.8 && ( (m2A > 0.16 && m2A < 0.36) || (m2B > 0.16 && m2B < 0.36)))) &&
-	    // (
-	    //  ((m2A < -10 && nsA < 3.0 && nsA > -1.5) || (m2A > 0.16 && m2A < 0.36)) &&
-	    //  ((m2B < -10 && nsB < 3.0 && nsB > -1.5) || (m2B > 0.16 && m2B < 0.36))
-	    // )
-	    (m2A > 0.16 && m2A < 0.36) && (m2B > -0.2 && m2B < 0.15)
-	  )
-	{
-	  // Float_t eta_lTrack = lTrack.Eta();
-	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
-	  Float_t rapidity_lTrack = lTrack.Rapidity();
-	  if(TMath::Abs(rapidity_lTrack) > 1.0) continue;
-
-	  Float_t InvMass_lTrack = lTrack.M();
-	  TVector3 vBetaKStar = -1.0*lTrack.BoostVector(); // get phi beta
-	  TLorentzVector lKRest = lTrackA;
-	  lKRest.Boost(vBetaKStar); // boost pi+ back to phi rest frame
-	  TVector3 vKRest = lKRest.Vect().Unit(); // pi+ momentum direction in phi rest frame
-
-	  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
-	  {
-	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
-	    mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
-
-	    for(Int_t i_sig = vmsa::nSigPion_start; i_sig < vmsa::nSigPion_stop; i_sig++) // systematic loop for nSigmaPion
-	    {
-	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
-	      mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
-
-	      if(mVecMesonCut->passEtaEast(lTrackA)) // Pi+ neg eta(east)
-	      { // Below is West Only
-		TVector2 Q2Vector = Q2West;
-		// subtract auto-correlation from pos eta(west) event plane
-		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
-		{
-		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
-		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
-		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(cent9,runIndex,vz_sign);
-		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
-		}
-		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
-		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
-
-		TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
-		TVector3 nQ = nQ_West.Unit();
-		Double_t CosThetaStar = vKRest.Dot(nQ);
-		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-
-		TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
-		TVector3 nQ_EP = nQ_West_EP.Unit();
-		Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
-		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-	      }
-
-	      if(mVecMesonCut->passEtaWest(lTrackA)) // Pi+ pos eta (west)
-	      { // Below is East Only
-		TVector2 Q2Vector = Q2East;
-		// subtract auto-correlation from pos eta(west) event plane
-		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
-		{
-		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
-		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
-		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(cent9,runIndex,vz_sign);
-		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
-		}
-		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
-		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
-
-		TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane
-		TVector3 nQ = nQ_East.Unit();
-		Double_t CosThetaStar = vKRest.Dot(nQ);
-		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-
-		TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
-		TVector3 nQ_EP = nQ_East_EP.Unit();
-		Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
-		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  //cout << "." << flush;
-  //cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
-  cout << endl;
-}
+//void StVecMesonAna::MakeRho()
+//{
+//  //Long64_t start_event_use;
+//  //Long64_t stop_event_use;
+//
+//  //start_event_use = mStartEvent;
+//  //stop_event_use  = mStopEvent;
+//  mInPut->SetBranchAddress( VM_EVENT_BRANCH, &mMeson_event);
+//  long numOfEvents = (long)mInPut->GetEntries();
+//  mInPut->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
+//
+//  // Initialise Event Head
+//  StThreeVectorF PrimaryVertex(0.0,0.0,0.0);
+//  Int_t          RunId = 0;
+//  Int_t          EventId = 0;
+//  Int_t          RefMult = 0;
+//  Int_t          Centrality = 0;
+//  Int_t          N_prim = 0;
+//  Int_t          N_non_prim = 0;
+//  Int_t          N_Tof_match = 0;
+//  Float_t        ZDCx = 0.0; 
+//  Float_t        BBCx = 0.0; 
+//  Float_t        VzVpd = 0.0;
+//  Int_t          NumTrackUsed = 0;
+//  // ---------------------------------------QVector---------------------------------------------
+//  TVector2 Q2East(0.0,0.0);
+//  TVector2 Q2West(0.0,0.0);
+//  TVector2 Q2Full(0.0,0.0);
+//  // -----------------------------------Number of Tracks----------------------------------------
+//  Int_t   NumTrackEast = 0;
+//  Int_t   NumTrackWest = 0;
+//  Int_t   NumTrackFull = 0;
+//  Int_t   NumTrackFullEast = 0;
+//  Int_t   NumTrackFullWest = 0;
+//
+//  //for(Long64_t counter = start_event_use; counter < stop_event_use; counter++)
+//  //{
+//  //  if (!mInPut->GetEntry( counter )) // take the event -> information is stored in event
+//  //   break;  // end of data chunk
+//  for(int i_event = 0; i_event < numOfEvents; ++i_event)
+//  {
+//    if(i_event%1000==0) cout << "processing events:  " << i_event << "/" << numOfEvents << endl;
+// 
+//    // get Event Header
+//    PrimaryVertex    = mMeson_event->getPrimaryVertex();
+//    RunId            = mMeson_event->getRunId();
+//    EventId          = mMeson_event->getEventId();
+//    RefMult          = mMeson_event->getRefMult();
+//    Centrality       = mMeson_event->getCentrality();
+//    N_prim           = mMeson_event->getN_prim();
+//    N_non_prim       = mMeson_event->getN_non_prim();
+//    N_Tof_match      = mMeson_event->getN_Tof_match();
+//    ZDCx             = mMeson_event->getZDCx(); 
+//    BBCx             = mMeson_event->getBBCx(); 
+//    VzVpd            = mMeson_event->getVzVpd();
+//    NumTrackUsed     = mMeson_event->getNumTracks();
+//    Q2East           = mMeson_event->getQ2East();
+//    Q2West           = mMeson_event->getQ2West();
+//    Q2Full           = mMeson_event->getQ2Full();
+//    NumTrackEast     = mMeson_event->getNumTrackEast();
+//    NumTrackWest     = mMeson_event->getNumTrackWest();
+//    NumTrackFull     = mMeson_event->getNumTrackFull();
+//    NumTrackFullEast = mMeson_event->getNumTrackFullEast();
+//    NumTrackFullWest = mMeson_event->getNumTrackFullWest();
+//
+//    // Initialise Track 
+//    Float_t m2A = -999.9;
+//    Float_t m2B = -999.9;
+//    Float_t nsA = -999.9;
+//    Float_t nsB = -999.9;
+//    Float_t dcaA = -999.9;
+//    Float_t dcaB = -999.9;
+//    TLorentzVector lTrackA(0.0,0.0,0.0,0.0);
+//    TLorentzVector lTrackB(0.0,0.0,0.0,0.0);
+//    Int_t flagA = -1;
+//    Int_t flagB = -1;
+//
+//    mRefMultCorr->init(RunId);
+//
+//    if(mRefMultCorr->isBadRun( RunId ))
+//    {
+//      LOG_ERROR << "Bad Run! Skip!" << endm;
+//      continue;
+//    }
+//
+//    //bool isPileUpEvent = false;
+//    // IMPORTANT: vertex position is needed for Au+Au 19.6 GeV 2019
+//    //if (mRefMultCorr->isPileUpEvent( RefMult, N_Tof_match, PrimaryVertex.z() ) ) isPileUpEvent = true;
+//    mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx);
+// 
+//
+//    // vz sign 
+//    int vz_sign = 0;
+//    if(PrimaryVertex.z() > -70.0 && PrimaryVertex.z() <= -30.0) vz_sign = 0;
+//    if(PrimaryVertex.z() > -30.0 && PrimaryVertex.z() <= 0.0  ) vz_sign = 1;
+//    if(PrimaryVertex.z() > 0.0   && PrimaryVertex.z() <= +30.0) vz_sign = 2;
+//    if(PrimaryVertex.z() < +70.0 && PrimaryVertex.z() >  +30.0) vz_sign = 3;
+//    // Centrality
+//    const Int_t cent9 = Centrality;
+//    //const Double_t refMultCorr = mVecMesonCut->getRefMultReweight(PrimaryVertex.z(), RefMult);
+//    const Double_t reweight = mRefMultCorr->getWeight();
+//
+//    const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
+//    // vz sign
+//    //Int_t vz_sign;
+//    //if(PrimaryVertex.z() > 0.0)
+//    //{
+//    //  vz_sign = 0;
+//    //}
+//    //else
+//    //{
+//    //  vz_sign = 1;
+//    //}
+//
+//    // Centrality
+//    //mRefMultCorr->init(RunId);
+//    //if(mEnergy == 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); // 200 GeV
+//    //if(mEnergy != 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z());
+//    //const Int_t cent9 = Centrality;
+//    //const Double_t reweight = mRefMultCorr->getWeight();
+//
+//    // runIndex
+//    //mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
+//    //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
+//    // cout << runIndex << endl;
+//
+//    //const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
+// 
+//
+//    //if (counter != 0  &&  counter % 1000 == 0)
+//    //  cout << "." << flush;
+//    //if (counter != 0  &&  counter % 10000 == 0)
+//    //{
+//    //  if((stop_event_use-start_event_use) > 0)
+//    //  {
+//    //	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
+//    //	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
+//    //  }
+//    //}
+//
+//    // get Track Information
+//    if(mVecMesonCorr->passTrackEtaNumCut(NumTrackEast,NumTrackWest))
+//    {
+//      for(UShort_t nTracks = 0; nTracks < NumTrackUsed; nTracks++) // loop over all tracks of the actual event
+//      {
+//	mMeson_track = mMeson_event->getTrack(nTracks);
+//	m2A = mMeson_track->getMass2A();
+//	m2B = mMeson_track->getMass2B();
+//	nsA = mMeson_track->getNSigA();
+//	nsB = mMeson_track->getNSigB();
+//	dcaA = mMeson_track->getDcaA();
+//	dcaB = mMeson_track->getDcaB();
+//	lTrackA = mMeson_track->getTrackA();
+//	lTrackB = mMeson_track->getTrackB();
+//	flagA = mMeson_track->getFlagA();
+//	flagB = mMeson_track->getFlagB();
+//
+//	Float_t pA = lTrackA.P();
+//	Float_t pB = lTrackB.P();
+//	TLorentzVector lTrack = lTrackA + lTrackB; // phi-meson
+//	Float_t pt_lTrack = lTrack.Perp();
+//
+//	if(
+//	    // ((fabs(pA) <= 0.65 && m2A < -10) || (m2A > 0 && ((fabs(pA) < 1.5 && m2A > 0.16 && m2A < 0.36) || (fabs(pA) >= 1.5 && m2A > 0.125 && m2A < 0.36)) )) &&
+//	    // ((fabs(pB) <= 0.65 && m2B < -10) || (m2B > 0 && ((fabs(pB) < 1.5 && m2B > 0.16 && m2B < 0.36) || (fabs(pB) >= 1.5 && m2B > 0.125 && m2B < 0.36)) )) &&
+//	    // // (pt_lTrack < 0.8 || (pt_lTrack >= 0.8 && ( (m2A > 0.16 && m2A < 0.36) || (m2B > 0.16 && m2B < 0.36)))) &&
+//	    // (
+//	    //  ((m2A < -10 && nsA < 3.0 && nsA > -1.5) || (m2A > 0.16 && m2A < 0.36)) &&
+//	    //  ((m2B < -10 && nsB < 3.0 && nsB > -1.5) || (m2B > 0.16 && m2B < 0.36))
+//	    // )
+//	    (m2A > -0.2 && m2A < 0.15) && (m2B > -0.2 && m2B < 0.15)
+//	  )
+//	{
+//	  // Float_t eta_lTrack = lTrack.Eta();
+//	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
+//	  Float_t rapidity_lTrack = lTrack.Rapidity();
+//	  if(TMath::Abs(rapidity_lTrack) > 1.0) continue;
+//
+//	  Float_t InvMass_lTrack = lTrack.M();
+//	  TVector3 vBetaRho = -1.0*lTrack.BoostVector(); // get phi beta
+//	  TLorentzVector lPipRest = lTrackA;
+//	  lPipRest.Boost(vBetaRho); // boost pi+ back to phi rest frame
+//	  TVector3 vPipRest = lPipRest.Vect().Unit(); // pi+ momentum direction in phi rest frame
+//
+//	  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
+//	  {
+//	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
+//	    mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
+//
+//	    for(Int_t i_sig = vmsa::nSigPion_start; i_sig < vmsa::nSigPion_stop; i_sig++) // systematic loop for nSigmaPion
+//	    {
+//	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
+//	      mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
+//
+//	      if(mVecMesonCut->passEtaEast(lTrackA)) // Pi+ neg eta(east)
+//	      { // Below is West Only
+//		TVector2 Q2Vector = Q2West;
+//		// subtract auto-correlation from pos eta(west) event plane
+//		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
+//		{
+//		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+//		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+//		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(cent9,runIndex,vz_sign);
+//		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+//		}
+//		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
+//		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
+//
+//		TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
+//		TVector3 nQ = nQ_West.Unit();
+//		Double_t CosThetaStar = vPipRest.Dot(nQ);
+//		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//
+//		//TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
+//		//TVector3 nQ_EP = nQ_West_EP.Unit();
+//		//Double_t CosThetaStar_EP = vPipRest.Dot(nQ_EP);
+//		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//	      }
+//
+//	      if(mVecMesonCut->passEtaWest(lTrackA)) // Pi+ pos eta (west)
+//	      { // Below is East Only
+//		TVector2 Q2Vector = Q2East;
+//		// subtract auto-correlation from pos eta(west) event plane
+//		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
+//		{
+//		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+//		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+//		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(cent9,runIndex,vz_sign);
+//		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+//		}
+//		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
+//		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
+//
+//		TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane
+//		TVector3 nQ = nQ_East.Unit();
+//		Double_t CosThetaStar = vPipRest.Dot(nQ);
+//		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//
+//		TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
+//		TVector3 nQ_EP = nQ_East_EP.Unit();
+//		Double_t CosThetaStar_EP = vPipRest.Dot(nQ_EP);
+//		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//	      }
+//	    }
+//	  }
+//	}
+//      }
+//    }
+//  }
+//
+//  //cout << "." << flush;
+//  //cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
+//  cout << endl;
+//}
+//
+//// loop rho meson Same Event
+//void StVecMesonAna::MakeKStar()
+//{
+//  //Long64_t start_event_use;
+//  //Long64_t stop_event_use;
+//
+//  //start_event_use = mStartEvent;
+//  //stop_event_use  = mStopEvent;
+//  mInPut->SetBranchAddress( VM_EVENT_BRANCH, &mMeson_event);
+//  long numOfEvents = (long)mInPut->GetEntries();
+//  mInPut->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
+//
+//  // Initialise Event Head
+//  StThreeVectorF PrimaryVertex(0.0,0.0,0.0);
+//  Int_t          RunId = 0;
+//  Int_t          EventId = 0;
+//  Int_t          RefMult = 0;
+//  Int_t          Centrality = 0;
+//  Int_t          N_prim = 0;
+//  Int_t          N_non_prim = 0;
+//  Int_t          N_Tof_match = 0;
+//  Float_t        ZDCx = 0.0; 
+//  Float_t        BBCx = 0.0; 
+//  Float_t        VzVpd = 0.0;
+//  Int_t          NumTrackUsed = 0;
+//  // ---------------------------------------QVector---------------------------------------------
+//  TVector2 Q2East(0.0,0.0);
+//  TVector2 Q2West(0.0,0.0);
+//  TVector2 Q2Full(0.0,0.0);
+//  // -----------------------------------Number of Tracks----------------------------------------
+//  Int_t   NumTrackEast = 0;
+//  Int_t   NumTrackWest = 0;
+//  Int_t   NumTrackFull = 0;
+//  Int_t   NumTrackFullEast = 0;
+//  Int_t   NumTrackFullWest = 0;
+//
+//  //for(Long64_t counter = start_event_use; counter < stop_event_use; counter++)
+//  //{
+//  //  if (!mInPut->GetEntry( counter )) // take the event -> information is stored in event
+//  //   break;  // end of data chunk
+//  for(int i_event = 0; i_event < numOfEvents; ++i_event)
+//  {
+//    if(i_event%1000==0) cout << "processing events:  " << i_event << "/" << numOfEvents << endl;
+// 
+//    // get Event Header
+//    PrimaryVertex    = mMeson_event->getPrimaryVertex();
+//    RunId            = mMeson_event->getRunId();
+//    EventId          = mMeson_event->getEventId();
+//    RefMult          = mMeson_event->getRefMult();
+//    Centrality       = mMeson_event->getCentrality();
+//    N_prim           = mMeson_event->getN_prim();
+//    N_non_prim       = mMeson_event->getN_non_prim();
+//    N_Tof_match      = mMeson_event->getN_Tof_match();
+//    ZDCx             = mMeson_event->getZDCx(); 
+//    BBCx             = mMeson_event->getBBCx(); 
+//    VzVpd            = mMeson_event->getVzVpd();
+//    NumTrackUsed     = mMeson_event->getNumTracks();
+//    Q2East           = mMeson_event->getQ2East();
+//    Q2West           = mMeson_event->getQ2West();
+//    Q2Full           = mMeson_event->getQ2Full();
+//    NumTrackEast     = mMeson_event->getNumTrackEast();
+//    NumTrackWest     = mMeson_event->getNumTrackWest();
+//    NumTrackFull     = mMeson_event->getNumTrackFull();
+//    NumTrackFullEast = mMeson_event->getNumTrackFullEast();
+//    NumTrackFullWest = mMeson_event->getNumTrackFullWest();
+//
+//    // Initialise Track 
+//    Float_t m2A = -999.9;
+//    Float_t m2B = -999.9;
+//    Float_t nsA = -999.9;
+//    Float_t nsB = -999.9;
+//    Float_t dcaA = -999.9;
+//    Float_t dcaB = -999.9;
+//    TLorentzVector lTrackA(0.0,0.0,0.0,0.0);
+//    TLorentzVector lTrackB(0.0,0.0,0.0,0.0);
+//    Int_t flagA = -1;
+//    Int_t flagB = -1;
+//
+//    // vz sign
+//    Int_t vz_sign;
+//    if(PrimaryVertex.z() > 0.0)
+//    {
+//      vz_sign = 0;
+//    }
+//    else
+//    {
+//      vz_sign = 1;
+//    }
+//
+//    // Centrality
+//    mRefMultCorr->init(RunId);
+//    if(mEnergy == 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z(),ZDCx); // 200 GeV
+//    if(mEnergy != 6) mRefMultCorr->initEvent(RefMult,PrimaryVertex.z());
+//    const Int_t cent9 = Centrality;
+//    const Double_t reweight = mRefMultCorr->getWeight();
+//
+//    // runIndex
+//    //mRunIdEventsDb = StRunIdEventsDb::Instance(vmsa::mEnergyValue[mEnergy],vmsa::mBeamYear[mEnergy]);
+//    //const Int_t runIndex = mRunIdEventsDb->getRunIdIndex(RunId); // expensive
+//    // cout << runIndex << endl;
+//
+//    const int runIndex = mUtility->findRunIndex(RunId); // find run index for a specific run
+// 
+//
+//    //if (counter != 0  &&  counter % 1000 == 0)
+//    //  cout << "." << flush;
+//    //if (counter != 0  &&  counter % 10000 == 0)
+//    //{
+//    //  if((stop_event_use-start_event_use) > 0)
+//    //  {
+//    //	Double_t event_percent = 100.0*((Double_t)(counter-start_event_use))/((Double_t)(stop_event_use-start_event_use));
+//    //	cout << " " << counter-start_event_use << " (" << event_percent << "%) " << "\n" << "==> Processing data (VecMesonSpinAlignment) " << flush;
+//    //  }
+//    //}
+//
+//    // get Track Information
+//    if(mVecMesonCorr->passTrackEtaNumCut(NumTrackEast,NumTrackWest))
+//    {
+//      for(UShort_t nTracks = 0; nTracks < NumTrackUsed; nTracks++) // loop over all tracks of the actual event
+//      {
+//	mMeson_track = mMeson_event->getTrack(nTracks);
+//	m2A = mMeson_track->getMass2A();
+//	m2B = mMeson_track->getMass2B();
+//	nsA = mMeson_track->getNSigA();
+//	nsB = mMeson_track->getNSigB();
+//	dcaA = mMeson_track->getDcaA();
+//	dcaB = mMeson_track->getDcaB();
+//	lTrackA = mMeson_track->getTrackA();
+//	lTrackB = mMeson_track->getTrackB();
+//	flagA = mMeson_track->getFlagA();
+//	flagB = mMeson_track->getFlagB();
+//
+//	Float_t pA = lTrackA.P();
+//	Float_t pB = lTrackB.P();
+//	TLorentzVector lTrack = lTrackA + lTrackB; // KStar-meson
+//	Float_t pt_lTrack = lTrack.Perp();
+//
+//	if(
+//	    // ((fabs(pA) <= 0.65 && m2A < -10) || (m2A > 0 && ((fabs(pA) < 1.5 && m2A > 0.16 && m2A < 0.36) || (fabs(pA) >= 1.5 && m2A > 0.125 && m2A < 0.36)) )) &&
+//	    // ((fabs(pB) <= 0.65 && m2B < -10) || (m2B > 0 && ((fabs(pB) < 1.5 && m2B > 0.16 && m2B < 0.36) || (fabs(pB) >= 1.5 && m2B > 0.125 && m2B < 0.36)) )) &&
+//	    // // (pt_lTrack < 0.8 || (pt_lTrack >= 0.8 && ( (m2A > 0.16 && m2A < 0.36) || (m2B > 0.16 && m2B < 0.36)))) &&
+//	    // (
+//	    //  ((m2A < -10 && nsA < 3.0 && nsA > -1.5) || (m2A > 0.16 && m2A < 0.36)) &&
+//	    //  ((m2B < -10 && nsB < 3.0 && nsB > -1.5) || (m2B > 0.16 && m2B < 0.36))
+//	    // )
+//	    (m2A > 0.16 && m2A < 0.36) && (m2B > -0.2 && m2B < 0.15)
+//	  )
+//	{
+//	  // Float_t eta_lTrack = lTrack.Eta();
+//	  // if(TMath::Abs(eta_lTrack) > 1.0) continue;
+//	  Float_t rapidity_lTrack = lTrack.Rapidity();
+//	  if(TMath::Abs(rapidity_lTrack) > vmsa::mEtaMax) continue;
+//
+//	  Float_t InvMass_lTrack = lTrack.M();
+//	  TVector3 vBetaKStar = -1.0*lTrack.BoostVector(); // get phi beta
+//	  TLorentzVector lKRest = lTrackA;
+//	  lKRest.Boost(vBetaKStar); // boost pi+ back to phi rest frame
+//	  TVector3 vKRest = lKRest.Vect().Unit(); // pi+ momentum direction in phi rest frame
+//
+//	  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
+//	  {
+//	    if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,mMode)) ) continue;
+//	    mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
+//
+//	    for(Int_t i_sig = vmsa::nSigPion_start; i_sig < vmsa::nSigPion_stop; i_sig++) // systematic loop for nSigmaPion
+//	    {
+//	      if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,mMode)) ) continue;
+//	      mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
+//
+//	      if(mVecMesonCut->passEtaEast(lTrackA)) // Pi+ neg eta(east)
+//	      { // Below is West Only
+//		TVector2 Q2Vector = Q2West;
+//		// subtract auto-correlation from pos eta(west) event plane
+//		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
+//		{
+//		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+//		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+//		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(cent9,runIndex,vz_sign);
+//		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+//		}
+//		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
+//		Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,runIndex,cent9,vz_sign);
+//
+//		TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
+//		TVector3 nQ = nQ_West.Unit();
+//		Double_t CosThetaStar = vKRest.Dot(nQ);
+//		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//
+//		//TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
+//		//TVector3 nQ_EP = nQ_West_EP.Unit();
+//		//Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
+//		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//	      }
+//
+//	      if(mVecMesonCut->passEtaWest(lTrackA)) // Pi+ pos eta (west)
+//	      { // Below is East Only
+//		TVector2 Q2Vector = Q2East;
+//		// subtract auto-correlation from pos eta(west) event plane
+//		if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
+//		{
+//		  Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+//		  TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+//		  TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(cent9,runIndex,vz_sign);
+//		  Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+//		}
+//		Float_t Res2 = mVecMesonCorr->getResolution2_EP(cent9);
+//		Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,runIndex,cent9,vz_sign);
+//
+//		TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane
+//		TVector3 nQ = nQ_East.Unit();
+//		Double_t CosThetaStar = vKRest.Dot(nQ);
+//		mVecMesonHistoManger->FillSys(pt_lTrack,cent9,CosThetaStar,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//
+//		//TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
+//		//TVector3 nQ_EP = nQ_East_EP.Unit();
+//		//Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
+//		//mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,mMode);
+//	      }
+//	    }
+//	  }
+//	}
+//      }
+//    }
+//  }
+//
+//  //cout << "." << flush;
+//  //cout << " " << stop_event_use-start_event_use << "(" << 100 << "%)";
+//  cout << endl;
+//}
 //-------------------------------------------------------------------
 void StVecMesonAna::Finish()
 {

@@ -28,8 +28,8 @@ void StUtility::initRunIndex()
   bool isOpen_runIndex = read_in_runIndex();
   if(isOpen_runIndex) std::cout << "Run Index read in!" << std::endl;
 
-  bool isOpen_badRunList = read_in_badRunList(); // read in Bad Run List
-  if(isOpen_badRunList) std::cout << "Bad Run List read in!" << std::endl;
+  //bool isOpen_badRunList = read_in_badRunList(); // read in Bad Run List
+  //if(isOpen_badRunList) std::cout << "Bad Run List read in!" << std::endl;
 }
 
 int StUtility::findRunIndex(int runId)
@@ -74,7 +74,7 @@ bool StUtility::read_in_runIndex()
   std::cout << "reading run Index: " << std::endl;
   while (file_runIndex >> temp_runId >> temp_runIndex)
   {
-    // std::cout << "runId = " << temp_runId << ", runIndex = " << temp_runIndex << std::endl;
+    std::cout << "runId = " << temp_runId << ", runIndex = " << temp_runIndex << std::endl;
     map_runIndex[temp_runId] = temp_runIndex;
   }
   file_runIndex.close();

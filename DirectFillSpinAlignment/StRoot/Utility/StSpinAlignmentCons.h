@@ -171,9 +171,10 @@ namespace vmsa
 
   double const Pi = TMath::Pi();
   double const PiOver10 = Pi/10.0;
-  int const PhiPsi_total = 10;
-  double const PhiPsi_low[10] = {0.0,1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0};
-  double const PhiPsi_up[10]  = {1.0*PiOver10/2.0, 2.0*PiOver10/2.0, 3.0*PiOver10/2.0, 4.0*PiOver10/2.0, 5.0*PiOver10/2.0, 6.0*PiOver10/2.0, 7.0*PiOver10/2.0, 8.0*PiOver10/2.0, 9.0*PiOver10/2.0, Pi/2.0 };
+  double const PiOver7 = Pi/7.0;
+  int const PhiPsi_total = 7;
+  double const PhiPsi_low[10] = {0.0,1.0*PiOver7/2.0, 2.0*PiOver7/2.0, 3.0*PiOver7/2.0, 4.0*PiOver7/2.0, 5.0*PiOver7/2.0, 6.0*PiOver7/2.0};
+  double const PhiPsi_up[10]  = {1.0*PiOver7/2.0, 2.0*PiOver7/2.0, 3.0*PiOver7/2.0, 4.0*PiOver7/2.0, 5.0*PiOver7/2.0, 6.0*PiOver7/2.0, 7.0*PiOver7/2.0};
 
   int const CTS_total = 7; // cos(theta*) bin
   int const CTS_start = 0;

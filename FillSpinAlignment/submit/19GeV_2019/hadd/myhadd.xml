@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<job minFilesPerProcess="30" filesPerHour="10" maxFilesPerProcess="40" fileListSyntax="paths" simulateSubmission="false">
+<job minFilesPerProcess="10" filesPerHour="10" maxFilesPerProcess="25" fileListSyntax="paths" simulateSubmission="false">
 
   <command>
     root -l -b -q myhadd.C\(\"$FILELIST\",\"$JOBID\",\"&outFile;\"\)&gt;&amp; ${JOBID}.log
   </command>
 
-  <SandBox installer="ZIP">
+  <SandBox>
     <Package>
       <File>file:./myhadd.C</File>
     </Package>
   </SandBox>
 
-  <input URL="filelist:&listPath;/hadd.list" />
+  <input URL="filelist:&listPath;/hadd_&SM;_etamode&etamode;.list"/>
 
   <stdout discard="true"/>
   <stderr URL="file:&outPath;/hadd/SpinAlignmentYieldsLog/&outDir;/$JOBID.err"/>

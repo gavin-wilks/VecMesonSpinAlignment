@@ -14,6 +14,8 @@
 #include <vector>
 #include "TLorentzVector.h"
 #include "StThreeVectorF.hh"
+#include "StPhysicalHelixD.hh"
+#include "StRoot/StVecMesonMaker/StVecMesonMEKey.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TTree.h"
@@ -73,6 +75,43 @@ StVecMesonTree::~StVecMesonTree()
 */
 //------------------------------------------------------------------------------------------------------------------
 
+void StVecMesonTree::InitPhi()
+{
+  mVecMesonCorr = new StVecMesonFillCorr(mEnergy);
+  mVecMesonCut = new StVecMesonCut(mEnergy);
+  mVecMesonHistoManger = new StVecMesonHist();  
+  mVecMesonHistoFlow = new StVecMesonHistoFlow();  
+
+  mUtility = new StUtility(mEnergy);
+  //mRefMultCorr = new StRefMultCorr("refmult");
+
+  mVecMesonCorr->InitReCenterCorrection();
+  mVecMesonCorr->InitShiftCorrection();
+  mVecMesonCorr->InitResolutionCorr();
+  mVecMesonHistoManger->InitSys(mX_flag,0);
+  //mVecMesonHistoFlow->InitSys(mX_flag,0);
+
+  TString HistName = "Mass2_pt";
+  h_Mass2 = new TH2F(HistName.Data(),HistName.Data(),20,0.2,5.0,400,0.60,1.2);
+  HistName = "K_dEdx_Rig";
+  h_KdEdxRig = new TH2F(HistName.Data(),HistName.Data(),400,-4.5,4.5,400,0,40);
+  //HistName = "K_Mass2_Rig";
+  //h_KM2Rig = new TH2F(HistName.Data(),HistName.Data(),400,-4.5,4.5,100,-0.25,0.5);
+  //HistName = "K_InvBeta_Rig";
+  //h_KInvBetaRig = new TH2F(HistName.Data(),HistName.Data(),400,-4.5,4.5,300,-0.0,3.0);
+
+  for(Int_t cent = 0; cent < vmsa::Bin_Centrality; cent++)
+  {
+    for(Int_t vz = 0; vz < vmsa::Bin_VertexZ; vz++)
+    {
+      for(Int_t psi = 0; psi < vmsa::Bin_Phi_Psi; psi++)
+      {
+        mEventCounter2[cent][vz][psi] = 0;
+	clear_phi(cent,vz,psi,mX_flag);
+      }
+    }
+  }  
+}
 
 void StVecMesonTree::InitKStar()
 {
@@ -140,6 +179,16 @@ void StVecMesonTree::WriteMass2Rho()
   mTree->Write("",TObject::kOverwrite);
 }*/
 
+void StVecMesonTree::WriteMass2Phi()
+{
+  h_Mass2->Write();
+  h_KdEdxRig->Write();
+  //h_KM2Rig->Write();
+  //h_KInvBetaRig->Write(); 
+  mVecMesonHistoManger->WriteSys(mX_flag,0); 
+  //mVecMesonHistoFlow->WriteSys(mX_flag,0); 
+}
+
 void StVecMesonTree::WriteMass2KStar()
 {
   h_Mass2->Write();
@@ -192,6 +241,52 @@ void StVecMesonTree::WriteMass2KStar()
   }
   mEventCounter2[cent9][Bin_vz][Bin_Psi2] = 0;
 }*/
+
+void StVecMesonTree::clear_phi(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2, Int_t SM_flag)
+{
+  int numEv = 0;
+  if(SM_flag == 0) numEv = 1;
+  if(SM_flag == 0) numEv = vmsa::Buffer_depth;
+
+  mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].clear();
+  //mRefMult[cent9][Bin_vz][Bin_Psi2].clear();
+  //mCentrality[cent9][Bin_vz][Bin_Psi2].clear();
+  mRunIdx[cent9][Bin_vz][Bin_Psi2].clear();
+  mReweight[cent9][Bin_vz][Bin_Psi2].clear();
+  mVzEPBin[cent9][Bin_vz][Bin_Psi2].clear();
+  //mEventId[cent9][Bin_vz][Bin_Psi2].clear();
+  //mN_prim[cent9][Bin_vz][Bin_Psi2].clear();
+  //mN_non_prim[cent9][Bin_vz][Bin_Psi2].clear();
+  //mN_Tof_match[cent9][Bin_vz][Bin_Psi2].clear();
+  //mZDCx[cent9][Bin_vz][Bin_Psi2].clear();
+  //mBBCx[cent9][Bin_vz][Bin_Psi2].clear();
+  //mVzVpd[cent9][Bin_vz][Bin_Psi2].clear();
+  mQ2East[cent9][Bin_vz][Bin_Psi2].clear();
+  mQ2West[cent9][Bin_vz][Bin_Psi2].clear();
+  //mQ2Full[cent9][Bin_vz][Bin_Psi2].clear();
+  mNumTrackEast[cent9][Bin_vz][Bin_Psi2].clear();
+  mNumTrackWest[cent9][Bin_vz][Bin_Psi2].clear();
+  //mNumTrackFull[cent9][Bin_vz][Bin_Psi2].clear();
+  //mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].clear();
+  //mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].clear();
+
+  for(Int_t Bin_Event = 0; Bin_Event < numEv; Bin_Event++)
+  {
+    for(Int_t id = 0; id < 2; id++)
+    {
+      MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,id);
+      mHelix[key].clear();
+      mMomentum[key].clear();
+      //mMass2[key].clear();
+      mDca[key].clear();
+      mNHitsFit[key].clear();
+      mNSigma[key].clear();
+      mCharge[key].clear();
+    }
+  }
+  mEventCounter2[cent9][Bin_vz][Bin_Psi2] = 0;
+}
+
 
 void StVecMesonTree::clear_kstar(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2, Int_t SM_flag)
 {
@@ -538,6 +633,199 @@ void StVecMesonTree::size_rho(Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2)
 */
 //------------------------------------------------------------------------------------------------------------------
 
+
+void StVecMesonTree::FillPhi(StMesonTrack* Meson_track, Int_t mCent, Int_t vz, Int_t Psi2)
+{
+
+  // Initialise Track 
+  Float_t m2A = -999.9;
+  Float_t m2B = -999.9;
+  Float_t nsA = -999.9;
+  Float_t nsB = -999.9;
+  Float_t dcaA = -999.9;
+  Float_t dcaB = -999.9;
+  Float_t nhA = -1;
+  Float_t nhB = -1;
+  TLorentzVector lTrackA(0.0,0.0,0.0,0.0);
+  TLorentzVector lTrackB(0.0,0.0,0.0,0.0);
+  Int_t flagA = -1;
+  Int_t flagB = -1;
+
+  TVector2 mQv2West = mQ2West[mCent][vz][Psi2][0];
+  TVector2 mQv2East = mQ2East[mCent][vz][Psi2][0];
+
+  int mVzSign = mVzEPBin[mCent][vz][Psi2][0];
+  int mRunIndex = mRunIdx[mCent][vz][Psi2][0];
+  int reweight = mReweight[mCent][vz][Psi2][0];
+
+  // get Track Information
+  if(mVecMesonCorr->passTrackEtaNumCut(mNumTrackEast[mCent][vz][Psi2][0],mNumTrackWest[mCent][vz][Psi2][0]))
+  {
+    //m2A = Meson_track->getMass2A();
+    //m2B = Meson_track->getMass2B();
+    nsA = Meson_track->getNSigA();
+    nsB = Meson_track->getNSigB();
+    dcaA = Meson_track->getDcaA();
+    dcaB = Meson_track->getDcaB();
+    nhA = Meson_track->getNHitA();
+    nhB = Meson_track->getNHitB();
+    lTrackA = Meson_track->getTrackA();
+    lTrackB = Meson_track->getTrackB();
+    flagA = Meson_track->getFlagA();
+    flagB = Meson_track->getFlagB();
+    Float_t pA = lTrackA.P();
+    Float_t pB = lTrackB.P();
+    TLorentzVector lTrack = lTrackA + lTrackB; // Phi meson
+    Float_t pt_lTrack = lTrack.Perp();
+    Float_t rapidity_lTrack = lTrack.Rapidity();
+    //cout << "Rapidity = " << TMath::Abs(rapidity_lTrack) << endl;
+    if(TMath::Abs(rapidity_lTrack) > vmsa::mRapidityMax) return;
+    //cout << "Pass rapidity cut" << endl;
+
+    Float_t InvMass_lTrack = lTrack.M();
+    TVector3 vBeta = -1.0*lTrack.BoostVector(); // get phi beta
+    TLorentzVector lKRest = lTrackA;
+    lKRest.Boost(vBeta); // boost kaon back to phi rest frame
+    TVector3 vKRest = lKRest.Vect().Unit(); // kaon momentum direction in phi rest frame
+    
+    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
+    {
+      if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,0)) ) continue;
+      mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
+
+      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigma
+      {
+        if(i_dca != 0 && i_sig != 0) continue;
+        if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,0)) ) continue;
+        mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
+    
+        //for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++) // systematic loop for nSigma
+        //{
+          //if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+          //if( !(mVecMesonCut->passTrackNHitSys(nhA,nhB,i_nhit,0)) ) continue;
+          //mVecMesonHistoManger->FillNHitSys(nhA,nhB,i_nhit); // fill QA for nhA and nhB 
+
+          //////////////// GLOBAL SPIN ALIGNMENT ///////////////////////////////////////////////////
+          if(mVecMesonCut->passEtaEast(lTrackA)) // K+/- neg eta(east)
+          { // Below is West Only
+            TVector2 Q2Vector = mQv2West;
+            // subtract auto-correlation from pos eta(west) event plane
+            if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
+            {
+              Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+              TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+              TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(mCent,mRunIndex,mVzSign);
+              Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+            }
+            Float_t Res2 = mVecMesonCorr->getResolution2_EP(mCent);
+            Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,mRunIndex,mCent,mVzSign);
+
+            TVector3 nQ_West(TMath::Sin(Psi2_west),-1.0*TMath::Cos(Psi2_west),0.0); // normal vector of 2nd Event Plane
+            TVector3 nQ = nQ_West.Unit();
+            Double_t CosThetaStar = vKRest.Dot(nQ);
+       
+            //cout << "Fill Sys" << endl;
+            mVecMesonHistoManger->FillSys(pt_lTrack,mCent,CosThetaStar,i_dca,i_sig,0,Res2,InvMass_lTrack,reweight,mX_flag,0);
+   
+            //TVector3 nQ_West_EP(TMath::Cos(Psi2_west),TMath::Sin(Psi2_west),0.0); // tangent vector of 2nd Event Plane
+            //TVector3 nQ_EP = nQ_West_EP.Unit();          
+            //Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
+          }
+    
+          if(mVecMesonCut->passEtaWest(lTrackA)) // K+/- pos eta (west)
+          { // Below is East Only
+            TVector2 Q2Vector = mQv2East;
+            // subtract auto-correlation from pos eta(west) event plane
+            if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
+            {
+              Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+              TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+              TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(mCent,mRunIndex,mVzSign);
+              Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+            }
+            Float_t Res2 = mVecMesonCorr->getResolution2_EP(mCent);
+            Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,mRunIndex,mCent,mVzSign);
+            
+            TVector3 nQ_East(TMath::Sin(Psi2_east),-1.0*TMath::Cos(Psi2_east),0.0); // normal vector of 2nd Event Plane
+            TVector3 nQ = nQ_East.Unit();
+            Double_t CosThetaStar = vKRest.Dot(nQ);
+
+            //cout << "Fill Sys" << endl;
+            mVecMesonHistoManger->FillSys(pt_lTrack,mCent,CosThetaStar,i_dca,i_sig,0,Res2,InvMass_lTrack,reweight,mX_flag,0);
+            
+            //TVector3 nQ_East_EP(TMath::Cos(Psi2_east),TMath::Sin(Psi2_east),0.0); // tangent vector of 2nd Event Plane
+            //TVector3 nQ_EP = nQ_East_EP.Unit();
+            //Double_t CosThetaStar_EP = vKRest.Dot(nQ_EP);
+            //mVecMesonHistoManger->FillSys_EP(pt_lTrack,cent9,CosThetaStar_EP,i_dca,i_sig,Res2,InvMass_lTrack,reweight,mX_flag,2);
+          }
+          //////////////// GLOBAL SPIN ALIGNMENT ///////////////////////////////////////////////////
+          
+          //////////////// ELLIPTIC FLOW ///////////////////////////////////////////////////
+          //if(mVecMesonCut->passEtaEast(lTrack)) // phi neg eta(east)
+          //{ // Below is West Only
+          //  TVector2 Q2Vector = mQv2West;
+          //  // subtract auto-correlation from pos eta(west) event plane
+          //  if(flagA == 0 && mVecMesonCut->passTrackEP(lTrackA,dcaA) && mVecMesonCut->passTrackEtaWest(lTrackA)) // trackB
+          //  {
+          //    Float_t  w = mVecMesonCorr->getWeight(lTrackA);
+          //    TVector2 q2VectorA = mVecMesonCorr->calq2Vector(lTrackA);
+          //    TVector2 q2CorrA   = mVecMesonCorr->getReCenterPar_West(mCent,mRunIndex,mVzSign);
+          //    Q2Vector = Q2Vector - w*(q2VectorA-q2CorrA);
+          //  }
+          //  if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaWest(lTrackB)) // trackB
+          //  {
+          //    Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+          //    TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+          //    TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_West(mCent,mRunIndex,mVzSign);
+          //    Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+          //  }
+          //  Float_t Res2 = mVecMesonCorr->getResolution2_EP(mCent);
+          //  Float_t Psi2_west = mVecMesonCorr->calShiftAngle2West_EP(Q2Vector,mRunIndex,mCent,mVzSign);
+          //  Float_t PhiMinusPsi = lTrack.Phi() - Psi2_west;
+          //  
+          //  if(PhiMinusPsi >= -(3.0/2.0)*TMath::Pi() && PhiMinusPsi < -(1.0/2.0)*TMath::Pi()) PhiMinusPsi += TMath::Pi();
+          //  if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
+          //  PhiMinusPsi = TMath::Abs(PhiMinusPsi);
+          // 
+          //  mVecMesonHistoFlow->FillSys(pt_lTrack,mCent,PhiMinusPsi,i_dca,i_sig,i_nhit,Res2,InvMass_lTrack,reweight,mX_flag,2);
+          //}
+  
+          //if(mVecMesonCut->passEtaWest(lTrack)) // phi pos eta (west)
+          //{ // Below is East Only
+          //  TVector2 Q2Vector = mQv2East;
+          //  // subtract auto-correlation from pos eta(west) event plane
+          //  if(flagA == 0 && mVecMesonCut->passTrackEP(lTrackA,dcaA) && mVecMesonCut->passTrackEtaEast(lTrackA)) // trackB
+          //  {
+          //    Float_t  w = mVecMesonCorr->getWeight(lTrackA);
+          //    TVector2 q2VectorA = mVecMesonCorr->calq2Vector(lTrackA);
+          //    TVector2 q2CorrA   = mVecMesonCorr->getReCenterPar_East(mCent,mRunIndex,mVzSign);
+          //    Q2Vector = Q2Vector - w*(q2VectorA-q2CorrA);
+          //  }
+          //  if(flagB == 0 && mVecMesonCut->passTrackEP(lTrackB,dcaB) && mVecMesonCut->passTrackEtaEast(lTrackB)) // trackB
+          //  {
+          //    Float_t  w = mVecMesonCorr->getWeight(lTrackB);
+          //    TVector2 q2VectorB = mVecMesonCorr->calq2Vector(lTrackB);
+          //    TVector2 q2CorrB   = mVecMesonCorr->getReCenterPar_East(mCent,mRunIndex,mVzSign);
+          //    Q2Vector = Q2Vector - w*(q2VectorB-q2CorrB);
+          //  }
+          //  Float_t Res2 = mVecMesonCorr->getResolution2_EP(mCent);
+          //  Float_t Psi2_east = mVecMesonCorr->calShiftAngle2East_EP(Q2Vector,mRunIndex,mCent,mVzSign);
+          //  Float_t PhiMinusPsi = lTrack.Phi() - Psi2_east;
+
+          //  if(PhiMinusPsi >= -(3.0/2.0)*TMath::Pi() && PhiMinusPsi < -(1.0/2.0)*TMath::Pi()) PhiMinusPsi += TMath::Pi();
+          //  if(PhiMinusPsi <=  (3.0/2.0)*TMath::Pi() && PhiMinusPsi >  (1.0/2.0)*TMath::Pi()) PhiMinusPsi -= TMath::Pi();
+          //  PhiMinusPsi = TMath::Abs(PhiMinusPsi);
+
+          //  mVecMesonHistoFlow->FillSys(pt_lTrack,mCent,PhiMinusPsi,i_dca,i_sig,i_nhit,Res2,InvMass_lTrack,reweight,mX_flag,2);
+          //}          
+          //////////////// ELLIPTIC FLOW ///////////////////////////////////////////////////                
+        //}
+      }
+    }
+  }
+}
+
+
 void StVecMesonTree::FillKStar(StMesonTrack* Meson_track, Int_t mCent, Int_t vz, Int_t Psi2)
 {
 
@@ -593,19 +881,19 @@ void StVecMesonTree::FillKStar(StMesonTrack* Meson_track, Int_t mCent, Int_t vz,
     
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++) // systematic loop for dca
     {
-      if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,2)) ) return;
+      if( !(mVecMesonCut->passTrackDcaSys(dcaA,dcaB,i_dca,2)) ) continue;
       mVecMesonHistoManger->FillDcaSys(dcaA,dcaB,i_dca); // fill QA for dcaA and dcaB
 
       for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++) // systematic loop for nSigma
       {
-        if(i_dca != 0 && i_sig != 0) return;
-        if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,2)) ) return;
+        if(i_dca != 0 && i_sig != 0) continue;
+        if( !(mVecMesonCut->passTrackSigSys(nsA,nsB,i_sig,2)) ) continue;
         mVecMesonHistoManger->FillSigSys(nsA,nsB,i_sig); // fill QA for nsA and nsB 
     
         for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++) // systematic loop for nSigma
         {
-          if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) return;
-          if( !(mVecMesonCut->passTrackNHitSys(nhA,nhB,i_nhit,2)) ) return;
+          if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+          if( !(mVecMesonCut->passTrackNHitSys(nhA,nhB,i_nhit,2)) ) continue;
           mVecMesonHistoManger->FillNHitSys(nhA,nhB,i_nhit); // fill QA for nhA and nhB 
 
           //////////////// GLOBAL SPIN ALIGNMENT ///////////////////////////////////////////////////
@@ -854,6 +1142,158 @@ void StVecMesonTree::FillKStar(StMesonTrack* Meson_track, Int_t mCent, Int_t vz,
 }
 */
 //------------------------------------------------------------------------------------------------------------------
+
+void StVecMesonTree::doPhi(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2) // 0: Same Event, 1: Mix Event
+{
+  if(Flag_ME == 0) // same event
+  {
+    for(Int_t Bin_Event = 0; Bin_Event < mEventCounter2[cent9][Bin_vz][Bin_Psi2]; Bin_Event++)
+    {
+      // start to select phi candidate in a event
+     // cout << "Entered Loop" << endl;    
+ 
+      MEKey key_kplus   = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,0); //K+
+      MEKey key_kminus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,1); //K-
+
+      TLorentzVector ltrackA, ltrackB;
+      for(Int_t n_kplus = 0; n_kplus < mHelix[key_kplus].size(); n_kplus++) // first track loop over K+ candidates
+      {
+       // cout << "Loop over K+" << endl;
+	StThreeVectorF p_vecA = mHelix[key_kplus][n_kplus].cat(mHelix[key_kplus][n_kplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
+	p_vecA *= mMomentum[key_kplus][n_kplus];
+	ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassKaon);
+	for(Int_t n_kminus = 0; n_kminus < mHelix[key_kminus].size(); n_kminus++) // second track loop over K- candidates
+	{
+         // cout << "Loop over K-" << endl;
+	  StThreeVectorF p_vecB = mHelix[key_kminus][n_kminus].cat(mHelix[key_kminus][n_kminus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event]));  // primary momentum
+	  p_vecB *= mMomentum[key_kminus][n_kminus];
+	  ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassKaon);
+	  TLorentzVector trackAB      = ltrackA+ltrackB;
+	  Double_t InvMassAB          = trackAB.M();
+	  Double_t pt = trackAB.Perp();
+
+          
+          //cout << "About to fill phi Meson" << endl;
+	  if(InvMassAB > vmsa::mMassKaon*2 && InvMassAB < 1.05) 
+	  {
+            StMesonTrack *mesonTrack = new StMesonTrack(); 
+	    //mesonTrack->setMass2A(mMass2[key_kplus][n_kplus]); // K+
+	    //mesonTrack->setMass2B(mMass2[key_kminus][n_kminus]); // K-
+	    mesonTrack->setNSigA(mNSigma[key_kplus][n_kplus]); // K+
+	    mesonTrack->setNSigB(mNSigma[key_kminus][n_kminus]); // K-
+	    mesonTrack->setDcaA(mDca[key_kplus][n_kplus]); // K+
+	    mesonTrack->setDcaB(mDca[key_kminus][n_kminus]); // K-
+            //mesonTrack->setNHitA(mNHitsFit[key_kplus][n_kplus]); // K+
+            //mesonTrack->setNHitB(mNHitsFit[key_kminus][n_kminus]); // K-
+	    mesonTrack->setTrackA(ltrackA); // K+
+	    mesonTrack->setTrackB(ltrackB); // K-
+	    mesonTrack->setFlagA(Bin_Event); // K+
+	    mesonTrack->setFlagB(Bin_Event); // K-
+	    h_Mass2->Fill(pt,InvMassAB);
+            FillPhi(mesonTrack,cent9,Bin_vz,Bin_Psi2);
+            delete mesonTrack;
+	  }
+	}
+      }
+    }
+  }
+
+  if(Flag_ME == 1) // mixed event
+  {
+    for(Int_t Bin_Event_A = 0; Bin_Event_A < mEventCounter2[cent9][Bin_vz][Bin_Psi2]-1; Bin_Event_A++)
+    {
+      MEKey key_A_kplus   = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event_A,0); //K+
+      MEKey key_A_kminus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event_A,1); //K-
+      for(Int_t Bin_Event_B = Bin_Event_A+1; Bin_Event_B < mEventCounter2[cent9][Bin_vz][Bin_Psi2]; Bin_Event_B++)
+      {
+        MEKey key_B_kplus   = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event_B,0); //K+
+        MEKey key_B_kminus  = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event_B,1); //K-
+
+
+	TLorentzVector ltrackA, ltrackB;
+
+	// start to mix events
+	// mix K+ candidates from A event with K- candidates from B event
+	for(Int_t n_kplus = 0; n_kplus < mHelix[key_A_kplus].size(); n_kplus++) // first track loop over K+ candidates from event A
+	{
+	  StThreeVectorF p_vecA(mHelix[key_A_kplus][n_kplus].cat(mHelix[key_A_kplus][n_kplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event_A])));  // primary momentum
+	  p_vecA *= mMomentum[key_A_kplus][n_kplus];
+	  ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassKaon); // K+
+
+	  for(Int_t n_kminus = 0; n_kminus < mHelix[key_B_kminus].size(); n_kminus++) // second track loop over K- candidates from event B
+	  {
+	    StThreeVectorF p_vecB(mHelix[key_B_kminus][n_kminus].cat(mHelix[key_B_kminus][n_kminus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event_B])));  // primary momentum
+	    p_vecB *= mMomentum[key_B_kminus][n_kminus];
+	    ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassKaon); // K-
+
+	    TLorentzVector trackAB      = ltrackA+ltrackB;
+	    Double_t InvMassAB          = trackAB.M();
+	    Double_t pt = trackAB.Perp();
+
+	    if(InvMassAB > vmsa::mMassKaon*2 && InvMassAB < 1.05) 
+	    {
+              StMesonTrack *mesonTrack = new StMesonTrack(); 
+	      //mesonTrack->setMass2A(mMass2[key_A_kplus][n_kplus]); // K+
+	      //mesonTrack->setMass2B(mMass2[key_B_kminus][n_kminus]); // K-
+	      mesonTrack->setNSigA(mNSigma[key_A_kplus][n_kplus]); // K+
+	      mesonTrack->setNSigB(mNSigma[key_B_kminus][n_kminus]); // K-
+	      mesonTrack->setDcaA(mDca[key_A_kplus][n_kplus]); // K+
+	      mesonTrack->setDcaB(mDca[key_B_kminus][n_kminus]); // K-
+              //mesonTrack->setNHitA(mNHitsFit[key_A_kplus][n_kplus]); // K+
+              //mesonTrack->setNHitB(mNHitsFit[key_B_kminus][n_kminus]); // K-
+	      mesonTrack->setTrackA(ltrackA); // K+
+	      mesonTrack->setTrackB(ltrackB); // K-
+	      mesonTrack->setFlagA(Bin_Event_A); // K+
+	      mesonTrack->setFlagB(Bin_Event_B); // K-
+	      h_Mass2->Fill(pt,InvMassAB);
+              FillPhi(mesonTrack,cent9,Bin_vz,Bin_Psi2);
+              delete mesonTrack;
+	    }
+	  }
+	}
+
+        // mix pi- candidates from A event with K+ candidates from B event
+	for(Int_t n_kminus = 0; n_kminus < mHelix[key_A_kminus].size(); n_kminus++) // first track loop over pi- candidates from event A
+	{
+	  StThreeVectorF p_vecA(mHelix[key_A_kminus][n_kminus].cat(mHelix[key_A_kminus][n_kminus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event_A])));  // primary momentum
+	  p_vecA *= mMomentum[key_A_kminus][n_kminus];
+	  ltrackA.SetXYZM(p_vecA.x(),p_vecA.y(),p_vecA.z(),vmsa::mMassKaon); // K-
+
+	  for(Int_t n_kplus = 0; n_kplus < mHelix[key_B_kplus].size(); n_kplus++) // second track loop over K+ candidates from event B
+	  {
+	    StThreeVectorF p_vecB(mHelix[key_B_kplus][n_kplus].cat(mHelix[key_B_kplus][n_kplus].pathLength(mPrimaryvertex[cent9][Bin_vz][Bin_Psi2][Bin_Event_B])));  // primary momentum
+	    p_vecB *= mMomentum[key_B_kplus][n_kplus];
+	    ltrackB.SetXYZM(p_vecB.x(),p_vecB.y(),p_vecB.z(),vmsa::mMassKaon); // K+
+
+	    TLorentzVector trackAB      = ltrackA+ltrackB;
+	    Double_t InvMassAB          = trackAB.M();
+	    Double_t pt = trackAB.Perp();
+
+	    if(InvMassAB > vmsa::mMassKaon*2 && InvMassAB < 1.05) 
+	    {
+              StMesonTrack *mesonTrack = new StMesonTrack(); 
+	      //mesonTrack->setMass2A(mMass2[key_B_kplus][n_kplus]); // K+
+	      //mesonTrack->setMass2B(mMass2[key_A_kminus][n_kminus]); // K-
+	      mesonTrack->setNSigA(mNSigma[key_B_kplus][n_kplus]); // K+
+	      mesonTrack->setNSigB(mNSigma[key_A_kminus][n_kminus]); // K-
+	      mesonTrack->setDcaA(mDca[key_B_kplus][n_kplus]); // K+
+	      mesonTrack->setDcaB(mDca[key_A_kminus][n_kminus]); // K-
+              //mesonTrack->setNHitA(mNHitsFit[key_B_kplus][n_kplus]); // K+
+              //mesonTrack->setNHitB(mNHitsFit[key_A_kminus][n_kminus]); // K-
+	      mesonTrack->setTrackA(ltrackB); // K+
+	      mesonTrack->setTrackB(ltrackA); // K-
+	      mesonTrack->setFlagA(Bin_Event_B); // K+
+	      mesonTrack->setFlagB(Bin_Event_A); // K-
+	      h_Mass2->Fill(pt,InvMassAB);
+              FillPhi(mesonTrack,cent9,Bin_vz,Bin_Psi2);
+              delete mesonTrack;
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
 
 void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin_Psi2) // 0: Same Event, 1: Mix Event
 {
@@ -1120,6 +1560,189 @@ void StVecMesonTree::doKStar(Int_t Flag_ME, Int_t cent9, Int_t Bin_vz, Int_t Bin
 }
 
 
+void StVecMesonTree::MixEvent_Phi(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, Float_t vz, Float_t Psi2, Int_t runIndex, Float_t reweight, Int_t vzEPbin)
+{
+  StPicoEvent *event = (StPicoEvent*)pico->event();
+
+  Int_t Bin_vz, Bin_Psi2;
+
+  Float_t vz_start = vmsa::mVzMaxMap[mEnergy];
+  Float_t vz_bin = 2*vz_start/vmsa::Bin_VertexZ;
+
+  Float_t psi2_start = TMath::Pi()/2.0;
+  Float_t psi2_bin = 2*psi2_start/vmsa::Bin_Phi_Psi;
+
+  for(Int_t i = 0; i < vmsa::Bin_VertexZ; i++)
+  {
+    if((vz > -1.0*vz_start+i*vz_bin) && (vz <= -1.0*vz_start+(i+1)*vz_bin))
+    {
+      Bin_vz = i;
+    }
+  }
+  for(Int_t i = 0; i < vmsa::Bin_Phi_Psi; i++)
+  {
+    if((Psi2 > -1.0*psi2_start+i*psi2_bin) && (Psi2 <= -1.0*psi2_start+(i+1)*psi2_bin))
+    {
+      Bin_Psi2 = i;
+    }
+  }
+
+  Int_t Bin_Event = mEventCounter2[cent9][Bin_vz][Bin_Psi2];
+
+  const Double_t MAGFIELDFACTOR = kilogauss;
+  const Int_t nTracks = pico->numberOfTracks();
+
+  // store Event Information
+  StThreeVectorF primVer; 
+  primVer.setX(event->primaryVertex().x());
+  primVer.setY(event->primaryVertex().y());
+  primVer.setZ(event->primaryVertex().z());
+
+  mPrimaryvertex[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<StThreeVectorF>(primVer));
+  mRunIdx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(runIndex));
+  mVzEPBin[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(vzEPbin));
+  mReweight[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(reweight));
+  //mRefMult[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->refMult()));
+  //mCentrality[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(cent9));
+  //mRunId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->runId()));
+  //mEventId[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(event->eventId()));
+  //mN_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_prim));
+  //mN_non_prim[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_non_prim));
+  //mN_Tof_match[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mNumber_Tof_match));
+  //mZDCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->ZDCx()));
+  //mBBCx[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->BBCx()));
+  //mVzVpd[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Float_t>(event->vzVpd()));
+  //mNumTracks[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<UShort_t>(pico->numberOfTracks()));
+  mQ2East[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2East));
+  mQ2West[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2West));
+  //mQ2Full[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<TVector2>(mQVector2Full));
+  mNumTrackEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaEast));
+  mNumTrackWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackEtaWest));
+  //mNumTrackFull[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFull));
+  //mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullEast));
+  //mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullWest));
+
+  //cout << "filled event information" << endl;
+  // store Track Information
+  for(Int_t i = 0; i < nTracks; i ++) // loop over all particles in event
+  {
+    StPicoTrack *track = pico->track(i);
+
+    if(mVecMesonCut->passTrackMeson(track,event,2))
+    {
+      //Float_t Mass2 = mVecMesonCut->getPrimaryMass2(track,pico);
+      Float_t Polarity = static_cast<Float_t>(track->charge());
+      Float_t momentum = track->pMom().Mag();
+      //Float_t Mass2K_low = 0.16;
+      //Float_t Mass2K_up = 0.36;
+      //Float_t Mass2Pi_low = -0.20;
+      //Float_t Mass2Pi_up = 0.15;
+      
+      Int_t charge = 0; // +
+      if(Polarity < 0) charge = 1; // -
+     
+      //cout << "grabbed some track info" << endl;
+      Float_t nSigmaKaon = track->nSigmaKaon();
+      //cout << "grabbed nSigmaKaon = " << nSigmaKaon << endl;
+      {
+	if(
+            (fabs(nSigmaKaon) < 3.0)
+            //(Mass2 > Mass2K_low && Mass2 < Mass2K_up) && fabs(nSigmaKaon) < 2.0
+	  )
+	{
+          StThreeVectorD primMom; 
+          primMom.setX(track->pMom().x());
+          primMom.setY(track->pMom().y());
+          primMom.setZ(track->pMom().z());
+          StThreeVectorD primVer; 
+          primVer.setX(event->primaryVertex().x());
+          primVer.setY(event->primaryVertex().y());
+          primVer.setZ(event->primaryVertex().z());
+          //cout << "about to create key" << endl;
+	  MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
+          //cout << "create key" << endl;
+	  //mMass2[key].push_back(static_cast<Float_t>(Mass2)); // mass2
+          //cout << "pushback mass" << endl;
+	  mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
+          //cout << "pushback mass" << endl;
+	  mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
+          //cout << "pushback mass" << endl;
+	  mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaKaon()))); // nSigma
+          //cout << "pushback mass" << endl;
+          //key.print();
+    	  mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
+          //cout << "pushback mass" << endl;
+	  mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
+          //cout << "pushback mass" << endl;
+          //mCharge[key].push_back(static_cast<Int_t>(charge));
+          h_KdEdxRig->Fill(momentum*Polarity,track->dEdx());
+          //cout << "fill" << endl;
+          //h_KM2Rig->Fill(momentum*Polarity,Mass2);
+          //cout << "fill" << endl;
+          //h_KInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
+          //cout << "something too large in kaon container" << endl;
+          //cout << "push back kaon info" << endl;
+	}
+        else continue;
+      }
+      //Float_t nSigmaPion = track->nSigmaPion();
+      //{
+      //  charge += 2; // changes id to pi+ and pi-
+      //  if(
+      //      (Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) || (Mass2 < -10.0 && fabs(nSigmaPion) < 2.0) 
+      //      //(Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) && fabs(nSigmaPion) < 2.0
+      //    )
+      //  {
+      //    StThreeVectorD primMom; 
+      //    primMom.setX(track->pMom().x());
+      //    primMom.setY(track->pMom().y());
+      //    primMom.setZ(track->pMom().z());
+      //    StThreeVectorD primVer; 
+      //    primVer.setX(event->primaryVertex().x());
+      //    primVer.setY(event->primaryVertex().y());
+      //    primVer.setZ(event->primaryVertex().z());
+      //    MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
+      //    mMass2[key].push_back(static_cast<Float_t>(Mass2)); // mass2
+      //    mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
+      //    mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
+      //    mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaPion()))); // nSigma
+      //    mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
+      //    mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
+      //    //mCharge[key].push_back(static_cast<Int_t>(charge));
+      //    
+      //    h_PidEdxRig->Fill(momentum*Polarity,track->dEdx());
+      //    h_PiM2Rig->Fill(momentum*Polarity,Mass2);
+      //    h_PiInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
+      //    cout << "push back pion info" << endl;
+      //    //cout << "something too large in pion contianer" << endl;
+      //  }
+      //}
+
+    }
+  }
+
+  mEventCounter2[cent9][Bin_vz][Bin_Psi2]++;
+
+  if(Flag_ME == 0) // same event
+  {
+    doPhi(Flag_ME,cent9,Bin_vz,Bin_Psi2);
+    clear_phi(cent9,Bin_vz,Bin_Psi2,0);
+  }
+
+  if(Flag_ME == 1) // mix event
+  {
+    //cout << "about to mix event" << endl;
+    if(mEventCounter2[cent9][Bin_vz][Bin_Psi2] == vmsa::Buffer_depth)
+    {
+      doPhi(Flag_ME,cent9,Bin_vz,Bin_Psi2);
+      //cout << "mix the event" << endl;
+      clear_phi(cent9,Bin_vz,Bin_Psi2,1);
+    }
+  }
+
+}
+
+
 void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9, Float_t vz, Float_t Psi2, Int_t runIndex, Float_t reweight, Int_t vzEPbin)
 {
   StPicoEvent *event = (StPicoEvent*)pico->event();
@@ -1182,6 +1805,7 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
   //mNumTrackFullEast[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullEast));
   //mNumTrackFullWest[cent9][Bin_vz][Bin_Psi2].push_back(static_cast<Int_t>(mTrackFullWest));
 
+  cout << "filled event information" << endl;
   // store Track Information
   for(Int_t i = 0; i < nTracks; i ++) // loop over all particles in event
   {
@@ -1200,11 +1824,13 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
       Int_t charge = 0; // +
       if(Polarity < 0) charge = 1; // -
      
+      cout << "grabbed some track info" << endl;
       Float_t nSigmaKaon = track->nSigmaKaon();
+      cout << "grabbed nSigmaKaon = " << nSigmaKaon << endl;
       {
 	if(
-            //(Mass2 > Mass2K_low && Mass2 < Mass2K_up) || (Mass2 < -10.0 && fabs(nSigmaKaon) < 2.0)
-            (Mass2 > Mass2K_low && Mass2 < Mass2K_up) && fabs(nSigmaKaon) < 2.0
+            (Mass2 > Mass2K_low && Mass2 < Mass2K_up) || (Mass2 < -10.0 && fabs(nSigmaKaon) < 2.0)
+            //(Mass2 > Mass2K_low && Mass2 < Mass2K_up) && fabs(nSigmaKaon) < 2.0
 	  )
 	{
           StThreeVectorD primMom; 
@@ -1215,26 +1841,39 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
           primVer.setX(event->primaryVertex().x());
           primVer.setY(event->primaryVertex().y());
           primVer.setZ(event->primaryVertex().z());
+          cout << "about to create key" << endl;
 	  MEKey key = MEKey(cent9,Bin_vz,Bin_Psi2,Bin_Event,charge);
+          cout << "create key" << endl;
 	  mMass2[key].push_back(static_cast<Float_t>(Mass2)); // mass2
+          cout << "pushback mass" << endl;
 	  mDca[key].push_back(static_cast<Float_t>(track->gDCA(primVer.x(),primVer.y(),primVer.z())*Polarity)); // dca*charge 
+          cout << "pushback mass" << endl;
 	  mNHitsFit[key].push_back(static_cast<Float_t>(track->nHitsFit())); // nHitsFit
+          cout << "pushback mass" << endl;
 	  mNSigma[key].push_back(static_cast<Float_t>((track->nSigmaKaon()))); // nSigma
-	  mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
+          cout << "pushback mass" << endl;
+          //key.print();
+    	  mHelix[key].push_back(static_cast<StPhysicalHelixD>(StPhysicalHelixD(primMom,primVer,event->bField()*MAGFIELDFACTOR,Polarity)));// get helix from the pMom 
+          cout << "pushback mass" << endl;
 	  mMomentum[key].push_back(static_cast<Float_t>(momentum));// get helix from the pMom 
+          cout << "pushback mass" << endl;
           //mCharge[key].push_back(static_cast<Int_t>(charge));
           h_KdEdxRig->Fill(momentum*Polarity,track->dEdx());
+          cout << "fill" << endl;
           h_KM2Rig->Fill(momentum*Polarity,Mass2);
+          cout << "fill" << endl;
           h_KInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
           //cout << "something too large in kaon container" << endl;
+          cout << "push back kaon info" << endl;
 	}
+      else continue;
       }
       Float_t nSigmaPion = track->nSigmaPion();
       {
         charge += 2; // changes id to pi+ and pi-
 	if(
-            //(Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) || (Mass2 < -10.0 && fabs(nSigmaPion) < 2.0) 
-            (Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) && fabs(nSigmaPion) < 2.0
+            (Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) || (Mass2 < -10.0 && fabs(nSigmaPion) < 2.0) 
+            //(Mass2 > Mass2Pi_low && Mass2 < Mass2Pi_up) && fabs(nSigmaPion) < 2.0
 	  )
 	{
           StThreeVectorD primMom; 
@@ -1257,6 +1896,7 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
           h_PidEdxRig->Fill(momentum*Polarity,track->dEdx());
           h_PiM2Rig->Fill(momentum*Polarity,Mass2);
           h_PiInvBetaRig->Fill(momentum*Polarity,1.0/mVecMesonCut->getBeta(track,pico));
+          cout << "push back pion info" << endl;
           //cout << "something too large in pion contianer" << endl;
 	}
       }
@@ -1274,9 +1914,11 @@ void StVecMesonTree::MixEvent_KStar(Int_t Flag_ME, StPicoDst *pico, Int_t cent9,
 
   if(Flag_ME == 1) // mix event
   {
+    cout << "about to mix event" << endl;
     if(mEventCounter2[cent9][Bin_vz][Bin_Psi2] == vmsa::Buffer_depth)
     {
       doKStar(Flag_ME,cent9,Bin_vz,Bin_Psi2);
+      cout << "mix the event" << endl;
       clear_kstar(cent9,Bin_vz,Bin_Psi2,1);
     }
   }

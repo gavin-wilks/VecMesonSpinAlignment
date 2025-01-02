@@ -131,50 +131,50 @@ void StVecMesonHist::InitSys(Int_t X_flag, Int_t mode) // 0 for Same Event, 1 fo
 void StVecMesonHist::FillSys(Float_t pt, Int_t cent9, Float_t CosThetaStar, Int_t dcaSys, Int_t nSigSys, Int_t nHitSys, Float_t Res2, Float_t InvMass, Double_t reweight, Int_t X_flag, Int_t mode)
 {
   TString Mode[2] = {"SE","ME"};
-  if(Res2 > 0.0)
-  {
-    for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt_bin
-    {
-      if(pt >= vmsa::ptRawStart[i_pt] && pt < vmsa::ptRawStop[i_pt])
-      {
-	for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta++) // phi-psi2 bin
-	{
-	  if(TMath::Abs(CosThetaStar) >= vmsa::CTS_low[i_theta] && TMath::Abs(CosThetaStar) < vmsa::CTS_up[i_theta])
-	  {
-	    // spin alignment
-	    TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,i_theta,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	    h_mMass2[KEY_Mass2]->Fill(InvMass,reweight);
-	    if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
-	    {
-	      TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	      h_mMass2[KEY_Mass2Sys]->Fill(InvMass,reweight);
-	    }
-	    // raw pt spectra
-	    if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
-	    {
-	      TString KEY_Mass2_Spec = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	      h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
-	      if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
-	      {
-	        TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_low_Centrality_9_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	        h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
-	      }
-	    }
-	    else
-	    {
-	      TString KEY_Mass2_Spec = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	      h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
-	      if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
-	      {
-	        TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_high_Centrality_9_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	        h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
+  //if(Res2 > 0.0)
+  //{
+  //  for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt_bin
+  //  {
+  //    if(pt >= vmsa::ptRawStart[i_pt] && pt < vmsa::ptRawStop[i_pt])
+  //    {
+  //      for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta++) // phi-psi2 bin
+  //      {
+  //        if(TMath::Abs(CosThetaStar) >= vmsa::CTS_low[i_theta] && TMath::Abs(CosThetaStar) < vmsa::CTS_up[i_theta])
+  //        {
+  //          // spin alignment
+  //          TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,i_theta,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //          h_mMass2[KEY_Mass2]->Fill(InvMass,reweight);
+  //          if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
+  //          {
+  //            TString KEY_Mass2Sys = Form("pt_%d_Centrality_9_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,i_theta,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //            h_mMass2[KEY_Mass2Sys]->Fill(InvMass,reweight);
+  //          }
+  //          // raw pt spectra
+  //          if(pt < 0.5*(vmsa::ptRawStart[i_pt]+vmsa::ptRawStop[i_pt])) 
+  //          {
+  //            TString KEY_Mass2_Spec = Form("Spec_pt_%d_low_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //            h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
+  //            if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
+  //            {
+  //              TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_low_Centrality_9_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //              h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
+  //            }
+  //          }
+  //          else
+  //          {
+  //            TString KEY_Mass2_Spec = Form("Spec_pt_%d_high_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //            h_mMass_Spec[KEY_Mass2_Spec]->Fill(InvMass,reweight);
+  //            if(cent9 >= vmsa::cent_low[0] && cent9 <= vmsa::cent_up[0]) // 20%-60%
+  //            {
+  //              TString KEY_Mass2_SpecSys = Form("Spec_pt_%d_high_Centrality_9_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //              h_mMass_Spec[KEY_Mass2_SpecSys]->Fill(InvMass,reweight);
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
+  //}
   TString KEY_Mass2_Yields = Form("Yields_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",cent9,dcaSys,nSigSys,nHitSys,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
   h_mMass_Yields[KEY_Mass2_Yields]->Fill(InvMass,reweight);
 }
@@ -208,28 +208,28 @@ void StVecMesonHist::WriteSys(Int_t X_flag, Int_t mode)
 {
   TString Mode[2] = {"SE","ME"};
   // flow
-  for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
-  {
-    for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
-    {
-      for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta ++) // cos(theta*) bin
-      {
-	for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
-	{
-	  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
-	  {
-            if(i_dca != 0 && i_sig != 0) continue;
-            for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
-            {
-              if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
-	      TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-	      h_mMass2[KEY_Mass2]->Write();
-            }
-	  }
-	}
-      }
-    }
-  }
+  //for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
+  //{
+  //  for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
+  //  {
+  //    for(Int_t i_theta = 0; i_theta < vmsa::CTS_total; i_theta ++) // cos(theta*) bin
+  //    {
+  //      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+  //      {
+  //        for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+  //        {
+  //          if(i_dca != 0 && i_sig != 0) continue;
+  //          for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+  //          {
+  //            if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+  //            TString KEY_Mass2 = Form("pt_%d_Centrality_%d_CosThetaStar_%d_2nd_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,i_cent,i_theta,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //            h_mMass2[KEY_Mass2]->Write();
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
+  //}
 
   // Yields
   for(Int_t i_cent = 0; i_cent < 9; i_cent++) // centrality bin
@@ -250,59 +250,59 @@ void StVecMesonHist::WriteSys(Int_t X_flag, Int_t mode)
   }
 
   // raw pt spectra
-  for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
-  {
-    for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
-    {
-      for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
-      {
-        for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
-        {
-          if(i_dca != 0 && i_sig != 0) continue;
-          for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
-          {
-            if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
-            for(Int_t i_pT = 0; i_pT < 2; i_pT++)
-            {
-              TString pT[2] = {"low","high"};
-              TString KEY_Mass2_Spec = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,pT[i_pT].Data(),i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
-              h_mMass_Spec[KEY_Mass2_Spec]->Write();
-            }
-          }
-        }
-      }
-    }
-  }
+  //for(Int_t i_pt = 0; i_pt < vmsa::pt_total; i_pt++) // pt bin
+  //{
+  //  for(Int_t i_cent = vmsa::Cent_start; i_cent < vmsa::Cent_stop; i_cent++) // centrality bin
+  //  {
+  //    for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+  //    {
+  //      for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+  //      {
+  //        if(i_dca != 0 && i_sig != 0) continue;
+  //        for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+  //        {
+  //          if((i_sig != 0 && i_nhit != 0) || (i_dca != 0 && i_nhit != 0)) continue;
+  //          for(Int_t i_pT = 0; i_pT < 2; i_pT++)
+  //          {
+  //            TString pT[2] = {"low","high"};
+  //            TString KEY_Mass2_Spec = Form("Spec_pt_%d_%s_Centrality_%d_Dca_%d_Sig_%d_NHit_%d_%s_%s",i_pt,pT[i_pT].Data(),i_cent,i_dca,i_sig,i_nhit,vmsa::mPID[mode].c_str(),Mode[X_flag].Data());
+  //            h_mMass_Spec[KEY_Mass2_Spec]->Write();
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
+  //}
 
-  TString Charge[2] = {"A","B"};
-  // Dca QA
-  for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
-  {
-    for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
-    {
-      TString KEY_Dca = Form("Tracks_Dca%s_%d",Charge[i_charge].Data(),i_dca);
-      h_mDca[KEY_Dca]->Write();
-    }
-  }
+  //TString Charge[2] = {"A","B"};
+  //// Dca QA
+  //for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
+  //{
+  //  for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
+  //  {
+  //    TString KEY_Dca = Form("Tracks_Dca%s_%d",Charge[i_charge].Data(),i_dca);
+  //    h_mDca[KEY_Dca]->Write();
+  //  }
+  //}
 
-  // nSigKaon QA
-  for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
-  {
-    for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
-    {
-      TString KEY_nSigKaon = Form("Tracks_Sig%s_%d",Charge[i_charge].Data(),i_sig);
-      h_mSigKaon[KEY_nSigKaon]->Write();
-    }
-  }
+  //// nSigKaon QA
+  //for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
+  //{
+  //  for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
+  //  {
+  //    TString KEY_nSigKaon = Form("Tracks_Sig%s_%d",Charge[i_charge].Data(),i_sig);
+  //    h_mSigKaon[KEY_nSigKaon]->Write();
+  //  }
+  //}
 
-  for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
-  {
-    for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
-    {
-      TString KEY_NHit = Form("Tracks_nHit%s_%d",Charge[i_charge].Data(),i_nhit);
-      h_mNHit[KEY_NHit]->Write();
-    }
-  }
+  //for(Int_t i_nhit = vmsa::mNHit_start; i_nhit < vmsa::mNHit_stop; i_nhit++)
+  //{
+  //  for(Int_t i_charge = vmsa::Charge_start; i_charge < vmsa::Charge_stop; i_charge++)
+  //  {
+  //    TString KEY_NHit = Form("Tracks_nHit%s_%d",Charge[i_charge].Data(),i_nhit);
+  //    h_mNHit[KEY_NHit]->Write();
+  //  }
+  //}
 }
 //-----------------------EP Direction----------------------------
 

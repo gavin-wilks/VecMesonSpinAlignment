@@ -36,6 +36,7 @@ void acceptanceQA(const int energy = 4, const int pid = 0, bool doall = true) {
   for(int irho = 0; irho < 5; irho++)
   {
     MCFiles[irho] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/VaryRho/McAcceptanceOutput_pt3_energy%d_pid%d_cent9_rho%d.root",vmsa::mPID[pid].c_str(),energy,pid,irho),"READ");
+    //MCFiles[irho] = new TFile(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Acceptance/VaryRho_0p8y1/McAcceptanceOutput_pt1_energy%d_pid%d_cent5_rho%d.root",vmsa::mPID[pid].c_str(),energy,pid,irho),"READ");
 
     h_theta_star_before[irho] = (TH1D*)((TH1D*)MCFiles[irho]->Get("h_theta_star_before"))->Clone(Form("h_theta_star_before_%d",irho));
     h_theta[irho] = (TH1D*)((TH1D*)MCFiles[irho]->Get("h_theta"))->Clone(Form("h_theta_%d",irho));
@@ -73,16 +74,16 @@ void acceptanceQA(const int energy = 4, const int pid = 0, bool doall = true) {
     Ferr[irho] = Func_A->GetParError(1);
     
     
-   //   TCanvas *c1 = new TCanvas();
-   //   c1->SetFillColor(0);
-   //   c1->SetGrid(0,0);
-   //   c1->SetTitle(0);
-   //   c1->SetBottomMargin(0.15);
-   //   c1->SetLeftMargin(0.15);
-   //   h_theta_star_clone->Draw("pE");
-   //   Func_A->Draw("same"); 
-    ////c1->SaveAs(Title->Data());
-   // delete c1;
+    TCanvas *c1 = new TCanvas();
+    c1->SetFillColor(0);
+    c1->SetGrid(0,0);
+    c1->SetTitle(0);
+    c1->SetBottomMargin(0.15);
+    c1->SetLeftMargin(0.15);
+    h_theta_star_clone->Draw("pE");
+    Func_A->Draw("same"); 
+    c1->SaveAs(Form("FValues/0p8y1/2ndorder_rho%d.pdf",irho));
+    delete c1;
 
     delete h_theta_clone;
     delete h_theta_star_clone;
@@ -200,12 +201,26 @@ void acceptanceQA(const int energy = 4, const int pid = 0, bool doall = true) {
     //h_theta_star[irho]->Draw();
     Func_rho->SetParameter(0, h_theta_star[irho]->GetBinContent(5));
     Func_rho->SetParameter(1, 0.3);
-    Func_rho->FixParameter(2, FfromFp[irho]);
+    Func_rho->FixParameter(2, Fval[irho]);
     Func_rho->FixParameter(3, 1.0);//Res_12);
 
     h_theta_star[irho]->Fit(Func_rho, "NMI");
 
     cout << "rho after = " << Func_rho->GetParameter(1) << " +/- " << Func_rho->GetParError(1) << endl;
+
+    TString *Title = new TString(Form("fit/acceptanceQA/yield_pt_1_cent_9_rho%d_4th.pdf",irho));
+  
+    TCanvas *c1 = new TCanvas(Form("c%d",irho),Form("c%d",irho),10,10,800,800);
+    c1->cd();
+    c1->SetFillColor(0);
+    c1->SetGrid(0,0);
+    c1->SetTitle(0);
+    c1->SetBottomMargin(0.15);
+    c1->SetLeftMargin(0.15);
+    h_theta_star[irho]->Draw("pE");
+    h_theta_star[irho]->Fit(Func_rho, "NMI");
+    //Func_rho->Draw("same");
+    c1->SaveAs(Title->Data());
 
     g_rho00outAfter->SetPoint(irho,rho00in[irho],Func_rho->GetParameter(1));
     g_rho00outAfter->SetPointError(irho,0.0,0.0,Func_rho->GetParError(1),Func_rho->GetParError(1));
@@ -250,7 +265,7 @@ void acceptanceQA(const int energy = 4, const int pid = 0, bool doall = true) {
   h_play->GetXaxis()->SetTitleSize(0.06);
   h_play->GetYaxis()->SetTitleSize(0.06);
   h_play->GetXaxis()->SetLimits(0.24,0.42);
-  h_play->GetYaxis()->SetRangeUser(0.24,0.42);
+  h_play->GetYaxis()->SetRangeUser(0.24,0.55);
   h_play->GetXaxis()->SetLabelSize(0.04);
   h_play->GetYaxis()->SetLabelSize(0.04);
   h_play->SetNdivisions(505,"X");
@@ -270,7 +285,7 @@ void acceptanceQA(const int energy = 4, const int pid = 0, bool doall = true) {
   g_rho00outAfter->SetMarkerSize(1.5);
   g_rho00outAfter->Draw("pE Same");
 
-  TLegend *leg1 = new TLegend(0.20,0.70,0.45,0.85);
+  TLegend *leg1 = new TLegend(0.2,0.70,0.5,0.85);
   leg1->SetFillColor(10);
   leg1->SetBorderSize(0);
   leg1->AddEntry(g_rho00outBefore,"Before Correction","p");
@@ -340,7 +355,7 @@ double FuncAD(double *x_val, double *par) {
   double As = A*(1.+3.*R)/(4.+A*(1.-R));
   double Bs = A*(1.-R)/(4.+A*(1.-R));
 
-  double result = (1.+Bs*D/2.) + (As+D)*CosTheta*CosTheta + (As*D-Bs*D/2.)*CosTheta*CosTheta*CosTheta*CosTheta;
+  double result = (1.+Bs*D/2.) + (As+D-Bs*D)*CosTheta*CosTheta + (As*D+Bs*D/2.)*CosTheta*CosTheta*CosTheta*CosTheta;
 
   return N*result;
 

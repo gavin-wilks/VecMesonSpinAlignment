@@ -7,6 +7,7 @@
 #include "StVecMesonMEKey.h"
 #include <vector>
 #include "TVector2.h"
+#include "../Utility/StSpinAlignmentCons.h"
 
 class StPicoDst;
 class StMesonEvent;
@@ -72,7 +73,7 @@ class StVecMesonTree
     TH2F *h_PidEdxRig;
     TH2F *h_PiM2Rig;
     TH2F *h_PiInvBetaRig;
-    Int_t mEventCounter2[9][10][5]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
+    Int_t mEventCounter2[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi]; // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin
 
     // 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin, 3 = mixed event bin, 4 = charge bin(0 for pos, 1 for neg) || push_back->track
     vectorHelixMap mHelix;
@@ -88,27 +89,27 @@ class StVecMesonTree
     StMesonTrack *mMesonTrack;
 
     // event information | 0 = centrality bin, 1 = vertexZ bin, 2 = EP bin || push_back->event
-    std::vector<StThreeVectorF> mPrimaryvertex[9][10][5];
-    std::vector<Int_t> mRefMult[9][10][5];
-    std::vector<Int_t> mCentrality[9][10][5];
-    std::vector<Int_t> mRunId[9][10][5];
-    std::vector<Int_t> mEventId[9][10][5];
-    std::vector<Int_t> mN_prim[9][10][5];
-    std::vector<Int_t> mN_non_prim[9][10][5];
-    std::vector<Int_t> mN_Tof_match[9][10][5];
-    std::vector<Float_t> mZDCx[9][10][5];
-    std::vector<Float_t> mBBCx[9][10][5];
-    std::vector<Float_t> mVzVpd[9][10][5];
-    std::vector<Float_t> mField[9][10][5];
-    std::vector<UShort_t> mNumTracks[9][10][5];
-    std::vector<TVector2> mQ2East[9][10][5];
-    std::vector<TVector2> mQ2West[9][10][5];
-    std::vector<TVector2> mQ2Full[9][10][5];
-    std::vector<Int_t> mNumTrackEast[9][10][5];
-    std::vector<Int_t> mNumTrackWest[9][10][5];
-    std::vector<Int_t> mNumTrackFull[9][10][5];
-    std::vector<Int_t> mNumTrackFullEast[9][10][5];
-    std::vector<Int_t> mNumTrackFullWest[9][10][5];
+    std::vector<StThreeVectorF> mPrimaryvertex[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mRefMult[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mCentrality[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mRunId[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mEventId[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mN_prim[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mN_non_prim[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mN_Tof_match[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Float_t> mZDCx[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Float_t> mBBCx[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Float_t> mVzVpd[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Float_t> mField[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<UShort_t> mNumTracks[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<TVector2> mQ2East[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<TVector2> mQ2West[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<TVector2> mQ2Full[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mNumTrackEast[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mNumTrackWest[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mNumTrackFull[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mNumTrackFullEast[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
+    std::vector<Int_t> mNumTrackFullWest[vmsa::Bin_Centrality][vmsa::Bin_VertexZ][vmsa::Bin_Phi_Psi];
 
     // passing variable
     Int_t mNumber_prim, mNumber_non_prim, mNumber_Tof_match;
