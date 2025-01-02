@@ -101,3 +101,10 @@ FillSpinAlignment/submit/rcf/JOBS/*
 AcceptanceCorrection/FValues
 AcceptanceCorrection/fit
 AcceptanceCorrection/*.pdf
+
+*.pdf
+*/*.pdf
+*/*/*.pdf
+*/*/*/*.pdf
+*/*/*/*/*.pdf
+*/*/*/*/*/*.pdf
