@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="5" filesPerHour="20" maxFilesPerProcess="10" fileListSyntax="xrootd" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    root4star -l -b -q VecMesonTree.C\(\"$FILELIST\",\"$JOBID\",&mode;,&energy;,&flag_ME;,&flag_PID;\) </command>
+
+  <SandBox>
+    <Package>
+      <File>file:&codePath;/VecMesonTree.C</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <!--input URL="filelist:/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/FileLists/27GeV_2018/pico_prod_sorted.list"/-->
+  <input URL="catalog:star.bnl.gov?production=P19ib,library=SL19b,filetype=daq_reco_picoDst,trgsetupname=27GeV_production_2018,storage!=hpss,filename~st_physics" preferStorage="local" singleCopy="true" nFiles="all"/> 
+  <stdout URL="file:&outPath;/Log/SpinAlignment/&outDir;_&SM;_$JOBID.out"/>
+  <!--stdout discard="true"/-->
+  <stderr URL="file:&outPath;/Log/SpinAlignment/&outDir;_&SM;_$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/SpinAlignment/&outDir;/" />
+
+</job>
+
