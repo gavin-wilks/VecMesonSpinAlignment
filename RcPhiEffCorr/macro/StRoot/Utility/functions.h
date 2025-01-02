@@ -107,7 +107,7 @@ double v2_pT_FitFunc(double *x_val, double *par)
 
 double Levy(double *var, double *par)
 {
-  double const m0 = 1.01940; // phi-meson mass
+  double const m0 = 1.019455; // phi-meson mass
   double pT   = var[0];
   double mT   = sqrt(pT*pT+m0*m0);
   double dNdy = par[0];
@@ -125,7 +125,7 @@ double Levy(double *var, double *par)
 
 double pTLevy(double *var, double *par)
 {
-  double const m0 = 1.01940; // phi-meson mass
+  double const m0 = 1.019455; // phi-meson mass
   double pT   = var[0];
   double mT   = sqrt(pT*pT+m0*m0);
   double dNdy = par[0];
@@ -135,6 +135,40 @@ double pTLevy(double *var, double *par)
   double numer = dNdy*(n-1)*(n-2);
   double denom = n*T*(n*T+m0*(n-2));
   double power = pow(1+(mT-m0)/(n*T),-1.0*n);
+
+  double y = pT*numer*power/denom;
+
+  return y;
+}
+
+double specExp(double *var, double *par)
+{
+  double const m0 = 1.019455; // phi-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double T    = par[1];
+
+  double numer = dNdy;
+  double denom = T*(m0+T);
+  double power = TMath::Exp(-(mT-m0)/T);
+
+  double y = numer*power/denom;
+
+  return y;
+}
+
+double pTspecExp(double *var, double *par)
+{
+  double const m0 = 1.019455; // phi-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double T    = par[1];
+
+  double numer = dNdy;
+  double denom = T*(m0+T);
+  double power = TMath::Exp(-(mT-m0)/T);
 
   double y = pT*numer*power/denom;
 
