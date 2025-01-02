@@ -7,7 +7,7 @@
 #include "TLegend.h"
 #include "TF1.h"
 #include "TStyle.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "Utility/StSpinAlignmentCons.h"
 #include "../Utility/type.h"
 #include "../Utility/draw.h"
 #include "../Utility/functions.h"
@@ -17,15 +17,23 @@
 #endif
 
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE);
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color);
 
 std::string centrality[13] = {"7080","6070","5060","4050","3040","2030","1020","0510","0005","0080","0010","1040","4080"};
 std::string centralityP[13] = {"70-80%","60-70%","50-60%","40-50%","30-40%","20-30%","10-20%","5-10%","0-5%","0-80%","0-10%","10-40%","40-80%"};
 
-void calSysError(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9)
+void calSysError(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 10, int etamode = 0)
 {
   gStyle->SetEndErrorSize(6);
+
+  std::string etastring = "";
+  if(etamode == 0) etastring = "eta1_eta1";
+  if(etamode == 3) etastring = "eta0p4";
+  if(etamode == 4) etastring = "eta0p6";
+  if(etamode == 5) etastring = "eta0p8";
+
   
-  string inputfile = Form("../output/AuAu%s/Flow/%s/RawPhiPtSys.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str());
+  string inputfile = Form("../output/AuAu%s/Flow/%s/RawPhiPtSys_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),etastring.c_str());
   TFile *File_InPut = TFile::Open(inputfile.c_str());
   TGraMap g_mV2;
   for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
@@ -70,7 +78,7 @@ void calSysError(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9)
 	  for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
 	  {
 	    string KEY_v2 = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,i_sig,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
-	    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mV2[KEY_v2],24,i_sigma+10*i_method+1,1.1);
+	    Draw_TGAE_new_Symbol((TGraphAsymmErrors*)g_mV2[KEY_v2],24,i_sigma+10*i_method+1,0,1.1);
 	  }
 	}
       }
@@ -87,69 +95,97 @@ void calSysError(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9)
 
   for(Int_t i_point = 0; i_point < g_mV2[KEY_Default]->GetN(); ++i_point)
   {
-    double sysDca[vmsa::Dca_stop];
-    double sysNSig[vmsa::nSigKaon_stop];
-    double sysNorm[vmsa::Norm_stop];
-    double sysSig[vmsa::Sig_stop];
-    double sysMeth[vmsa::Method_stop];
+    double sysDca[9];
+    double sysNSig[9];
+    double sysNorm[9];
+    //double sysSig[vmsa::Sig_stop];
+    //double sysMeth[vmsa::Method_stop];
 
     double pt_def, v2_def;
     g_mV2[KEY_Default]->GetPoint(i_point,pt_def,v2_def); 
 
+    int idx = 0;
     for(Int_t i_dca = vmsa::Dca_start; i_dca < vmsa::Dca_stop; i_dca++)
     { 
-      string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str());
-      double pt_sys, v2_sys;
-      g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
-      sysDca[i_dca] = v2_sys;
+      for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+      {
+        for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
+        {
+          if(i_dca == 0 && (i_sigma != 0 || i_method == 0)) continue;
+          if(i_dca != 0 && i_sigma != 0 && i_method == 1) continue;
+
+          string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,i_dca,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str());
+          double pt_sys, v2_sys;
+          g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
+          sysDca[idx] = v2_sys;
+          idx++;
+        }
+      }
     }
+    idx = 0;
 
     for(Int_t i_sig = vmsa::nSigKaon_start; i_sig < vmsa::nSigKaon_stop; i_sig++)
     {
-      string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,i_sig,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str());
-      double pt_sys, v2_sys;
-      g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
-      sysNSig[i_sig] = v2_sys;
+      for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+      {
+        for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
+        {
+          if(i_sig == 0 && (i_sigma != 0 || i_method == 0)) continue;
+          if(i_sig != 0 && i_sigma != 0 && i_method == 1) continue;
+          string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,i_sig,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[i_method].c_str());
+          double pt_sys, v2_sys;
+          g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
+          sysNSig[idx] = v2_sys;
+          idx++;
+        }
+      }
     }
+    idx = 0;
 
     for(int i_norm = vmsa::Norm_start; i_norm < vmsa::Norm_stop; ++i_norm)
     {
-      string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,0,vmsa::mPID[pid].c_str(),i_norm,0,vmsa::mInteMethod[1].c_str());
-      double pt_sys, v2_sys;
-      g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
-      sysNorm[i_norm] = v2_sys;
-    }	 
+      for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+      {
+        for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
+        {
+          if(i_norm == 0 && (i_sigma != 0 || i_method == 0)) continue;
+          if(i_norm != 0 && i_sigma != 0 && i_method == 1) continue;
+          string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,0,vmsa::mPID[pid].c_str(),i_norm,i_sigma,vmsa::mInteMethod[i_method].c_str());
+          double pt_sys, v2_sys;
+          g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
+          sysNorm[idx] = v2_sys;
+          idx++;
+        }
+      }
+    }
+    idx = 0;	 
 
-    for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
+    /*for(int i_sigma = vmsa::Sig_start; i_sigma < vmsa::Sig_stop; ++i_sigma)
     {
       string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,0,vmsa::mPID[pid].c_str(),0,i_sigma,vmsa::mInteMethod[1].c_str());
       double pt_sys, v2_sys;
       g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
       sysSig[i_sigma] = v2_sys;
-    }
+    }*/
 
-    for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
+    /*for(int i_method = vmsa::Method_start; i_method < vmsa::Method_stop; ++i_method)
     {
       string KEY = Form("v2Raw_Centrality_%d_2nd_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s",i_cent,0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[i_method].c_str());
       double pt_sys, v2_sys;
       g_mV2[KEY]->GetPoint(i_point,pt_sys,v2_sys);
       sysMeth[i_method] = v2_sys;
-    }
+    }*/
 
-    Double_t v2_min[5] = { TMath::MinElement(vmsa::Dca_stop,sysDca),
-                            TMath::MinElement(vmsa::nSigKaon_stop,sysNSig),
-                            TMath::MinElement(vmsa::Norm_stop,sysNorm),
-                            TMath::MinElement(vmsa::Sig_start,sysSig),
-                            TMath::MinElement(vmsa::Method_stop,sysMeth)    };
+    Double_t v2_min[3] =  { TMath::MinElement(9,sysDca),
+                            TMath::MinElement(9,sysNSig),
+                            TMath::MinElement(9,sysNorm),     };
 
-    Double_t v2_max[5] = { TMath::MaxElement(vmsa::Dca_stop,sysDca),
-                            TMath::MaxElement(vmsa::nSigKaon_stop,sysNSig),
-                            TMath::MaxElement(vmsa::Norm_stop,sysNorm),
-                            TMath::MaxElement(vmsa::Sig_start,sysSig),
-                            TMath::MaxElement(vmsa::Method_stop,sysMeth)    };
+    Double_t v2_max[3] =  { TMath::MaxElement(9,sysDca),
+                            TMath::MaxElement(9,sysNSig),
+                            TMath::MaxElement(9,sysNorm),     };
   
     double SysError_v2 = 0.0;
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 3; i++)
     {
       double sourcei = TMath::Power((v2_max[i] - v2_min[i])/TMath::Sqrt(12.0),2);
       //cout << "v2_min = " << v2_min[i] << ", v2_max = " << v2_max[i] << endl;
@@ -192,7 +228,7 @@ void calSysError(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9)
     besi19->SetMarkerSize(1.3);
     besi19->SetMarkerColor(kBlack);
     besi19->SetLineColor(kBlack);
-    besi19->Draw("pE Z same");
+    besi19->Draw("pE same");
 
     string leg_besi = "#phi BES-I";
     Draw_TGAE_Point_new_Symbol(0.5,0.24,0.0,0.0,0.0,0.0,20,kBlack,1.3);
@@ -218,13 +254,13 @@ void calSysError(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9)
   g_SysErrors->SetMarkerColor(kRed);
   g_SysErrors->SetLineColor(kRed);
   //g_SysErrors->Draw("pE || same");
-  g_StatErrors->Draw("pE Z same");
+  g_StatErrors->Draw("pE same");
 
-  plotSysErrorsBox(g_SysErrors,kBlack,energy);
+  plotSysErrorsBox(g_SysErrors,kRed);
   //PlotLine(0.0,5.0,1.0/3.0,1.0/3.0,1,2,2);
-  c_v2_SysError->SaveAs(Form("figures/AuAu%s/%s/V2_SysErrors_%s.pdf",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),centrality[i_cent].c_str()));
+  c_v2_SysError->SaveAs(Form("figures/AuAu%s/%s/V2_SysErrors_%s_%s.pdf",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),centrality[i_cent].c_str(),etastring.c_str()));
 
-  string OutPutFile = Form("../output/AuAu%s/Flow/%s/V2_SysErrors_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),centrality[i_cent].c_str());
+  string OutPutFile = Form("../output/AuAu%s/Flow/%s/V2_SysErrors_%s_%s.root",vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str(),centrality[i_cent].c_str(),etastring.c_str());
   cout << "OutPutFile set to: " << OutPutFile.c_str() << endl;
   TFile *File_OutPut = new TFile(OutPutFile.c_str(),"RECREATE");
   File_OutPut->cd();
@@ -236,6 +272,26 @@ void calSysError(Int_t energy = 4, Int_t pid = 0, Int_t i_cent = 9)
   g_SysErrors->SetName(SysErrorV2.Data());
   g_SysErrors->Write();
   File_OutPut->Close();
+}
+
+void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color)
+{
+  const int nPt = g_rho->GetN();
+  TBox *bSys[nPt];
+  for(int i_pt = 0; i_pt < g_rho->GetN(); ++i_pt) // plot sys errors
+  {
+    double pt, rho;
+    g_rho->GetPoint(i_pt,pt,rho);
+    double err = g_rho->GetErrorYhigh(i_pt);
+
+    bSys[i_pt] = new TBox(pt-0.08,rho-err,pt+0.08,rho+err);
+    bSys[i_pt]->SetFillColor(0);
+    bSys[i_pt]->SetFillStyle(0);
+    bSys[i_pt]->SetLineStyle(1);
+    bSys[i_pt]->SetLineWidth(1);
+    bSys[i_pt]->SetLineColor(plot_color);
+    bSys[i_pt]->Draw("l Same");
+  }
 }
 
 void plotSysErrorsBox(TGraphAsymmErrors *g_rho, int plot_color, int beamE)
