@@ -21,7 +21,7 @@ class StEffHistMangerHelicityGlobal : public TObject
   public:
     StEffHistMangerHelicityGlobal(int energy, int pid, int mode, int startpt, int stoppt, int, int);
     virtual ~StEffHistMangerHelicityGlobal();
-    void InitHist();
+    void InitHist(int,int);
     void InitPhiHist();
     void InitKaonHist();
     void FillPhiHistMc(int cent, float pt, float phi, float y, float phistar, float cos, float cosH, float kpt, float ky);
@@ -107,8 +107,11 @@ class StEffHistMangerHelicityGlobal : public TObject
     TH2D *h_mRcEffCosPhiPrimeH[11][5];
     TH2D   *h_mEffCosPhiPrimeH[11][5];
 
-    TH3D *h3_mMcEffCosPhiPrime[11][5][5][11][9]; // efficiency vs CosThetaStar & phiprime as a function of centrality and pt
+    //TH3D *h3_mMcEffCosPhiPrime[11][5][5][11][9][25]; // efficiency vs CosThetaStar & phiprime as a function of centrality and pt
+    TH3D *h3_mMcEffCosPhiPrime[5][5][11][9][25]; // efficiency vs CosThetaStar & phiprime as a function of centrality and pt
     TH3D *h3_mMcEffCosPhiPrimeH[11][5][5][11][9]; // efficiency vs CosThetaStar & phiprime as a function of centrality and pt
+    TH3D *h3_mMcEffCosPhiPrimeY[11][5][5][11][9]; // efficiency vs CosThetaStar & phiprime as a function of centrality and pt
+    TH3D *h3_mMcEffCosPhiPrimeHY[11][5][5][11][9]; // efficiency vs CosThetaStar & phiprime as a function of centrality and pt
 
     TH2D *h_mMcEffCosEPY[10][10][vmsa::y_total]; // efficiency vs CosThetaStar & EP as a function of centrality and pt
     TH2D *h_mRcEffCosEPY[10][10][vmsa::y_total];

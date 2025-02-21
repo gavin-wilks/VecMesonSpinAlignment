@@ -85,7 +85,7 @@ int tableNumV2[5][9] = {{0,0,0,0,0,0,0,0,0},
 double v2_7GeV[9] = {0.125818,0.125818,0.125818,0.125818,0.039951,0.039951,0.039951,0.013462,0.013462};
 
 int mPtBin = 0;
-double pt_set[5] = {1.2,1.8,2.4,3.2,4.2};
+double pt_set[7] = {1.2,1.8,2.4,3.0,4.2,1.2,4.2};
 
 double pt_low[5]  = {1.0,2.0,3.0,2.0,1.0};
 double pt_high[5] = {3.0,4.0,5.0,5.0,5.0};
@@ -121,9 +121,31 @@ double cos2delta1 = 0;
 
 double mPtFixed;
 double mYFixed;
+                              //  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16  
+const double  pythialow[19] = { 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2};;
+const double pythiahigh[19] = { 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2, 5.0};;
+
+double norm[19] = {1.14659, 1.15282, 1.16102, 1.16754, 1.17421, 1.20569, 1.18756, 1.20748, 1.20482, 1.24736, 1.23579, 1.20088, 1.21209, 1.26302, 1.22473, 1.29652, 1.29134, 1.67825, 1.67232};
+double mean[19] = {0.000950466, -0.00205036, 0.00635211, -0.00776218, -0.00329925, -0.00254986, 0.0106082, 0.00417584, 0.0110738, 0.0024981, 0.0287173, -0.0166698, -6.69877e-05, -0.0367374, -0.0154559, 0.0763402, -0.0882059, 0.113747, -0.142898};
+double sigma[19] = {0.959611, 0.94694, 0.929603, 0.912229, 0.899472, 0.838369, 0.875892, 0.843554, 0.839229, 0.771095, 0.791428, 0.844824, 0.825385, 0.743799, 0.787513, 0.698393, 0.707714, 0.425395, 0.742268};
+
+TF1 *pythiaflat[19];
+
+int yptstart[6] = {4,10,13,16,0,4};
+int yptstop[6] = {9,12,15,17,0,17};
+
 
 void toyMcPhiDecay(const int energy = 4, int ptbin = 4, const int centrality = 5, const int pid = 0, const int NMax = 10000, int mode = 1, int fitmode = 0, const char* jobID = "20221209", double ptfixed = 2.0, double yfixed = 0.0) 
 {
+  ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);
+  for(int i = 0; i < 19; i++)
+  { 
+    pythiaflat[i]= new TF1(Form("pythiaflat_%d",i),"[0]*exp(-(x-[1])*(x-[1])/2/[2]/[2])",-1.0,1.0);
+    pythiaflat[i]->SetParameter(0,norm[i]);
+    pythiaflat[i]->SetParameter(1,mean[i]);
+    pythiaflat[i]->SetParameter(2,sigma[i]);
+  }
+
   mNMax = NMax;
   // mode = 0 --> pT depedence (20-60%), mode = 1 --> centrality depedence (1.0 < pT < 5.0) GeV/c
   // fitmode = 0 --> fit to plateau, fitmode = 1 --> fit to eta1
@@ -262,13 +284,30 @@ void toyMcPhiDecay(const int energy = 4, int ptbin = 4, const int centrality = 5
 void getKinematics(TLorentzVector& lPhi, double const mass, int energy, int centrality)
 {
   //double const pt = gRandom->Uniform(vmsa::ptMin, vmsa::ptEffMax); // sample with flat distribution
-  if (mMode == 0 ) double const pt = f_spec->GetRandom(pt_set[mPtBin], pt_set[mPtBin+1]); // sample with measured spectra
+  //if (mMode == 0 ) double const pt = f_spec->GetRandom(pt_set[mPtBin], pt_set[mPtBin+1]); // sample with measured spectra
+  if (mMode == 1 ) double const pt = f_spec->GetRandom(pt_set[mPtBin], pt_set[mPtBin+1]); // sample with measured spectra
   //if (mMode == 1 ) double const pt = f_spec->GetRandom(pt_low[mPtBin], pt_high[mPtBin]); // sample with measured spectra
   //if (mMode == 1 ) double const pt = f_spec->GetRandom(pt_low[mPtBin], pt_high[mPtBin]); // sample with measured spectra
-  if (mMode == 1 ) double const pt = gRandom->Uniform(0.0,2.0); // sample with measured spectra
+  //if (mMode == 1 ) double const pt = gRandom->Uniform(0.0,2.0); // sample with measured spectra
   //double const y = f_y->GetRandom(-1.0,1.0);//Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
   //double const y = mYFixed;//Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
-  double const y = gRandom->Uniform(-1.0,1.0);//Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
+
+  //cout << "before y selection" << endl;
+  int ptbin = -1;
+  for(int i = yptstart[mPtBin]; i <= yptstop[mPtBin]; i++)
+  {
+    if(pt >= pythialow[i] && pt < pythiahigh[i]) 
+    {
+      //valRapidity = pythiaflat[i]->Eval(slMcPhi.Rapidity())/pythiaflat[i]->GetMaximum();
+      //valRapidity = pythiaflat[i]->Eval(slMcPhi.Rapidity())/maxRapidity[i];
+      ptbin = i;
+      break;
+    } 
+  }  
+  //cout << "pt bin = " << ptbin  << endl;
+  double const y = pythiaflat[i]->GetRandom(-1,1);
+  //cout << "after y selection" << endl;
+  //double const y = gRandom->Uniform(-1.0,1.0);//Uniform(-vmsa::acceptanceRapidity, vmsa::acceptanceRapidity);
   // double const phi = TMath::TwoPi() * gRandom->Rndm(); // sample flat distribution
   //double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
  
@@ -282,15 +321,15 @@ void getKinematics(TLorentzVector& lPhi, double const mass, int energy, int cent
   mPsi2 = 0.0;//Psi + delta; // EP, the RP is smeared by delta
   //mPsi2RP = Psi2;       // RP
 
-  //Angle wrapping
-  while(mPsi2 > 0.5*TMath::Pi())
-  {
-    mPsi2 -= TMath::Pi();
-  }
-  while(mPsi2 < -0.5*TMath::Pi())
-  {
-    mPsi2 += TMath::Pi();
-  }
+//  //Angle wrapping
+//  while(mPsi2 > 0.5*TMath::Pi())
+//  {
+//    mPsi2 -= TMath::Pi();
+//  }
+//  while(mPsi2 < -0.5*TMath::Pi())
+//  {
+//    mPsi2 += TMath::Pi();
+//  }
 
   //double delta1 = f_pDel1->GetRandom();
   //mDelta1 = delta1;
@@ -298,25 +337,25 @@ void getKinematics(TLorentzVector& lPhi, double const mass, int energy, int cent
   mPsi1 = 0.0;//Psi + delta1; // EP, the RP is smeared by delta
   //mPsi1RP = Psi1;       // RP
 
-  //Angle wrapping
-  while(mPsi1 > TMath::Pi())
-  {
-    mPsi1 -= 2.0*TMath::Pi();
-  }
-  while(mPsi1 < -TMath::Pi())
-  {
-    mPsi1 += 2.0*TMath::Pi();
-  }
+//  //Angle wrapping
+//  while(mPsi1 > TMath::Pi())
+//  {
+//    mPsi1 -= 2.0*TMath::Pi();
+//  }
+//  while(mPsi1 < -TMath::Pi())
+//  {
+//    mPsi1 += 2.0*TMath::Pi();
+//  }
 
   //mPsi2 = gRandom->Uniform(-0.5*TMath::Pi(),0.5*TMath::Pi()); // random event plane angle
-  //f_flow->ReleaseParameter(0);
-  //if(energy != 0) f_flow->SetParameter(0,f_v2->Eval(pt));
+  f_flow->ReleaseParameter(0);
+  if(energy != 0) f_flow->SetParameter(0,f_v2->Eval(pt));
   //if(energy == 0) f_flow->SetParameter(0,v2_7GeV[centrality]);
   //double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
-  //double const phi = f_flow->GetRandom() + mPsiRP; // sample with measured v2
-  //if(phi > TMath::Pi())  phi -= 2.0*TMath::Pi();
-  //if(phi < -TMath::Pi()) phi += 2.0*TMath::Pi();
-  double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
+  double const phi = f_flow->GetRandom() + mPsiRP; // sample with measured v2
+  if(phi > TMath::Pi())  phi -= 2.0*TMath::Pi();
+  if(phi < -TMath::Pi()) phi += 2.0*TMath::Pi();
+  //double const phi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
   //double const phi = -(0.5+double(gRandom->Integer(20)))*TMath::Pi()/20;
   double const mT = sqrt(mass * mass + pt * pt);
   double const pz = mT * sinh(y);
@@ -1157,7 +1196,8 @@ TF1* readspec(int energy, int pid, int centrality)
 
 
     //TF1 *f_spec = new TF1("f_spec",pTLevy,vmsa::ptMin,vmsa::ptMax,3);
-    TF1 *f_spec = new TF1("f_spec",pTLevy,pt_low[mPtBin], pt_high[mPtBin], 3);
+    //TF1 *f_spec = new TF1("f_spec",pTLevy,pt_low[mPtBin], pt_high[mPtBin], 3);
+    TF1 *f_spec = new TF1("f_spec",pTLevy,pt_set[mPtBin], pt_set[mPtBin+1], 3);
     f_spec->SetParameter(0,f_Levy->GetParameter(0));
     f_spec->SetParameter(1,f_Levy->GetParameter(1));
     f_spec->SetParameter(2,f_Levy->GetParameter(2));

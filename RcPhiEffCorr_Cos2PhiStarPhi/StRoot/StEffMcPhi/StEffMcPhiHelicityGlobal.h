@@ -35,6 +35,9 @@ class StEffMcPhiHelicityGlobal
     void Make();
     void Finish();
 
+    void SetBinCos(int bin){ mBinCos = bin; };
+    void SetBinPhi(int bin){ mBinPhi = bin; };
+
   private:
     string mSigmay;
     float mrho00;
@@ -56,6 +59,7 @@ class StEffMcPhiHelicityGlobal
     TF1* f_mRhoCent[vmsa::pt_rebin_cent][9];
     TF1* f_mRhoY[vmsa::pt_rebin_y][vmsa::cent_rebin_total][vmsa::y_total];
     TF1* f_mV2[9]; 
+    TF1* pythiaflat[19];
 
     TFile *ToFFile;
     TH3F* ToFHist[2];
@@ -137,6 +141,9 @@ class StEffMcPhiHelicityGlobal
     float mMax = 0.0;
     float mMaxData[6];
     float mMaxHelicity[6];
+
+    int mBinCos = 20;
+    int mBinPhi = 20;
 
     ClassDef(StEffMcPhiHelicityGlobal,1)
 };

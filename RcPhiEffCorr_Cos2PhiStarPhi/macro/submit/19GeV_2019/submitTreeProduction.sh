@@ -31,7 +31,7 @@ fitmode=$4
 nJobs=$5
 ptfixed=$6
 yfixed=$7
-nEvents=250000
+nEvents=50000
 #mode=2
 #pid=KStar
 
@@ -42,7 +42,7 @@ nEvents=250000
 # outDir=Phi/Forest
 ##########Mode Selection##########
 
-outDir=${particle}_pt${ptfixed}_y${yfixed}_20241217
+outDir=${particle}_pt${ptfixed}_y${yfixed}_20240131_pt${pt}_ptyv2input
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh

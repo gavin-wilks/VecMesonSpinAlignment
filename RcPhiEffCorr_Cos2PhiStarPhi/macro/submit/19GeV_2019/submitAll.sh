@@ -101,7 +101,6 @@
 #./submitTreeProduction.sh 5 5 1 0 50 0.3 9.0
 #./submitTreeProduction.sh 5 5 1 0 50 0.5 9.0
 #./submitTreeProduction.sh 5 5 1 0 50 0.7 9.0
-./submitTreeProduction.sh 5 5 1 0 100 10.0 10.0
 #./submitTreeProduction.sh 5 5 1 0 50 0.1 9.0
 #./submitTreeProduction.sh 5 5 1 0 50 0.1 9.0
 #./submitTreeProduction.sh 5 5 1 0 50 0.1 9.0
@@ -117,3 +116,12 @@
 #./submitTreeProduction.sh 5 5 1 0 50 1.0 0.8
 #./submitTreeProduction.sh 5 5 1 0 50 1.0 1.0
 
+#for i in {0..3}
+#do
+#  for j in {2..5}
+#  do
+#    ./submitTreeProduction.sh ${i} ${j} 1 0 100 100.0 100.0
+#  done
+#done 
+./submitTreeProduction.sh 5 5 1 0 200 100.0 100.0
+./submitTreeProduction.sh 5 4 1 0 100 100.0 100.0

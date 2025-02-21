@@ -20,10 +20,15 @@ outPath=/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019
 ##########Energy Selection##########
 
 ##########Mode Selection##########
+ptset=$1
+yset=$2
+bincos=$3
+binphi=$4
 pid=0 #0 = phi
-inputpt=$1
-startpt=$2
-stoppt=$3
+inputpt=$5
+setnum=$6
+startpt=$7
+stoppt=5
 #mode=$4
 mode=0
 #etamode=$5
@@ -36,7 +41,8 @@ rho00=0.3333
 real=0.0
 imag=0.0
 imrho1n1=0.0
-helicity=$4
+helicity=0.3333
+
 
 #mode=2
 #pid=KStar
@@ -48,7 +54,7 @@ helicity=$4
 # outDir=Phi/Forest
 ##########Mode Selection##########
 #outDir=CosEfficiencyProccessTuple_EPRes_EffAcc_Ycut_Order${order}_NoRapiditySpectra_InputRho0p4_Fixed
-outDir=CosEfficiencyProccessTuple_EPRes_EffAcc_Ycut_Order${order}_NoRapiditySpectra_FixedFirstEP_RCBins_prelimv2_phieff_flatRP_Acc1Rc_pT0p1_TPC_TOF_everything_20240522_fixed2Dfunc_Spectra_rerho1n1${rerho1n1}_ysigma${ysigma}_rho00${rho00}_r${real}_i${imag}_imrho1n1${imrho1n1}_helicityrho${helicity}
+outDir=ptset_${ptset}_yset_${yset}_bincos${bincos}_binphi${binphi}_ptbin${inputpt}_set${setnum}_20250204_multiplejobs_v2onoff_fixedyweight_tpceffcentdep_explicitptselection_RC
 
 mkdir -p JOBS/report
 mkdir -p JOBS/csh
@@ -58,7 +64,7 @@ mkdir -p ${outPath}/Log/${outDir}
 mkdir -p ${outPath}/OutPut/${outDir}
 
 ##########Test Production##########
-star-submit-template -template testProductionTemp.xml -entities helicity=$helicity,real=$real,imag=$imag,imrho1n1=$imrho1n1,rho00=$rho00,ysigma=$ysigma,rerho1n1=$rerho1n1,order=$order,pid=$pid,inputpt=$inputpt,startpt=$startpt,stoppt=$stoppt,mode=$mode,etamode=$etamode,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir,energy=$energy
+star-submit-template -template testProductionTemp.xml -entities setnum=$setnum,ptset=${ptset},yset=${yset},bincos=${bincos},binphi=${binphi},helicity=$helicity,real=$real,imag=$imag,imrho1n1=$imrho1n1,rho00=$rho00,ysigma=$ysigma,rerho1n1=$rerho1n1,order=$order,pid=$pid,inputpt=$inputpt,startpt=$startpt,stoppt=$stoppt,mode=$mode,etamode=$etamode,library=$library,codePath=$codePath,outPath=$outPath,listPath=$listPath,outDir=$outDir,energy=$energy
 ##########Test Production##########
 
 ##########Full Production##########

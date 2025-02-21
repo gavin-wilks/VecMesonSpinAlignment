@@ -59,10 +59,10 @@
 #./submitTreeProduction.sh 2 5 5  0.3 1000 0.3333 0.0 0.0 0.0
 #
 ###2nd Order
-for i in 0.20 0.205 0.21 0.215 0.22 0.225 0.23 0.235 0.24 0.245 0.25 0.255 0.26 0.265 0.27 0.275 0.28 0.285 0.29 0.295 0.30 
-do 
-  ./submitTreeProduction.sh 4 2 5 ${i}
-done
+#for i in 0.20 0.205 0.21 0.215 0.22 0.225 0.23 0.235 0.24 0.245 0.25 0.255 0.26 0.265 0.27 0.275 0.28 0.285 0.29 0.295 0.30 
+#do 
+#  ./submitTreeProduction.sh 4 2 5 ${i}
+#done
 #
 #./submitTreeProduction.sh 0 2 3 0.0 1000 0.3000 0.0 0.0 0.0  
 #./submitTreeProduction.sh 1 4 4 0.0 1000 0.3000 0.0 0.0 0.0 
@@ -312,3 +312,25 @@ done
 #./submitTreeProduction.sh 3 1 1 2 3 2
 #./submitTreeProduction.sh 3 1 1 2 4 2
 #./submitTreeProduction.sh 3 1 1 2 5 2
+
+#  for j in {8..12}
+#  do 
+#    ./submitTreeProduction.sh 10.0 10.0 ${i} ${j}
+#  done
+#done
+for i in {0..3}
+do 
+  for j in {1..1}
+  do 
+    #for cos in {8..12}
+    #do 
+    #  for phi in {8..12}
+    #  do 
+        ./submitTreeProduction.sh 100.0 100.0 10 10 ${i} ${j} 2
+        ./submitTreeProduction.sh 100.0 100.0 10 10 ${i} ${j} 3
+        ./submitTreeProduction.sh 100.0 100.0 10 10 ${i} ${j} 4
+        ./submitTreeProduction.sh 100.0 100.0 10 10 ${i} ${j} 5
+    #  done
+    #done
+  done
+done

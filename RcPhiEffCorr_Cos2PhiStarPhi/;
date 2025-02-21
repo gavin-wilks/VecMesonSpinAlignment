@@ -19,8 +19,6 @@
 #include "TF1.h"
 #include "TMatrixD.h"
 #include "TRotation.h"
-#include <algorithm>
-#include <unordered_set>
 
 typedef std::map<std::string,TH3F*> TH3FMap;
 typedef std::map<std::string,TH1D*> TH1DMap;
@@ -321,7 +319,7 @@ StEffMcPhiHelicityGlobal::StEffMcPhiHelicityGlobal(int Energy, long StartEvent, 
   //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_PhiEffFinerBins_prelimv2_flatRP_yabs1p1/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
   //string InPutFile = Form("/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/CosEff/Phi_pt%d_y%d.root",ptfixed,yfixed);
   //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/GlobalHelicityStudies/19GeV/Phi_pt%1.1f_y%1.1f.root",ptfixed,yfixed);
-  string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/GlobalHelicityStudies/19GeV/Phi_pt%1.1f_y%1.1f_pt%d_set%d/cent%d_%d.root",ptfixed,yfixed,inputpt,year,startpt,stoppt);
+  string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/GlobalHelicityStudies/19GeV/Phi_pt%1.1f_y%1.1f_pt%d_set%d.root",ptfixed,yfixed,inputpt,year);
   //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_nov2_flatRP_yabs1_PhiEmbed/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
   //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_PhiEffFinerBins_nov2_flatRP_yabs1p1_flatpt/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
   //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_nov2_flatRP_yabs1p1/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
@@ -334,7 +332,7 @@ StEffMcPhiHelicityGlobal::StEffMcPhiHelicityGlobal(int Energy, long StartEvent, 
   SetStartEvent(StartEvent); // set start event
   SetStopEvent(StopEvent); // set stop event
 
-  string OutPutFile = Form("Eff_%s_SingleParticle_%s_Mode%d_EtaMode%d_pt%1.1f_y%1.1f_cent%d_%d.root",vmsa::mBeamEnergy[energy].c_str(),setting,mode,etamode,ptfixed,yfixed,startpt,stoppt);
+  string OutPutFile = Form("Eff_%s_SingleParticle_%s_Mode%d_EtaMode%d_pt%1.1f_y%1.1f.root",vmsa::mBeamEnergy[energy].c_str(),setting,mode,etamode,ptfixed,yfixed);
   SetOutPutFile(OutPutFile); // set output file
 
   mEffCut = new StEffCut();
@@ -662,19 +660,10 @@ void StEffMcPhiHelicityGlobal::Init()
 
 void StEffMcPhiHelicityGlobal::Make()
 {
-  long totalmc = 0; 
-  long totalprocessed = 0; 
-  long totalbeforemc = 0; 
-
   long start_event_use = mStartEvent;
   long stop_event_use  = mStopEvent;
   
   double v2_7GeV[9] = {0.125818,0.125818,0.125818,0.125818,0.039951,0.039951,0.039951,0.013462,0.013462};
-
-  int yptstart[4] = {4,10,13,16};
-  int yptstop[4] = {9,12,15,17};
-
-  float ptbinedges[5] = {1.2,1.8,2.4,3.0,4.2};
 
   gRandom->SetSeed();
   mNtuple->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
@@ -696,69 +685,13 @@ void StEffMcPhiHelicityGlobal::Make()
   //h_mSpectraRatio->Scale(1./spectramax);
   //cout << "spectra max = " << spectramax << ", normalzied max " << h_mSpectraRatio->GetMaximum() << endl;
 
-  //int eventtarget[4] = {1282940,301140,49281,7521};
-  int eventtarget[4] = {1282940,301140,49281,100};
-  int eventcounts[5][5] = {0};
-
-  //std::vector<Long64_t> indices(stop_event_use);
-  //for (Long64_t i = 0; i < stop_event_use; ++i) {
-  //    indices[i] = i;
-  //}
-  std::unordered_set<Long64_t> usedIndices;
-
-  //double maxRho[5][5] = {0.0};
-  //for(int irho = 0; irho < 5; irho++)
-  //{
-  //  for(int j = 0; j < 5; j++)
-  //  {
-  //    maxRho[irho][j] = f_mRhoPt_2D[irho][j]->GetMaximum();
-  //  }
-  //}
-  //double maxRapidity[19] = {0.0};
-  //for(int i = 0; i < 19; i++) maxRapidity[i] = pythiaflat[i]->GetMaximum();
-  //std::random_shuffle(indices.begin(), indices.end(), [&](int stop_event_use) { return gRandom->Integer(stop_event_use); });
-
-  TRandom3 randomGen;
-
-  for(long i_track = start_event_use; i_track < stop_event_use; ++i_track) 
-  { 
-    //Long64_t randomIndex = randomGen.Integer(stop_event_use);
-    
-    //if(usedIndices.find(randomIndex) == usedIndices.end()) 
-    //{
-    //  if(!mNtuple->GetEntry(randomIndex)) break;
-    //  //cout << "About to grab a random index" << endl;
-    //  usedIndices.insert(randomIndex);
-    //  //cout << "Grabbed a random index" << endl;
-    //}
-    //else 
-    //{
-    //  continue;
-    //}
-
+  for(long i_track = start_event_use; i_track < stop_event_use; ++i_track)
+  {
     if (!mNtuple->GetEntry(i_track)) // take track information
       break;  // end of data chunk
     if (floor(10.0*i_track/ static_cast<float>(stop_event_use)) > floor(10.0*(i_track-1)/ static_cast<float>(stop_event_use)))
-    {
       cout << "=> processing data: " << 100.0*i_track/ static_cast<float>(stop_event_use) << "%" << endl;
-    }
-    totalprocessed++;
-    //if(i_track%1000 == 0)
-    //{
-    //  int sum = 0;
-    //  for(int irho = 0; irho < 5; irho++)
-    //  {
-    //    for(int j = 0; j < 5; j++)
-    //    {
-    //      if(eventcounts[irho][j] > eventtarget[mInputPt]) sum++;
-    //      cout << irho << " " << j << " " << eventcounts[irho][j] << endl; 
-    //   }
-    //  }
-    //  if(sum == 25) break;
-    //  cout << "Our check is okay " << sum << " < 25" << endl;
-    //}
 
-    //cout << "TRACK " << i_track << endl;
     McVecMeson McPhi; // initialize McPhi
     McPhi.Centrality = mCentrality;
     //if(mMode == 0 && (( McPhi.Centrality > 5 || McPhi.Centrality < 2 ))) continue;
@@ -989,10 +922,8 @@ void StEffMcPhiHelicityGlobal::Make()
     // Smeared
     TLorentzVector slMcKP;
     slMcKP.SetPtEtaPhiM(posPt,RcKP.RcEta,RcKP.RcPhi,RcKP.RcM);
-    TLorentzVector srl_kp = slMcKP;
     TLorentzVector slMcKM;
     slMcKM.SetPtEtaPhiM(negPt,RcKM.RcEta,RcKM.RcPhi,RcKM.RcM);
-    TLorentzVector srl_km = slMcKM;
 
     TLorentzVector slMcPhi;
     slMcPhi = slMcKP + slMcKM;
@@ -1518,84 +1449,43 @@ Gavin comment out 11/09/24*/
     while(phiPsi < -TMath::Pi()) phiPsi += 2.0*TMath::Pi();
     while(phiPsi >  TMath::Pi()) phiPsi -= 2.0*TMath::Pi();
 
-    double valRapidity = -1;
-    const double  pythialow[19] = { 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2};;
-    const double pythiahigh[19] = { 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2, 5.0};;
-    
-    //cout << "|y| = " << TMath::Abs(lMcPhi.Rapidity()) << endl;
-    //cout << "pT  = " << lMcPhi.Pt() << endl;
-    //cout << "ptbinedges[mInputPt] = " << ptbinedges[mInputPt] << endl;
-    //cout << "ptbinedges[mInputPt+1] = " << ptbinedges[mInputPt+1] << endl;
-
-    if(TMath::Abs(lMcPhi.Rapidity()) > 1.0) continue; 
-    if(!(lMcPhi.Pt() >= ptbinedges[mInputPt] && lMcPhi.Pt() < ptbinedges[mInputPt+1])) continue; 
-
-
-    double weighty = 1.0;
-    //for(int i = 0; i < 19; i++)
-
-    for(int i = yptstart[mInputPt]; i <= yptstop[mInputPt]; i++)
-    {
-      if(lMcPhi.Pt() >= pythialow[i] && lMcPhi.Pt() < pythiahigh[i]) 
-      {
-        //valRapidity = pythiaflat[i]->Eval(slMcPhi.Rapidity())/pythiaflat[i]->GetMaximum();
-        weighty = pythiaflat[i]->Eval(lMcPhi.Rapidity());
-        break;
-      } 
-    }  
-    //if(valRapidity < 0) continue;
-
-    //double randRapidity = randomGen.Uniform(0,1);
-    //if(valRapidity > randRapidity) continue;
-
-    //double valV2 = f_flowreal->Eval(phiPsi)/f_flowreal->GetMaximum();
-    //double randV2 = randomGen.Uniform(0,1);
-    //if(valV2 > randV2) continue;
-
-    totalbeforemc++;
 
     float etacuts[10] = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
     for(int i = 0; i < 1; i++)
     {
-      double v2real = f_mV2[int(McPhi.Centrality)]->Eval(lMcPhi.Pt());
-      f_flowreal->SetParameter(0,v2real);
-      //if(i == 0) f_flowreal->SetParameter(0,0.0);
-      //if(i == 1) f_flowreal->SetParameter(0,v2real);
-      double weightflow = weightflow = f_flowreal->Eval(phiPsi);
-      //double weightflow = f_flowreal->Eval(phiPsi);
       //helicity spin alignment loop
       for(int irho = 0; irho < 5; irho++)
       {
         for(int j = 0; j < 5; j++)
         {
+          double v2real = f_mV2[4]->Eval(lMcPhi.Pt());
+          f_flowreal->SetParameter(0,v2real);
           //double weight = f_mRhoPt_2D[irho][j]->Eval(CosThetaStarH,helicityangle) * f_flow[i]->Eval(phiPsi);
           //double weight = f_mRhoPt_2D[irho][j]->Eval(McCosThetaStar,mcphiprime);// * f_flow[i]->Eval(phiPsi);
           //double weight = f_mRhoPt_2D[irho][j]->Eval(McCosThetaStar,mcphiprime) * f_flowreal->Eval(phiPsi);
-          //double valRho = f_mRhoPt_2D[irho][j]->Eval(McCosThetaStar,mcphiprime)/f_mRhoPt_2D[irho][j]->GetMaximum();
-  
-          //double valRho = f_mRhoPt_2D[irho][j]->Eval(McCosThetaStar,mcphiprime)/maxRho[irho][j];
-        
-          double weightrho = f_mRhoPt_2D[irho][j]->Eval(McCosThetaStar,mcphiprime);
+          double valRho = f_mRhoPt_2D[irho][j]->Eval(McCosThetaStar,mcphiprime)/f_mRhoPt_2D[irho][j]->GetMaximum();
+          double valV2 = f_flowreal->Eval(phiPsi)/f_flowreal->GetMaximum();
+          double valRapidity = pythiaflat[ptbin]->Eval(slMcPhi.Rapidity())/pythiaflat[ptbin]->GetMaximum();
 
-          double weight = weighty * weightflow * weightrho;
-          //double randRho = randomGen.Uniform(0,1);
+          double randRho = gRandom->Uniform(0,1);
+          double randV2 = gRandom->Uniform(0,1);
 
-          //if(valRho > randRho) continue;
+          
+
+
+          if(valRho > randRho) continue;
+          if(valV2 > randV2) continue;
 
           //mEffHistManger->FillHistMc(McPhi.Centrality,McPhi.McPt,McPhi.McY,McPhi.McPhi,McCosThetaStar,McPhi.Psi,phistar,mcphiprime,McKP.McPt,McKP.McY,CosThetaStarH,helicityangle,weight,i,irho,j);
           for(int ipt = 0; ipt < 5; ipt+=4)
           {
             //double deviationP = gRandom->Gaus(0,0.05*McKP.McPt);
             //double deviationM = gRandom->Gaus(0,0.05*McKM.McPt);
-            if(RcKP.RcPt < float(ipt)*0.025 || RcKM.RcPt < float(ipt)*0.025) continue;
-            //if(posPt < float(ipt)*0.025 || negPt < float(ipt)*0.025) continue;
-            //mEffHistManger->FillHistMc(McPhi.Centrality,slMcPhi.Pt(),slMcPhi.Rapidity(),slMcPhi.Phi(),sMcCosThetaStar,McPhi.Psi,sphistar,smcphiprime,McKP.McPt,McKP.McY,sCosThetaStarH,shelicityangle,weight,i,irho,j,0,ipt);
-            mEffHistManger->FillHistMc(McPhi.Centrality,lMcPhi.Pt(),lMcPhi.Rapidity(),lMcPhi.Phi(),McCosThetaStar,McPhi.Psi,phistar,mcphiprime,McKP.McPt,McKP.McY,CosThetaStarH,helicityangle,weight,i,irho,j,0,ipt);
+            //if(RcKP.RcPt < float(ipt)*0.025 || RcKM.RcPt < float(ipt)*0.025) continue;
+            if(posPt < float(ipt)*0.025 || negPt < float(ipt)*0.025) continue;
+            mEffHistManger->FillHistMc(McPhi.Centrality,slMcPhi.Pt(),slMcPhi.Rapidity(),slMcPhi.Phi(),sMcCosThetaStar,McPhi.Psi,sphistar,smcphiprime,McKP.McPt,McKP.McY,sCosThetaStarH,shelicityangle,weight,i,irho,j,0,ipt);
             //mEffHistManger->FillHistMc(McPhi.Centrality,RcPhi.RcPt,RcPhi.RcY,RcPhi.RcPhi,sMcCosThetaStar,McPhi.Psi,sphistar,smcphiprime,McKP.McPt,McKP.McY,sCosThetaStarH,shelicityangle,weight,i,irho,j,0,ipt);
           }
-
-          if(TMath::Abs(slMcPhi.Rapidity()) > 1.0) continue; 
-          if(!(slMcPhi.Pt() >= ptbinedges[mInputPt] && slMcPhi.Pt() < ptbinedges[mInputPt+1])) continue; 
               
           for(int ieta = 9; ieta < 10; ieta++)
           {
@@ -1608,22 +1498,22 @@ Gavin comment out 11/09/24*/
               if(posPt < float(ipt)*0.025 || negPt < float(ipt)*0.025) continue;
               //cout << "Before TPC Reconstructed" << endl;
 
-              if(!tpcReconstructed(0,McPhi.Centrality,rl_kp)) continue;
-              if(!tpcReconstructed(1,McPhi.Centrality,rl_km)) continue;
+              if(!tpcReconstructed(0,9,rl_kp)) continue;
+              if(!tpcReconstructed(1,9,rl_km)) continue;
               //cout << "After TPC Reconstructed" << endl;
 
               bool passToF = false;
 
               int GlobalBinP = -1;
               int GlobalBinM = -1;
-              GlobalBinP = ToFHist[0]->FindBin(srl_kp.Pt(),srl_kp.Eta(),srl_kp.Phi());
-              GlobalBinM = ToFHist[1]->FindBin(srl_km.Pt(),srl_km.Eta(),srl_km.Phi());
+              GlobalBinP = ToFHist[0]->FindBin(rl_kp.Pt(),rl_kp.Eta(),rl_kp.Phi());
+              GlobalBinM = ToFHist[1]->FindBin(rl_km.Pt(),rl_km.Eta(),rl_km.Phi());
               if(GlobalBinP < 0 || GlobalBinM < 0) passToF = false;   
               float valToFP = ToFHist[0]->GetBinContent(GlobalBinP);
               float valToFM = ToFHist[1]->GetBinContent(GlobalBinM);
       
-              float probP = randomGen.Uniform(0,1);
-              float probM = randomGen.Uniform(0,1);
+              float probP = gRandom->Uniform(0,1);
+              float probM = gRandom->Uniform(0,1);
 
               if(probP < valToFP && probM < valToFM) passToF = true;
 
@@ -1635,8 +1525,8 @@ Gavin comment out 11/09/24*/
               Bool_t passnskm = true;
               GlobalBinM = -1;
               GlobalBinP = -1;
-              findnsigHistPID(srl_km,0,GlobalBinM);
-              findnsigHistPID(srl_kp,1,GlobalBinP);
+              findnsigHistPID(rl_km,0,GlobalBinM);
+              findnsigHistPID(rl_kp,1,GlobalBinP);
               if(GlobalBinM < 0 || GlobalBinP < 0) 
               {
                 passnskp = false;
@@ -1644,8 +1534,8 @@ Gavin comment out 11/09/24*/
               }
               else
               {
-                if( !passhist_nsig_PID(0,9,srl_km,GlobalBinM) ) passnskm = false;
-                if( !passhist_nsig_PID(1,9,srl_kp,GlobalBinP) ) passnskp = false;
+                if( !passhist_nsig_PID(0,9,rl_km,GlobalBinM) ) passnskm = false;
+                if( !passhist_nsig_PID(1,9,rl_kp,GlobalBinP) ) passnskp = false;
               }
 
               if(!passnskm || !passnskp) continue;
@@ -1656,8 +1546,8 @@ Gavin comment out 11/09/24*/
               Bool_t passm2km = true;
               GlobalBinM = -1;
               GlobalBinP = -1;
-              findm2HistPID(srl_km,0,GlobalBinM);
-              findm2HistPID(srl_kp,1,GlobalBinP);
+              findm2HistPID(rl_km,0,GlobalBinM);
+              findm2HistPID(rl_kp,1,GlobalBinP);
               if(GlobalBinM < 0 || GlobalBinP < 0) 
               {
                 passm2kp = false;
@@ -1665,21 +1555,16 @@ Gavin comment out 11/09/24*/
               }
               else
               {
-                if( !passhist_m2_PID(0,9,srl_km,GlobalBinM) ) passm2km = false;
-                if( !passhist_m2_PID(1,9,srl_kp,GlobalBinP) ) passm2kp = false; 
+                if( !passhist_m2_PID(0,9,rl_km,GlobalBinM) ) passm2km = false;
+                if( !passhist_m2_PID(1,9,rl_kp,GlobalBinP) ) passm2kp = false; 
               }
 
               if(!passm2km || !passm2kp) continue;
               //cout << "After nsig" << endl;
 
-
               //mEffHistManger->FillHistMc(McPhi.Centrality,RcPhi.RcPt,RcPhi.RcY,RcPhi.RcPhi,McCosThetaStar,McPhi.Psi,phistar,mcphiprime,McKP.McPt,McKP.McY,CosThetaStarH,helicityangle,weight,i,irho,j,ieta+1,ipt);
-              //if(eventcounts[irho][j] < eventtarget[mInputPt-2]) mEffHistManger->FillHistMc(McPhi.Centrality,slMcPhi.Pt(),slMcPhi.Rapidity(),slMcPhi.Phi(),sMcCosThetaStar,McPhi.Psi,sphistar,smcphiprime,McKP.McPt,McKP.McY,sCosThetaStarH,shelicityangle,weight,i,irho,j,ieta+1,ipt);
-              //if(eventcounts[irho][j] < eventtarget[mInputPt]) mEffHistManger->FillHistMc(McPhi.Centrality,slMcPhi.Pt(),slMcPhi.Rapidity(),slMcPhi.Phi(),sMcCosThetaStar,McPhi.Psi,sphistar,smcphiprime,McKP.McPt,McKP.McY,sCosThetaStarH,shelicityangle,1.0,i,irho,j,ieta+1,ipt);
-              //mEffHistManger->FillHistMc(McPhi.Centrality,lMcPhi.Pt(),lMcPhi.Rapidity(),lMcPhi.Phi(),McCosThetaStar,McPhi.Psi,phistar,mcphiprime,McKP.McPt,McKP.McY,CosThetaStarH,helicityangle,weight,i,irho,j,ieta+1,ipt);
               mEffHistManger->FillHistMc(McPhi.Centrality,slMcPhi.Pt(),slMcPhi.Rapidity(),slMcPhi.Phi(),sMcCosThetaStar,McPhi.Psi,sphistar,smcphiprime,McKP.McPt,McKP.McY,sCosThetaStarH,shelicityangle,weight,i,irho,j,ieta+1,ipt);
                
-              //eventcounts[irho][j]++;
             } 
           }
         }
@@ -1749,10 +1634,6 @@ Gavin comment out 11/09/24*/
   
   cout << "=> processing data: 100%" << endl;
   cout << "work done!" << endl;
-
-  cout << "Total Processed = " << totalprocessed << endl;
-  cout << "Total Before MC = " << totalbeforemc << endl;
-
   //mEffHistManger->CalEffCosThetaStar();
   //cout << "calculated efficiency" << endl;
 }

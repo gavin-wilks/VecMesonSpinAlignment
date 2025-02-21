@@ -210,9 +210,9 @@ void StEffHistMangerHelicityGlobal::InitKaonHist()
   }
 }
 
-void StEffHistMangerHelicityGlobal::InitHist()
+void StEffHistMangerHelicityGlobal::InitHist(int bincos = 20, int binphi = 20)
 {
-  for(int iv2 = 0; iv2 < 11; iv2++)
+  for(int iv2 = 0; iv2 < 1; iv2++)
   {
     for(int irhoinput = 0; irhoinput < 5; irhoinput++)
     {
@@ -220,7 +220,7 @@ void StEffHistMangerHelicityGlobal::InitHist()
       {
         for(int ieta = 0; ieta < 11; ieta+=10)
         {
-          for(int ipt = 0; ipt < 9; ipt+=4)
+          for(int ipt = 0; ipt < 5; ipt+=4)
           {
 //            string HistName = Form("h_mMcEffCosPhiPrime_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
 //            h_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt] = new TH2D(HistName.c_str(),HistName.c_str(),20,-1.0,1.0,20,0.0,2.0*TMath::Pi());
@@ -229,12 +229,32 @@ void StEffHistMangerHelicityGlobal::InitHist()
 //            h_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt] = new TH2D(HistName.c_str(),HistName.c_str(),20,-1.0,1.0,20,0.0,2.0*TMath::Pi());
 //            h_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
 //
-            string HistName = Form("h3_mMcEffCosPhiPrime_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
-            h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt] = new TH3D(HistName.c_str(),HistName.c_str(),20,0.0,2.0,20,-1.0,1.0,20,0.0,2.0*TMath::Pi());
-            h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
-            HistName = Form("h3_mMcEffCosPhiPrimeH_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
-            h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt] = new TH3D(HistName.c_str(),HistName.c_str(),20,0.0,2.0,20,-1.0,1.0,20,0.0,2.0*TMath::Pi());
-            h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
+            for(int icos = 0; icos < 5; icos++)
+            {
+              for(int iphi = 0; iphi < 5; iphi++) 
+              {
+            
+                string HistName = Form("h3_mMcEffCosPhiPrime_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d_cos%d_phi%d",iv2,irhoinput,irho,ieta,ipt,icos+8,iphi+8);
+                h3_mMcEffCosPhiPrime[irhoinput][irho][ieta][ipt][icos*5+iphi] = new TH3D(HistName.c_str(),HistName.c_str(),1,0.0,5.0,icos+8,-1.0,1.0,iphi+8,0.0,2.0*TMath::Pi());
+                h3_mMcEffCosPhiPrime[irhoinput][irho][ieta][ipt][icos*5+iphi]->Sumw2();
+              //HistName = Form("h3_mMcEffCosPhiPrimeH_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
+              //h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt] = new TH3D(HistName.c_str(),HistName.c_str(),1,0.0,5.0,bincos,-1.0,1.0,binphi,0.0,2.0*TMath::Pi());
+              //h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
+              }
+            }
+//            string HistName = Form("h3_mMcEffCosPhiPrime_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
+//            h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt] = new TH3D(HistName.c_str(),HistName.c_str(),1,0.0,5.0,bincos,-1.0,1.0,binphi,0.0,2.0*TMath::Pi());
+//            h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
+//            HistName = Form("h3_mMcEffCosPhiPrimeH_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
+//            h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt] = new TH3D(HistName.c_str(),HistName.c_str(),1,0.0,5.0,bincos,-1.0,1.0,binphi,0.0,2.0*TMath::Pi());
+//            h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
+//
+//            HistName = Form("h3_mMcEffCosPhiPrimeY_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
+//            h3_mMcEffCosPhiPrimeY[iv2][irhoinput][irho][ieta][ipt] = new TH3D(HistName.c_str(),HistName.c_str(),10,-1.0,1.0,7,0.0,1.0,binphi,0.0,2.0*TMath::Pi());
+//            h3_mMcEffCosPhiPrimeY[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
+//            HistName = Form("h3_mMcEffCosPhiPrimeHY_v2_%d_rhoinput_%d_rho_%d_eta_%d_pt%d",iv2,irhoinput,irho,ieta,ipt);
+//            h3_mMcEffCosPhiPrimeHY[iv2][irhoinput][irho][ieta][ipt] = new TH3D(HistName.c_str(),HistName.c_str(),10,-1.0,1.0,7,0.0,1.0,binphi,0.0,2.0*TMath::Pi());
+//            h3_mMcEffCosPhiPrimeHY[iv2][irhoinput][irho][ieta][ipt]->Sumw2();
        
         //for(int iphipsi = 0; iphipsi < 20; iphipsi++)
         //{
@@ -621,8 +641,19 @@ void StEffHistMangerHelicityGlobal::FillHistMc(int cent, float pt, float y, floa
   double weightv2 = 1.0;//h_mV2[iv2]->GetBinContent(cosH,phiprimeH);
   //h_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Fill(cos,phiprime,weight*weightv2);
   //h_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Fill(cosH,phiprimeH,weight*weightv2);
-  h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Fill(pt,cos,phiprime,weight*weightv2);
-  h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Fill(pt,cosH,phiprimeH,weight*weightv2);
+  for(int icos = 0; icos < 5; icos++)
+  {
+    for(int iphi = 0; iphi < 5; iphi++) 
+    {
+      h3_mMcEffCosPhiPrime[irhoinput][irho][ieta][ipt][icos*5+iphi]->Fill(pt,cos,phiprime,weight*weightv2);
+      //h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Fill(pt,cosH,phiprimeH,weight*weightv2);
+    }
+  }
+//  h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Fill(pt,cos,phiprime,weight*weightv2);
+//  h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Fill(pt,cosH,phiprimeH,weight*weightv2);
+//
+//  h3_mMcEffCosPhiPrimeY[iv2][irhoinput][irho][ieta][ipt]->Fill(y,TMath::Abs(cos),phiprime,weight*weightv2);
+//  h3_mMcEffCosPhiPrimeHY[iv2][irhoinput][irho][ieta][ipt]->Fill(y,TMath::Abs(cosH),phiprimeH,weight*weightv2);
 
   //for(int iphipsi = 0; iphipsi < 20; iphipsi++)
   //{
@@ -963,7 +994,7 @@ void StEffHistMangerHelicityGlobal::CalEffCosThetaStar()
 
 void StEffHistMangerHelicityGlobal::WriteHist()
 {
-  for(int iv2 = 0; iv2 < 11; iv2++)
+  for(int iv2 = 0; iv2 < 1; iv2++)
   {
     for(int irhoinput = 0; irhoinput < 5; irhoinput++)
     {
@@ -971,12 +1002,21 @@ void StEffHistMangerHelicityGlobal::WriteHist()
       {
         for(int ieta = 0; ieta < 11; ieta+=10)
         {
-          for(int ipt = 0; ipt < 9; ipt+=4)
+          for(int ipt = 0; ipt < 5; ipt+=4)
           {
             //h_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Write();
             //h_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Write();
-            h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Write();
-            h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Write();
+            for(int icos = 0; icos < 5; icos++)
+            {
+              for(int iphi = 0; iphi < 5; iphi++) 
+              {
+                h3_mMcEffCosPhiPrime[irhoinput][irho][ieta][ipt][icos*5+iphi]->Write();
+              }
+            }
+//            h3_mMcEffCosPhiPrime[iv2][irhoinput][irho][ieta][ipt]->Write();
+//            h3_mMcEffCosPhiPrimeH[iv2][irhoinput][irho][ieta][ipt]->Write();
+//            h3_mMcEffCosPhiPrimeY[iv2][irhoinput][irho][ieta][ipt]->Write();
+//            h3_mMcEffCosPhiPrimeHY[iv2][irhoinput][irho][ieta][ipt]->Write();
         //for(int iphipsi = 0; iphipsi < 20; iphipsi++)
         //{
         //  h_mMcEffCosPhiPrimePsi[iv2][irhoinput][irho][iphipsi]->Write();
