@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="5" filesPerHour="10" maxFilesPerProcess="15" fileListSyntax="paths" simulateSubmission="false">
+
+  <command>
+    root -l -b -q myhadd.C\(\"$FILELIST\",\"$JOBID\",\"&outFile;\"\)&gt;&amp; ${JOBID}.log
+  </command>
+
+  <SandBox installer="ZIP">
+    <Package>
+      <File>file:./myhadd.C</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:&listPath;/hadd_&SM;_etamode&etamode;.list"/>
+
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/hadd/SpinAlignmentYieldsLog/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/hadd/SpinAlignmentYields/&outDir;/" />
+  <output fromScratch="*.log" toURL="file:&outPath;/hadd/SpinAlignmentYieldsLog/&outDir;/" />
+</job>

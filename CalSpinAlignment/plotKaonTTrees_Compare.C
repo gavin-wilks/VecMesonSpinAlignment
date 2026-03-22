@@ -3,7 +3,6 @@
 #include <TH3F.h>
 #include <TTree.h>
 #include <TH2F.h>
-#include <TProfile.h>
 #include <TH1F.h>
 #include <TFile.h>
 #include <TCanvas.h>
@@ -12,9 +11,7 @@
 #include <TLorentzVector.h>
 #include <TMath.h>
 #include "../Utility/functions.h"
-#include "../Utility/draw.h"
 #include "../Utility/StSpinAlignmentCons.h"
-#include "phi_data_constants_19GeV.h"
 
 int tableNum[5][9] = {{6,6,5,5,4,3,2,1,1},
                       {0,0,0,0,0,0,0,0,0},
@@ -153,11 +150,7 @@ TF1* readspec(int energy, int centrality)
 }
 
 TF1* readv2(int energy, int centrality){
-   
-  if(gRandom) delete gRandom;
-  gRandom = new TRandom3();
-  gRandom->SetSeed();
- 
+  
   string centlabel = "4080";
   if(centrality >= 4 && centrality <= 6) centlabel = "1040";
   if(centrality >= 7 && centrality <= 8) centlabel = "0010";
@@ -251,15 +244,14 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     gStyle->SetHistFillColor(0);
     //gPad->SetAspectRatio(1);
 
-    string folderopt = "ToFFromTaggingFinerPID_Reweight_PythiaFlat/";
-    if(datarcweight) folderopt = "ToFFromTaggingFinerPID/PhiDataRCWeighted_YRatioGaus/";
+    string folderopt = "";
+    if(datarcweight) folderopt = "PhiDataRCWeighted/";
 
     gStyle->SetOptStat(0);
  
     ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);    
 
     TFile *inputweightsptyphi = TFile::Open(Form("phiweights/pt_y_phi_weights_v2_FunctionEmbed.root"));
-    //TFile *inputweightsptyphi = TFile::Open(Form("phiweights/pt_y_phi_weights_v2_FunctionEmbed_ygaus.root"));
 
     TH3F *h_mpTyv2Weights[9];
     for(int i_cent = 2; i_cent < 6; ++i_cent)
@@ -268,17 +260,8 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
       h_mpTyv2Weights[i_cent] = (TH3F*) inputweightsptyphi->Get(HistName.c_str());
     }
 
-    TFile *ToFFile = TFile::Open(Form("ToFMatching/ToFMatching_19GeV.root"));
-    TH3F* ToFHist[2];
-    ToFHist[0] = (TH3F*) ToFFile->Get("kplus_ratio");
-    ToFHist[0]->Print();
-    ToFHist[1] = (TH3F*) ToFFile->Get("kminus_ratio");
-    ToFHist[1]->Print();
-
-
     // INITIALIZE TTREES 
-    //TFile *mKaonFileSE = TFile::Open("../data/Yields_Phi_SE_19GeV_20240830_kaontree.root");
-    TFile *mKaonFileSE = TFile::Open("../data/Yields_Phi_SE_19GeV_20240926_kaontree.root");
+    TFile *mKaonFileSE = TFile::Open("../data/Yields_Phi_SE_19GeV_20240830_kaontree.root");
     TTree *mKaonTreeSE = (TTree*) mKaonFileSE->Get("kaontree");
     int   mCentSE;
     float mWeightSE;
@@ -303,8 +286,7 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     mKaonTreeSE->SetBranchAddress("dedx", &mDEdxSE);
     mKaonTreeSE->SetBranchAddress("dca", &mDcaSE);
 
-    //TFile *mKaonFileME = TFile::Open("../data/Yields_Phi_ME_19GeV_20240830_kaontree.root");
-    TFile *mKaonFileME = TFile::Open("../data/Yields_Phi_ME_19GeV_20240926_kaontree.root");
+    TFile *mKaonFileME = TFile::Open("../data/Yields_Phi_ME_19GeV_20240830_kaontree.root");
     TTree *mKaonTreeME = (TTree*) mKaonFileME->Get("kaontree");
     int   mCentME;
     float mWeightME;
@@ -372,10 +354,7 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
 
 
     //TFile *mKaonFileEmbed = TFile::Open("effaccfiles/Phi/19GeV/PhiEmbedding_kaontrees/PhiEmbedding_kaontrees_fixed.root");
-    //TFile *mKaonFileEmbed = TFile::Open("effaccfiles/Phi/19GeV/PhiEmbedding_kaontrees/PhiEmbedding_kaontrees_notofmatchreq_EP.root");
-    //TFile *mKaonFileEmbed = TFile::Open("effaccfiles/Phi/19GeV/PhiEmbedding_kaontrees/PhiEmbedding_ToFMatching_48PhiBins.root");
-    TFile *mKaonFileEmbed = TFile::Open("effaccfiles/Phi/19GeV/PhiEmbedding_kaontrees/PhiEmbedding_kaontrees_finerPID.root");
-    //TFile *mKaonFileEmbed = TFile::Open("effaccfiles/Phi/19GeV/PhiEmbedding_kaontrees/PhiEmbedding_kaontrees_all.root");
+    TFile *mKaonFileEmbed = TFile::Open("effaccfiles/Phi/19GeV/PhiEmbedding_kaontrees/PhiEmbedding_kaontrees_notofmatchreq_EP.root");
     TTree *mKaonTreeEmbed = (TTree*) mKaonFileEmbed->Get("kaontree");
   
     mKaonTreeEmbed->Print();
@@ -418,28 +397,6 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     mKaonTreeEmbed->SetBranchAddress("passm2", &mPassM2);
     mKaonTreeEmbed->SetBranchAddress("passns", &mPassNsig);
     // INITIALIZE TTREES 
-
-    TH2F* pt_correction_helicity[vmsa::pt_rebin_2D][2];
-    TH2F* pt_correction_global[vmsa::pt_rebin_2D][2];
-    TH2F* cent_correction_helicity[10][vmsa::pt_rebin_cent_2D][2];
-    TH2F* cent_correction_global[10][vmsa::pt_rebin_cent_2D][2];
-    TH2F* y_correction_helicity[vmsa::cent_rebin_total_2D][vmsa::pt_rebin_y_2D][vmsa::eta_total][2];
-    TH2F* y_correction_global[vmsa::cent_rebin_total_2D][vmsa::pt_rebin_y_2D][vmsa::eta_total][2];
-     
-    for(int ipt = vmsa::pt_rebin_first_2D[energy]; ipt < vmsa::pt_rebin_last_2D[energy]; ipt++)
-    {
-      string histname;
-      histname = Form("h_Global_MC_Cent_9_Pt_%d",ipt);
-      pt_correction_global[ipt][0] = new TH2F(histname.c_str(),histname.c_str(),9,-1,1,12,0.0,2.0*TMath::Pi());
-      histname = Form("h_Global_RC_Cent_9_Pt_%d",ipt);
-      pt_correction_global[ipt][1] = new TH2F(histname.c_str(),histname.c_str(),9,-1,1,12,0.0,2.0*TMath::Pi());
-
-      histname = Form("h_Helicity_MC_Cent_9_Pt_%d",ipt);
-      pt_correction_helicity[ipt][0] = new TH2F(histname.c_str(),histname.c_str(),9,-1,1,12,0.0,2.0*TMath::Pi());
-      histname = Form("h_Helicity_RC_Cent_9_Pt_%d",ipt);
-      pt_correction_helicity[ipt][1] = new TH2F(histname.c_str(),histname.c_str(),9,-1,1,12,0.0,2.0*TMath::Pi());
-    }
-
 
 
     // INITIALIZE HISTOGRAMS
@@ -494,7 +451,7 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     TH2F* sratioetaphi[3][2][20]; 
   
     // Tracking information
-    THnF* ptyetaphibasic[5][3];
+    THnF* ptyetaphibasic[4][2];
     //THnF* ptyetaphia[3][2];
     //THnF* ptyetaphib[3][2];
     //THnF* ptyetaphic[3][2];
@@ -565,13 +522,13 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     //TH3F* ptrapidityphiDesired[9];
     //TH3F* ptrapidityphiRatio[9];
  
-    const int npt = 30;
+    const int npt = 50;
     const float ptmin = 0.0, ptmax = 3.0; 
-    const int ny = 50;
+    const int ny = 30;
     const float ymin = -1.5, ymax = 1.5;
-    const int neta = 50;
+    const int neta = 30;
     const float etamin = -1.5, etamax = 1.5;
-    const int nphi = 24;
+    const int nphi = 80;
     const float phimin = -TMath::Pi(), phimax = TMath::Pi();
 
     Int_t bins[4] = {npt, ny, neta, nphi};
@@ -654,8 +611,8 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
         //ptrapidityphi[im][ic] = new TH3F(hist.c_str(), hist.c_str(), npt, ptmin, ptmax, ny, ymin, ymax, nphi, phimin, phimax);
         // TH2F 
 
-        //if(ic < 2) 
-        //{
+        if(ic < 2 && im < 4) 
+        {
  
            
             //hist = Form("ptyetaphibasic_k%s_%s",charge[ic].c_str(),mixing[im].c_str());
@@ -736,7 +693,7 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
           //hist = Form("dcaphi_k%s_%s",charge[ic].c_str(),mixing[im].c_str());
           //dcaphi[im][ic] = new TH2F(hist.c_str(), hist.c_str(), nphi, phimin, phimax, ndca, dcamin, dcamax);
 
-        //}
+        }
       }
     }
     cout << "Set up histograms" << endl;
@@ -889,77 +846,12 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     //nentriesEmbed = 1000000;//mKaonTreeEmbed->GetEntries();
 
    
-    string inputfile = Form("../output/AuAu%s/Phi/ptyspectra_Reweight_RawPhiPtSys_eta1_eta1_PolySys.root",vmsa::mBeamEnergy[energy].c_str());
+    string inputfile = Form("../output/AuAu%s/Phi/ptyspectra_RawPhiPtSys_eta1_eta1_PolySys.root",vmsa::mBeamEnergy[energy].c_str());
     TFile *File_InPut = TFile::Open(inputfile.c_str());
     string KEY = Form("ptyspectra_Centrality_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_Poly%d",9,"2nd",0,0,vmsa::mPID[0].c_str(),0,0,vmsa::mInteMethod[1].c_str(),1);
     TH2F *ptrapidityPhiData = (TH2F*) File_InPut->Get(KEY.c_str());
-    TH2F *ptrapidityPhiRc = new TH2F("ptrapidityPhiRC","ptrapidityPhiRC",vmsa::tofrebinpttotal,vmsa::tofrebinptval,vmsa::tofrebinytotal,vmsa::tofrebinyval); 
-    TH2F *ptrapidityPhiRcAfter = new TH2F("ptrapidityPhiRCAfter","ptrapidityPhiRCAfter",vmsa::tofrebinpttotal,vmsa::tofrebinptval,vmsa::tofrebinytotal,vmsa::tofrebinyval); 
-
-    int ncostheta = 14;
-    float costheta[ncostheta+1];
-    for(int i = 0; i < ncostheta+1; i++)
-    {
-      costheta[i] = (float(i)-7.)/7.;
-    }
-    TH3F *CosThetaStarPhiRc = new TH3F("CosThetaStarPhiRC","CosThetaStarPhiRC",vmsa::tofrebinpttotal,vmsa::tofrebinptval,vmsa::tofrebinytotal,vmsa::tofrebinyval,ncostheta,costheta); 
-    TH3F *CosThetaStarPhiRcAfter = new TH3F("CosThetaStarPhiRCAfter","CosThetaStarPhiRCAfter",vmsa::tofrebinpttotal,vmsa::tofrebinptval,vmsa::tofrebinytotal,vmsa::tofrebinyval,ncostheta,costheta); 
-
-    TH2F *CosCos = new TH2F("coscos","coscos",ncostheta,costheta,ncostheta,costheta);
-    TH1F *rhoG[5];
-    TH1F *rhoH[5];
-    TH1F *CosThetaStarPhiG[5][25];
-    TH1F *CosThetaStarPhiH[5][25];
-    TF1 *rhoweight[25];
-    double rhoweightval[25];
-    for(int irho = 0; irho < 25; irho++)
-    {
-      rhoweight[irho] = new TF1(Form("rhoweight%d",irho),SpinDensity,-1,1,2);
-      rhoweightval[irho] = (double(irho)-12)*0.005;
-      rhoweight[irho]->SetParameter(0,1./3.+rhoweightval[irho]);
-      rhoweight[irho]->SetParameter(1,3./4.);
-    }
-    TProfile *a2Mc[5];
-    TProfile *a2McM[5];
-    
-    for(int icut = 0; icut < 5; icut++)
-    {
-      string histname = Form("a2%d",icut);
-      a2Mc[icut] = new TProfile(histname.c_str(),histname.c_str(),25,rhoweightval[0]-0.005/2.,rhoweightval[24]+0.005/2.);
-      histname = Form("a2M%d",icut);
-      a2McM[icut] = new TProfile(histname.c_str(),histname.c_str(),40,1.019461-0.005*10,1.019461+0.005*30);
-      histname = Form("globalrho%d",icut);
-      rhoG[icut] = new TH1F(histname.c_str(),histname.c_str(),25,rhoweightval[0]-0.005/2.,rhoweightval[24]+0.005/2.);
-      histname = Form("helicityrho%d",icut);
-      rhoH[icut] = new TH1F(histname.c_str(),histname.c_str(),25,rhoweightval[0]-0.005/2.,rhoweightval[24]+0.005/2.);
-      for(int irho = 0; irho < 25; irho++)
-      {
-        histname = Form("global%d%d",icut,irho);
-        CosThetaStarPhiG[icut][irho] = new TH1F(histname.c_str(),histname.c_str(),ncostheta,costheta);
-        histname = Form("helicity%d%d",icut,irho);
-        CosThetaStarPhiH[icut][irho] = new TH1F(histname.c_str(),histname.c_str(),ncostheta,costheta);
-      }
-    }
-
-    //TProfile *a2Rc = new TProfile("a2Rc","a2Rc",1,1.2,4.2);
-    TH1F *CosThetaStarPhiMc = new TH1F("CosThetaStarPhiMc","CosThetaStarPhiMc",ncostheta,costheta);
-    TH1F *CosThetaStarPhiRc1D = new TH1F("CosThetaStarPhiRc1D","CosThetaStarPhiRc1D",ncostheta,costheta);
-
-    double norm[12] = {1.17421, 1.20569, 1.18756, 1.20748, 1.22335, 1.23579, 1.20088, 1.21209, 1.26302, 1.22473, 1.29652, 1.34468};
-    double mean[12] = {-0.00329925, -0.00254986, 0.0106082, 0.00417584, 0.00726663, 0.0287173, -0.0166698, -6.69877e-05, -0.0367374, -0.0154559, 0.0763402, -0.0402667};
-    double sigma[12] = {0.899472, 0.838369, 0.875892, 0.843554, 0.809015, 0.791428, 0.844824, 0.825385, 0.743799, 0.787513, 0.698393, 0.662743};
-
-    TF1* pythiaflat[12];
-    const double  pythialow[12] = {1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0};
-    const double pythiahigh[12] = {1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 4.2};
-    
-    for(int i = 0; i < 12; i++)
-    { 
-      pythiaflat[i]= new TF1(Form("pythiaflat_%d",i),"[0]*exp(-(x-[1])*(x-[1])/2/[2]/[2])",-1,1);
-      pythiaflat[i]->SetParameter(0,norm[i]);
-      pythiaflat[i]->SetParameter(1,mean[i]);
-      pythiaflat[i]->SetParameter(2,sigma[i]);
-    }
+    TH2F *ptrapidityPhiRc = new TH2F("ptrapidityPhiRC","ptrapidityPhiRC",vmsa::rebinpttotal,vmsa::rebinptval,vmsa::rebinytotal,vmsa::rebinyval); 
+    TH2F *ptrapidityPhiRcAfter = new TH2F("ptrapidityPhiRCAfter","ptrapidityPhiRCAfter",vmsa::rebinpttotal,vmsa::rebinptval,vmsa::rebinytotal,vmsa::rebinyval); 
  
     cout << "nentriesEmbed = " << nentriesEmbed << endl;
     for (Long64_t i = 0; i < nentriesEmbed; i++)
@@ -982,82 +874,22 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
       while(mMcPhiPsi > 2.0*TMath::Pi()) mMcPhiPsi -= 2.0*TMath::Pi();
      
       float PhiWeight = h_mpTyv2Weights[mCent]->GetBinContent(h_mpTyv2Weights[mCent]->FindBin(mMcPt,mMcRapidity,mMcPhiPsi));
-      //CosThetaStarPhiRc->Fill(mMcPt,mMcRapidity,mMcCosTheta,mWeight*PhiWeight);
-      float pythiaweight = 1.0;
-      for(int i = 0; i < 12; i++)
+
+      if(mRcExists && mPassTpc && mPassTof && mPassM2 && mPassNsig)    
       {
-        if(mMcPt >= pythialow[i] && mMcPt < pythiahigh[i]) 
-        {
-          pythiaweight = pythiaflat[i]->Eval(mMcRapidity);
-          break;
-        } 
-      }
+        TLorentzVector mLRcMeson = *mLRcKp + *mLRcKm;
 
-      if(mMcPt < 1.2 || mMcPt > 4.2) continue;
-      if(TMath::Abs(mMcRapidity) > 1.0) continue;
+        float mRcPt = mLRcMeson.Pt();      
+        float mRcRapidity = mLRcMeson.Rapidity();      
 
-      CosCos->Fill(mMcCosThetaStar,mMcCosTheta,mWeight*PhiWeight*pythiaweight);
-
-
-      if(mRcExists && mPassTpc /*&& mPassTof*/)    
-      {
-        bool passToF = false;
-
-        float mRcPtP = mLRcKp->Pt();      
-        float mRcRapidityP = mLRcKp->Rapidity();      
-        float mRcEtaP = mLRcKp->Eta();      
-        float mRcPhiP = mLRcKp->Phi();      
-
-        float mRcPtM = mLRcKm->Pt();      
-        float mRcRapidityM = mLRcKm->Rapidity();      
-        float mRcEtaM = mLRcKm->Eta();      
-        float mRcPhiM = mLRcKm->Phi();      
-
-        int GlobalBinP = -1;
-        int GlobalBinM = -1;
-        GlobalBinP = ToFHist[0]->FindBin(mRcPtP,mRcEtaP,mRcPhiP);
-        GlobalBinM = ToFHist[1]->FindBin(mRcPtM,mRcEtaM,mRcPhiM);
-        if(GlobalBinP < 0 || GlobalBinM < 0) passToF = false;   
-        float valToFP = ToFHist[0]->GetBinContent(GlobalBinP);
-        float valToFM = ToFHist[1]->GetBinContent(GlobalBinM);
-      
-        float probP = gRandom->Uniform(0,1);
-        float probM = gRandom->Uniform(0,1);
-
-        if(probP < valToFP && probM < valToFM) passToF = true;
-
-
-        if(passToF && mPassM2 && mPassNsig)    
-        {
-          TLorentzVector mLRcMeson = *mLRcKp + *mLRcKm;
-
-          float mRcPt = mLRcMeson.Pt();      
-          float mRcRapidity = mLRcMeson.Rapidity();      
-
-          ptrapidityPhiRc->Fill(mRcPt,mRcRapidity,mWeight*PhiWeight*pythiaweight);
-          //ptrapidityPhiRc->Fill(mMcPt,mMcRapidity,mWeight*PhiWeight);
-          CosThetaStarPhiRc->Fill(mRcPt,mRcRapidity,mRcCosTheta,mWeight*PhiWeight*pythiaweight);
-        }
+        ptrapidityPhiRc->Fill(mRcPt,mRcRapidity,mWeight*PhiWeight);
       }
     }
-   
-    TH1F* CosCosWeight = (TH1F*)CosCos->Clone("CosCosWeight");
-    double binintegral = CosCos->Integral()/14/14;
-    for(int ix = 1; ix <= 14; ix++)
-    {
-      for(int iy = 1; iy <= 14; iy++)
-      {
-        double value = CosCos->GetBinContent(ix,iy);
-        double weightvalue = binintegral/value;
-        CosCosWeight->SetBinContent(ix,iy,weightvalue);
-      }
-    }
- 
 
     TH2F *ptrapidityPhiDataRc;
 
-    double integralPhiData = ptrapidityPhiData->Integral(1,vmsa::tofrebinpttotal,1,vmsa::tofrebinytotal); 
-    double integralPhiRc = ptrapidityPhiRc->Integral(1,vmsa::tofrebinpttotal,1,vmsa::tofrebinytotal); 
+    double integralPhiData = ptrapidityPhiData->Integral(1,vmsa::rebinpttotal,1,vmsa::rebinytotal); 
+    double integralPhiRc = ptrapidityPhiRc->Integral(1,vmsa::rebinpttotal,1,vmsa::rebinytotal); 
     double DataRcPhi = integralPhiData/integralPhiRc;
     
     ptrapidityPhiDataRc = (TH2F*) ptrapidityPhiData->Clone();
@@ -1065,10 +897,8 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     ptrapidityPhiDataRc->Divide(ptrapidityPhiRc);
 
     TH1F *ptPhiData = (TH1F*) ptrapidityPhiData->ProjectionX("ptData",0,-1);
-    //TH1F *ptPhiData = (TH1F*) ptrapidityPhiData->ProjectionX("ptData",4,11);
     TH1F *yPhiData  = (TH1F*) ptrapidityPhiData->ProjectionY("yData",0,-1);  
     TH1F *ptPhiRc   = (TH1F*) ptrapidityPhiRc->ProjectionX("ptRc",0,-1);  
-    //TH1F *ptPhiRc   = (TH1F*) ptrapidityPhiRc->ProjectionX("ptRc",4,11);  
     TH1F *yPhiRc    = (TH1F*) ptrapidityPhiRc->ProjectionY("yRc",0,-1);  
 
     TH1F *ptPhiDataRc = (TH1F*) ptPhiData->Clone();
@@ -1155,58 +985,13 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     yPhiDataRc->GetXaxis()->SetTitle("y"); 
     yPhiDataRc->GetYaxis()->SetTitle("Data/RC"); 
     yPhiDataRc->Draw("pE");
-    TF1* gausRatio = new TF1("gausRatio","[0]*exp(-x*x/2/[1]/[1])",-1.0,1.0);
-    //gausRatio->SetParameter(0,1.);
-    //gausRatio->SetParameter(1,1.);
-    //yPhiDataRc->Fit(gausRatio,"NMR");
-    //gausRatio->SetLineColor(kRed);
-    //gausRatio->Draw("l same");
 
-    ct->SaveAs(Form("figures/KaonTTrees/%sPhiMeson_DataRCAndRatio.pdf",folderopt.c_str()));
+    ct->SaveAs(Form("figures/KaonTTrees/PhiMeson_DataRCAndRatio.pdf"));
     
-    TCanvas *ct2 = new TCanvas("ct2", "ct2", 1500, 600);
-    ct2->Divide(5,2);
-
-    TH1F *phi_ybins[10];   
- 
-    for(int i = 0; i < 10; i++)
-    {
-      ct2->cd(i+1);
-      ct2->cd(i+1)->SetLeftMargin(0.12);
-      ct2->cd(i+1)->SetRightMargin(0.15);
-      ct2->cd(i+1)->SetBottomMargin(0.12);
-      ct2->cd(i+1)->SetTicks(1,1);
-      ct2->cd(i+1)->SetGrid(0,0); 
-    }
-    for(int i = 0; i < 10; i++)
-    {
-      ct2->cd(i+1); 
-      string histname = Form("phi_datarc_y_%d",i);
-      phi_ybins[i] = (TH1F*) ptrapidityPhiDataRc->ProjectionY(histname.c_str(),i+1,i+1);
-      phi_ybins[i]->GetXaxis()->SetTitle("y");  
-      phi_ybins[i]->GetYaxis()->SetTitle("Data/RC");  
-      phi_ybins[i]->Draw("pE"); 
-    }
-    ct2->SaveAs(Form("figures/KaonTTrees/%sPhiMeson_DataRCAndRatio_rapiditybins.pdf",folderopt.c_str()));
-
-    //for(int i = 0; i < 10; i++)
-    //{
-    //  ct2->cd(i+1); 
-    //  string histname = Form("phi_datarc_y_%d",i);
-    //  phi_ybins[i] = (TH1F*) ptrapidityPhiDataRc->ProjectionY(histname.c_str(),i+1,i+1);
-    //  phi_ybins[i]->GetXaxis()->SetTitle("y");  
-    //  phi_ybins[i]->GetYaxis()->SetTitle("Data/RC");  
-    //  phi_ybins[i]->Draw("pE"); 
-    //}
-    //ct2->SaveAs(Form("figures/KaonTTrees/%sPhiMeson_DataRCAndRatio_rapiditybins.pdf",folderopt.c_str()));
 
     //Long64_t nentriesEmbed = mKaonTreeEmbed->GetEntries();
     //nentriesEmbed = 1000000;//mKaonTreeEmbed->GetEntries();
     cout << "nentriesEmbed = " << nentriesEmbed << endl;
-
-    double TotalCosPhiPhiStar = 0.0; 
-    double TotalCount = 0.0;
-
     for (Long64_t i = 0; i < nentriesEmbed; i++)
     {
       mKaonTreeEmbed->GetEntry(i);
@@ -1232,91 +1017,6 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
       float mMcRapidityM = mLKm->Rapidity();      
       float mMcEtaM = mLKm->Eta();      
       float mMcPhiM = mLKm->Phi();      
-   
-      TLorentzVector lphi = *mLKp + *mLKm;
-      TVector3 vMcPhiBeta = -1.0*lphi.BoostVector();
-      TLorentzVector lMcKP;
-      lMcKP = *mLKp;//.SetPtEtaPhiM(KP_Pt,KP_Eta,KP_Phi,vmsa::mMassKaon);
-      lMcKP.Boost(vMcPhiBeta);
-      TVector3 vMcKP = lMcKP.Vect().Unit(); // direction of K+ momentum in phi-meson rest frame
-      double phistar = lMcKP.Vect().Phi();
-   
-      TVector3 phiMomentumLabUnit = lphi.Vect().Unit();
-
-      TLorentzVector lBeamPos;
-      lBeamPos.SetPxPyPzE(0.0,0.0,9.75,9.796);
-      lBeamPos.Boost(vMcPhiBeta);
-      TLorentzVector lBeamNeg;
-      lBeamNeg.SetPxPyPzE(0.0,0.0,-9.75,9.796);
-      lBeamNeg.Boost(vMcPhiBeta);
-
-      TLorentzVector lBeamTot = lBeamPos + lBeamNeg;
-
-      TVector3 vBeamPos = lBeamPos.Vect();
-      TVector3 vBeamNeg = lBeamNeg.Vect();
-
-      TVector3 yaxisfrombeam = vBeamPos.Cross(vBeamNeg).Unit();
-
-      TVector3 vBeamTotalUnit = lBeamTot.Vect().Unit();
-
-      TVector3 zaxisfrombeam = vBeamTotalUnit;
-      TVector3 xaxisfrombeam = yaxisfrombeam.Cross(zaxisfrombeam).Unit();
-
-      double costhetahelicity = vMcKP.Dot(zaxisfrombeam);
-      //double costhetahelicity = vMcKP.Dot(lphi.Vect().Unit());
-
-      double xprojection = vMcKP.Dot(xaxisfrombeam);
-      double yprojection = vMcKP.Dot(yaxisfrombeam);
-  
-      double helicityangle = TMath::ATan2(yprojection,xprojection);
-      if(helicityangle < 0.0) helicityangle += 2.0*TMath::Pi();
-  
-      //TVector3 QVector(TMath::Sin(Psi),-1.0*TMath::Cos(Psi),0.0);
-      TVector3 QVectorMc(TMath::Sin(mEpFull),-1.0*TMath::Cos(mEpFull),0.0);
-      TVector3 mcxprime(TMath::Cos(mEpFull),TMath::Sin(mEpFull),0.0);
-      //TVector3 QVectorMc(TMath::Sin(0),-1.0*TMath::Cos(0),0.0);
-      //TVector3 mcxprime(TMath::Cos(0),TMath::Sin(0),0.0);
-      TVector3 mczprime(0.0,0.0,1.0); // beam direction
-      TVector3 mcycalc = mczprime.Cross(phiMomentumLabUnit);
-      TVector3 mcyhelicity = mcycalc.Unit();
-      TVector3 mcxcalc = mcyhelicity.Cross(mczprime);
-      TVector3 mcxhelicity = mcxcalc.Unit();
-
-      Double_t mcproj_xprime = vMcKP.Dot(mcxprime);
-      Double_t mcproj_zprime = vMcKP.Dot(mczprime);
-      Double_t mczxangle = TMath::ATan2(TMath::Abs(mcproj_xprime),TMath::Abs(mcproj_zprime));
-      Float_t mcphiprime = 0.0;
-      if(mcproj_zprime > 0.0)
-      {
-        if(mcproj_xprime > 0.0)  mcphiprime = 2.0*TMath::Pi()-mczxangle; 
-        if(mcproj_xprime < 0.0)  mcphiprime = mczxangle;
-        if(mcproj_xprime == 0.0) mcphiprime = 0.0; 
-      }               
-      if(mcproj_zprime < 0.0)
-      {
-        if(mcproj_xprime > 0.0)  mcphiprime = TMath::Pi()+mczxangle;
-        if(mcproj_xprime < 0.0)  mcphiprime = TMath::Pi()-mczxangle;
-        if(mcproj_xprime == 0.0) mcphiprime = TMath::Pi();
-      }
-      if(mcproj_zprime == 0.0)
-      {
-        if(mcproj_xprime > 0.0)  mcphiprime = 3.0*TMath::Pi()/2.0;
-        if(mcproj_xprime < 0.0)  mcphiprime = TMath::Pi()/2.0;
-        if(mcproj_xprime == 0.0) mcphiprime = 0.0;
-      }
-
-      Double_t mcproj_xhelicity = vMcKP.Dot(mcxhelicity);
-      Double_t mcproj_yhelicity = vMcKP.Dot(mcyhelicity);
-      Double_t mcxyangle_helicity = TMath::ATan2(mcproj_yhelicity,mcproj_xhelicity);
-      Double_t mcphihelicity = 0.0;
-      if(mcproj_yhelicity > 0) mcphihelicity = mcxyangle_helicity - TMath::Pi();
-      if(mcproj_yhelicity < 0) mcphihelicity = mcxyangle_helicity + TMath::Pi();
-      if(mcphihelicity < 0) mcphihelicity += TMath::Pi()*2.0;
-
-      TVector3 nQMc = QVectorMc.Unit(); // direction of QVector
-      float costhetastar = vMcKP.Dot(nQMc);
-
-
 
 
       //// TH1F 
@@ -1372,79 +1072,13 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
       //cout << "mMcPhiPsi = " << mMcPhiPsi << endl;
 
       float PhiWeight = h_mpTyv2Weights[mCent]->GetBinContent(h_mpTyv2Weights[mCent]->FindBin(mMcPt,mMcRapidity,mMcPhiPsi));
-      float pythiaweight = 1.0;
-      for(int i = 0; i < 12; i++)
-      {
-        if(mMcPt >= pythialow[i] && mMcPt < pythiahigh[i]) 
-        {
-          pythiaweight = pythiaflat[i]->Eval(mMcRapidity);
-          break;
-        } 
-      }
-
-      //float pythiaweight = pythiaflat->Eval(mRcRapidity);
-
-      if(mMcPt < 1.2 || mMcPt > 4.2) continue;
-      if(TMath::Abs(mMcRapidity) > 1.0) continue;
-           
-      ptyetaphibasic[4][0]->Fill(mMcPtP,mMcRapidityP,mMcEtaP,mMcPhiP,mWeight*PhiWeight*pythiaweight);
-      ptyetaphibasic[4][1]->Fill(mMcPtM,mMcRapidityM,mMcEtaM,mMcPhiM,mWeight*PhiWeight*pythiaweight);
-      ptyetaphibasic[4][2]->Fill(mMcPt,mMcRapidity,mMcEta,mMcPhi,mWeight*PhiWeight*pythiaweight);
-  
-      double cos2Dweight =1.0;// CosCosWeight->GetBinContent(CosCosWeight->FindBin(mMcCosThetaStar,mMcCosTheta));    
- 
-     
-      a2McM[0]->Fill(lphi.M(),TMath::Cos(2.*(lphi.Phi()-phistar)),mWeight*PhiWeight);
-      for(int irho = 0; irho < 25; irho++)
-      {
-        double weightfromrho = rhoweight[irho]->Eval(costhetastar);
-        //a2Mc[0]->Fill(rhoweightval[irho],TMath::Cos(2.*(mMcPhi-mMcPhiStar)),mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-        //CosThetaStarPhiG[0][irho]->Fill(mMcCosThetaStar,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-        //CosThetaStarPhiH[0][irho]->Fill(mMcCosTheta,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-        //a2Mc[0]->Fill(rhoweightval[irho],TMath::Cos(2.*(mMcPhi-mMcPhiStar))/*,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight*/);
-        //CosThetaStarPhiG[0][irho]->Fill(mMcCosThetaStar/*,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight*/);
-        //CosThetaStarPhiH[0][irho]->Fill(mMcCosTheta/*,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight*/);
-
-        if(lphi.M() > 1.019461-2.0*0.005 && lphi.M() < 1.019461+2.0*0.005)
-        {
-          a2Mc[0]->Fill(rhoweightval[irho],TMath::Cos(2.*(lphi.Phi()-phistar)),mWeight*PhiWeight*pythiaweight*weightfromrho);
-          CosThetaStarPhiG[0][irho]->Fill(costhetastar,mWeight*PhiWeight*pythiaweight*weightfromrho);
-          CosThetaStarPhiH[0][irho]->Fill(costhetahelicity,mWeight*PhiWeight*pythiaweight*weightfromrho);
-        }
-        //a2Mc[0]->Fill(rhoweightval[irho],TMath::Cos(2.*(lphi.Phi()-phistar))/*,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight*/);
-        //CosThetaStarPhiG[0][irho]->Fill(costhetastar/*,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight*/);
-        //CosThetaStarPhiH[0][irho]->Fill(costhetahelicity/*,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight*/);
-      }
-
-      //CosThetaStarPhiMc->Fill(mMcCosThetaStar,mWeight*PhiWeight*pythiaweight*weightfromrho);
-
-      //float DataRcWeightVal = 1.0;
-      //if(datarcweight) DataRcWeightVal = ptrapidityPhiDataRc->GetBinContent(ptrapidityPhiDataRc->FindBin(mRcPt,mRcRapidity));
-      //if(datarcweight) DataRcWeightVal = ptrapidityPhiDataRc->GetBinContent(ptrapidityPhiDataRc->FindBin(mMcPt,mMcRapidity));
 
       //cout << "mPassTpc  = " << mPassTpc  << endl;
       //cout << "mPassTof  = " << mPassTof  << endl;
       //cout << "mPassM2   = " << mPassM2   << endl;
       //cout << "mPassNsig = " << mPassNsig << endl;
-      //CosThetaStarPhiRcAfter->Fill(mMcPt,mMcRapidity,mMcCosTheta,mWeight*PhiWeight*DataRcWeightVal);
-      //ptrapidityPhiRcAfter->Fill(mMcPt,mMcRapidity,mWeight*PhiWeight*DataRcWeightVal);
-
-      int BinPt = -1;
-      for(int ipt = vmsa::pt_rebin_first_2D[energy]; ipt < vmsa::pt_rebin_last_2D[energy]; ipt++)
-      {
-        if(mMcPt >= vmsa::pt_low_2D[energy][ipt] && mMcPt < vmsa::pt_up_2D[energy][ipt]) 
-        {
-          BinPt = ipt;
-          break; 
-        }
-      }
-      
-      if(BinPt >= 0) 
-      {
-        pt_correction_global[BinPt][0]->Fill(mMcCosThetaStar,mMcPhiPrime,mWeight*PhiWeight*pythiaweight);
-        pt_correction_helicity[BinPt][0]->Fill(mMcCosTheta,mMcHelicityAngle,mWeight*PhiWeight*pythiaweight);
-      }
-      if(mRcExists /*&& mPassTpc && mPassTof && mPassM2 && mPassNsig*/)    
+ 
+      if(mRcExists && mPassTpc && mPassTof && mPassM2 && mPassNsig)    
       {
         TLorentzVector mLRcMeson = *mLRcKp + *mLRcKm;
 
@@ -1463,891 +1097,128 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
         float mRcEtaM = mLRcKm->Eta();      
         float mRcPhiM = mLRcKm->Phi();      
 
-        if(mRcPt < 1.2 || mRcPt > 4.2) continue;
-        if(TMath::Abs(mRcRapidity) > 1.0) continue;
+        float DataRcWeightVal = 1.0;
+        if(datarcweight) DataRcWeightVal = ptrapidityPhiDataRc->GetBinContent(ptrapidityPhiDataRc->FindBin(mRcPt,mRcRapidity));
 
-        if(mRcPtM < 0.2 || mRcPtP < 0.2) continue; // ADDED FOR CONSISTENCY WITH CWR/YUSHAN CHECKS
+        //cout << "mRcPtP       = " << mRcPtP       << endl;  
+        //cout << "mRcRapidityP = " << mRcRapidityP << endl;     
+        //cout << "mRcEtaP      = " << mRcEtaP      << endl;
+        //cout << "mRcPhiP      = " << mRcPhiP      << endl;
 
-        //for(int irho = 0; irho < 25; irho++)
-        //{
-        //  double weightfromrho = rhoweight[irho]->Eval(mMcCosThetaStar);
-        //  a2Mc[1]->Fill(rhoweightval[irho],TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight*weightfromrho);
-        //}
-        int ptbin = -1;
-        int ybin = -1;
-        for(Int_t i_pt_phi = 0; i_pt_phi < data_constants::rebinpttotal; i_pt_phi++)
-        {
-          if(mRcPt >= data_constants::rebinptval[i_pt_phi] && mRcPt < data_constants::rebinptval[i_pt_phi+1])
-          {
-            for(Int_t i_y_phi = 0; i_y_phi < data_constants::rebinytotal; i_y_phi++)
-            {
-              if(mRcRapidity >= data_constants::rebinyval[i_y_phi] && mRcRapidity < data_constants::rebinyval[i_y_phi+1])
-              {    
-                 ptbin = i_pt_phi;
-                 ybin  = i_y_phi;
-                 break;
-              }
-            }
-            break;
-          }
-        }
+        //cout << "mRcPtM       = " << mRcPtM       << endl;  
+        //cout << "mRcRapidityM = " << mRcRapidityM << endl;      
+        //cout << "mRcEtaM      = " << mRcEtaM      << endl;
+        //cout << "mRcPhiM      = " << mRcPhiM      << endl;
+        ptrapidityPhiRcAfter->Fill(mRcPt,mRcRapidity,mWeight*PhiWeight*DataRcWeightVal);
 
-        if(ptbin < 0 || ybin < 0) continue;
-     
-        //cout << "ptbin = " << ptbin << ", ybin = " << ybin << endl;
+        ptyetaphibasic[3][0]->Fill(mRcPtP,mRcRapidityP,mRcEtaP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
+        ptyetaphibasic[3][1]->Fill(mRcPtM,mRcRapidityM,mRcEtaM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
+
+        //// TH1F 
+        //pt[3][0]->Fill(mRcPtP,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidity[3][0]->Fill(mRcRapidityP,mWeight*PhiWeight*DataRcWeightVal);
+        //eta[3][0]->Fill(mRcEtaP,mWeight*PhiWeight*DataRcWeightVal);
+        //phi[3][0]->Fill(mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
+        //pt[3][1]->Fill(mRcPtM,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidity[3][1]->Fill(mRcRapidityM,mWeight*PhiWeight*DataRcWeightVal);
+        //eta[3][1]->Fill(mRcEtaM,mWeight*PhiWeight*DataRcWeightVal);
+        //phi[3][1]->Fill(mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
+
+        //pt[3][2]->Fill(mRcPt,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidity[3][2]->Fill(mRcRapidity,mWeight*PhiWeight*DataRcWeightVal);
+        //eta[3][2]->Fill(mRcEta,mWeight*PhiWeight*DataRcWeightVal);
+        //phi[3][2]->Fill(mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
+        //// TH1F 
+
+        //// TH2F 
+        //ptrapidity[3][0]->Fill(mRcPtP,mRcRapidityP,mWeight*PhiWeight*DataRcWeightVal);
+        //pteta[3][0]->Fill(mRcPtP,mRcEtaP,mWeight*PhiWeight*DataRcWeightVal);
+        //ptphi[3][0]->Fill(mRcPtP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidityeta[3][0]->Fill(mRcRapidityP,mRcEtaP,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidityphi[3][0]->Fill(mRcRapidityP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
+        //etaphi[3][0]->Fill(mRcEtaP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
+
+        //ptrapidity[3][1]->Fill(mRcPtM,mRcRapidityM,mWeight*PhiWeight*DataRcWeightVal);
+        //pteta[3][1]->Fill(mRcPtM,mRcEtaM,mWeight*PhiWeight*DataRcWeightVal);
+        //ptphi[3][1]->Fill(mRcPtM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidityeta[3][1]->Fill(mRcRapidityM,mRcEtaM,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidityphi[3][1]->Fill(mRcRapidityM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
+        //etaphi[3][1]->Fill(mRcEtaM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
+
+        //ptrapidity[3][2]->Fill(mRcPt,mRcRapidity,mWeight*PhiWeight*DataRcWeightVal);
+        //pteta[3][2]->Fill(mRcPt,mRcEta,mWeight*PhiWeight*DataRcWeightVal);
+        //ptphi[3][2]->Fill(mRcPt,mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidityeta[3][2]->Fill(mRcRapidity,mRcEta,mWeight*PhiWeight*DataRcWeightVal);
+        //rapidityphi[3][2]->Fill(mRcRapidity,mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
+        //etaphi[3][2]->Fill(mRcEta,mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
+        //// TH2F 
+
+        //nhitsfit[3][0]->Fill(mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmax[3][0]->Fill(mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratio[3][0]->Fill(float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
+        //dedx[3][0]->Fill(mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
+        //dca[3][0]->Fill(mDcaP,mWeight*PhiWeight*DataRcWeightVal);
+
+        //nhitsfit[3][1]->Fill(mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmax[3][1]->Fill(mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratio[3][1]->Fill(float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
+        //dedx[3][1]->Fill(mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
+        //dca[3][1]->Fill(mDcaM,mWeight*PhiWeight*DataRcWeightVal);
         
-        //if(   mLRcMeson.M() <  data_constants::InvMassLow[ptbin][ybin]   
-        //   || mLRcMeson.M() >  data_constants::InvMassHigh[ptbin][ybin]) continue;
+        //nhitsfitpt[3][0]  ->Fill(mRcPtP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxpt[3][0]  ->Fill(mRcPtP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratiopt[3][0]->Fill(mRcPtP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxpt[3][0]      ->Fill(mRcPtP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
+        //dcapt[3][0]       ->Fill(mRcPtP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
 
-        
-        if(mPassTpc)
-        {
-          a2McM[1]->Fill(mLRcMeson.M(),TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight);
-          for(int irho = 0; irho < 25; irho++)
-          {
-            if(mLRcMeson.M() < 1.019461-2.0*0.005 || mLRcMeson.M() > 1.019461+2.0*0.005) continue;
-            double weightfromrho = rhoweight[irho]->Eval(mMcCosThetaStar);
-            a2Mc[1]->Fill(rhoweightval[irho],TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-            CosThetaStarPhiG[1][irho]->Fill(mRcCosThetaStar,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-            CosThetaStarPhiH[1][irho]->Fill(mRcCosTheta,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-          }
-          bool passToF = false;
+        //nhitsfitpt[3][1]  ->Fill(mRcPtM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxpt[3][1]  ->Fill(mRcPtM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratiopt[3][1]->Fill(mRcPtM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxpt[3][1]      ->Fill(mRcPtM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
+        //dcapt[3][1]       ->Fill(mRcPtM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
 
-          int GlobalBinP = -1;
-          int GlobalBinM = -1;
-          GlobalBinP = ToFHist[0]->FindBin(mRcPtP,mRcEtaP,mRcPhiP);
-          GlobalBinM = ToFHist[1]->FindBin(mRcPtM,mRcEtaM,mRcPhiM);
-          if(GlobalBinP < 0 || GlobalBinM < 0) passToF = false;   
-          float valToFP = ToFHist[0]->GetBinContent(GlobalBinP);
-          float valToFM = ToFHist[1]->GetBinContent(GlobalBinM);
-      
-          float probP = gRandom->Uniform(0,1);
-          float probM = gRandom->Uniform(0,1);
+        //nhitsfitrapidity[3][0]  ->Fill(mRcRapidityP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxrapidity[3][0]  ->Fill(mRcRapidityP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratiorapidity[3][0]->Fill(mRcRapidityP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxrapidity[3][0]      ->Fill(mRcRapidityP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
+        //dcarapidity[3][0]       ->Fill(mRcRapidityP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
 
-          if(probP < valToFP && probM < valToFM) passToF = true;
+        //nhitsfitrapidity[3][1]  ->Fill(mRcRapidityM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxrapidity[3][1]  ->Fill(mRcRapidityM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratiorapidity[3][1]->Fill(mRcRapidityM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxrapidity[3][1]      ->Fill(mRcRapidityM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
+        //dcarapidity[3][1]       ->Fill(mRcRapidityM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
 
-          if(passToF /*&& mPassM2 && mPassNsig*/)    
-          //if(mPassTof /*&& mPassM2 && mPassNsig*/)    
-          {
-            a2McM[2]->Fill(mLRcMeson.M(),TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight);
-            for(int irho = 0; irho < 25; irho++)
-            {
-              if(mLRcMeson.M() < 1.019461-2.0*0.005 || mLRcMeson.M() > 1.019461+2.0*0.005) continue;
-              double weightfromrho = rhoweight[irho]->Eval(mMcCosThetaStar);
-              a2Mc[2]->Fill(rhoweightval[irho],TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-              CosThetaStarPhiG[2][irho]->Fill(mRcCosThetaStar,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-              CosThetaStarPhiH[2][irho]->Fill(mRcCosTheta,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-            }
-   
-            if(!mPassNsig) continue;
-            a2McM[3]->Fill(mLRcMeson.M(),TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight);
-            for(int irho = 0; irho < 25; irho++)
-            {
-              if(mLRcMeson.M() < 1.019461-2.0*0.005 || mLRcMeson.M() > 1.019461+2.0*0.005) continue;
-              double weightfromrho = rhoweight[irho]->Eval(mMcCosThetaStar);
-              a2Mc[3]->Fill(rhoweightval[irho],TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-              CosThetaStarPhiG[3][irho]->Fill(mRcCosThetaStar,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-              CosThetaStarPhiH[3][irho]->Fill(mRcCosTheta,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-            }
+        //nhitsfiteta[3][0]  ->Fill(mRcEtaP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxeta[3][0]  ->Fill(mRcEtaP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratioeta[3][0]->Fill(mRcEtaP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxeta[3][0]      ->Fill(mRcEtaP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
+        //dcaeta[3][0]       ->Fill(mRcEtaP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
 
+        //nhitsfiteta[3][1]  ->Fill(mRcEtaM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxeta[3][1]  ->Fill(mRcEtaM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratioeta[3][1]->Fill(mRcEtaM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxeta[3][1]      ->Fill(mRcEtaM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
+        //dcaeta[3][1]       ->Fill(mRcEtaM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
 
-            if(!mPassM2) continue;
-            a2McM[4]->Fill(mLRcMeson.M(),TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight);
-            for(int irho = 0; irho < 25; irho++)
-            {
-              if(mLRcMeson.M() < 1.019461-2.0*0.005 || mLRcMeson.M() > 1.019461+2.0*0.005) continue;
-              double weightfromrho = rhoweight[irho]->Eval(mMcCosThetaStar);
-              a2Mc[4]->Fill(rhoweightval[irho],TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-              CosThetaStarPhiG[4][irho]->Fill(mRcCosThetaStar,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-              CosThetaStarPhiH[4][irho]->Fill(mRcCosTheta,mWeight*PhiWeight*pythiaweight*weightfromrho*cos2Dweight);
-            }
-            
+        //nhitsfitphi[3][0]  ->Fill(mRcPhiP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxphi[3][0]  ->Fill(mRcPhiP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratiophi[3][0]->Fill(mRcPhiP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxphi[3][0]      ->Fill(mRcPhiP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
+        //dcaphi[3][0]       ->Fill(mRcPhiP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
 
+        //nhitsfitphi[3][1]  ->Fill(mRcPhiM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsmaxphi[3][1]  ->Fill(mRcPhiM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
+        //nhitsratiophi[3][1]->Fill(mRcPhiM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
+        //dedxphi[3][1]      ->Fill(mRcPhiM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
+        //dcaphi[3][1]       ->Fill(mRcPhiM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
 
-            float DataRcWeightVal = 1.0;
-            //if(datarcweight) DataRcWeightVal = ptrapidityPhiDataRc->GetBinContent(ptrapidityPhiDataRc->FindBin(mRcPt,mRcRapidity));
-            if(datarcweight) DataRcWeightVal = gausRatio->Eval(mRcRapidity);
-  
-
-            //cout << "mRcPtP       = " << mRcPtP       << endl;  
-            //cout << "mRcRapidityP = " << mRcRapidityP << endl;     
-            //cout << "mRcEtaP      = " << mRcEtaP      << endl;
-            //cout << "mRcPhiP      = " << mRcPhiP      << endl;
-  
-            //cout << "mRcPtM       = " << mRcPtM       << endl;  
-            //cout << "mRcRapidityM = " << mRcRapidityM << endl;      
-            //cout << "mRcEtaM      = " << mRcEtaM      << endl;
-            //cout << "mRcPhiM      = " << mRcPhiM      << endl;
-            ptrapidityPhiRcAfter->Fill(mRcPt,mRcRapidity,mWeight*PhiWeight*DataRcWeightVal*pythiaweight);
-            CosThetaStarPhiRcAfter->Fill(mRcPt,mRcRapidity,mRcCosTheta,mWeight*PhiWeight*DataRcWeightVal*pythiaweight);
-  
-            ptyetaphibasic[3][0]->Fill(mRcPtP,mRcRapidityP,mRcEtaP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal*pythiaweight);
-            ptyetaphibasic[3][1]->Fill(mRcPtM,mRcRapidityM,mRcEtaM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal*pythiaweight);
-            if(BinPt >= 0) 
-            {
-              pt_correction_global[BinPt][1]->Fill(mRcCosThetaStar,mRcPhiPrime,mWeight*PhiWeight*pythiaweight);
-              pt_correction_helicity[BinPt][1]->Fill(mRcCosTheta,mRcHelicityAngle,mWeight*PhiWeight*pythiaweight);
-            }
-  
-            //CosThetaStarPhiRc1D->Fill(mRcCosThetaStar,mWeight*PhiWeight*pythiaweight*weightfromrho);
-            //a2Rc->Fill(mRcPt,TMath::Cos(2.*(mRcPhi-mRcPhiStar)),mWeight*PhiWeight*pythiaweight*weightfromrho);
-            //TotalCosPhiPhiStar += TMath::Cos(2.*(mRcPhi-mRcPhiStar))*mWeight*PhiWeight*pythiaweight*weightfromrho; 
-            //TotalCount += mWeight*PhiWeight*pythiaweight*weightfromrho;
-            //// TH1F 
-            //pt[3][0]->Fill(mRcPtP,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidity[3][0]->Fill(mRcRapidityP,mWeight*PhiWeight*DataRcWeightVal);
-            //eta[3][0]->Fill(mRcEtaP,mWeight*PhiWeight*DataRcWeightVal);
-            //phi[3][0]->Fill(mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
-            //pt[3][1]->Fill(mRcPtM,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidity[3][1]->Fill(mRcRapidityM,mWeight*PhiWeight*DataRcWeightVal);
-            //eta[3][1]->Fill(mRcEtaM,mWeight*PhiWeight*DataRcWeightVal);
-            //phi[3][1]->Fill(mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //pt[3][2]->Fill(mRcPt,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidity[3][2]->Fill(mRcRapidity,mWeight*PhiWeight*DataRcWeightVal);
-            //eta[3][2]->Fill(mRcEta,mWeight*PhiWeight*DataRcWeightVal);
-            //phi[3][2]->Fill(mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
-            //// TH1F 
-  
-            //// TH2F 
-            //ptrapidity[3][0]->Fill(mRcPtP,mRcRapidityP,mWeight*PhiWeight*DataRcWeightVal);
-            //pteta[3][0]->Fill(mRcPtP,mRcEtaP,mWeight*PhiWeight*DataRcWeightVal);
-            //ptphi[3][0]->Fill(mRcPtP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidityeta[3][0]->Fill(mRcRapidityP,mRcEtaP,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidityphi[3][0]->Fill(mRcRapidityP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
-            //etaphi[3][0]->Fill(mRcEtaP,mRcPhiP,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //ptrapidity[3][1]->Fill(mRcPtM,mRcRapidityM,mWeight*PhiWeight*DataRcWeightVal);
-            //pteta[3][1]->Fill(mRcPtM,mRcEtaM,mWeight*PhiWeight*DataRcWeightVal);
-            //ptphi[3][1]->Fill(mRcPtM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidityeta[3][1]->Fill(mRcRapidityM,mRcEtaM,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidityphi[3][1]->Fill(mRcRapidityM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
-            //etaphi[3][1]->Fill(mRcEtaM,mRcPhiM,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //ptrapidity[3][2]->Fill(mRcPt,mRcRapidity,mWeight*PhiWeight*DataRcWeightVal);
-            //pteta[3][2]->Fill(mRcPt,mRcEta,mWeight*PhiWeight*DataRcWeightVal);
-            //ptphi[3][2]->Fill(mRcPt,mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidityeta[3][2]->Fill(mRcRapidity,mRcEta,mWeight*PhiWeight*DataRcWeightVal);
-            //rapidityphi[3][2]->Fill(mRcRapidity,mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
-            //etaphi[3][2]->Fill(mRcEta,mRcPhi,mWeight*PhiWeight*DataRcWeightVal);
-            //// TH2F 
-  
-            //nhitsfit[3][0]->Fill(mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmax[3][0]->Fill(mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratio[3][0]->Fill(float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
-            //dedx[3][0]->Fill(mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
-            //dca[3][0]->Fill(mDcaP,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfit[3][1]->Fill(mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmax[3][1]->Fill(mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratio[3][1]->Fill(float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
-            //dedx[3][1]->Fill(mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
-            //dca[3][1]->Fill(mDcaM,mWeight*PhiWeight*DataRcWeightVal);
-            
-            //nhitsfitpt[3][0]  ->Fill(mRcPtP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxpt[3][0]  ->Fill(mRcPtP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratiopt[3][0]->Fill(mRcPtP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxpt[3][0]      ->Fill(mRcPtP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
-            //dcapt[3][0]       ->Fill(mRcPtP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfitpt[3][1]  ->Fill(mRcPtM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxpt[3][1]  ->Fill(mRcPtM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratiopt[3][1]->Fill(mRcPtM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxpt[3][1]      ->Fill(mRcPtM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
-            //dcapt[3][1]       ->Fill(mRcPtM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfitrapidity[3][0]  ->Fill(mRcRapidityP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxrapidity[3][0]  ->Fill(mRcRapidityP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratiorapidity[3][0]->Fill(mRcRapidityP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxrapidity[3][0]      ->Fill(mRcRapidityP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
-            //dcarapidity[3][0]       ->Fill(mRcRapidityP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfitrapidity[3][1]  ->Fill(mRcRapidityM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxrapidity[3][1]  ->Fill(mRcRapidityM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratiorapidity[3][1]->Fill(mRcRapidityM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxrapidity[3][1]      ->Fill(mRcRapidityM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
-            //dcarapidity[3][1]       ->Fill(mRcRapidityM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfiteta[3][0]  ->Fill(mRcEtaP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxeta[3][0]  ->Fill(mRcEtaP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratioeta[3][0]->Fill(mRcEtaP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxeta[3][0]      ->Fill(mRcEtaP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
-            //dcaeta[3][0]       ->Fill(mRcEtaP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfiteta[3][1]  ->Fill(mRcEtaM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxeta[3][1]  ->Fill(mRcEtaM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratioeta[3][1]->Fill(mRcEtaM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxeta[3][1]      ->Fill(mRcEtaM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
-            //dcaeta[3][1]       ->Fill(mRcEtaM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfitphi[3][0]  ->Fill(mRcPhiP,mNHitsFitP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxphi[3][0]  ->Fill(mRcPhiP,mNHitsMaxP,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratiophi[3][0]->Fill(mRcPhiP,float(mNHitsFitP)/float(mNHitsMaxP),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxphi[3][0]      ->Fill(mRcPhiP,mDEdxP,mWeight*PhiWeight*DataRcWeightVal);
-            //dcaphi[3][0]       ->Fill(mRcPhiP,mDcaP,mWeight*PhiWeight*DataRcWeightVal);
-  
-            //nhitsfitphi[3][1]  ->Fill(mRcPhiM,mNHitsFitM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsmaxphi[3][1]  ->Fill(mRcPhiM,mNHitsMaxM,mWeight*PhiWeight*DataRcWeightVal); 
-            //nhitsratiophi[3][1]->Fill(mRcPhiM,float(mNHitsFitM)/float(mNHitsMaxM),mWeight*PhiWeight*DataRcWeightVal);
-            //dedxphi[3][1]      ->Fill(mRcPhiM,mDEdxM,mWeight*PhiWeight*DataRcWeightVal);
-            //dcaphi[3][1]       ->Fill(mRcPhiM,mDcaM,mWeight*PhiWeight*DataRcWeightVal);
-
-          }  
-        }
       }
     }
-
-    //TF1 *spindensity = new TF1("spindensity",SpinDensity,-1,1,2);
-    //spindensity->SetParameter(0,1./3.);
-    //spindensity->SetParameter(1,CosThetaStarPhiMc->GetMaximum());
-    //CosThetaStarPhiMc->Fit(spindensity,"NMR");
-
-    //TF1 *spindensityRc = new TF1("spindensityRc",SpinDensity,-1,1,2);
-    //spindensityRc->SetParameter(0,1./3.);
-    //spindensityRc->SetParameter(1,CosThetaStarPhiRc1D->GetMaximum());
-    //CosThetaStarPhiRc1D->Fit(spindensityRc,"NMR");
-
-    //cout << "MC rho00 = " << spindensity->GetParameter(0) << " +/- " << spindensity->GetParError(0) << endl;;
-    //cout << "RC rho00 = " << spindensityRc->GetParameter(0) << " +/- " << spindensityRc->GetParError(0) << endl;;
-    //cout << endl;
-    //cout << "MC a2 from profile = " << a2Mc->GetBinContent(1) << " +/- " << a2Mc->GetBinError(1) << endl;
-    //cout << "RC a2 from calc = " << TotalCosPhiPhiStar/TotalCount << endl;
-    //cout << "RC a2 from profile = " << a2Rc->GetBinContent(1) << " +/- " << a2Rc->GetBinError(1) << endl;
-    //cout << endl;
-    for(int icut = 0; icut < 5; icut++)
-    {
-      for(int irho = 0; irho < 25; irho++)
-      {
-        TF1 *spindensity = new TF1("spindensity",SpinDensity,-1,1,2);
-        spindensity->SetParameter(0,1./3.);
-        spindensity->SetParameter(1,CosThetaStarPhiG[icut][irho]->GetMaximum());
-        CosThetaStarPhiG[icut][irho]->Fit(spindensity,"NMR");// = new TH1F(histname.c_str(),histname.c_str(),ncostheta,costheta);
-        rhoG[icut]->SetBinContent(irho+1,spindensity->GetParameter(0)-1./3.);
-        rhoG[icut]->SetBinError(irho+1,spindensity->GetParError(0));
-       
-        spindensity->SetParameter(0,1./3.);
-        spindensity->SetParameter(1,CosThetaStarPhiH[icut][irho]->GetMaximum());
-        CosThetaStarPhiH[icut][irho]->Fit(spindensity,"NMR");// = new TH1F(histname.c_str(),histname.c_str(),ncostheta,costheta);
-        rhoH[icut]->SetBinContent(irho+1,spindensity->GetParameter(0)-1./3.);
-        rhoH[icut]->SetBinError(irho+1,spindensity->GetParError(0));
-      }
-    }
-
-    TCanvas *a2study = new TCanvas("a2study","a2study",10,10,500,500);
-    a2study->cd();
-    a2study->cd()->SetLeftMargin(0.15);
-    a2study->cd()->SetRightMargin(0.15);
-    a2study->cd()->SetBottomMargin(0.15);
-    a2study->cd()->SetTicks(1,1);
-    a2study->cd()->SetGrid(0,0); 
-
-    string cutname[5] = {"MC","C1) RC Kin.+TPC Cuts","C2) C1+ TOF Match","C3) C2 + n_{#sigma_{K}} PID","C4) C3 + m^{2} PID"};
-    int color[5] = {kBlack, kBlue, kOrange+7, kGray+2, kViolet}; 
-
-    TLegend *a2leg = new TLegend(0.3,0.45,0.7,0.75);
-
-    for(int icut = 0; icut < 5; icut++)
-    {
-      a2Mc[icut]->GetYaxis()->SetRangeUser(-0.06,0.02);
-      a2Mc[icut]->GetXaxis()->SetTitle("global #Delta#rho_{00} input");
-      a2Mc[icut]->GetYaxis()->SetTitle("a_{2} = <cos(2#phi-2#phi*)>");
-      a2Mc[icut]->GetXaxis()->CenterTitle();  
-      a2Mc[icut]->GetYaxis()->CenterTitle();
-      a2Mc[icut]->SetMarkerColor(color[icut]);
-      a2Mc[icut]->SetMarkerStyle(20);
-      a2Mc[icut]->SetLineColor(color[icut]);
-
-      //a2leg->AddEntry(a2Mc[icut],cutname[icut].c_str(),"p");
-     
-      if(icut == 0) a2Mc[icut]->Draw("pE");
-      else          a2Mc[icut]->Draw("pE same");
-    }
-    PlotLine(rhoweightval[0],rhoweightval[24],0.0,0.0,1,2,2);
-    //a2leg->Draw("same");
-
-    a2study->SaveAs(Form("figures/KaonTTrees/%sa2rhostudy.pdf",folderopt.c_str()));
-
-    for(int icut = 0; icut < 1; icut++)
-    {
-      //a2McM[icut]->GetYaxis()->SetRangeUser(-0.06,0.02);
-      a2McM[icut]->GetXaxis()->SetTitle("M(K+,K-) GeV/c^2");
-      a2McM[icut]->GetYaxis()->SetTitle("a_{2} = <cos(2#phi-2#phi*)>");
-      a2McM[icut]->GetXaxis()->CenterTitle();  
-      a2McM[icut]->GetYaxis()->CenterTitle();
-      a2McM[icut]->SetMarkerColor(color[icut]);
-      a2McM[icut]->SetMarkerStyle(20);
-      a2McM[icut]->SetLineColor(color[icut]);
-
-      //a2leg->AddEntry(a2Mc[icut],cutname[icut].c_str(),"p");
-     
-      if(icut == 0) a2McM[icut]->Draw("pE");
-      else          a2McM[icut]->Draw("pE same");
-    }
-    PlotLine(1.019461-0.005*10,1.019461+0.005*30,0.0,0.0,1,2,2);
-    //a2leg->Draw("same");
-
-    a2study->SaveAs(Form("figures/KaonTTrees/%sa2rhostudy_invmass.pdf",folderopt.c_str()));
-    
-    
-
-
-    for(int icut = 0; icut < 5; icut++)
-    {
-      rhoG[icut]->GetYaxis()->SetRangeUser(-0.07,0.07);
-      rhoG[icut]->GetXaxis()->SetTitle("global #Delta#rho_{00} input");
-      rhoG[icut]->GetYaxis()->SetTitle("global #Delta#rho_{00} from 1D fit");
-      rhoG[icut]->GetXaxis()->CenterTitle();  
-      rhoG[icut]->GetYaxis()->CenterTitle();
-      rhoG[icut]->SetMarkerColor(color[icut]);
-      rhoG[icut]->SetMarkerStyle(20);
-      rhoG[icut]->SetLineColor(color[icut]);
-
-      //a2leg->AddEntry(a2Mc[icut],cutname[icut].c_str(),"p");
-     
-      if(icut == 0) rhoG[icut]->Draw("pE");
-      else          rhoG[icut]->Draw("pE same");
-    }
-    //a2leg->Draw("same");
-    PlotLine(rhoweightval[0],rhoweightval[24],0.0,0.0,1,2,2);
-
-    a2study->SaveAs(Form("figures/KaonTTrees/%sglobalrhostudy.pdf",folderopt.c_str()));
-
-    for(int icut = 0; icut < 5; icut++)
-    {
-      rhoH[icut]->GetYaxis()->SetRangeUser(-0.05,0.05);
-      rhoH[icut]->GetXaxis()->SetTitle("global #Delta#rho_{00} input");
-      rhoH[icut]->GetYaxis()->SetTitle("helicity #Delta#rho_{00} from 1D fit");
-      rhoH[icut]->GetXaxis()->CenterTitle();  
-      rhoH[icut]->GetYaxis()->CenterTitle();
-      rhoH[icut]->SetMarkerColor(color[icut]);
-      rhoH[icut]->SetMarkerStyle(20);
-      rhoH[icut]->SetLineColor(color[icut]);
-
-      //a2leg->AddEntry(a2Mc[icut],cutname[icut].c_str(),"p");
-     
-      if(icut == 0) rhoH[icut]->Draw("pE");
-      else          rhoH[icut]->Draw("pE same");
-      //PlotLine(-rhoweightval[0],rhoweightval[14],0.0,0.0,1,2,2);
-    }
-    PlotLine(rhoweightval[0],rhoweightval[24],0.0,0.0,1,2,2);
-    //a2leg->Draw("same");
-
-    a2study->SaveAs(Form("figures/KaonTTrees/%shelicityrhostudy.pdf",folderopt.c_str()));
-    
-
-
-    TH1F *CosThetaStarPhiRcDiff[vmsa::tofrebinpttotal][vmsa::tofrebinytotal];
-    TH1F *CosThetaStarPhiRcDiffAfter[vmsa::tofrebinpttotal][vmsa::tofrebinytotal];
-    TH1F *CosThetaStarPhiRcDiffRatio[vmsa::tofrebinpttotal][vmsa::tofrebinytotal];
-    TH1F *CosThetaStarPhiRcPt[vmsa::tofrebinytotal];
-    TH1F *CosThetaStarPhiRcPtAfter[vmsa::tofrebinytotal];
-    TGraphAsymmErrors *gRcPt = new TGraphAsymmErrors();
-    TGraphAsymmErrors *gRcPtAfter = new TGraphAsymmErrors();
-    double rhoPhiRcPt[vmsa::tofrebinytotal];
-    double rhoPhiRcPtAfter[vmsa::tofrebinytotal];
-    double rhoErrPhiRcPt[vmsa::tofrebinytotal];
-    double rhoErrPhiRcPtAfter[vmsa::tofrebinytotal];
-    TH1F *CosThetaStarPhiRcPtRatio[vmsa::tofrebinytotal];
-    TH1F *CosThetaStarPhiRcPtOpt[vmsa::tofrebinpttotal][3];
-    TH1F *CosThetaStarPhiRcPtOptAfter[vmsa::tofrebinpttotal][3];
-    TGraphAsymmErrors *gRcPtOpt[3];
-    TGraphAsymmErrors *gRcPtOptAfter[3];
-    for(int iy = 0; iy < 3; iy++)
-    {
-      gRcPtOpt[iy]      = new TGraphAsymmErrors();
-      gRcPtOptAfter[iy] = new TGraphAsymmErrors();
-    }
-    double rhoPhiRcPtOpt[vmsa::tofrebinpttotal][3];
-    double rhoPhiRcPtOptAfter[vmsa::tofrebinpttotal][3];
-    double rhoErrPhiRcPtOpt[vmsa::tofrebinpttotal][3];
-    double rhoErrPhiRcPtOptAfter[vmsa::tofrebinpttotal][3];
-    TH1F *CosThetaStarPhiRcPtOptRatio[vmsa::tofrebinpttotal][3];
-    TH1F *CosThetaStarPhiRcY[vmsa::tofrebinpttotal];
-    TH1F *CosThetaStarPhiRcYAfter[vmsa::tofrebinpttotal];
-    TGraphAsymmErrors *gRcY      = new TGraphAsymmErrors();
-    TGraphAsymmErrors *gRcYAfter = new TGraphAsymmErrors();
-    double rhoPhiRcY[vmsa::tofrebinpttotal];
-    double rhoPhiRcYAfter[vmsa::tofrebinpttotal];
-    double rhoErrPhiRcY[vmsa::tofrebinpttotal];
-    double rhoErrPhiRcYAfter[vmsa::tofrebinpttotal];
-    TH1F *CosThetaStarPhiRcYRatio[vmsa::tofrebinpttotal];
-
-    int ylow[3] = {1,4,12};
-    int yhigh[3] = {3,11,14};
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      for(int iy = 0; iy < 3; iy++)
-      {
-        string Hist = Form("costhetaopt_pt_%d_y_%d",ipt,iy);
-        CosThetaStarPhiRcPtOpt[ipt][iy] = (TH1F*) CosThetaStarPhiRc->ProjectionZ(Hist.c_str(),ipt+1,ipt+1,ylow[iy],yhigh[iy],"e");
-        string HistAfter = Form("costhetaoptafter_pt_%d_y_%d",ipt,iy);
-        CosThetaStarPhiRcPtOptAfter[ipt][iy] = (TH1F*) CosThetaStarPhiRcAfter->ProjectionZ(HistAfter.c_str(),ipt+1,ipt+1,ylow[iy],yhigh[iy],"e");
-
-        CosThetaStarPhiRcPtOptRatio[ipt][iy] = (TH1F*) CosThetaStarPhiRcPtOptAfter[ipt][iy]->Clone();
-        CosThetaStarPhiRcPtOptRatio[ipt][iy]->Divide(CosThetaStarPhiRcPtOptAfter[ipt][iy],CosThetaStarPhiRcPtOpt[ipt][iy],1,1,"B");
-
-        double ptmean = (vmsa::tofrebinptval[ipt]+vmsa::tofrebinptval[ipt+1])/2.0;
-
-        TF1* spin = new TF1("rho",SpinDensity,-1,1,2);
-        spin->SetParameter(0,0.33);
-        spin->SetParameter(1,CosThetaStarPhiRcPtOpt[ipt][iy]->GetMaximum());
-        CosThetaStarPhiRcPtOpt[ipt][iy]->Fit(spin,"NMRI");
-       
-        double rho00 = spin->GetParameter(0);        
-        double rho00err = spin->GetParError(0);        
-
-        gRcPtOpt[iy]->SetPoint(ipt,ptmean,rho00);
-        gRcPtOpt[iy]->SetPointError(ipt,0.0,0.0,rho00err,rho00err);
-
-        TF1* spinA = new TF1("rhoA",SpinDensity,-1,1,2);
-        spinA->SetParameter(0,0.33);
-        spinA->SetParameter(1,CosThetaStarPhiRcPtOptAfter[ipt][iy]->GetMaximum());
-        CosThetaStarPhiRcPtOptAfter[ipt][iy]->Fit(spinA,"NMRI");
-       
-        double rho00A = spinA->GetParameter(0);        
-        double rho00errA = spinA->GetParError(0);        
-
-        gRcPtOptAfter[iy]->SetPoint(ipt,ptmean,rho00A);
-        gRcPtOptAfter[iy]->SetPointError(ipt,0.0,0.0,rho00errA,rho00errA);
-        
-        
-      } 
-    }   
-
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      for(int iy = 0; iy < vmsa::tofrebinytotal; iy++)
-      {
-        string Hist = Form("costheta_pt_%d_y_%d",ipt,iy);
-        CosThetaStarPhiRcDiff[ipt][iy] = (TH1F*) CosThetaStarPhiRc->ProjectionZ(Hist.c_str(),ipt+1,ipt+1,iy+1,iy+1,"e");
-        string HistAfter = Form("costhetaafter_pt_%d_y_%d",ipt,iy);
-        CosThetaStarPhiRcDiffAfter[ipt][iy] = (TH1F*) CosThetaStarPhiRcAfter->ProjectionZ(HistAfter.c_str(),ipt+1,ipt+1,iy+1,iy+1,"e");
-
-        CosThetaStarPhiRcDiffRatio[ipt][iy] = (TH1F*) CosThetaStarPhiRcDiffAfter[ipt][iy]->Clone();
-        CosThetaStarPhiRcDiffRatio[ipt][iy]->Divide(CosThetaStarPhiRcDiffAfter[ipt][iy],CosThetaStarPhiRcDiff[ipt][iy],1,1,"B");
-      } 
-    }   
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      string Hist = Form("costheta_pt_%d",ipt);
-      CosThetaStarPhiRcY[ipt] = (TH1F*) CosThetaStarPhiRc->ProjectionZ(Hist.c_str(),ipt+1,ipt+1,1,vmsa::tofrebinytotal,"e");
-      string HistAfter = Form("costhetaafter_pt_%d",ipt);
-      CosThetaStarPhiRcYAfter[ipt] = (TH1F*) CosThetaStarPhiRcAfter->ProjectionZ(HistAfter.c_str(),ipt+1,ipt+1,1,vmsa::tofrebinytotal,"e");
-
-      CosThetaStarPhiRcYRatio[ipt] = (TH1F*) CosThetaStarPhiRcYAfter[ipt]->Clone();
-      CosThetaStarPhiRcYRatio[ipt]->Divide(CosThetaStarPhiRcYAfter[ipt],CosThetaStarPhiRcY[ipt],1,1,"B");
-
-      double ptmean = (vmsa::tofrebinptval[ipt]+vmsa::tofrebinptval[ipt+1])/2.0;
-
-      TF1* spin = new TF1("rho",SpinDensity,-1,1,2);
-      spin->SetParameter(0,0.33);
-      spin->SetParameter(1,CosThetaStarPhiRcY[ipt]->GetMaximum());
-      CosThetaStarPhiRcY[ipt]->Fit(spin,"NMRI");
-      
-      double rho00 = spin->GetParameter(0);        
-      double rho00err = spin->GetParError(0);        
-
-      gRcY->SetPoint(ipt,ptmean,rho00);
-      gRcY->SetPointError(ipt,0.0,0.0,rho00err,rho00err);
-
-      TF1* spinA = new TF1("rhoA",SpinDensity,-1,1,2);
-      spinA->SetParameter(0,0.33);
-      spinA->SetParameter(1,CosThetaStarPhiRcYAfter[ipt]->GetMaximum());
-      CosThetaStarPhiRcYAfter[ipt]->Fit(spinA,"NMRI");
-      
-      double rho00A = spinA->GetParameter(0);        
-      double rho00errA = spinA->GetParError(0);        
-
-      gRcYAfter->SetPoint(ipt,ptmean,rho00A);
-      gRcYAfter->SetPointError(ipt,0.0,0.0,rho00errA,rho00errA);
-
-    } 
-    for(int iy = 0; iy < vmsa::tofrebinytotal; iy++)
-    { 
-      string Hist = Form("costheta_y_%d",iy);
-      CosThetaStarPhiRcPt[iy] = (TH1F*) CosThetaStarPhiRc->ProjectionZ(Hist.c_str(),1,vmsa::tofrebinpttotal,iy+1,iy+1,"e");
-      string HistAfter = Form("costhetaafter_y_%d",iy);
-      CosThetaStarPhiRcPtAfter[iy] = (TH1F*) CosThetaStarPhiRcAfter->ProjectionZ(HistAfter.c_str(),1,vmsa::tofrebinpttotal,iy+1,iy+1,"e");
-
-      CosThetaStarPhiRcPtRatio[iy] = (TH1F*) CosThetaStarPhiRcPtAfter[iy]->Clone();
-      CosThetaStarPhiRcPtRatio[iy]->Divide(CosThetaStarPhiRcPtAfter[iy],CosThetaStarPhiRcPt[iy],1,1,"B");
- 
-       
-      double ymean = (vmsa::tofrebinyval[iy]+vmsa::tofrebinyval[iy+1])/2.0;
-
-      TF1* spin = new TF1("rho",SpinDensity,-1,1,2);
-      spin->SetParameter(0,0.33);
-      spin->SetParameter(1,CosThetaStarPhiRcPt[iy]->GetMaximum());
-      CosThetaStarPhiRcPt[iy]->Fit(spin,"NMRI");
-      
-      double rho00 = spin->GetParameter(0);        
-      double rho00err = spin->GetParError(0);        
-
-      gRcPt->SetPoint(iy,ymean,rho00);
-      gRcPt->SetPointError(iy,0.0,0.0,rho00err,rho00err);
-
-      TF1* spinA = new TF1("rhoA",SpinDensity,-1,1,2);
-      spinA->SetParameter(0,0.33);
-      spinA->SetParameter(1,CosThetaStarPhiRcPtAfter[iy]->GetMaximum());
-      CosThetaStarPhiRcPtAfter[iy]->Fit(spinA,"NMRI");
-      
-      double rho00A = spinA->GetParameter(0);        
-      double rho00errA = spinA->GetParError(0);        
-
-      gRcPtAfter->SetPoint(iy,ymean,rho00A);
-      gRcPtAfter->SetPointError(iy,0.0,0.0,rho00errA,rho00errA);
-    }
-  
-    TCanvas *ccos = new TCanvas("ccos", "cos", 1200, 1200);
-    ccos->Divide(4,4);
-    for(int i = 0; i < 16; i++)
-    {
-      ccos->cd(i+1);
-      ccos->cd(i+1)->SetLeftMargin(0.12);
-      ccos->cd(i+1)->SetRightMargin(0.15);
-      ccos->cd(i+1)->SetBottomMargin(0.12);
-      ccos->cd(i+1)->SetTicks(1,1);
-      ccos->cd(i+1)->SetGrid(0,0); 
-    } 
-
-    string outputname = Form("figures/KaonTTrees/%sCosThetaDistributions.pdf",folderopt.c_str());
-    string outputstart = Form("%s[",outputname.c_str());
-    string outputstop = Form("%s]",outputname.c_str());
-
-    ccos->Print(outputstart.c_str());
-
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      for(int iy = 0; iy < vmsa::tofrebinytotal; iy++)
-      {
-        ccos->cd(iy+1);
-
-        double max = CosThetaStarPhiRcDiff[ipt][iy]->GetMaximum();
-        double min = CosThetaStarPhiRcDiff[ipt][iy]->GetMinimum();
-
-        double maxAfter = CosThetaStarPhiRcDiffAfter[ipt][iy]->GetMaximum();
-        double minAfter = CosThetaStarPhiRcDiffAfter[ipt][iy]->GetMinimum();
-
-        if(maxAfter > max) max = maxAfter;
-        if(minAfter < min) min = minAfter;
-
-        CosThetaStarPhiRcDiff[ipt][iy]->SetTitle(Form("%.2f<p_{T}<%.2f GeV/c, %.2f<y<%.2f",vmsa::tofrebinptval[ipt],vmsa::tofrebinptval[ipt+1],vmsa::tofrebinyval[iy],vmsa::tofrebinyval[iy+1]));   
-        CosThetaStarPhiRcDiff[ipt][iy]->GetXaxis()->SetTitle("cos(#theta*)");
-        CosThetaStarPhiRcDiff[ipt][iy]->GetYaxis()->SetTitle("Counts");
-        CosThetaStarPhiRcDiff[ipt][iy]->SetMarkerStyle(20);
-        CosThetaStarPhiRcDiffAfter[ipt][iy]->SetMarkerStyle(24);
-        CosThetaStarPhiRcDiff[ipt][iy]->SetMarkerColor(kBlue);
-        CosThetaStarPhiRcDiffAfter[ipt][iy]->SetMarkerColor(kOrange+7);
-        CosThetaStarPhiRcDiff[ipt][iy]->SetLineColor(kBlue);
-        CosThetaStarPhiRcDiffAfter[ipt][iy]->SetLineColor(kOrange+7);
-        CosThetaStarPhiRcDiff[ipt][iy]->GetYaxis()->SetRangeUser(min*0.8,max*1.2);
-        CosThetaStarPhiRcDiff[ipt][iy]->Draw("pE");
-        CosThetaStarPhiRcDiffAfter[ipt][iy]->Draw("pE same");
-     
-        TLegend *legcos = new TLegend(0.7,0.7,0.85,0.85);
-        legcos->AddEntry(CosThetaStarPhiRcDiff[ipt][iy],"No Weight","p");
-        legcos->AddEntry(CosThetaStarPhiRcDiffAfter[ipt][iy],"Data/RC Weight","p");
-        legcos->Draw("same");
-      }
-      ccos->Update();
-      ccos->Print(outputname.c_str());
-    }
-    ccos->Print(outputstop.c_str());
-
-    for(int i = 0; i < 16; i++)  ccos->cd(i+1)->Clear();
-
-    TCanvas *ccosopt = new TCanvas("ccosopt", "cos", 900, 600);
-    ccosopt->Divide(3,2);
-    for(int i = 0; i < 6; i++)
-    {
-      ccosopt->cd(i+1);
-      ccosopt->cd(i+1)->SetLeftMargin(0.12);
-      ccosopt->cd(i+1)->SetRightMargin(0.15);
-      ccosopt->cd(i+1)->SetBottomMargin(0.12);
-      ccosopt->cd(i+1)->SetTicks(1,1);
-      ccosopt->cd(i+1)->SetGrid(0,0); 
-    } 
-
-    outputname = Form("figures/KaonTTrees/%sCosThetaDistributions_PtYselections.pdf",folderopt.c_str());
-    outputstart = Form("%s[",outputname.c_str());
-    outputstop = Form("%s]",outputname.c_str());
-
-    ccosopt->Print(outputstart.c_str());
-
-    float ylowval[3] = {-1.0,-0.5,0.5};
-    float yhighval[3] = {-0.5,0.5,1.0};
-
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      for(int iy = 0; iy < 3; iy++)
-      {
-        ccosopt->cd(iy+1);
-
-        double max = CosThetaStarPhiRcPtOpt[ipt][iy]->GetMaximum();
-        double min = CosThetaStarPhiRcPtOpt[ipt][iy]->GetMinimum();
-
-        double maxAfter = CosThetaStarPhiRcPtOptAfter[ipt][iy]->GetMaximum();
-        double minAfter = CosThetaStarPhiRcPtOptAfter[ipt][iy]->GetMinimum();
-
-        if(maxAfter > max) max = maxAfter;
-        if(minAfter < min) min = minAfter;
-
-        CosThetaStarPhiRcPtOpt[ipt][iy]->SetTitle(Form("%.2f<p_{T}<%.2f GeV/c, %.2f<y<%.2f",vmsa::tofrebinptval[ipt],vmsa::tofrebinptval[ipt+1],ylowval[iy],yhighval[iy]));   
-        CosThetaStarPhiRcPtOpt[ipt][iy]->GetXaxis()->SetTitle("cos(#theta*)");
-        CosThetaStarPhiRcPtOpt[ipt][iy]->GetYaxis()->SetTitle("Counts");
-        CosThetaStarPhiRcPtOpt[ipt][iy]->SetMarkerStyle(20);
-        CosThetaStarPhiRcPtOptAfter[ipt][iy]->SetMarkerStyle(24);
-        CosThetaStarPhiRcPtOpt[ipt][iy]->SetMarkerColor(kBlue);
-        CosThetaStarPhiRcPtOptAfter[ipt][iy]->SetMarkerColor(kOrange+7);
-        CosThetaStarPhiRcPtOpt[ipt][iy]->SetLineColor(kBlue);
-        CosThetaStarPhiRcPtOptAfter[ipt][iy]->SetLineColor(kOrange+7);
-        CosThetaStarPhiRcPtOpt[ipt][iy]->GetYaxis()->SetRangeUser(min*0.8,max*1.2);
-        CosThetaStarPhiRcPtOpt[ipt][iy]->Draw("pE");
-        CosThetaStarPhiRcPtOptAfter[ipt][iy]->Draw("pE same");
-     
-        TLegend *legcos = new TLegend(0.7,0.7,0.85,0.85);
-        legcos->AddEntry(CosThetaStarPhiRcPtOpt[ipt][iy],"No Weight","p");
-        legcos->AddEntry(CosThetaStarPhiRcPtOptAfter[ipt][iy],"Data/RC Weight","p");
-        legcos->Draw("same");
-
-        ccosopt->cd(iy+4);
-        CosThetaStarPhiRcPtOptRatio[ipt][iy]->SetTitle(Form("(Data/RC Reweight)/(No Reweight) %.2f<p_{T}<%.2f GeV/c, %.2f<y<%.2f",vmsa::tofrebinptval[ipt],vmsa::tofrebinptval[ipt+1],ylowval[iy],yhighval[iy]));   
-        CosThetaStarPhiRcPtOptRatio[ipt][iy]->GetXaxis()->SetTitle("cos(#theta*)");
-        CosThetaStarPhiRcPtOptRatio[ipt][iy]->GetYaxis()->SetTitle("(Data/RC Reweight)/(No Reweight)");
-        CosThetaStarPhiRcPtOptRatio[ipt][iy]->Draw("pE");
-
-      }
-      ccosopt->Update();
-      ccosopt->Print(outputname.c_str());
-    }
-    ccosopt->Print(outputstop.c_str());
-
-    for(int i = 0; i < 6; i++)  ccosopt->cd(i+1)->Clear();
-
-    outputname = Form("figures/KaonTTrees/%sCosThetaDistributions_rho00.pdf",folderopt.c_str());
-    outputstart = Form("%s[",outputname.c_str());
-    outputstop = Form("%s]",outputname.c_str());
-
-    ccosopt->Print(outputstart.c_str());
-
-    //float ylowval[3] = {-1.0,-0.5,0.5};
-    //float yhighval[3] = {-0.5,0.5,1.0};
-
-    for(int iy = 0; iy < 3; iy++)
-    {
-      ccosopt->cd(iy+1);
-
-      gRcPtOpt[iy]->SetTitle(Form("%.2f<y<%.2f",ylowval[iy],yhighval[iy]));   
-      gRcPtOpt[iy]->GetXaxis()->SetTitle("p_{T} GeV/c");
-      gRcPtOpt[iy]->GetYaxis()->SetTitle("#rho_{00}");
-      gRcPtOpt[iy]->SetMarkerStyle(20);
-      gRcPtOptAfter[iy]->SetMarkerStyle(24);
-      gRcPtOpt[iy]->SetMarkerColor(kBlue);
-      gRcPtOptAfter[iy]->SetMarkerColor(kOrange+7);
-      gRcPtOpt[iy]->SetLineColor(kBlue);
-      gRcPtOptAfter[iy]->SetLineColor(kOrange+7);
-      gRcPtOpt[iy]->GetYaxis()->SetRangeUser(0.2,0.5);
-      gRcPtOpt[iy]->Draw("ApE");
-      gRcPtOptAfter[iy]->Draw("pE same");
-    
-      TLegend *legcos = new TLegend(0.7,0.7,0.85,0.85);
-      legcos->AddEntry(gRcPtOpt[iy],"No Weight","p");
-      legcos->AddEntry(gRcPtOptAfter[iy],"Data/RC Weight","p");
-      legcos->Draw("same");
-    }
-
-    ccosopt->cd(4);
-
-    gRcPt->SetTitle(Form("1.2<p_{T}<4.2"));   
-    gRcPt->GetXaxis()->SetTitle("y");
-    gRcPt->GetYaxis()->SetTitle("#rho_{00}");
-    gRcPt->SetMarkerStyle(20);
-    gRcPtAfter->SetMarkerStyle(24);
-    gRcPt->SetMarkerColor(kBlue);
-    gRcPtAfter->SetMarkerColor(kOrange+7);
-    gRcPt->SetLineColor(kBlue);
-    gRcPtAfter->SetLineColor(kOrange+7);
-    gRcPt->GetYaxis()->SetRangeUser(0.2,0.5);
-    gRcPt->Draw("ApE");
-    gRcPtAfter->Draw("pE same");
-
-    ccosopt->cd(5);
-
-    gRcY->SetTitle(Form("-1.0<y<1.0"));   
-    gRcY->GetXaxis()->SetTitle("p_{T} GeV/c");
-    gRcY->GetYaxis()->SetTitle("#rho_{00}");
-    gRcY->SetMarkerStyle(20);
-    gRcYAfter->SetMarkerStyle(24);
-    gRcY->SetMarkerColor(kBlue);
-    gRcYAfter->SetMarkerColor(kOrange+7);
-    gRcY->SetLineColor(kBlue);
-    gRcYAfter->SetLineColor(kOrange+7);
-    gRcY->GetYaxis()->SetRangeUser(0.2,0.5);
-    gRcY->Draw("ApE");
-    gRcYAfter->Draw("pE same");
-
-
-    ccosopt->Update();
-    ccosopt->Print(outputname.c_str());
-    
-    ccosopt->Print(outputstop.c_str());
-
-//    for(int i = 0; i < 16; i++)  ccos->cd(i+1)->Clear();
-
-
-    outputname = Form("figures/KaonTTrees/%sCosThetaDistributions_Pt.pdf",folderopt.c_str());
-    outputstart = Form("%s[",outputname.c_str());
-    outputstop = Form("%s]",outputname.c_str());
-
-    ccos->Print(outputstart.c_str());
-
-    for(int iy = 0; iy < vmsa::tofrebinytotal; iy++)
-    {
-      ccos->cd(iy+1);
-
-      double max = CosThetaStarPhiRcPt[iy]->GetMaximum();
-      double min = CosThetaStarPhiRcPt[iy]->GetMinimum();
-
-      double maxAfter = CosThetaStarPhiRcPtAfter[iy]->GetMaximum();
-      double minAfter = CosThetaStarPhiRcPtAfter[iy]->GetMinimum();
-
-      if(maxAfter > max) max = maxAfter;
-      if(minAfter < min) min = minAfter;
-
-      CosThetaStarPhiRcPt[iy]->SetTitle(Form("%.2f<p_{T}<%.2f GeV/c, %.2f<y<%.2f",vmsa::tofrebinptval[0],vmsa::tofrebinptval[vmsa::tofrebinpttotal-1],vmsa::tofrebinyval[iy],vmsa::tofrebinyval[iy+1]));   
-      CosThetaStarPhiRcPt[iy]->GetXaxis()->SetTitle("cos(#theta*)");
-      CosThetaStarPhiRcPt[iy]->GetYaxis()->SetTitle("Counts");
-      CosThetaStarPhiRcPt[iy]->SetMarkerStyle(20);
-      CosThetaStarPhiRcPtAfter[iy]->SetMarkerStyle(24);
-      CosThetaStarPhiRcPt[iy]->SetMarkerColor(kBlue);
-      CosThetaStarPhiRcPtAfter[iy]->SetMarkerColor(kOrange+7);
-      CosThetaStarPhiRcPt[iy]->SetLineColor(kBlue);
-      CosThetaStarPhiRcPtAfter[iy]->SetLineColor(kOrange+7);
-      CosThetaStarPhiRcPt[iy]->GetYaxis()->SetRangeUser(min*0.8,max*1.2);
-      CosThetaStarPhiRcPt[iy]->Draw("pE");
-      CosThetaStarPhiRcPtAfter[iy]->Draw("pE same");
-    
-      TLegend *legcos = new TLegend(0.7,0.7,0.85,0.85);
-      legcos->AddEntry(CosThetaStarPhiRcPt[iy],"No Weight","p");
-      legcos->AddEntry(CosThetaStarPhiRcPtAfter[iy],"Data/RC Weight","p");
-      legcos->Draw("same");
-    }
-    ccos->Update();
-    ccos->Print(outputname.c_str());
-    ccos->Print(outputstop.c_str());
-    for(int i = 0; i < 16; i++)  ccos->cd(i+1)->Clear();
-
-    outputname = Form("figures/KaonTTrees/%sCosThetaDistributions_Y.pdf",folderopt.c_str());
-    outputstart = Form("%s[",outputname.c_str());
-    outputstop = Form("%s]",outputname.c_str());
-
-    ccos->Print(outputstart.c_str());
-
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      ccos->cd(ipt+1);
-
-      double max = CosThetaStarPhiRcY[ipt]->GetMaximum();
-      double min = CosThetaStarPhiRcY[ipt]->GetMinimum();
-
-      double maxAfter = CosThetaStarPhiRcYAfter[ipt]->GetMaximum();
-      double minAfter = CosThetaStarPhiRcYAfter[ipt]->GetMinimum();
-
-      if(maxAfter > max) max = maxAfter;
-      if(minAfter < min) min = minAfter;
-
-      CosThetaStarPhiRcY[ipt]->SetTitle(Form("%.2f<p_{T}<%.2f GeV/c, 1.0<y<1.0",vmsa::tofrebinptval[ipt],vmsa::tofrebinptval[ipt+1]));   
-      CosThetaStarPhiRcY[ipt]->GetXaxis()->SetTitle("cos(#theta*)");
-      CosThetaStarPhiRcY[ipt]->GetYaxis()->SetTitle("Counts");
-      CosThetaStarPhiRcY[ipt]->SetMarkerStyle(20);
-      CosThetaStarPhiRcYAfter[ipt]->SetMarkerStyle(24);
-      CosThetaStarPhiRcY[ipt]->SetMarkerColor(kBlue);
-      CosThetaStarPhiRcYAfter[ipt]->SetMarkerColor(kOrange+7);
-      CosThetaStarPhiRcY[ipt]->SetLineColor(kBlue);
-      CosThetaStarPhiRcYAfter[ipt]->SetLineColor(kOrange+7);
-      CosThetaStarPhiRcY[ipt]->GetYaxis()->SetRangeUser(min*0.8,max*1.2);
-      CosThetaStarPhiRcY[ipt]->Draw("pE");
-      CosThetaStarPhiRcYAfter[ipt]->Draw("pE same");
-     
-      TLegend *legcos = new TLegend(0.7,0.7,0.85,0.85);
-      legcos->AddEntry(CosThetaStarPhiRcY[ipt],"No Weight","p");
-      legcos->AddEntry(CosThetaStarPhiRcYAfter[ipt],"Data/RC Weight","p");
-      legcos->Draw("same");
-    }
-    ccos->Update();
-    ccos->Print(outputname.c_str());
-    ccos->Print(outputstop.c_str());
-
-    for(int i = 0; i < 16; i++)  ccos->cd(i+1)->Clear();
-    outputname = Form("figures/KaonTTrees/%sCosThetaRatios.pdf",folderopt.c_str());
-    outputstart = Form("%s[",outputname.c_str());
-    outputstop = Form("%s]",outputname.c_str());
-
-    ccos->Print(outputstart.c_str());
-
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      for(int iy = 0; iy < vmsa::tofrebinytotal; iy++)
-      {
-        ccos->cd(iy+1);
-
-        CosThetaStarPhiRcDiffRatio[ipt][iy]->SetTitle(Form("(Data/RC Reweight)/(No Reweight) %.2f<p_{T}<%.2f GeV/c, %.2f<y<%.2f",vmsa::tofrebinptval[ipt],vmsa::tofrebinptval[ipt+1],vmsa::tofrebinyval[iy],vmsa::tofrebinyval[iy+1]));   
-        CosThetaStarPhiRcDiffRatio[ipt][iy]->GetXaxis()->SetTitle("cos(#theta*)");
-        CosThetaStarPhiRcDiffRatio[ipt][iy]->GetYaxis()->SetTitle("(Data/RC Reweight)/(No Reweight)");
-        CosThetaStarPhiRcDiffRatio[ipt][iy]->Draw("pE");
-      }
-      ccos->Update();
-      ccos->Print(outputname.c_str());
-    }
-    ccos->Print(outputstop.c_str());
-
-    for(int i = 0; i < 16; i++)  ccos->cd(i+1)->Clear();
-    outputname = Form("figures/KaonTTrees/%sCosThetaRatios_Y.pdf",folderopt.c_str());
-    outputstart = Form("%s[",outputname.c_str());
-    outputstop = Form("%s]",outputname.c_str());
-
-    ccos->Print(outputstart.c_str());
-
-    for(int ipt = 0; ipt < vmsa::tofrebinpttotal; ipt++)
-    {
-      ccos->cd(ipt+1);
-
-      CosThetaStarPhiRcYRatio[ipt]->SetTitle(Form("(Data/RC Reweight)/(No Reweight) %.2f<p_{T}<%.2f GeV/c, -1.0<y<1.0",vmsa::tofrebinptval[ipt],vmsa::tofrebinptval[ipt+1]));   
-      CosThetaStarPhiRcYRatio[ipt]->GetXaxis()->SetTitle("cos(#theta*)");
-      CosThetaStarPhiRcYRatio[ipt]->GetYaxis()->SetTitle("(Data/RC Reweight)/(No Reweight)");
-      CosThetaStarPhiRcYRatio[ipt]->Draw("pE");
-    }
-    ccos->Update();
-    ccos->Print(outputname.c_str());
-    ccos->Print(outputstop.c_str());
-
-    for(int i = 0; i < 16; i++)  ccos->cd(i+1)->Clear();
-    outputname = Form("figures/KaonTTrees/%sCosThetaRatios_Pt.pdf",folderopt.c_str());
-    outputstart = Form("%s[",outputname.c_str());
-    outputstop = Form("%s]",outputname.c_str());
-
-    ccos->Print(outputstart.c_str());
-
-    for(int iy = 0; iy < vmsa::tofrebinytotal; iy++)
-    {
-      ccos->cd(iy+1);
-
-      CosThetaStarPhiRcPtRatio[iy]->SetTitle(Form("(Data/RC Reweight)/(No Reweight) %.2f<p_{T}<%.2f GeV/c, %.2f<y<%.2f",vmsa::tofrebinptval[0],vmsa::tofrebinptval[vmsa::tofrebinpttotal-1],vmsa::tofrebinyval[iy],vmsa::tofrebinyval[iy+1]));   
-      CosThetaStarPhiRcPtRatio[iy]->GetXaxis()->SetTitle("cos(#theta*)");
-      CosThetaStarPhiRcPtRatio[iy]->GetYaxis()->SetTitle("(Data/RC Reweight)/(No Reweight)");
-      CosThetaStarPhiRcPtRatio[iy]->Draw("pE");
-    }
-    ccos->Update();
-    ccos->Print(outputname.c_str());
-    ccos->Print(outputstop.c_str());
-    
-    for(int i = 0; i < 16; i++)  ccos->cd(i+1)->Clear();
-
-
     TH2F *ptrapidityPhiDataRcAfter;
 
-    //double integralPhiData = ptrapidityPhiData->Integral(1,vmsa::tofrebinpttotal,1,vmsa::tofrebinytotal); 
-    double integralPhiRcAfter = ptrapidityPhiRcAfter->Integral(1,vmsa::tofrebinpttotal,1,vmsa::tofrebinytotal); 
+    //double integralPhiData = ptrapidityPhiData->Integral(1,vmsa::rebinpttotal,1,vmsa::rebinytotal); 
+    double integralPhiRcAfter = ptrapidityPhiRcAfter->Integral(1,vmsa::rebinpttotal,1,vmsa::rebinytotal); 
     double DataRcPhiAfter = integralPhiData/integralPhiRcAfter;
     
     ptrapidityPhiDataRcAfter = (TH2F*) ptrapidityPhiData->Clone();
@@ -2435,31 +1306,14 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     yPhiDataRcAfter->GetYaxis()->SetTitle("Data/RC"); 
     yPhiDataRcAfter->Draw("pE");
 
-    ct->SaveAs(Form("figures/KaonTTrees/%sPhiMeson_DataRCAndRatio_After.pdf",folderopt.c_str()));
+    ct->SaveAs(Form("figures/KaonTTrees/PhiMeson_DataRCAndRatio_After.pdf"));
 
-    
-
-
-
-
-    const int nset = 18;
+    const int nset = 7;
     //                      y    y   y   pT
-    Double_t axis[nset] = {   1,   1,  1,   1,  1,   1,  1,   0,   0,   0,   0,   0  ,0  ,0  ,0  ,0  ,0  ,0  };
-    Double_t low[nset]  = {-1.5,-0.5,0.5,-1.0,0.9,-1.0,0.8, 1.0, 0.0, 2.0,   0.44,0.3,0.5,0.7,0.9,1.1,1.3,1.5};
-    Double_t high[nset] = {-0.5, 0.5,1.5,-0.9,1.0,-0.8,1.0, 2.0, 0.7, ptmax, 1.5 ,0.5,0.7,0.9,1.1,1.3,1.5,1.7 };
+    Double_t axis[nset] = {   1,   1,  1,   0,   0,   0,   0};
+    Double_t low[nset]  = {-1.5,-0.5,0.5, 1.0, 0.0, 2.0,   0.44 };
+    Double_t high[nset] = {-0.5, 0.5,1.5, 2.0, 0.7, ptmax, 1.5 };
  
-    pt[4][2] = (TH1F*) ptyetaphibasic[4][2]->Projection(0);
-    rapidity[4][2] = (TH1F*) ptyetaphibasic[4][2]->Projection(1);
-    eta[4][2] = (TH1F*) ptyetaphibasic[4][2]->Projection(2);
-    phi[4][2] = (TH1F*) ptyetaphibasic[4][2]->Projection(3);
-
-    ptrapidity[4][2] = (TH2F*) ptyetaphibasic[4][2]->Projection(1,0);
-    pteta[4][2] = (TH2F*) ptyetaphibasic[4][2]->Projection(2,0);
-    ptphi[4][2] = (TH2F*) ptyetaphibasic[4][2]->Projection(3,0);
-    rapidityeta[4][2] = (TH2F*) ptyetaphibasic[4][2]->Projection(2,1);
-    rapidityphi[4][2] = (TH2F*) ptyetaphibasic[4][2]->Projection(3,1);
-    etaphi[4][2] = (TH2F*) ptyetaphibasic[4][2]->Projection(3,2);
-
     for(int ic = 0; ic < 2; ic++)
     {
       ptyetaphibasic[2][ic] = (THnF*) ptyetaphibasic[0][ic]->Clone();
@@ -2490,17 +1344,6 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
       int numerator[2] = {2,3};
       int denominator[2] = {3,2};
 
-      pt[4][ic] = (TH1F*) ptyetaphibasic[4][ic]->Projection(0);
-      rapidity[4][ic] = (TH1F*) ptyetaphibasic[4][ic]->Projection(1);
-      eta[4][ic] = (TH1F*) ptyetaphibasic[4][ic]->Projection(2);
-      phi[4][ic] = (TH1F*) ptyetaphibasic[4][ic]->Projection(3);
-
-      ptrapidity[4][ic] = (TH2F*) ptyetaphibasic[4][ic]->Projection(1,0);
-      pteta[4][ic] = (TH2F*) ptyetaphibasic[4][ic]->Projection(2,0);
-      ptphi[4][ic] = (TH2F*) ptyetaphibasic[4][ic]->Projection(3,0);
-      rapidityeta[4][ic] = (TH2F*) ptyetaphibasic[4][ic]->Projection(2,1);
-      rapidityphi[4][ic] = (TH2F*) ptyetaphibasic[4][ic]->Projection(3,1);
-      etaphi[4][ic] = (TH2F*) ptyetaphibasic[4][ic]->Projection(3,2);
  
       for(int im = 2; im < 4; im++)
       {
@@ -2893,7 +1736,7 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
         string histtitle = Form("K%s, %s",charge[ic].c_str(),mixingtitle[im].c_str());
 
         c1->cd(1);
-        c1->cd(1)->SetLogy(1);
+        c1->cd(1)->SetLogy(0);
         pt[im][ic]->SetTitle(histtitle.c_str()); 
         pt[im][ic]->GetXaxis()->SetTitle("p_{T} GeV/c"); 
         pt[im][ic]->GetYaxis()->SetTitle("Count"); 
@@ -3087,8 +1930,8 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
     }
 
     
-    string settitle[nset+1] = {"-1.5<y<-0.5","-0.5<y<0.5","0.5<y<1.5","-1.0<y<-0.9","0.9<y<1.0","-1.0<y<-0.8","0.8<y<1.0","1.0<p_{T}<2.0 GeV/c","0.0<p_{T}<0.7 GeV/c","p_{T}>2.0 GeV/c","0.44<p_{T}<1.5 GeV/c","0.3<p_{T}<0.5 GeV/c","0.5<p_{T}<0.7 GeV/c","0.7<p_{T}<0.9 GeV/c","0.9<p_{T}<1.1 GeV/c","1.1<p_{T}<1.3 GeV/c","1.3<p_{T}<1.5 GeV/c","1.5<p_{T}<1.7 GeV/c","Ignore Major #eta,#phi Deficiencies"};
-    string setfile[nset+1]  = {"n1p5yn0p5"  ,"n0p5y0p5"  ,"0p5y1p5","n1yn0p9","0p9y1","n1yn0p8","0p8y1"  ,"1p0pt2p0",           "0pt0p7",             "pt2p0"          ,"0p44pt1p5"           ,"0p3pt0p5"           ,"0p5pt0p7"           ,"0p7pt0p9"           ,"0p9pt1p1"           ,"1p1pt1p3"           ,"1p3pt1p5"           ,"1p5pt1p7",       "IgnoreEtaPhiDef" };
+    string settitle[nset+1] = {"-1.5<y<-0.5","-0.5<y<0.5","0.5<y<1.5","1.0<p_{T}<2.0 GeV/c","0.0<p_{T}<0.7 GeV/c","p_{T}>2.0 GeV/c","0.44<p_{T}<1.5 GeV/c","Ignore Major #eta,#phi Deficiencies"};
+    string setfile[nset+1]  = {"n1p5yn0p5"  ,"n0p5y0p5"  ,"0p5y1p5"  ,"1p0pt2p0",           "0pt0p7",             "pt2p0"          ,"0p44pt1p5",           "IgnoreEtaPhiDef" };
     for(int is = 0; is < nset+1; is++)
     {
       for(int im = 0; im < 2; im++)
@@ -3466,35 +2309,27 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
 
       c43->cd(5);
       ratiopt[0][ic]->Draw("pE"); 
-      ratiopt[0][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->cd(6);
       ratiorapidity[0][ic]->Draw("pE"); 
-      ratiorapidity[0][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->cd(7);
       ratioeta[0][ic]->Draw("pE"); 
-      ratioeta[0][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->cd(8);
       ratiophi[0][ic]->Draw("pE"); 
-      ratiophi[0][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->cd(9);
       ratiopt[1][ic]->Draw("pE"); 
-      ratiopt[1][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->cd(10);
       ratiorapidity[1][ic]->Draw("pE"); 
-      ratiorapidity[1][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->cd(11);
       ratioeta[1][ic]->Draw("pE"); 
-      ratioeta[1][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->cd(12);
       ratiophi[1][ic]->Draw("pE"); 
-      ratiophi[1][ic]->GetYaxis()->SetRangeUser(0.25,1.75); 
 
       c43->SaveAs(Form("figures/KaonTTrees/%sK%s_1DRatios.pdf",folderopt.c_str(),charge[ic].c_str()));
     }
@@ -3608,17 +2443,5 @@ void plotKaonTTrees_Compare(int energy = 4, bool datarcweight = false)
         c43->SaveAs(Form("figures/KaonTTrees/%sK%s_1DRatios_%s.pdf",folderopt.c_str(),charge[ic].c_str(),setfile[is].c_str()));
       }
     }
- 
-    TFile *Correction_Output = new TFile(Form("PhiEmbedding_%s_2DCorrections.root",vmsa::mBeamEnergy[energy].c_str()),"RECREATE");
-    Correction_Output->cd();
-    for(int ipt = vmsa::pt_rebin_first_2D[energy]; ipt < vmsa::pt_rebin_last_2D[energy]; ipt++)
-    {
-      for(int i = 0; i < 2; i++)
-      {
-        pt_correction_global[ipt][i]->Write();
-        pt_correction_helicity[ipt][i]->Write();
-      }
-    }
-    Correction_Output->Close();
 }
 

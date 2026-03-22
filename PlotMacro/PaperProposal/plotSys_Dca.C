@@ -11,66 +11,79 @@
 
 using namespace std;
 
-void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", string etamode = "eta1_eta1")
+void plotSys_Dca(int energy = 2)
 {
-  const string EP[2] = {"","2nd"};
-  const string mBeamEnergy[2] = {"14.6 GeV","19.6 GeV"};
-  const string mBeamEnergyFile[2] = {"14GeV","19GeV"};
-  const int mEnergy[2] = {14,19};
+  const string mBeamEnergy[6] = {"11.5 GeV","19.6 GeV","27 GeV","39 GeV","62.4 GeV","200 GeV"};
+  const int mEnergy[6] = {11,19,27,39,62,200};
   const int mColor[3] = {1,4,6};
   const int mStyle[4] = {24,25,26,32};
-  const string mMode[4] = {"Sigma_0_Inte","Sigma_0_Count","Sigma_1_Count","Sigma_2_Count"};
-  const float pt_low = 0.8;
-  const float pt_high = 4.2;
+  const string mMode[4] = {"Sigma_2_Inte","Sigma_0_Count","Sigma_1_Count","Sigma_2_Count"};
+  const float pt_low = 0.54;
+  const float pt_high = 5.54;
   const float pt_shift[3] = {-0.1,0.1,0.2};
   const int dca_default = 0;
   const string mLeg_dca[3] = {"dca < 2.0 cm", "dca < 2.5 cm", "dca < 3.0 cm"};
   const string mLeg_mode[4] = {"BW Inte (2#sigma)", "Counting (2#sigma)", "Counting (2.5#sigma)", "Counting (3.0#sigma)"};
 
-  string inputfile = Form("../../output/AuAu%s/Phi/Poly/%sPhiPtSys_%s_Poly.root",mBeamEnergyFile[energy].c_str(),correction.c_str(),etamode.c_str());
-  if(energy == 1 && correction == "AccRes" && order == 2) inputfile = Form("../../output/AuAu%s/Phi/Poly/%sPhiPtSys_%s_Poly.root",mBeamEnergyFile[energy].c_str(),correction.c_str(),etamode.c_str());
-  if(energy == 0 && correction == "AccRes" && order == 2) inputfile = Form("../../output/AuAu%s/Phi/Poly/%sPhiPtSys_%s_Poly.root",mBeamEnergyFile[energy].c_str(),correction.c_str(),etamode.c_str());
-  if(order == 1) inputfile = Form("../../output/AuAu%s/Phi/Poly/%sPhiPtSys_%s_Poly_FirstOrder.root",mBeamEnergyFile[energy].c_str(),correction.c_str(),etamode.c_str());
-
+  string inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV.root",mEnergy[energy]);
+  if(energy == 2) inputfile = Form("/Users/xusun/WorkSpace/STAR/Data/SpinAlignment/PaperProposal/SysErrors/NewF_JHChen/rho00_%dGeV_2ndMean.root",mEnergy[energy]);
   cout << "Open InPut File: " << inputfile.c_str() << endl;
   TFile *File_InPut = TFile::Open(inputfile.c_str());
 
   //--------------------------------------------------------------
   // get default value
-  const string HistName_Default = Form("rhoRaw_Centrality_9_%s_Dca_0_Sig_0_Phi_Norm_0_Sigma_0_Inte_Poly1_F_0_Eff_0",EP[order-1].c_str());
-  TGraphAsymmErrors *g_rho_default = (TGraphAsymmErrors*)File_InPut->Get(HistName_Default.c_str());
-  cout << "Loaded Default" << endl;
-  cout << HistName_Default << endl;
+  const string HistName_Default = "EP_2_eff_0_Dca_0_Sig_1_Phi_Norm_0_Sigma_2_Inte";
+  TH1F *h_rho_default = (TH1F*)File_InPut->Get(HistName_Default.c_str());
+  h_rho_default->SetMarkerColor(2);
+  h_rho_default->SetMarkerStyle(29);
+  h_rho_default->SetMarkerSize(2.0);
+  cout << "Default Histogram set to: " << HistName_Default.c_str() << endl;
+
+  TGraphAsymmErrors *g_rho_default = new TGraphAsymmErrors();
+  for(int i_point = 0; i_point < h_rho_default->GetNbinsX(); ++i_point)
+  {
+    float pt = h_rho_default->GetBinCenter(i_point+1);
+    float rho = h_rho_default->GetBinContent(i_point+1);
+    float err = h_rho_default->GetBinError(i_point+1);
+    float width = h_rho_default->GetBinWidth(i_point+1)/2.0;
+    g_rho_default->SetPoint(i_point,pt,rho);
+    g_rho_default->SetPointError(i_point,width,width,err,err);
+  }
   g_rho_default->SetMarkerColor(2);
   g_rho_default->SetMarkerStyle(29);
   g_rho_default->SetMarkerSize(2.0);
-  cout << "SetMaker" << endl;
-  //g_rho_default->RemovePoint(0); // 1st point is pT-integrated value
+  g_rho_default->RemovePoint(0); // 1st point is pT-integrated value
   //--------------------------------------------------------------
-  
-  cout << "Before Loading Different yield extractions " << endl;
 
-  TGraphAsymmErrors *g_rhoSys_Dca[3][4]; // 0 for different Dca | 1 for different yields extraction
+  TH1F *h_rhoSys_Dca[3][4]; // 0 for different Dca | 1 for different yields extraction
+  TGraphAsymmErrors *g_rhoSys_Dca[3][4];
   for(int i_dca = 0; i_dca < 3; ++i_dca)
   {
     if(i_dca == dca_default) continue;
     for(int i_mode = 0; i_mode < 4; ++i_mode)
     {
-      cout << "Before creating histname" << endl;
-      string HistName = Form("rhoRaw_Centrality_9_%s_Dca_%d_Sig_0_Phi_Norm_0_%s_Poly1_F_0_Eff_0",EP[order-1].c_str(),i_dca,mMode[i_mode].c_str());
+      string HistName = Form("EP_2_eff_0_Dca_%d_Sig_1_Phi_Norm_0_%s",i_dca,mMode[i_mode].c_str());
       cout << "Read in Systematic Contribution from DCA Cut: " << HistName.c_str() << endl;
-      g_rhoSys_Dca[i_dca][i_mode] = (TGraphAsymmErrors*)File_InPut->Get(HistName.c_str());
+      h_rhoSys_Dca[i_dca][i_mode] = (TH1F*)File_InPut->Get(HistName.c_str());
+      // h_rhoSys_Dca[i_dca][i_mode]->SetMarkerColor(mColor[i_dca]);
+      h_rhoSys_Dca[i_dca][i_mode]->SetMarkerColor(1);
+      h_rhoSys_Dca[i_dca][i_mode]->SetMarkerStyle(mStyle[i_mode]);
+      h_rhoSys_Dca[i_dca][i_mode]->SetMarkerSize(1.5);
+
+      g_rhoSys_Dca[i_dca][i_mode] = new TGraphAsymmErrors();
+      for(int i_point = 0; i_point < h_rho_default->GetNbinsX(); ++i_point)
+      {
+	float pt  = h_rhoSys_Dca[i_dca][i_mode]->GetBinCenter(i_point+1);
+	float rho = h_rhoSys_Dca[i_dca][i_mode]->GetBinContent(i_point+1);
+	float err = h_rhoSys_Dca[i_dca][i_mode]->GetBinError(i_point+1);
+	g_rhoSys_Dca[i_dca][i_mode]->SetPoint(i_point,pt+pt_shift[i_dca],rho);
+	g_rhoSys_Dca[i_dca][i_mode]->SetPointError(i_point,0.0,0.0,err,err);
+      }
       g_rhoSys_Dca[i_dca][i_mode]->SetMarkerColor(mColor[i_dca]);
       g_rhoSys_Dca[i_dca][i_mode]->SetMarkerStyle(mStyle[i_mode]);
       g_rhoSys_Dca[i_dca][i_mode]->SetMarkerSize(1.5);
       g_rhoSys_Dca[i_dca][i_mode]->SetLineColor(mColor[i_dca]);
-      for(int i = 0; i < g_rhoSys_Dca[i_dca][i_mode]->GetN(); i++)
-      {
-        double x, y;
-        g_rhoSys_Dca[i_dca][i_mode]->GetPoint(i,x,y);
-        g_rhoSys_Dca[i_dca][i_mode]->SetPoint(i,x+pt_shift[i_dca],y);
-      }
-      //g_rhoSys_Dca[i_dca][i_mode]->RemovePoint(0);
+      g_rhoSys_Dca[i_dca][i_mode]->RemovePoint(0);
     }
   }
 
@@ -85,7 +98,7 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
   {
     h_frame->SetBinContent(bin_x,-10.0);
   }
-  string title_cuts = Form("DCA Cuts Systematics @ AuAu %s EP Order %d",mBeamEnergy[energy].c_str(),order);
+  string title_cuts = Form("DCA Cuts Systematics @ AuAu %s",mBeamEnergy[energy].c_str());
   h_frame->SetTitle(title_cuts.c_str());
   h_frame->SetStats(0);
   h_frame->GetXaxis()->SetRangeUser(pt_low,pt_high);
@@ -96,7 +109,7 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
   h_frame->GetXaxis()->SetTitleOffset(1.1);
   h_frame->GetXaxis()->CenterTitle();
 
-  h_frame->GetYaxis()->SetRangeUser(0.15,0.55);
+  h_frame->GetYaxis()->SetRangeUser(0.25,0.42);
   h_frame->GetYaxis()->SetNdivisions(505,'N');
   h_frame->GetYaxis()->SetTitle("#rho_{00} (Out-of-Plane)");
   h_frame->GetYaxis()->SetTitleSize(0.06);
@@ -139,10 +152,10 @@ void plotSys_Dca(int energy = 1, int order = 2, string correction = "AccRes", st
   leg_mode->SetFillColor(10);
   for(int i_mode = 0; i_mode< 4; ++i_mode)
   {
-    leg_mode->AddEntry(g_rhoSys_Dca[1][i_mode],mLeg_mode[i_mode].c_str(),"P");
+    leg_mode->AddEntry(h_rhoSys_Dca[1][i_mode],mLeg_mode[i_mode].c_str(),"P");
   }
   leg_mode->Draw("same");
 
-  string FigName = Form("c_SysPtDca_AuAu%dGeV_order%d.pdf",mEnergy[energy],order);
+  string FigName = Form("/Users/xusun/WorkSpace/STAR/figures/SpinAlignment/PaperProposal/NewF_JHChen/c_SysDca_AuAu%dGeV.eps",mEnergy[energy]);
   c_rho00->SaveAs(FigName.c_str());
 }

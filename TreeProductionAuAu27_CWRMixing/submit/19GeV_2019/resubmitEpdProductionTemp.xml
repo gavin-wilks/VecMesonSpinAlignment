@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="15" filesPerHour="20" maxFilesPerProcess="25" fileListSyntax="xrootd" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    root4star -l -b -q VecMesonEpdTree.C\(\"$FILELIST\",\"$JOBID\",&mode;,&energy;,&flag_ME;,&flag_PID;\) </command>
+
+  <SandBox installer="ZIP">
+    <Package>
+      <File>file:&codePath;/VecMesonEpdTree.C</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction/submit/19GeV_2019/resubmit.list" />
+
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/Log/SpinAlignment/&outDir;_&SM;_$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction/submit/19GeV_2019/JOBS/report/</ReportLocation>
+    <ScriptLocation>/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction/submit/19GeV_2019/JOBS/csh/</ScriptLocation>
+    <ListLocation>/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/TreeProduction/submit/19GeV_2019/JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/SpinAlignment/&outDir;/" />
+
+</job>
+

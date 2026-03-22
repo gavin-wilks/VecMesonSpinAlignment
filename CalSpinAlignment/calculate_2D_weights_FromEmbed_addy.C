@@ -6,8 +6,8 @@
 #include <TF1.h>
 #include <TRandom3.h>
 #include <TMath.h>
-#include "../Utility/functions.h"
-#include "../Utility/StSpinAlignmentCons.h"
+#include "Utility/functions.h"
+#include "Utility/StSpinAlignmentCons.h"
 
 int tableNum[5][9] = {{6,6,5,5,4,3,2,1,1},
                       {0,0,0,0,0,0,0,0,0},
@@ -94,7 +94,7 @@ TF1* readspec(int energy, int centrality)
   if(energy != 3)
   {
     string InPutSpec;
-    if((energy == 4 || energy == 2 || energy == 0)) InPutSpec = "pTspectra/HEPData-ins1378002-v1-root.root";
+    if((energy == 4 || energy == 2 || energy == 0)) InPutSpec = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/pTspectra/HEPData-ins1378002-v1-root.root";
     TFile *File_Spec = TFile::Open(InPutSpec.c_str());
     cout << "Input spectra" << InPutSpec << endl;
  
@@ -156,7 +156,7 @@ TF1* readv2(int energy, int centrality){
   {
     string InPutV2 = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
     if((energy == 2 || energy == 0)) InPutV2 = "v2files/HEPData-ins1395151-v2-root.root";
-    if(energy == 4) InPutV2 = Form("v2files/OutPhi_v2_Cent%s.root",centlabel.c_str());
+    if(energy == 4) InPutV2 = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/OutPhi_v2_Cent%s.root",centlabel.c_str());
     TFile *File_v2 = TFile::Open(InPutV2.c_str());
     std::cout << "v2 file: " << InPutV2 << endl;
 
@@ -235,7 +235,7 @@ TF1* readv2(int energy, int centrality){
   return f_v2;
 }
 
-void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000) 
+void calculate_2D_weights_FromEmbed_addy(int energy = 4, string jobid = "ABC") 
 {
 
     ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(50000);    
@@ -258,8 +258,7 @@ void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000)
     //string spectra  = "PhiEmbedding_20240830_All";
     //string filename = "PhiEmbedding_20240830_All.root";
 
-    //string inputfile = Form("effaccfiles/%s/%s/%s/%s",vmsa::mPID[0].c_str(),vmsa::mBeamEnergy[energy].c_str(),spectra.c_str(),filename.c_str());
-    string inputfile = Form("PhiEmbedding_%s_2DWeights.root",vmsa::mBeamEnergy[energy].c_str());
+    string inputfile = Form("effaccfiles/%s/%s/%s/%s",vmsa::mPID[0].c_str(),vmsa::mBeamEnergy[energy].c_str(),spectra.c_str(),filename.c_str());
     TFile *File_Input = TFile::Open(inputfile.c_str());
 
     TH3F *h_flat_pt_phi[10];
@@ -270,14 +269,12 @@ void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000)
     TH1F *h_desired_pt[10];
     TH1F *h_desired_y[10];
     TH1F *h_desired_phi[10];
-    for(int icent = 0; icent < 9; icent++)
+    for(int icent = 0; icent < 10; icent++)
     {
-      string flat = Form("h_flat_pt_phi_cent%d",icent);
+      //string flat = Form("h_flat_pt_phi_cent%d",icent);
       //TH3F *temp = (TH3F*) ((TH3F*)File_Input->Get(Form("h_mRc0EffPtYPhiPsi_Cent_%d",icent)))->Clone();
-      //TH3F *temp = (TH3F*) ((TH3F*)File_Input->Get(Form("ptyphidistributions_cent%d",icent)))->Clone();
       //h_flat_pt_phi[icent] = new TH3F(flat.c_str(), Form("Flat pT-phi Distribution cent %d",icent), nBinsPt, ptMin, ptMax, nBinsY, yMin, yMax, nBinsPhi, phiMin, phiMax);
-      h_flat_pt_phi[icent] = (TH3F*)((TH3F*)File_Input->Get(Form("ptyphidistributions_cent%d",icent)))->Clone();
-// new TH3F(flat.c_str(), Form("Flat pT-phi Distribution cent %d",icent), nBinsPt, ptMin, ptMax, nBinsY, yMin, yMax, nBinsPhi, phiMin, phiMax);
+      ////h_flat_pt_phi[icent] = (TH3F*) ((TH3F*)File_Input->Get(Form("h_mRc0EffPtYPhiPsi_Cent_%d",icent)))->Clone(flat.c_str());
       //for(int i = 1; i <= nBinsPt; i++)
       //{
       //  for(int j = 1; j <= nBinsY; j++)
@@ -289,24 +286,15 @@ void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000)
 
       //      h_flat_pt_phi[icent]->SetBinContent(i, j, k, value);        
       //      h_flat_pt_phi[icent]->SetBinError(i, j, k, error);        
-
+   
       //    }
       //  }
       //}
 
-
-      //string flat = Form("h_flat_pt_phi_cent%d",icent);
-      //h_flat_pt_phi[icent] = (TH3F*) ((TH3F*)File_Input->Get(Form("h_mRc0EffPtYPhiPsi_Cent_%d",icent)))->Clone(flat.c_str());
-      cout << flat << endl;
-      cout << "NBinsX = " << h_flat_pt_phi[icent]->GetNbinsX() << endl;
-      cout << "range = " << h_flat_pt_phi[icent]->GetXaxis()->GetXmin() << ", " << h_flat_pt_phi[icent]->GetXaxis()->GetXmax() << endl;
-      cout << "NBinsY = " << h_flat_pt_phi[icent]->GetNbinsY() << endl;
-      cout << "range = " << h_flat_pt_phi[icent]->GetYaxis()->GetXmin() << ", " << h_flat_pt_phi[icent]->GetYaxis()->GetXmax() << endl;
-      cout << "NBinsZ = " << h_flat_pt_phi[icent]->GetNbinsZ() << endl;
-      cout << "range = " << h_flat_pt_phi[icent]->GetZaxis()->GetXmin() << ", " << h_flat_pt_phi[icent]->GetZaxis()->GetXmax() << endl;
+      //cout << "NBinsX = " << h_flat_pt_phi[icent]->GetNbinsX() << endl;
+      //cout << "NBinsY = " << h_flat_pt_phi[icent]->GetNbinsY() << endl;
+      //cout << "NBinsZ = " << h_flat_pt_phi[icent]->GetNbinsZ() << endl;
  
-
-
       //flat = Form("h_flat_pt_cent%d",icent);
       //h_flat_pt[icent] = (TH1F*) h_flat_pt_phi[icent]->ProjectionX(flat.c_str(),0,-1,"e");    
       //flat = Form("h_flat_phi_cent%d",icent);
@@ -315,11 +303,8 @@ void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000)
       string desired = Form("h_desired_pt_phi_cent%d",icent);
       h_desired_pt_phi[icent] = new TH3F(desired.c_str(), Form("Desired pT-phi Distribution cent %d",icent), nBinsPt, ptMin, ptMax, nBinsY, yMin, yMax, nBinsPhi, phiMin, phiMax);
       cout << "NBinsX = " << h_desired_pt_phi[icent]->GetNbinsX() << endl;
-      cout << "range = " << h_desired_pt_phi[icent]->GetXaxis()->GetXmin() << ", " << h_desired_pt_phi[icent]->GetXaxis()->GetXmax() << endl;
       cout << "NBinsY = " << h_desired_pt_phi[icent]->GetNbinsY() << endl;
-      cout << "range = " << h_desired_pt_phi[icent]->GetYaxis()->GetXmin() << ", " << h_desired_pt_phi[icent]->GetYaxis()->GetXmax() << endl;
       cout << "NBinsZ = " << h_desired_pt_phi[icent]->GetNbinsZ() << endl;
-      cout << "range = " << h_desired_pt_phi[icent]->GetZaxis()->GetXmin() << ", " << h_desired_pt_phi[icent]->GetZaxis()->GetXmax() << endl;
       //desired = Form("h_desired_pt_cent%d",icent);
       //h_desired_pt[icent] = (TH1F*) h_desired_pt_phi[icent]->ProjectionX(desired.c_str(),0,-1,"e");    
       //desired = Form("h_desired_phi_cent%d",icent);
@@ -328,7 +313,7 @@ void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000)
 
     TRandom3 rand;
 
-    int numberOfEvents = 5000000;
+    int numberOfEvents = 100000;
     //int numberOfEvents = 100000;
 
 
@@ -369,8 +354,8 @@ void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000)
         double pt_true = desired_pt[cent]->GetRandom(ptMin,ptMax); // Sample from the desired pT distribution
         //double pt_true = desired_pt[cent]->GetRandom(0.0,ptMax); // Sample from the desired pT distribution
         double v2 = v2_func[cent]->Eval(pt_true); // Get v2 for the sampled pt
-        double y_true = rand.Uniform(-1.5,1.5);
-        //double y_true = ygaus->GetRandom(-1.5,1.5);
+        //double y_true = rand.Uniform(-1.5,1.5);
+        double y_true = ygaus->GetRandom(-1.5,1.5);
         azimuthal->ReleaseParameter(0);
         azimuthal->SetParameter(0,v2*resolution[cent]);
         //azimuthal->SetParameter(0,inputv2);
@@ -379,203 +364,203 @@ void calculate_2D_weights_FromEmbed_addy(int energy = 4, double inputv2 = 1000)
     }
 
     // Create a histogram for the ratio
-    TH3F *h_ratio[10];
-    TH1F *h_ratio_y[10];
-    TH1F *h_ratio_pt[10];
-    TH1F *h_ratio_phi[10];
-    for(int icent = 2; icent < 6; icent++)
-    {
-      double integralfunc = h_desired_pt_phi[icent]->Integral(1,nBinsPt,1,nBinsY,1,nBinsPhi) ;// from function
-      double integraldata = h_flat_pt_phi[icent]->Integral(1,nBinsPt,1,nBinsY,1,nBinsPhi) ;//from data
-      h_desired_pt_phi[icent]->Scale(integraldata/integralfunc);
-      h_ratio[icent] = (TH3F*)h_desired_pt_phi[icent]->Clone(Form("h_ratio_cent%d",icent));
-      h_ratio[icent]->SetTitle(Form("Ratio of Desired pT-phi to Flat pT-phi cent%d",icent));
-      h_ratio[icent]->Divide(h_flat_pt_phi[icent]);
+    //TH3F *h_ratio[10];
+    //TH1F *h_ratio_y[10];
+    //TH1F *h_ratio_pt[10];
+    //TH1F *h_ratio_phi[10];
+    //for(int icent = 2; icent < 6; icent++)
+    //{
+    //  double integralfunc = h_desired_pt_phi[icent]->Integral(1,nBinsPt,1,nBinsY,1,nBinsPhi) ;// from function
+    //  double integraldata = h_flat_pt_phi[icent]->Integral(1,nBinsPt,1,nBinsY,1,nBinsPhi) ;//from data
+    //  h_desired_pt_phi[icent]->Scale(integraldata/integralfunc);
+    //  //h_ratio[icent] = (TH3F*)h_desired_pt_phi[icent]->Clone(Form("h_ratio_cent%d",icent));
+    //  //h_ratio[icent]->SetTitle(Form("Ratio of Desired pT-phi to Flat pT-phi cent%d",icent));
+    //  //h_ratio[icent]->Divide(h_flat_pt_phi[icent]);
 
-      string flat = Form("h_flat_pt_cent%d",icent);
-      h_flat_pt[icent] = (TH1F*) h_flat_pt_phi[icent]->ProjectionX(flat.c_str(), 1,nBinsY,1,nBinsPhi,"e");    
-      flat = Form("h_flat_y_cent%d",icent);
-      h_flat_y[icent] = (TH1F*) h_flat_pt_phi[icent]->ProjectionY(flat.c_str(),  1,nBinsPt,1,nBinsPhi,"e");    
-      flat = Form("h_flat_phi_cent%d",icent);
-      h_flat_phi[icent] = (TH1F*) h_flat_pt_phi[icent]->ProjectionZ(flat.c_str(),1,nBinsPt,1,nBinsY,"e");    
+    //  string flat = Form("h_flat_pt_cent%d",icent);
+    //  h_flat_pt[icent] = (TH1F*) h_flat_pt_phi[icent]->ProjectionX(flat.c_str(),0,-1,0,-1,"e");    
+    //  flat = Form("h_flat_y_cent%d",icent);
+    //  h_flat_y[icent] = (TH1F*) h_flat_pt_phi[icent]->ProjectionY(flat.c_str(),0,-1,0,-1,"e");    
+    //  flat = Form("h_flat_phi_cent%d",icent);
+    //  h_flat_phi[icent] = (TH1F*) h_flat_pt_phi[icent]->ProjectionZ(flat.c_str(),0,-1,0,-1,"e");    
 
-      string desired = Form("h_desired_pt_cent%d",icent);
-      h_desired_pt[icent] = (TH1F*) h_desired_pt_phi[icent]->ProjectionX(desired.c_str(), 1,nBinsY,1,nBinsPhi,"e");    
-      desired = Form("h_desired_y_cent%d",icent);
-      h_desired_y[icent] = (TH1F*) h_desired_pt_phi[icent]->ProjectionY(desired.c_str(),  1,nBinsPt,1,nBinsPhi,"e");    
-      desired = Form("h_desired_phi_cent%d",icent);
-      h_desired_phi[icent] = (TH1F*) h_desired_pt_phi[icent]->ProjectionZ(desired.c_str(),1,nBinsPt,1,nBinsY,"e");    
-      
-      h_ratio_pt[icent] = (TH1F*)h_desired_pt[icent]->Clone(Form("h_ratio_pt_cent%d",icent));
-      h_ratio_pt[icent]->SetTitle(Form("Ratio of Desired pT to Flat pT cent%d",icent));
-      h_ratio_pt[icent]->Divide(h_flat_pt[icent]);
+    //  string desired = Form("h_desired_pt_cent%d",icent);
+    //  h_desired_pt[icent] = (TH1F*) h_desired_pt_phi[icent]->ProjectionX(desired.c_str(),0,-1,0,-1,"e");    
+    //  desired = Form("h_desired_y_cent%d",icent);
+    //  h_desired_y[icent] = (TH1F*) h_desired_pt_phi[icent]->ProjectionY(desired.c_str(),0,-1,0,-1,"e");    
+    //  desired = Form("h_desired_phi_cent%d",icent);
+    //  h_desired_phi[icent] = (TH1F*) h_desired_pt_phi[icent]->ProjectionZ(desired.c_str(),0,-1,0,-1,"e");    
+    //  
+    //  //h_ratio_pt[icent] = (TH1F*)h_desired_pt[icent]->Clone(Form("h_ratio_pt_cent%d",icent));
+    //  //h_ratio_pt[icent]->SetTitle(Form("Ratio of Desired pT to Flat pT cent%d",icent));
+    //  //h_ratio_pt[icent]->Divide(h_flat_pt[icent]);
 
-      h_ratio_y[icent] = (TH1F*)h_desired_y[icent]->Clone(Form("h_ratio_y_cent%d",icent));
-      h_ratio_y[icent]->SetTitle(Form("Ratio of Desired y to Flat y cent%d",icent));
-      h_ratio_y[icent]->Divide(h_flat_y[icent]);
+    //  //h_ratio_y[icent] = (TH1F*)h_desired_y[icent]->Clone(Form("h_ratio_y_cent%d",icent));
+    //  //h_ratio_y[icent]->SetTitle(Form("Ratio of Desired y to Flat y cent%d",icent));
+    //  //h_ratio_y[icent]->Divide(h_flat_y[icent]);
 
-      h_ratio_phi[icent] = (TH1F*)h_desired_phi[icent]->Clone(Form("h_ratio_phi_cent%d",icent));
-      h_ratio_phi[icent]->SetTitle(Form("Ratio of Desired #phi-#Psi to Flat #phi-#Psi cent%d",icent));
-      h_ratio_phi[icent]->Divide(h_flat_phi[icent]);
-    }
+    //  //h_ratio_phi[icent] = (TH1F*)h_desired_phi[icent]->Clone(Form("h_ratio_phi_cent%d",icent));
+    //  //h_ratio_phi[icent]->SetTitle(Form("Ratio of Desired #phi-#Psi to Flat #phi-#Psi cent%d",icent));
+    //  //h_ratio_phi[icent]->Divide(h_flat_phi[icent]);
+    //}
 
     // Save the histograms to a file
-    TFile *file = new TFile(Form("pt_phi_weights_v2_function_%d_v2%1.4f.root",nBinsPhi,inputv2), "RECREATE");
+    TFile *file = new TFile(Form("pt_y_phi_weights_v2_%s.root",jobid.c_str()), "RECREATE");
     for(int icent = 2; icent < 6; icent++)
     {
-      h_flat_pt_phi[icent]->Print();
-      h_flat_pt_phi[icent]->Write();
+      //h_flat_pt_phi[icent]->Print();
+      //h_flat_pt_phi[icent]->Write();
       h_desired_pt_phi[icent]->Print();
       h_desired_pt_phi[icent]->Write();
-      h_ratio[icent]->Print();
-      h_ratio[icent]->Write();
+      //h_ratio[icent]->Print();
+      //h_ratio[icent]->Write();
     }
     file->Close();
 
     // Optionally, draw the histograms
-    TCanvas *c1 = new TCanvas("c1", "pT-phi Weights", 800, 800);
-    c1->Divide(2,2);
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLeftMargin(0.15);
-      c1->cd(icent+1)->SetRightMargin(0.15);
-      c1->cd(icent+1)->SetBottomMargin(0.15);
-      c1->cd(icent+1)->SetTicks(1,1);
-      c1->cd(icent+1)->SetGrid(0,0);
+    //TCanvas *c1 = new TCanvas("c1", "pT-phi Weights", 800, 800);
+    //c1->Divide(2,2);
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLeftMargin(0.15);
+    //  c1->cd(icent+1)->SetRightMargin(0.15);
+    //  c1->cd(icent+1)->SetBottomMargin(0.15);
+    //  c1->cd(icent+1)->SetTicks(1,1);
+    //  c1->cd(icent+1)->SetGrid(0,0);
 
-      h_ratio[icent+2]->SetStats(0);
-      h_ratio[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
-      h_ratio[icent+2]->GetYaxis()->SetTitle("#phi-#Psi_{2}");
-      h_ratio[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("pt_phi_weights_v2_function_v2%1.4f.pdf",inputv2));
+    //  h_ratio[icent+2]->SetStats(0);
+    //  h_ratio[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
+    //  h_ratio[icent+2]->GetYaxis()->SetTitle("#phi-#Psi_{2}");
+    //  h_ratio[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("pt_phi_weights_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      //h_flat_pt_phi[icent+2]->SetStats(0);
-      h_flat_pt_phi[icent+2]->Print();
-      h_flat_pt_phi[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
-      h_flat_pt_phi[icent+2]->GetYaxis()->SetTitle("#phi-#Psi_{2}");
-      h_flat_pt_phi[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("pt_phi_flat_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  //h_flat_pt_phi[icent+2]->SetStats(0);
+    //  h_flat_pt_phi[icent+2]->Print();
+    //  h_flat_pt_phi[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
+    //  h_flat_pt_phi[icent+2]->GetYaxis()->SetTitle("#phi-#Psi_{2}");
+    //  h_flat_pt_phi[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("pt_phi_flat_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      //h_desired_pt_phi[icent+2]->SetStats(0);
-      h_desired_pt_phi[icent+2]->Print();
-      cout << "Max = " << h_desired_pt_phi[icent+2]->GetMaximum() << endl;
-      cout << "Min = " << h_desired_pt_phi[icent+2]->GetMinimum() << endl;
-      h_desired_pt_phi[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
-      h_desired_pt_phi[icent+2]->GetYaxis()->SetTitle("#phi-#Psi_{2}");
-      h_desired_pt_phi[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("pt_phi_desired_v2_function_v2%1.4f.pdf",inputv2));
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLogy();
-      h_ratio_pt[icent+2]->SetStats(0);
-      h_ratio_pt[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
-      h_ratio_pt[icent+2]->GetYaxis()->SetTitle("Spectra/Embedding");
-      h_ratio_pt[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("pt_weights_v2_function_v2%1.4f.pdf",inputv2));
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLogy(0);
-      h_ratio_y[icent+2]->SetStats(0);
-      h_ratio_y[icent+2]->GetXaxis()->SetTitle("y");
-      h_ratio_y[icent+2]->GetYaxis()->SetTitle("Spectra/Embedding");
-      h_ratio_y[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("y_weights_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  //h_desired_pt_phi[icent+2]->SetStats(0);
+    //  h_desired_pt_phi[icent+2]->Print();
+    //  cout << "Max = " << h_desired_pt_phi[icent+2]->GetMaximum() << endl;
+    //  cout << "Min = " << h_desired_pt_phi[icent+2]->GetMinimum() << endl;
+    //  h_desired_pt_phi[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
+    //  h_desired_pt_phi[icent+2]->GetYaxis()->SetTitle("#phi-#Psi_{2}");
+    //  h_desired_pt_phi[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("pt_phi_desired_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLogy();
+    //  h_ratio_pt[icent+2]->SetStats(0);
+    //  h_ratio_pt[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
+    //  h_ratio_pt[icent+2]->GetYaxis()->SetTitle("Spectra/Embedding");
+    //  h_ratio_pt[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("pt_weights_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLogy(0);
+    //  h_ratio_y[icent+2]->SetStats(0);
+    //  h_ratio_y[icent+2]->GetXaxis()->SetTitle("y");
+    //  h_ratio_y[icent+2]->GetYaxis()->SetTitle("Spectra/Embedding");
+    //  h_ratio_y[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("y_weights_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLogy(0);
-      //h_flat_pt_phi[icent+2]->SetStats(0);
-      h_flat_pt[icent+2]->Print();
-      h_flat_pt[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
-      h_flat_pt[icent+2]->GetYaxis()->SetTitle("Counts");
-      h_flat_pt[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("pt_flat_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLogy(0);
+    //  //h_flat_pt_phi[icent+2]->SetStats(0);
+    //  h_flat_pt[icent+2]->Print();
+    //  h_flat_pt[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
+    //  h_flat_pt[icent+2]->GetYaxis()->SetTitle("Counts");
+    //  h_flat_pt[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("pt_flat_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLogy();
-      //h_desired_pt_phi[icent+2]->SetStats(0);
-      h_desired_pt[icent+2]->Print();
-      h_desired_pt[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
-      h_desired_pt[icent+2]->GetYaxis()->SetTitle("Counts");
-      h_desired_pt[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("pt_desired_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLogy();
+    //  //h_desired_pt_phi[icent+2]->SetStats(0);
+    //  h_desired_pt[icent+2]->Print();
+    //  h_desired_pt[icent+2]->GetXaxis()->SetTitle("p_{T} GeV/c");
+    //  h_desired_pt[icent+2]->GetYaxis()->SetTitle("Counts");
+    //  h_desired_pt[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("pt_desired_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLogy(0);
-      //h_flat_pt_phi[icent+2]->SetStats(0);
-      h_flat_y[icent+2]->Print();
-      h_flat_y[icent+2]->GetXaxis()->SetTitle("y");
-      h_flat_y[icent+2]->GetYaxis()->SetTitle("Counts");
-      h_flat_y[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("y_flat_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLogy(0);
+    //  //h_flat_pt_phi[icent+2]->SetStats(0);
+    //  h_flat_y[icent+2]->Print();
+    //  h_flat_y[icent+2]->GetXaxis()->SetTitle("y");
+    //  h_flat_y[icent+2]->GetYaxis()->SetTitle("Counts");
+    //  h_flat_y[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("y_flat_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLogy(0);
-      //h_desired_pt_phi[icent+2]->SetStats(0);
-      h_desired_y[icent+2]->Print();
-      h_desired_y[icent+2]->GetXaxis()->SetTitle("y");
-      h_desired_y[icent+2]->GetYaxis()->SetTitle("Counts");
-      h_desired_y[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("y_desired_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLogy(0);
+    //  //h_desired_pt_phi[icent+2]->SetStats(0);
+    //  h_desired_y[icent+2]->Print();
+    //  h_desired_y[icent+2]->GetXaxis()->SetTitle("y");
+    //  h_desired_y[icent+2]->GetYaxis()->SetTitle("Counts");
+    //  h_desired_y[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("y_desired_v2_function_v2%1.4f.pdf",inputv2));
 
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      c1->cd(icent+1)->SetLogy(0);
-      h_ratio_phi[icent+2]->SetStats(0);
-      h_ratio_phi[icent+2]->GetXaxis()->SetTitle("#phi-#Psi_{2}");
-      h_ratio_phi[icent+2]->GetYaxis()->SetTitle("Spectra/Embedding");
-      h_ratio_phi[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("phi_weights_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  c1->cd(icent+1)->SetLogy(0);
+    //  h_ratio_phi[icent+2]->SetStats(0);
+    //  h_ratio_phi[icent+2]->GetXaxis()->SetTitle("#phi-#Psi_{2}");
+    //  h_ratio_phi[icent+2]->GetYaxis()->SetTitle("Spectra/Embedding");
+    //  h_ratio_phi[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("phi_weights_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      //h_flat_pt_phi[icent+2]->SetStats(0);
-      h_flat_phi[icent+2]->Print();
-      h_flat_phi[icent+2]->GetXaxis()->SetTitle("#phi-#Psi_{2}");
-      h_flat_phi[icent+2]->GetYaxis()->SetTitle("Counts");
-      h_flat_phi[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("phi_flat_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  //h_flat_pt_phi[icent+2]->SetStats(0);
+    //  h_flat_phi[icent+2]->Print();
+    //  h_flat_phi[icent+2]->GetXaxis()->SetTitle("#phi-#Psi_{2}");
+    //  h_flat_phi[icent+2]->GetYaxis()->SetTitle("Counts");
+    //  h_flat_phi[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("phi_flat_v2_function_v2%1.4f.pdf",inputv2));
 
-    for(int icent = 0; icent < 4; icent++)
-    {
-      c1->cd(icent+1);
-      //h_desired_pt_phi[icent+2]->SetStats(0);
-      h_desired_phi[icent+2]->Print();
-      h_desired_phi[icent+2]->GetXaxis()->SetTitle("#phi-#Psi_{2}");
-      h_desired_phi[icent+2]->GetYaxis()->SetTitle("Counts");
-      h_desired_phi[icent+2]->Draw("COLZ");
-    }
-    c1->SaveAs(Form("phi_desired_v2_function_v2%1.4f.pdf",inputv2));
+    //for(int icent = 0; icent < 4; icent++)
+    //{
+    //  c1->cd(icent+1);
+    //  //h_desired_pt_phi[icent+2]->SetStats(0);
+    //  h_desired_phi[icent+2]->Print();
+    //  h_desired_phi[icent+2]->GetXaxis()->SetTitle("#phi-#Psi_{2}");
+    //  h_desired_phi[icent+2]->GetYaxis()->SetTitle("Counts");
+    //  h_desired_phi[icent+2]->Draw("COLZ");
+    //}
+    //c1->SaveAs(Form("phi_desired_v2_function_v2%1.4f.pdf",inputv2));
 
     // Clean up
     //delete[] h_flat_pt_phi;

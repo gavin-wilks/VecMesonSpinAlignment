@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="25" filesPerHour="25" maxFilesPerProcess="50" fileListSyntax="paths" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    root4star -l -b -q FillSpinAlignment.C\(\"$FILELIST\",\"$JOBID\",&energy;,&flag_ME;,&mode;,&etamode;,&study;\)
+  </command>
+
+  <SandBox>
+    <Package>
+      <File>file:&codePath;/FillSpinAlignment.C</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:&listPath;/&pid;_&SM;_eta1_allcent.list" />
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/Log/SpinAlignmentYields/&outDir;/&SM;_$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/SpinAlignmentYields/&outDir;/" />
+
+</job>
+

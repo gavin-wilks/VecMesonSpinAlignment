@@ -84,6 +84,22 @@ double EventPlaneDist(double *var, double *par)
   return y;
 }
 
+double EventPlaneDist1st(double *var, double *par)
+{
+  double DeltaPsi = var[0];
+  double chi = par[0];
+  double arg = chi/TMath::Sqrt(2.0);
+  double arg2 = -0.5*chi*chi;
+  double pi = TMath::Pi();
+  double norm = par[1];
+
+  double cos = TMath::Cos(DeltaPsi);
+  double sin2 = TMath::Sin(DeltaPsi)*TMath::Sin(DeltaPsi);
+  double y = norm*(TMath::Exp(arg2)+TMath::Sqrt(pi)*arg*cos*TMath::Exp(arg2*sin2)*(1.0+TMath::Erf(arg*cos)));
+
+  return y;
+}
+
 double v2_pT_FitFunc(double *x_val, double *par)
 {
   // Fit function for v2 vs. pT
@@ -105,6 +121,32 @@ double v2_pT_FitFunc(double *x_val, double *par)
   return v2;
 }
 
+double v2_pT_FitFunc_Poly3(double *x_val, double *par)
+{
+  // Fit function for v2 vs. pT
+  // From arXiv:nucl-th/0403030v5: Resonance decay effects on anisotrotpy parameters
+  double v2, pT, a, b, c, d, n;
+  pT = x_val[0];
+  n  = par[0]; // number-of-constituent quarks
+  a  = par[1];
+  b  = par[2];
+  c  = par[3];
+  d  = par[4];
+  e  = par[5];
+  f  = par[6];
+  g  = par[7];
+  h  = par[8];
+  //i  = par[9];
+  //j  = par[10];
+
+  if(c != 0.0)
+  {
+    v2 = a*n/(1.0 + exp(-(pT/n - b)/c)) - d*n + e + f*pT - g*pT*pT + h*pT*pT*pT; //+ i*exp(-j*pT);
+  }
+  else v2 = 0.0;
+
+  return v2;
+}
 double Levy(double *var, double *par)
 {
   double const m0 = 1.019455; // phi-meson mass
@@ -177,7 +219,77 @@ double pTspecExp(double *var, double *par)
 
 double meanLevy(double *var, double *par)
 {
-  double const m0 = 1.01940; // phi-meson mass
+  double const m0 = 1.019455; // phi-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double T    = par[1];
+
+  double numer = dNdy;
+  double denom = T*(m0+T);
+  double power = TMath::Exp(-(mT-m0)/T);
+
+  double y = numer*power/denom;
+
+  return y;
+}
+
+double pTspecExp(double *var, double *par)
+{
+  double const m0 = 1.019455; // phi-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double T    = par[1];
+
+  double numer = dNdy;
+  double denom = T*(m0+T);
+  double power = TMath::Exp(-(mT-m0)/T);
+
+  double y = pT*numer*power/denom;
+
+  return y;
+}
+
+
+double LevyKStar(double *var, double *par)
+{
+  double const m0 = 0.89555; // K*0-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double n    = par[1];
+  double T    = par[2];
+
+  double numer = dNdy*(n-1)*(n-2);
+  double denom = n*T*(n*T+m0*(n-2));
+  double power = pow(1+(mT-m0)/(n*T),-1.0*n);
+
+  double y = numer*power/denom;
+
+  return y;
+}
+
+double pTLevyKStar(double *var, double *par)
+{
+  double const m0 = 0.89555; // K*0-meson mass
+  double pT   = var[0];
+  double mT   = sqrt(pT*pT+m0*m0);
+  double dNdy = par[0];
+  double n    = par[1];
+  double T    = par[2];
+
+  double numer = dNdy*(n-1)*(n-2);
+  double denom = n*T*(n*T+m0*(n-2));
+  double power = pow(1+(mT-m0)/(n*T),-1.0*n);
+
+  double y = pT*numer*power/denom;
+
+  return y;
+}
+double meanLevy(double *var, double *par, double const m0)
+{
+  //double const m0 = 1.01940; // phi-meson mass
   double pT   = var[0];
   double mT   = sqrt(pT*pT+m0*m0);
   double dNdy = par[0];
@@ -228,6 +340,56 @@ double Poly(double *x_val, double *par)
 {
   double x = x_val[0];
   double y = par[0] + par[1]*x;
+
+  return y;
+}
+
+double Poly2BreitWigner(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double m0 = par[0];
+  double Gamma = par[1];
+  double Norm = par[2];
+
+  double denom = 2.0*TMath::Pi()*((x-m0)*(x-m0)+Gamma*Gamma/4.0);
+  double BW = Norm*Gamma/denom;
+
+  double Poly = par[3] + par[4]*x + par[5]*x*x;
+
+  double y = BW + Poly;
+
+  return y;
+}
+
+double Poly2(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double y = par[0] + par[1]*x + par[2]*x*x;
+
+  return y;
+}
+
+double Poly3BreitWigner(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double m0 = par[0];
+  double Gamma = par[1];
+  double Norm = par[2];
+
+  double denom = 2.0*TMath::Pi()*((x-m0)*(x-m0)+Gamma*Gamma/4.0);
+  double BW = Norm*Gamma/denom;
+
+  double Poly = par[3] + par[4]*x + par[5]*x*x + par[6]*x*x*x;
+
+  double y = BW + Poly;
+
+  return y;
+}
+
+double Poly3(double *x_val, double *par)
+{
+  double x = x_val[0];
+  double y = par[0] + par[1]*x + par[2]*x*x + par[3]*x*x*x;
 
   return y;
 }

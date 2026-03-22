@@ -1,43 +1,32 @@
-#include "TPythia8.h"
+#include "TPythia6.h"
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TParticle.h"
+#include "TMCParticle.h"
 #include "TH1F.h"
 #include "TH3F.h"
 
-void scan_phi_mesons(int nevents = 10000000, char* jobid = "1") {
-    // Initialize TPythia8 object
-    TPythia8 *pythia = new TPythia8();
+void scan_phi_mesons(int nevents = 1000, char* jobid = "1") {
+    // Load the Pythia 6 library
+    gSystem->Load("libEGPythia6.so");
 
-    // Enable and set the random seed
-    pythia->ReadString("Random:setSeed = on");
-    pythia->ReadString(Form("Random:seed = %s",jobid));
-
-    // Set up p+p collision at sqrt(s) = 19.6 GeV
-    pythia->ReadString("Beams:idA = 2212");  // Proton A
-    pythia->ReadString("Beams:idB = 2212");  // Proton B
-    pythia->ReadString("Beams:eCM = 19.6");  // Center-of-mass energy
-
-    // Enable soft and hard QCD processes
-    pythia->ReadString("SoftQCD:all = on"); 
+    // Create an instance of TPythia6
+    TPythia6* pythia = TPythia6::Instance();
 
     // Set random seed using clock
     //pythia->SetMRPY(1, 0);
 
     // Set up the p+p collision at 19.6 GeV center-of-mass energy
-    //pythia->SetMSEL(1);  // Select hard QCD processes
-    //pythia->SetPARP(171, 19.6);  // Set the center-of-mass energy (sqrt(s)) in GeV
+    pythia->SetMSEL(1);  // Select hard QCD processes
+    pythia->SetPARP(171, 19.6);  // Set the center-of-mass energy (sqrt(s)) in GeV
 
-    cout << "Initialize?" << endl;
     // Initialize Pythia
-    pythia->Initialize(2212, 2212, 19.6);  // p + p, sqrt(s) = 19.6 GeV
-    //pythia->Initialize(2112, 2112, 19.6);  // n + n, sqrt(s) = 19.6 GeV
-    cout << "YES" << endl;
+    pythia->Initialize("CMS", "p", "p", 19.6);  // p + p, sqrt(s) = 19.6 GeV
 
-    //pythia->SetPrintEvery(1);
+    //pythia->SetPrintEvery(1);  
 
     //if (!pythia->Initialize("CMS", "p", "p", 19.6)) {
     //  std::cerr << "Pythia initialization failed!" << std::endl;
@@ -52,9 +41,7 @@ void scan_phi_mesons(int nevents = 10000000, char* jobid = "1") {
     //pythia->Initialize(2212, 2212); // Initialize for p+p collisions
 
     // Create a file to store histograms or data
-    cout << "Create file?" << endl;
     TFile* file = new TFile(Form("phi_mesons_%s.root",jobid), "RECREATE");
-    cout << "YES" << endl;
 
     // Histograms for \phi-meson analysis
     TH3F* h_phi_ptyphi = new TH3F("h_phi_ptyphi", "Phi-meson pT, y, phi; pT (GeV/c); y; #phi; Counts", 100, 0, 10, 100, -5, 5, 100, 0, 2.0*TMath::Pi());
@@ -66,39 +53,31 @@ void scan_phi_mesons(int nevents = 10000000, char* jobid = "1") {
     // Event loop to generate and scan 1000 events
     for (int i = 0; i < nevents; ++i) {
         pythia->GenerateEvent();  // Generate an event
+        //if(!pythia->Next()) continue;  // Generate an event
 
-        //cout << "Generated the Event " << endl;
         // Loop over the particles in the event
         for (int j = 0; j < pythia->GetN(); ++j) {
-            //cout << "Look for particle " << j << endl;
-            TParticle* particle = pythia->GetParticle(j);
-            if (!particle) {
-              //std::cerr << "Null particle pointer at index " << j << std::endl;
-              continue;
-            }
+            TParticle* particle = (TParticle*)pythia->GetParticle(j);
 
-            //cout << "Found a particle" << endl;
             // Check if the particle is a phi-meson (PDG code 333)
-            //particle->Print();
-            //cout << "The PDG code is " << particle->GetPdgCode() << endl;
-            if (particle->GetPdgCode() == 333) {
-                //cout << "Found a phi-meson" << endl;
+            //if (particle->GetPdgCode() == 333) {
                 // Get transverse momentum (pT), pseudorapidity (eta), and mass
-                if(++nphi % 100 == 0) cout << "Found " << nphi << " phi-mesons" << endl;
-
-
+                cout << "Found " << ++nphi << " phi-mesons" << endl;
+                  
+                particle->Print();
+      
                 Double_t pt = particle->Pt();
                 Double_t y = particle->Y();
                 Double_t phi = particle->Phi();
                 Double_t mass = particle->GetMass();
 
                 //cout << "pT = " << pt << ", y = " << y << ", phi = " << phi << endl;
-                //cout << "px = " << particle->Px() << ", py = " << particle->Py() << ", pz = " << particle->Pz() << endl;
+                cout << "px = " << particle->Px() << ", py = " << particle->Py() << ", pz = " << particle->Pz() << endl;
 
                 // Fill histograms
                 h_phi_ptyphi->Fill(pt,y,phi);
                 h_phi_mass->Fill(mass);
-            }
+            //}
         }
     }
 

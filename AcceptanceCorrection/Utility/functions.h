@@ -147,32 +147,32 @@ double v2_pT_FitFunc(double *x_val, double *par)
   return v2;
 }
 
-//double v2_pT_FitFunc_Poly3(double *x_val, double *par)
-//{
-//  // Fit function for v2 vs. pT
-//  // From arXiv:nucl-th/0403030v5: Resonance decay effects on anisotrotpy parameters
-//  double v2, pT, a, b, c, d, n;
-//  pT = x_val[0];
-//  n  = par[0]; // number-of-constituent quarks
-//  a  = par[1];
-//  b  = par[2];
-//  c  = par[3];
-//  d  = par[4];
-//  e  = par[5];
-//  f  = par[6];
-//  g  = par[7];
-//  h  = par[8];
-//  //i  = par[9];
-//  //j  = par[10];
-//
-//  if(c != 0.0)
-//  {
-//    v2 = a*n/(1.0 + exp(-(pT/n - b)/c)) - d*n + e + f*pT - g*pT*pT + h*pT*pT*pT; //+ i*exp(-j*pT);
-//  }
-//  else v2 = 0.0;
-//
-//  return v2;
-//}
+double v2_pT_FitFunc_Poly3(double *x_val, double *par)
+{
+  // Fit function for v2 vs. pT
+  // From arXiv:nucl-th/0403030v5: Resonance decay effects on anisotrotpy parameters
+  double v2, pT, a, b, c, d, n;
+  pT = x_val[0];
+  n  = par[0]; // number-of-constituent quarks
+  a  = par[1];
+  b  = par[2];
+  c  = par[3];
+  d  = par[4];
+  e  = par[5];
+  f  = par[6];
+  g  = par[7];
+  h  = par[8];
+  //i  = par[9];
+  //j  = par[10];
+
+  if(c != 0.0)
+  {
+    v2 = a*n/(1.0 + exp(-(pT/n - b)/c)) - d*n + e + f*pT - g*pT*pT + h*pT*pT*pT; //+ i*exp(-j*pT);
+  }
+  else v2 = 0.0;
+
+  return v2;
+}
 double Levy(double *var, double *par)
 {
   double const m0 = 1.01940; // phi-meson mass

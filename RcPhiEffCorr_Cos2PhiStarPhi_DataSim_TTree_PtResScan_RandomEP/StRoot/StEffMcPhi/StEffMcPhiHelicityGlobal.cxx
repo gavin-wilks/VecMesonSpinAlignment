@@ -1,0 +1,2291 @@
+#include "StEffMcPhiHelicityGlobal.h"
+#include "StEffHistMangerHelicityGlobal.h"
+#include "StEffCut.h"
+#include <string>
+#include "TMinuit.h"
+#include "TFile.h"
+#include "TNtuple.h"
+#include "TBranch.h"
+#include "TMath.h"
+#include "TLorentzVector.h"
+#include "TRotation.h"
+#include "TVector3.h"
+#include "TRandom3.h"
+#include "StRoot/Utility/StSpinAlignmentCons.h"
+#include "StRoot/Utility/functions.h"
+#include "TH2D.h"
+#include "TH3F.h"
+#include "TH1F.h"
+#include "TH1D.h"
+#include "TF1.h"
+#include "TMatrixD.h"
+#include "TRotation.h"
+#include <algorithm>
+#include <unordered_set>
+#include <vector>
+#include <random>
+#include <functional>
+#include "Math/MinimizerOptions.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+typedef std::map<std::string,TH3F*> TH3FMap;
+typedef std::map<std::string,TH1D*> TH1DMap;
+typedef std::map<std::string,TF1*> TF1Map;
+TH3FMap h_m2_PID;
+TH3FMap h_nsig_PID;
+
+TF1Map func_m2_PID;
+TF1Map func_nsig_PID;
+
+TH1D *h_FramePhi_m2;
+TH1D *h_FrameEta_m2;
+TH1D *h_FramePhi_nsig;
+TH1D *h_FrameEta_nsig;
+
+TH1DMap h_EffKplus;
+TH1DMap h_EffKminus;
+TH1D *h_FrameEta;
+TH1D *h_FramePhi;
+
+
+
+TH1DMap h_EffPhi;
+TH1D *h_FrameEtaPhi;
+TH1D *h_FramePhiPhi;
+
+//TF2* f_mRhoPt_2D[5][4];
+TF2* f_mRhoPt_2D_Iter[10];
+TF1* f_mRhoPt_1D_Iter[10];
+//TF2* f_mRhoPt_2D_neg[5][41];
+std::function<void(Int_t&, Double_t*, Double_t&, Double_t*, Int_t)> gMinFunc;  // Global wrapper
+
+// Wrapper function for TMinuit
+void MinuitWrapper(Int_t& npar, Double_t* grad, Double_t& fval, Double_t* param, Int_t iflag) {
+    gMinFunc(npar, grad, fval, param, iflag);  // Calls the correct lambda function
+}
+
+
+void readEfficiency(int energy)
+{
+  string inputKplus = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/Efficiency/TPC/Eff_%s_%s_PhiEmbedding_MCMC_pt0p1.root",vmsa::mParType[0].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_Kplus = TFile::Open(inputKplus.c_str());
+  cout << "OPEN Efficiency File for K+: " << inputKplus.c_str() << endl;
+
+  string inputKminus = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/Efficiency/TPC/Eff_%s_%s_PhiEmbedding_MCMC_pt0p1.root",vmsa::mParType[1].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_Kminus = TFile::Open(inputKminus.c_str());
+  cout << "OPEN Efficiency File for K-: " << inputKminus.c_str() << endl;
+
+  //h_FrameEta[0] = (TH1D*)File_Kplus->Get("h_FrameEta");
+  h_FrameEta = (TH1D*)((TH1D*)File_Kplus->Get("h_FrameEta_K"))->Clone();
+  h_FramePhi = (TH1D*)((TH1D*)File_Kplus->Get("h_FramePhi_K"))->Clone();
+ 
+  int neta = h_FrameEta->GetNbinsX(); 
+  int nphi = h_FramePhi->GetNbinsX();
+
+
+  for(int i_cent = 0; i_cent < 10; ++i_cent)
+  {
+    for(int i_eta = 0; i_eta < neta; ++i_eta)
+    {
+      for(int i_phi = 0; i_phi < nphi; ++i_phi)
+      {
+	string KEY = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",i_cent,i_eta,i_phi);
+	h_EffKplus[KEY] = (TH1D*)File_Kplus->Get(KEY.c_str());
+	h_EffKminus[KEY] = (TH1D*)File_Kminus->Get(KEY.c_str());
+        //h_EffKplus[KEY]->Print(); 
+        //h_EffKminus[KEY]->Print();
+        //h_EffKplus[KEY]->SetDirectory(0);; 
+        //h_EffKminus[KEY]->SetDirectory(0);;
+      }	
+    }
+  }
+}
+
+void findHist(TLorentzVector const& lKaon, int iParticleIndex, int& EtaBin, int& PhiBin)
+{
+  float eta = lKaon.Eta();
+  //cout << "eta = " << eta  << endl;
+  EtaBin = h_FrameEta->FindBin(eta)-1;
+  //cout << "etabin = " << EtaBin << endl;
+  //float phi = lKaon.Phi()-Psi2;
+  //float phi_shift = AngleShift(phi);
+  //PhiBin = h_FramePhi[iParticleIndex]->FindBin(phi_shift)-1;
+
+  float phi = lKaon.Phi();
+  //cout << "phi = " << phi  << endl;
+  while(phi < -TMath::Pi()) phi += 2.*TMath::Pi();
+  while(phi >=  TMath::Pi()) phi -= 2.*TMath::Pi();
+  PhiBin = h_FramePhi->FindBin(phi)-1;
+  //cout << "PhiBin = " << PhiBin << endl;
+}
+
+bool tpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
+{
+   if(fabs(lKaon.Eta()) >= vmsa::mEtaMax) return false;
+    
+   //cout << "Before FindHist" << endl;
+    
+   TH1D *h_TPC = NULL;
+   int EtaBin_TPC = -1;
+   int PhiBin_TPC = -1;
+   findHist(lKaon,iParticleIndex,EtaBin_TPC,PhiBin_TPC);
+
+   //cout << "Eta bin = " << EtaBin_TPC << ", Phi bin = " << PhiBin_TPC << endl;
+   //cout << "After FindHist" << endl;
+
+   if (iParticleIndex == 0)
+   {
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+     h_TPC = h_EffKplus[KEY_TPC];
+   }
+   else
+   {
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+     h_TPC = h_EffKminus[KEY_TPC];
+   }
+   //cout << "Grab Hist" << endl;
+
+   //h_TPC->Print();
+
+   double pt = lKaon.Perp();
+   if(pt < 0.1) return false;
+   int const bin_TPC = h_TPC->FindBin(pt);
+   bool is_TPC = gRandom->Rndm() < h_TPC->GetBinContent(bin_TPC);
+   //cout << "Finished function" << endl;
+
+   //delete h_TPC;
+   return is_TPC;
+}
+
+double valtpcReconstructed(int iParticleIndex, int cent, TLorentzVector const& lKaon)
+{
+   if(fabs(lKaon.Eta()) >= vmsa::mEtaMax) return false;
+    
+   //cout << "Before FindHist" << endl;
+    
+   TH1D *h_TPC = NULL;
+   int EtaBin_TPC = -1;
+   int PhiBin_TPC = -1;
+   findHist(lKaon,iParticleIndex,EtaBin_TPC,PhiBin_TPC);
+
+   //cout << "Eta bin = " << EtaBin_TPC << ", Phi bin = " << PhiBin_TPC << endl;
+   //cout << "After FindHist" << endl;
+
+   if (iParticleIndex == 0)
+   {
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+     h_TPC = h_EffKplus[KEY_TPC];
+   }
+   else
+   {
+     string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+     h_TPC = h_EffKminus[KEY_TPC];
+   }
+   //cout << "Grab Hist" << endl;
+
+   //h_TPC->Print();
+
+   double pt = lKaon.Perp();
+   if(pt < 0.1) return 0.0;
+   if(pt >= 5.0) pt = 4.9999; // use efficiency value for final bin in the case that pt >= 5.0 for the kaons 
+   int const bin_TPC = h_TPC->FindBin(pt);
+   double efficiencyvalue = h_TPC->GetBinContent(bin_TPC);
+
+   if(efficiencyvalue < 0) return 0.0; 
+   return efficiencyvalue; 
+}
+
+void readEfficiencyPhi(int energy)
+{
+  string inputPhi = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/Efficiency/TPC/Eff_Phi_%s_PhiEff_MCMC_pt0p1.root",vmsa::mBeamEnergy[energy].c_str());
+  TFile *File_Phi = TFile::Open(inputPhi.c_str());
+  cout << "OPEN Efficiency File for phi-meson: " << inputPhi.c_str() << endl;
+
+  h_FramePhiPhi = (TH1D*)File_Phi->Get("h_FramePhi");
+  h_FrameEtaPhi = (TH1D*)File_Phi->Get("h_FrameEta");
+
+  h_FrameEtaPhi->SetDirectory(0); 
+  h_FramePhiPhi->SetDirectory(0);
+
+  int neta = h_FrameEtaPhi->GetNbinsX();
+  int nphi = h_FramePhiPhi->GetNbinsX();
+
+  for(int i_cent = 0; i_cent < 10; ++i_cent)
+  {
+    for(int i_eta = 0; i_eta < neta; ++i_eta)
+    {
+      for(int i_phi = 0; i_phi < nphi; ++i_phi)
+      {
+	string KEY = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",i_cent,i_eta,i_phi);
+	h_EffPhi[KEY] = (TH1D*)File_Phi->Get(KEY.c_str());
+        h_EffPhi[KEY]->SetDirectory(0);;
+      }	
+    }
+  }
+}
+
+void findHistPhi(TLorentzVector const& lPhi, int& EtaBin, int& PhiBin)
+{
+  float eta = lPhi.Rapidity();
+  EtaBin = h_FrameEtaPhi->FindBin(eta)-1;
+
+  float phi = lPhi.Phi();
+  while(phi < -TMath::Pi()) phi += 2.*TMath::Pi();
+  while(phi >=  TMath::Pi()) phi -= 2.*TMath::Pi();
+  PhiBin = h_FramePhiPhi->FindBin(phi)-1;
+}
+
+bool tpcReconstructedPhi(int cent, TLorentzVector const& lPhi)
+{
+   TH1D *h_TPC = NULL;
+   int EtaBin_TPC = -1;
+   int PhiBin_TPC = -1;
+   findHistPhi(lPhi,EtaBin_TPC,PhiBin_TPC);
+
+   string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+   h_TPC = h_EffPhi[KEY_TPC];
+
+   double pt = lPhi.Perp();
+   if(pt < 0.1) return false;
+   int const bin_TPC = h_TPC->FindBin(pt);
+   bool is_TPC = gRandom->Rndm() < h_TPC->GetBinContent(bin_TPC);
+
+   return is_TPC;
+}
+
+bool valtpcReconstructedPhi(int cent, TLorentzVector const& lPhi)
+{
+   TH1D *h_TPC = NULL;
+   int EtaBin_TPC = -1;
+   int PhiBin_TPC = -1;
+   findHistPhi(lPhi,EtaBin_TPC,PhiBin_TPC);
+
+   string KEY_TPC = Form("h_mEff_Cent_%d_Eta_%d_Phi_%d",cent,EtaBin_TPC,PhiBin_TPC); // get TPC eff
+   h_TPC = h_EffPhi[KEY_TPC];
+
+   double pt = lPhi.Perp();
+   //if(pt < ) return false;
+   int const bin_TPC = h_TPC->FindBin(pt);
+   double val = h_TPC->GetBinContent(bin_TPC);
+
+   return val;
+}
+
+void readm2PID_func()
+{
+  string InPut = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/PID/m2_PID_func_19GeV.root");
+  TFile *File = TFile::Open(InPut.c_str());
+  std::cout << "m2 PID file: " << InPut << endl; 
+
+  h_FramePhi_m2 = (TH1D*) File->Get("h_FramePhi_m2");
+  h_FrameEta_m2 = (TH1D*) File->Get("h_FrameEta_m2");
+
+  int nphim2 = h_FramePhi_m2->GetNbinsX();
+  int netam2 = h_FrameEta_m2->GetNbinsX();
+
+  for(int icent = 0; icent < 3; icent++) 
+  {
+    for(int ic = 0; ic < 2; ic++)
+    {
+      for(int iphi = 0; iphi < nphim2; iphi++)
+      {
+        for(int ieta = 0; ieta < netam2; ieta++)
+        {
+          string histname = Form("m2_parameters_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          TH1D *Parameters = (TH1D*) File->Get(histname.c_str());
+
+          string funcname = Form("m2_functions_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          func_m2_PID[funcname] = new TF1(funcname.c_str(),m2_PID_power,0.0,5.0,4);
+          for(int ipar = 0; ipar < Parameters->GetNbinsX(); ipar++)
+          {
+            func_m2_PID[funcname]->SetParameter(ipar, Parameters->GetBinContent(ipar+1));  
+          } 
+        }
+      }
+    } 
+  }
+  for(int icent = 9; icent < 10; icent++) 
+  {
+    for(int ic = 0; ic < 2; ic++)
+    {
+      for(int iphi = 0; iphi < nphim2; iphi++)
+      {
+        for(int ieta = 0; ieta < netam2; ieta++)
+        {
+          string histname = Form("m2_parameters_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          TH1D *Parameters = (TH1D*) File->Get(histname.c_str());
+
+          string funcname = Form("m2_functions_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          func_m2_PID[funcname] = new TF1(funcname.c_str(),m2_PID_power,0.0,5.0,4);
+          for(int ipar = 0; ipar < Parameters->GetNbinsX(); ipar++)
+          {
+            func_m2_PID[funcname]->SetParameter(ipar, Parameters->GetBinContent(ipar+1));  
+          } 
+        }
+      }
+    } 
+  }
+}
+
+void findm2FuncPID(TLorentzVector const& lKaon, int icharge, int &PhiBin, int &EtaBin)
+{
+  double pt  = lKaon.Pt();
+  double eta = lKaon.PseudoRapidity();
+  double phi = lKaon.Phi();
+  while(phi < -TMath::Pi()) phi += 2.0*TMath::Pi();
+  while(phi >=  TMath::Pi()) phi -= 2.0*TMath::Pi();
+
+  PhiBin = h_FramePhi_m2->FindBin(phi)-1;
+  EtaBin = h_FrameEta_m2->FindBin(eta)-1;
+}
+
+double funcval_m2_PID(int icharge, int icent, TLorentzVector const& lKaon, int PhiBin, int EtaBin)
+{
+  int centrebin = 0;
+  if(icent >= 0 && icent <= 3) centrebin = 0;
+  if(icent >= 4 && icent <= 6) centrebin = 1;
+  if(icent >= 7 && icent <= 8) centrebin = 2;
+  if(icent >= 9 && icent <= 9) centrebin = 9;
+
+  string KEY; 
+  KEY = Form("m2_functions_cent%d_charge%d_eta%d_phi%d",centrebin,icharge,EtaBin,PhiBin);
+;
+  TF1 *func = func_m2_PID[KEY]; // only 20-60%
+
+  double prob_m2 = 0.0;
+  prob_m2 = func->Eval(lKaon.Pt());
+   
+  return prob_m2;
+}
+
+void readnsigPID_func()
+{
+  string InPut = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/PID/nsig_PID_func_19GeV.root");
+  TFile *File = TFile::Open(InPut.c_str());
+  std::cout << "nsig PID file: " << InPut << endl; 
+
+  h_FramePhi_nsig = (TH1D*) File->Get("h_FramePhi_nsig");
+  h_FrameEta_nsig = (TH1D*) File->Get("h_FrameEta_nsig");
+
+  int nphinsig = h_FramePhi_nsig->GetNbinsX();
+  int netansig = h_FrameEta_nsig->GetNbinsX();
+
+  for(int icent = 0; icent < 3; icent++) 
+  {
+    for(int ic = 0; ic < 2; ic++)
+    {
+      for(int iphi = 0; iphi < nphinsig; iphi++)
+      {
+        for(int ieta = 0; ieta < netansig; ieta++)
+        {
+          string histname = Form("nsig_parameters_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          TH1D *Parameters = (TH1D*) File->Get(histname.c_str());
+
+          string funcname = Form("nsig_functions_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          func_nsig_PID[funcname] = new TF1(funcname.c_str(),nsig_PID_tanh,0.1,5.0,3);
+          for(int ipar = 0; ipar < Parameters->GetNbinsX(); ipar++)
+          {
+            func_nsig_PID[funcname]->SetParameter(ipar, Parameters->GetBinContent(ipar+1));  
+          } 
+        }
+      }
+    } 
+  }
+  for(int icent = 9; icent < 10; icent++) 
+  {
+    for(int ic = 0; ic < 2; ic++)
+    {
+      for(int iphi = 0; iphi < nphinsig; iphi++)
+      {
+        for(int ieta = 0; ieta < netansig; ieta++)
+        {
+          string histname = Form("nsig_parameters_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          TH1D *Parameters = (TH1D*) File->Get(histname.c_str());
+
+          string funcname = Form("nsig_functions_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+          func_nsig_PID[funcname] = new TF1(funcname.c_str(),nsig_PID_tanh,0.1,5.0,3);
+          for(int ipar = 0; ipar < Parameters->GetNbinsX(); ipar++)
+          {
+            func_nsig_PID[funcname]->SetParameter(ipar, Parameters->GetBinContent(ipar+1));  
+          } 
+        }
+      }
+    } 
+  }
+}
+
+void findnsigFuncPID(TLorentzVector const& lKaon, int icharge, int &PhiBin, int &EtaBin)
+{
+  double pt  = lKaon.Pt();
+  double eta = lKaon.PseudoRapidity();
+  double phi = lKaon.Phi();
+  while(phi < -TMath::Pi()) phi += 2.0*TMath::Pi();
+  while(phi >=  TMath::Pi()) phi -= 2.0*TMath::Pi();
+
+  PhiBin = h_FramePhi_nsig->FindBin(phi)-1;
+  EtaBin = h_FrameEta_nsig->FindBin(eta)-1;
+}
+
+double funcval_nsig_PID(int icharge, int icent, TLorentzVector const& lKaon, int PhiBin, int EtaBin)
+{
+  int centrebin = 0;
+  if(icent >= 0 && icent <= 3) centrebin = 0;
+  if(icent >= 4 && icent <= 6) centrebin = 1;
+  if(icent >= 7 && icent <= 8) centrebin = 2;
+  if(icent >= 9 && icent <= 9) centrebin = 9;
+
+  string KEY; 
+  KEY = Form("nsig_functions_cent%d_charge%d_eta%d_phi%d",centrebin,icharge,EtaBin,PhiBin);
+;
+  TF1 *func = func_nsig_PID[KEY]; // only 20-60%
+
+  double prob_nsig = 0.0;
+  prob_nsig = func->Eval(lKaon.Pt());
+   
+  return prob_nsig;
+}
+
+void readm2PID_hist()
+{
+  string InPut = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/PID/m2_PID_hist_19GeV.root");
+  TFile *File = TFile::Open(InPut.c_str());
+  std::cout << "m2 PID file: " << InPut << endl; 
+
+  int icent = 9;
+  for(int ic = 0; ic < 2; ic++)
+  {
+    string histname = Form("h_m2_PID_cent%d_charge%d",icent,ic);
+    h_m2_PID[histname] = (TH3F*)File->Get(histname.c_str());
+  } 
+}
+
+void findm2HistPID(TLorentzVector const& lKaon, int icharge, int &GlobalBin)
+{
+  double pt  = lKaon.Pt();
+  double eta = lKaon.PseudoRapidity();
+  double phi = lKaon.Phi();
+  while(phi < -TMath::Pi()) phi += 2.0*TMath::Pi();
+  while(phi >=  TMath::Pi()) phi -= 2.0*TMath::Pi();
+
+  int icent = 9;
+  string histname = Form("h_m2_PID_cent%d_charge%d",icent,icharge);
+  GlobalBin = h_m2_PID[histname]->FindBin(pt,eta,phi);
+}
+
+bool passhist_m2_PID(int icharge, int icent, TLorentzVector const& lKaon, int GlobalBin)
+{
+  TH3F *hist = NULL;
+
+  string KEY; 
+  KEY = Form("h_m2_PID_cent%d_charge%d",icent,icharge);
+  hist = h_m2_PID[KEY]; // only 20-60%
+
+  bool pass_m2 = false;
+  double prob_m2 = 0.0;
+  prob_m2 = hist->GetBinContent(GlobalBin);
+  pass_m2 = gRandom->Rndm() < prob_m2;
+   
+  return pass_m2;
+}
+
+double val_m2_PID(int icharge, int icent, TLorentzVector const& lKaon, int GlobalBin)
+{
+  TH3F *hist = NULL;
+
+  string KEY; 
+  KEY = Form("h_m2_PID_cent%d_charge%d",icent,icharge);
+  hist = h_m2_PID[KEY]; // only 20-60%
+
+  bool pass_m2 = false;
+  double prob_m2 = 0.0;
+  prob_m2 = hist->GetBinContent(GlobalBin);
+  //pass_m2 = gRandom->Rndm() < prob_m2;
+   
+  return prob_m2;
+}
+
+void readnsigPID_hist(int mTofFlag)
+{
+  string InPut = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/PID/nsig_PID_hist_19GeV.root");
+  if(mTofFlag) InPut = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/PID/nsig_PID_hist_19GeV_cut1.0.root");
+  TFile *File = TFile::Open(InPut.c_str());
+  std::cout << "m2 PID file: " << InPut << endl; 
+
+  int icent = 9;
+  for(int ic = 0; ic < 2; ic++)
+  {
+    string histname = Form("h_nsig_PID_cent%d_charge%d",icent,ic);
+    h_nsig_PID[histname] = (TH3F*)File->Get(histname.c_str());
+  } 
+}
+
+void findnsigHistPID(TLorentzVector const& lKaon, int icharge, int &GlobalBin)
+{
+  double pt  = lKaon.Pt();
+  double eta = lKaon.PseudoRapidity();
+  double phi = lKaon.Phi();
+  while(phi < -TMath::Pi()) phi += 2.0*TMath::Pi();
+  while(phi >=  TMath::Pi()) phi -= 2.0*TMath::Pi();
+
+  int icent = 9;
+  string histname = Form("h_nsig_PID_cent%d_charge%d",icent,icharge);
+  GlobalBin = h_nsig_PID[histname]->FindBin(pt,eta,phi);
+}
+
+bool passhist_nsig_PID(int icharge, int icent, TLorentzVector const& lKaon, int GlobalBin)
+{
+  TH3F *hist = NULL;
+
+  string KEY; 
+  KEY = Form("h_nsig_PID_cent%d_charge%d",icent,icharge);
+  hist = h_nsig_PID[KEY]; // only 20-60%
+
+  bool pass_nsig = false;
+  double prob_nsig = 0.0;
+  prob_nsig = hist->GetBinContent(GlobalBin);
+  pass_nsig = gRandom->Rndm() < prob_nsig;
+   
+  return pass_nsig;
+}
+
+double val_nsig_PID(int icharge, int icent, TLorentzVector const& lKaon, int GlobalBin)
+{
+  TH3F *hist = NULL;
+
+  string KEY; 
+  KEY = Form("h_nsig_PID_cent%d_charge%d",icent,icharge);
+  hist = h_nsig_PID[KEY]; // only 20-60%
+
+  bool pass_nsig = false;
+  double prob_nsig = 0.0;
+  prob_nsig = hist->GetBinContent(GlobalBin);
+  //pass_nsig = gRandom->Rndm() < prob_nsig;
+   
+  return prob_nsig;
+}
+
+
+
+ClassImp(StEffMcPhiHelicityGlobal)
+
+int StEffMcPhiHelicityGlobal::mInput_flag = 1;
+
+bool Sampling(TF1 *f_rhoPhy, float CosThetaStar, float max);
+bool SamplingHelicity(TF1 *f_rhoPhy, float CosThetaStar, float max);
+//bool Sampling2D(TF2 *f_rhoPhy, float ThetaStar, float beta, float max);
+bool Sampling2D(TF2 *f_rhoPhy, float ThetaStar, float beta, float max);
+bool Sampling2DWeight(TF2 *f_rhoPhy, float ThetaStar, float beta, float max);
+
+TF1* readv2(int energy, int pid, int centrality){
+  //string centFile[9] = {"4080","4080","4080","4080","1040","1040","1040","0010","0010"};
+  int tableNumV2[5][9] = {{0,0,0,0,0,0,0,0,0},
+                        {0,0,0,0,0,0,0,0,0},
+                        {0,0,0,0,0,0,0,0,0},
+                        {0,0,0,0,0,0,0,0,0},
+                        {239,239,239,239,141,141,141,43,43}};
+  
+  string centlabel = "4080";
+  if(centrality >= 4 && centrality <= 6) centlabel = "1040";
+  if(centrality >= 7 && centrality <= 8) centlabel = "0010";
+  TGraphAsymmErrors *g_v2;
+  if(energy != 3)
+  {
+    string InPutV2 = Form("/star/u/sunxuhit/AuAu%s/SpinAlignment/Phi/MonteCarlo/Data/Phi_v2_1040.root",vmsa::mBeamEnergy[energy].c_str());
+    if((energy == 2 || energy == 0) ) InPutV2 = "/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/HEPData-ins1395151-v2-root.root";
+    if(energy == 4 ) InPutV2 = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/v2/OutPhi_v2_Cent%s.root",centlabel.c_str());
+    TFile *File_v2 = TFile::Open(InPutV2.c_str());
+    std::cout << "v2 file: " << InPutV2 << endl;
+
+    g_v2 = (TGraphAsymmErrors*)File_v2->Get("g_v2");
+
+    if((energy == 2 || energy == 0) ) 
+    {
+      TDirectory *dir = (TDirectory*) File_v2->Get(Form("Table %d",tableNumV2[energy][centrality]));
+      dir->cd(); 
+      g_v2 = (TGraphAsymmErrors*)dir->Get("Graph1D_y1");
+    }
+    if(energy == 4) 
+    {
+      g_v2 = (TGraphAsymmErrors*) File_v2->Get("Graph");
+      g_v2->Print();
+    }
+  }
+  
+  //if( energy == 3 && mMode == 1 )
+  //{
+  //  int centidx = 0;
+  //  if(centrality >= 0 && centrality <= 3) centidx = 3;
+  //  if(centrality >= 4 && centrality <= 6) centidx = 2;
+  //  if(centrality >= 7 && centrality <= 8) centidx = 1;
+  //  g_v2 = new TGraphAsymmErrors();
+  //  for(int ipt = 0; ipt < phiv2_14::ptbins; ipt++)
+  //  {
+  //    g_v2->SetPoint(ipt, phiv2_14::pt[centidx][ipt], phiv2_14::v2[centidx][ipt]);
+  //    double stat = phiv2_14::stat[centidx][ipt];
+  //    double sys  = phiv2_14::sys[centidx][ipt];
+  //    double totalerr = TMath::Sqrt( stat*stat + sys*sys );
+  //    g_v2->SetPointError(ipt, 0.0, 0.0, totalerr, totalerr);  
+  //  }
+
+  //}
+
+
+  TF1 *f_v2 = new TF1("f_v2",v2_pT_FitFunc,vmsa::ptMin,vmsa::ptMax,5);
+  f_v2->FixParameter(0,2);
+  f_v2->SetParameter(1,0.1);
+  f_v2->SetParameter(2,0.1);
+  f_v2->SetParameter(3,0.1);
+  f_v2->SetParameter(4,0.1);
+  cout << "Fitting v2" << endl;
+  g_v2->Fit(f_v2,"N");
+
+  return f_v2;
+}
+
+StEffMcPhiHelicityGlobal::StEffMcPhiHelicityGlobal(int Energy, long StartEvent, long StopEvent, int PID, int year, int mode, int inputpt, int startpt, int stoppt, const char* setting, int etamode, int order = 2, int iter = 0, int study = 0, int method = 1, float realrho1n1 = 0.0, float rho00 = 1./3., float reterms = 0.0, float imterms = 0.0, float imagrho1n1 = 0.0, float rhohelicity = 1./3., float ptfixed = 0.0, float yfixed = 0.0) 
+{
+  mIter = iter;
+  mMethod = method;
+
+  mOrder = order;
+  energy = Energy;
+  pid = PID;
+  mInputPt = inputpt;
+  mStartPt = startpt;
+  mStopPt = stoppt;
+  mEtaMode = etamode;
+  mMode = mode;
+  rerho1n1 = realrho1n1;
+  imrho1n1 = imagrho1n1;
+  real = reterms;
+  imag = imterms;
+  mrho00 = rho00;
+
+  mrho00helicity = rhohelicity; 
+
+  mStudy = study;
+  
+  string studyname[3] = {"Pt","Centrality","Rapidity"};
+  
+  int nbinsstudy[3] = {4,9,10};
+
+   
+  std::string filenameCW = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/CentersAndWidths/CentersAndWidths_%s_Order%d_Method%d.txt",studyname[mStudy].c_str(),mOrder,mMethod); 
+  cout << filenameCW << endl;
+
+  std::ifstream fileCW(filenameCW);
+  cout << "Check if file is open" << endl;
+  if (!fileCW.is_open()) {
+      std::cerr << "Error: Failed to open file.\n";
+      return; // or handle the error gracefully
+  }
+  cout << "FILE IS OPEN" << endl;
+
+  std::string lineCW;
+
+  // Skip header line
+  std::getline(fileCW, lineCW);
+
+  // Store rows of 5 values
+  while (std::getline(fileCW, lineCW)) {
+      std::istringstream issCW(lineCW);
+      int idx;
+      float center, width;
+      //iss >> icut;
+      //iss >> irho;
+      //iss >> i;
+      //iss >> ipar;
+      ////iss >> ipar;
+      //iss >> value;
+      if (!(issCW >> idx >> center >> width)) {
+          std::cerr << "Warning: Malformed line -> " << lineCW << "\n";
+          continue;
+      }
+
+      mCenters[idx] = center;
+      mWidths[idx] = width;
+      cout << idx << "   " << mCenters[idx] << "   " << mWidths[idx]  << endl;
+  }
+
+
+  if(mIter >= 1)
+  {
+    std::string filename;
+    if(mOrder == 1) filename = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/rhoiter/rho_%s_%s_order1_iter%d_method%d.txt",vmsa::mBeamEnergy[energy].c_str(),studyname[mStudy].c_str(),mIter-1,mMethod); 
+    if(mOrder == 2) filename = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/rhoiter/rho_%s_%s_order3_iter%d_method%d.txt",vmsa::mBeamEnergy[energy].c_str(),studyname[mStudy].c_str(),mIter-1,mMethod); 
+    cout << filename << endl;
+
+    std::ifstream file(filename);
+    cout << "Check if file is open" << endl;
+    if (!file.is_open()) {
+        std::cerr << "Error: Failed to open file.\n";
+        return; // or handle the error gracefully
+    }
+    cout << "FILE IS OPEN" << endl;
+
+    std::string line;
+
+    // Skip header line
+    std::getline(file, line);
+
+    for(int idx = 0; idx < 10; idx++)
+    {
+      f_mRhoPt_2D_Iter[idx] = new TF2(Form("f_mRho2D_Iter_%d",idx),SpinDensity2Dcos,-1.0,1.0,0.0,2.0*TMath::Pi(),5);
+      f_mRhoPt_1D_Iter[idx] = new TF1(Form("f_mRho1D_Iter_%d",idx),SpinDensity,-1.0,1.0,2);
+    }
+
+    // Store rows of 5 values
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        int idx, irho;
+        float value;
+        if (!(iss >> idx >> irho >> value)) {
+            std::cerr << "Warning: Malformed line -> " << line << "\n";
+            continue;
+        }
+
+        if(mStudy == 1) idx += 2;
+
+        rhoiter[idx][irho] = value;
+        cout << idx << "   " << irho << "    " << value << endl;
+ 
+        if(mMethod == 2)
+        {
+          //f_mRhoPt_2D_Iter[idx] = new TF2(Form("f_mRho2D_Iter_%d",idx),SpinDensity2Dcos,-1.0,1.0,0.0,2.0*TMath::Pi(),5);
+          //for(int ipar = 0; ipar < 5; ipar++)
+          //{
+          f_mRhoPt_2D_Iter[idx]->FixParameter(irho,rhoiter[idx][irho]);
+          //}
+        }
+        if(mMethod == 1) 
+        {
+          //f_mRhoPt_1D_Iter[idx] = new TF1(Form("f_mRho1D_Iter_%d",idx),SpinDensity,-1.0,1.0,2);
+          f_mRhoPt_1D_Iter[idx]->FixParameter(0,rhoiter[idx][irho]);
+          f_mRhoPt_1D_Iter[idx]->FixParameter(1,3./4.);
+        }
+    }
+  }
+
+  for(int i = 0; i < 9; i++)
+  {
+    f_mV2[i] = readv2(energy,pid,i);
+  }
+  
+  std::string EP[2] = {"","2nd"};
+
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_prelimv2_EPeff_randomRP/%s_%s_yabs1_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_PhiEffFinerBins_prelimv2_flatRP_yabs1p1/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+  //string InPutFile = Form("/gpfs01/star/scratch/gwilks3/VectorMesonSpinAlignment/AuAu19GeV_2019/OutPut/CosEff/Phi_pt%d_y%d.root",ptfixed,yfixed);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/GlobalHelicityStudies/19GeV/Phi_pt%1.1f_y%1.1f.root",ptfixed,yfixed);
+  string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/GlobalHelicityStudies/19GeV/Phi_pt%1.1f_y%1.1f_pt%d_TTrees_NotPythia_20260224/cent%d_%d.root",ptfixed,yfixed,inputpt,startpt,stoppt);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_nov2_flatRP_yabs1_PhiEmbed/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_PhiEffFinerBins_nov2_flatRP_yabs1p1_flatpt/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_nov2_flatRP_yabs1p1/%s_%s_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_PhiEff/%s_%s_yabs1_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_v2times3/%s_%s_yabs1_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+  //string InPutFile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/Cos/EffAcc_NoRapiditySpectra_EP/%s_%s_eta1_pt%d.root",vmsa::mPID[pid].c_str(),vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str(),inputpt);
+
+  SetInPutFile(InPutFile); // set input list
+
+  SetStartEvent(StartEvent); // set start event
+  SetStopEvent(StopEvent); // set stop event
+
+  string OutPutFile = Form("Eff_%s_SingleParticle_%s_Mode%d_EtaMode%d_pt%1.1f_y%1.1f_ptbin%d_cent%d_%d.root",vmsa::mBeamEnergy[energy].c_str(),setting,mode,etamode,ptfixed,yfixed,inputpt,startpt,stoppt);
+  SetOutPutFile(OutPutFile); // set output file
+
+  mEffCut = new StEffCut();
+  mEffHistManger = new StEffHistMangerHelicityGlobal(energy, pid, mode, startpt, stoppt, ptfixed, yfixed);
+
+  cout << "Created histogram manager" << endl;
+
+  ////////////// LOAD 1ST ORDER EP INFORMATION //////////////////////////////
+  //TF1* f_res = new TF1("resolution",EventPlaneResolution,0,80,0);
+
+  //TString InPutFile_Res1 = Form("StRoot/Utility/EpdResolution/Resolution_file_%s_EpdCorrections_4.root",vmsa::mBeamEnergy[energy].c_str());
+  //mInPutFile_Res1 = TFile::Open(InPutFile_Res1.Data());
+
+  //TProfile *p_res1 = (TProfile*)mInPutFile_Res1->Get("AveCosDeltaPsi1");
+  //for(int icent = 0; icent < 9; icent++)
+  //{
+  //  float Res_raw1 = p_res1->GetBinContent(p_res1->FindBin(icent));
+  //  float Res1 = TMath::Sqrt(Res_raw1);
+  //  float Chi1 = f_res->GetX(Res1); // This is for sub  event plane resolution
+  //  Chi1 *= TMath::Sqrt(2.0);  // This is for full event plane resolution
+  //  cout << "Centrality = " << icent
+  //       << ",   Resolution1 = " << Res1
+  //       << ",   Chi1 = " << Chi1 << endl;
+
+  //  //Now store chi values
+  //  mChi[0][icent] = Chi1;
+  //}
+  //f_pDel1 = new TF1("deltaPsi1",EventPlaneDist1st,-TMath::Pi(),TMath::Pi(),2);
+  //f_pDel1->FixParameter(1,1.0/(2.0*TMath::Pi()));
+  ////////////// LOAD 1ST ORDER EP INFORMATION //////////////////////////////
+
+  ////////////// LOAD 2ND ORDER EP INFORMATION //////////////////////////////
+  //TString InPutFile_Res2 = Form("StRoot/Utility/Resolution/file_%s_Resolution.root",vmsa::mBeamEnergy[energy].c_str());
+  //mInPutFile_Res2 = TFile::Open(InPutFile_Res2.Data());
+
+  //TProfile *p_res2 = (TProfile*)mInPutFile_Res2->Get("p_mRes2_Sub");
+  //for(int icent = 0; icent < 9; icent++)
+  //{
+  //  float Res_raw2 = p_res2->GetBinContent(p_res2->FindBin(icent));
+  //  float Res2 = TMath::Sqrt(Res_raw2);
+  //  float Chi2 = f_res->GetX(Res2);
+
+  //  cout << "Centrality = " << icent
+  //       << ",   Resolution2 = " << Res2
+  //       << ",   Chi2 = " << Chi2 << endl;
+
+  //  //Now store chi values
+  //  mChi[1][icent] = Chi2;
+  //}
+  //f_pDel2 = new TF1("deltaPsi2",EventPlaneDist,-TMath::Pi()/2.0,TMath::Pi()/2.0,2);
+  //f_pDel2->FixParameter(1,1.0/(2.0*TMath::Pi()));
+  ////////////// LOAD 2ND ORDER EP INFORMATION //////////////////////////////
+
+ // cout << "Trying to load rho" << endl;
+ // std::string inputfilept     = Form("StRoot/Utility/Rho/%s/Rho_AccResSysErrors_F_0_eta1_eta1_PolySys_NoRapiditySpectra_FixedFirstEP.root",vmsa::mBeamEnergy[energy].c_str());
+ // if(mOrder == 1) inputfilept = Form("StRoot/Utility/Rho/%s/Rho_AccResSysErrors_F_0_eta1_eta1_PolySys_FirstOrder_NoRapiditySpectra_FixedFirstEP.root",vmsa::mBeamEnergy[energy].c_str());
+ // std::string inputfilecent;
+ // std::string inputfiley;
+ // if(mOrder == 1) inputfilecent = Form("StRoot/Utility/Rho/%s/RhoCent_AccResSysErrors_eta1_eta1_PolySys_FirstOrder_NoRapiditySpectra_FixedFirstEP.root",vmsa::mBeamEnergy[energy].c_str());
+ // if(mOrder == 2) inputfilecent = Form("StRoot/Utility/Rho/%s/RhoCent_AccResSysErrors_eta1_eta1_PolySys_NoRapiditySpectra_FixedFirstEP.root",vmsa::mBeamEnergy[energy].c_str());
+ // if(mOrder == 1) inputfiley = Form("StRoot/Utility/Rho/%s/RhoEta_AccResSysErrors_eta1_eta1_PolySys_FirstOrder_NoRapiditySpectra_FixedFirstEP.root",vmsa::mBeamEnergy[energy].c_str());
+ // if(mOrder == 2) inputfiley = Form("StRoot/Utility/Rho/%s/RhoEta_AccResSysErrors_eta1_eta1_PolySys_NoRapiditySpectra_FixedFirstEP.root",vmsa::mBeamEnergy[energy].c_str());
+
+ // //std::string inputfilecent = "StRoot/Utility/Rho/";
+ // //std::string inputfiley = "StRoot/Utility/Rho/";
+ // 
+ // cout << "Trying to open files" << endl;
+ // TFile *filept   = TFile::Open(inputfilept.c_str());
+ // TFile *filecent = TFile::Open(inputfilecent.c_str());
+ // TFile *filey    = TFile::Open(inputfiley.c_str());
+ // cout << "Opening files" << endl;
+ 
+
+ // TGraphAsymmErrors *g_rho_pt = (TGraphAsymmErrors*) filept->Get(Form("g_rho00_order%d_%s_%s_StatError",mOrder,vmsa::mBeamEnergy[energy].c_str(),vmsa::mPID[pid].c_str()));
+ // double helicityrho00[6] = {0.333333,0.333333,0.307032,0.295729,0.288274,0.246577};
+
+
+ // for(int ipt = 2; ipt < 6; ipt++)
+ // { 
+ //   f_mRhoPt[ipt] = new TF1(Form("f_mRho_pt%d",ipt),SpinDensity,-1.0,1.0,2);
+ //   f_mRhoPt_Helicity[ipt] = new TF1(Form("f_mRhoHelicity_pt%d",ipt),SpinDensity,-1.0,1.0,2);
+ //   f_mRhoPt_2D[ipt] = new TF2(Form("f_mRho2D_pt%d",ipt),SpinDensity2Dcos,-1.0,1.0,0.0,2.0*TMath::Pi(),5);
+ //   TF2 *temp = new TF2("temp",SpinDensity2Dcosneg,0.0,TMath::Pi(),0.0,2.0*TMath::Pi(),5);
+ //   double pt, rho; 
+ //   g_rho_pt->GetPoint(ipt,pt,rho);
+ //   cout << "ipt = " << ipt << ", pt = " << pt << ", rho = " << rho << endl;
+ //   //cout << "ipt = " << ipt << ", pt = " << pt << ", rho = " << rho << endl;
+ //   //f_mRhoPt[ipt]->FixParameter(0,0.5);
+ //   //f_mRhoPt[ipt]->FixParameter(0,rho); // set by data
+ //   f_mRhoPt[ipt]->FixParameter(0,mrho00);// set by user
+ //   f_mRhoPt[ipt]->FixParameter(1,0.75);
+
+ //   mMaxData[ipt] = f_mRhoPt[ipt]->GetMaximum(-1.0,1.0);
+ //   cout << "Maximum of data rh00 = " << mMaxData[ipt] << endl; 
+
+ //   //f_mRhoPt_Helicity[ipt]->FixParameter(0,helicityrho00[ipt]); // set by data
+ //   f_mRhoPt_Helicity[ipt]->FixParameter(0,mrho00helicity);       // set by user
+ //   f_mRhoPt_Helicity[ipt]->FixParameter(1,0.75);
+ // 
+ //   mMaxHelicity[ipt] = f_mRhoPt_Helicity[ipt]->GetMaximum(-1.0,1.0);
+ //   cout << "Maximum of helicity rh00 = " << mMaxHelicity[ipt] << endl; 
+
+ //   cout << "rho00 = " << mrho00 << ", rerho1n1 = " << rerho1n1 << endl;
+
+ //   f_mRhoPt_2D[ipt]->FixParameter(0,mrho00);
+ //   //f_mRhoPt_2D[ipt]->FixParameter(0,rho);
+ //   f_mRhoPt_2D[ipt]->FixParameter(1,real);
+ //   f_mRhoPt_2D[ipt]->FixParameter(2,imag);
+ //   f_mRhoPt_2D[ipt]->FixParameter(3,rerho1n1);
+ //   f_mRhoPt_2D[ipt]->FixParameter(4,imrho1n1);
+
+ //   temp->FixParameter(0,mrho00);
+ //   temp->FixParameter(1,real);
+ //   temp->FixParameter(2,imag);
+ //   temp->FixParameter(3,rerho1n1);
+ //   temp->FixParameter(4,imrho1n1);
+
+ //   //mMax = f_mRhoPt_2D[ipt]->GetMaximum();
+ //   //double x[2] = {TMath::Pi()/2.,TMath::Pi()/2.};
+ //   double x,y;
+ //   temp->GetMinimumXY(x,y);
+ //   cout << "Maximum x,y = " << x << "," << y << endl;
+ //   mMax = TMath::Abs(temp->Eval(x,y));
+ //   cout << "Maximum of the function is " << mMax << endl;
+
+ //   //cout << "x,y both = TMath::Pi()/2, eval func = " << temp->Eval(1.57113,1.5708) << endl;
+ // }  
+ 
+  //`for(int ipt = 0; ipt < vmsa::pt_rebin_cent; ipt++)
+  //`{
+  //`  TGraphAsymmErrors *g_rho_cent = (TGraphAsymmErrors*) filecent->Get(Form("rhoRawStat_pt_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_Poly1",ipt,EP[order-1].c_str(),0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str()));
+  //`  for(int icent = 0; icent < 9; icent++)
+  //`  {
+  //`    f_mRhoCent[ipt][icent] = new TF1(Form("f_mRho_pt%d_cent%d",ipt,icent),SpinDensity,-1.0,1.0,2);
+  //`    double cent, rho; 
+  //`    g_rho_cent->GetPoint(icent,cent,rho);
+  //`    cout << "ipt = " << ipt << ", cent = " << cent << ", rho = " << rho << endl;
+  //`    f_mRhoCent[ipt][icent]->FixParameter(0,rho);
+  //`    f_mRhoCent[ipt][icent]->FixParameter(1,0.75);
+  //`  }
+  //`}    
+
+  //`for(int ipt = 0; ipt < vmsa::pt_rebin_y; ipt++)
+  //`{
+  //`  for(int icent = 0; icent < vmsa::cent_rebin_total; icent++)
+  //`  {
+  //`    TGraphAsymmErrors *g_rho_y = (TGraphAsymmErrors*) filey->Get(Form("rhoRawStat_pt_%d_Centrality_%d_%s_Dca_%d_Sig_%d_%s_Norm_%d_Sigma_%d_%s_Poly%d",ipt,icent,EP[order-1].c_str(),0,0,vmsa::mPID[pid].c_str(),0,0,vmsa::mInteMethod[1].c_str(),1));
+  //`    for(int iy = 0; iy < 10; iy++)
+  //`    { 
+  //`      f_mRhoY[ipt][icent][iy] = new TF1(Form("f_mRho_pt%d_cent%d_y%d",ipt,icent,iy),SpinDensity,-1.0,1.0,2);
+  //`      double y, rho; 
+  //`      g_rho_y->GetPoint(iy,y,rho);
+  //`      cout << "ipt = " << ipt << ", icent = " << icent << ", y = " << y << ", rho = " << rho << endl;
+  //`      f_mRhoY[ipt][icent][iy]->FixParameter(0,rho);
+  //`      f_mRhoY[ipt][icent][iy]->FixParameter(1,0.75);
+  //`    }
+  //`  }
+  //`}    
+ 
+}
+
+StEffMcPhiHelicityGlobal::~StEffMcPhiHelicityGlobal()
+{
+}
+
+//------------------------------------------------------------
+void StEffMcPhiHelicityGlobal::SetInPutFile(const string inputfile)
+{
+  mInPutFile = inputfile;
+  cout << "Input file was set to: " << mInPutFile.c_str() << endl;
+}
+
+void StEffMcPhiHelicityGlobal::SetOutPutFile(const string outputfile)
+{
+  mOutPutFile = outputfile;
+  cout << "Output file was set to: " << mOutPutFile.c_str() << endl;
+}
+
+void StEffMcPhiHelicityGlobal::SetStartEvent(const long StartEvent)
+{
+  mStartEvent = StartEvent;
+  cout << "nStartEvent = " << mStartEvent << endl;
+}
+
+void StEffMcPhiHelicityGlobal::SetStopEvent(const long StopEvent)
+{
+  mStopEvent = StopEvent;
+  cout << "nStopEvent = " << mStopEvent << endl;
+}
+//------------------------------------------------------------
+
+void StEffMcPhiHelicityGlobal::Init()
+{
+
+  ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(2000000);
+
+  double ptstudybinedges[5] = {1.2,1.8,2.4,3.0,5.4};
+  double rapiditystudybinedges[11] = {-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8,1.0};
+
+
+  ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(200000);
+  //readEfficiency(energy,0,0,jobID);
+  //double mRes[9] = {0.135375,
+  //                  0.190329,
+  //                  0.279359,
+  //                  0.381296,
+  //                  0.465433,
+  //                  0.510842,
+  //                  0.490191,
+  //                  0.402453,
+  //                  0.28695 };
+  double mRes[9] = {0.4};
+  
+  //double mRes1[9] = {0.312647,
+  //                   0.400938,
+  //                   0.494778,
+  //                   0.566255,
+  //                   0.602419,
+  //                   0.599021,
+  //                   0.527111,
+  //                   0.386362,
+  //                   0.221173};
+  double mRes1[9] = {0.6};
+
+  TString InPutFile_Res = Form("StRoot/Utility/Resolution/file_%s_Resolution.root",vmsa::mBeamEnergy[energy].c_str());
+  mInPutFile_Res = TFile::Open(InPutFile_Res.Data());
+  TProfile *p_res2 = (TProfile*)mInPutFile_Res->Get("p_mRes2_Sub");
+
+  for(int icent = 0; icent < 9; icent++)
+  {
+    Float_t Res_raw = p_res2->GetBinContent(p_res2->FindBin(icent));
+    mRes[icent] = TMath::Sqrt(Res_raw);
+    cout << "Centrality = " << icent << ", Resolution2 = " << mRes[icent] << endl;
+
+  }
+
+  TString InPutFile_Res1 = Form("StRoot/Utility/EpdResolution/file_%s_EpdResEta_5.root",vmsa::mBeamEnergy[energy].c_str());
+  mInPutFile_Res1 = TFile::Open(InPutFile_Res1.Data());
+  TProfile *p_res1 = (TProfile*)mInPutFile_Res1->Get("p_res1_EPD_ring4");
+
+  for(int icent = 0; icent < 9; icent++)
+  {
+    Float_t Res_raw1 = p_res1->GetBinContent(p_res1->FindBin(icent));
+    mRes1[icent] = TMath::Sqrt(Res_raw1);
+    cout << "Cent " << icent << " Resolution1 = " << mRes1[icent] << endl;
+  }
+
+
+  for(int i = 0; i < 9; i++)
+  {
+
+    f_res[i] = new TF1(Form("resolution_%d",i),EventPlaneResolution,0,80,0);
+    mChi[i] = f_res[i]->GetX(0.4);
+    //mChi[i] = f_res[i]->GetX(mRes[i]);
+    f_pDel[i] = new TF1(Form("deltaPsi_%d",i),EventPlaneDist,-TMath::Pi()/2.0,TMath::Pi()/2.0,2);
+    f_pDel[i]->FixParameter(0,mChi[i]);
+    f_pDel[i]->FixParameter(1,1.0/(2.0*TMath::Pi()));
+
+
+    cout << "icent = " << i << ", mRes  = " << mRes[i] << endl;
+    cout << "icent = " << i << ", mRes1 = " << mRes1[i] << endl;
+
+    f_res1[i] = new TF1(Form("resolution1_%d",i),EventPlaneResolution,0,80,0);
+    //mChi1[i] = f_res1[i]->GetX(mRes1[i]); // This is for sub  event plane resolution
+    mChi1[i] = f_res1[i]->GetX(0.4); // This is for sub  event plane resolution
+    f_pDel1[i] = new TF1(Form("deltaPsi1_%d",i),EventPlaneDist1st,-TMath::Pi(),TMath::Pi(),2);
+    f_pDel1[i]->FixParameter(0,mChi1[i]*TMath::Sqrt(2.));
+    f_pDel1[i]->FixParameter(1,1.0/(2.0*TMath::Pi()));
+
+
+    cout << "icent = " << i << ", mChi  = " << mChi[i] << endl;
+    cout << "icent = " << i << ", sqrt(2)*mChi1 = " << mChi1[i]*TMath::Sqrt(2.) << endl;
+  }
+
+
+
+  mEffHistManger->InitHist(mBinCos,mBinPhi,mStudy);
+  cout << "Initialized Histograms" << endl;
+  //mEffHistManger->InitKaonHist();
+  //mEffHistManger->InitPhiHist();
+
+//  //readm2PID_hist();
+//  readm2PID_func();
+//  cout << "Read in m2 PID " << endl;
+//  //readnsigPID_hist(mTofFlag);
+//  readnsigPID_func();
+//  cout << "Read in nsig PID " << endl;
+//  readEfficiency(energy);
+//  readEfficiencyPhi(energy);
+//  cout << "Read in TPC Efficiency " << endl;
+
+  //ToFFile = TFile::Open(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/ToFMatching/ToFMatching_19GeV_cent8.root"));
+  //ToFHist[0] = (TH3F*) ToFFile->Get("kplus_cent0_ratio");
+  //ToFHist[0]->Print();
+  //ToFHist[1] = (TH3F*) ToFFile->Get("kminus_cent0_ratio");
+  //ToFHist[1]->Print();
+  //cout << "Read in TOF Efficiency " << endl;
+ 
+ 
+
+ 
+//  VzFile = TFile::Open(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/Vz/vz_19GeV.root"));
+//  h_mVz = (TH1F*) VzFile->Get("mVz");
+//  h_mVz->Print();
+//  h_mVzOut = new TH1F("mVzOut","mVzOut",h_mVz->GetNbinsX(),h_mVz->GetXaxis()->GetXmin(),h_mVz->GetXaxis()->GetXmax());
+//  h_mVzOut->Print();
+
+  h_mCos2PhiPsi = new TProfile("Cos2PhiPsi","Cos2PhiPsi",9,-0.5,8.5);
+  h_mCos2PhiPsi->Print();
+  h_mCosPhiPsi = new TProfile("CosPhiPsi","CosPhiPsi",9,-0.5,8.5);
+  h_mCosPhiPsi->Print();
+  h_mCos2PhiPsi1 = new TProfile("Cos2PhiPsi1","Cos2PhiPsi1",9,-0.5,8.5);
+  h_mCos2PhiPsi1->Print();
+  h_mCosPhiPsi1 = new TProfile("CosPhiPsi1","CosPhiPsi1",9,-0.5,8.5);
+  h_mCosPhiPsi1->Print();
+  h_mPsiPsiRandom = new TH2F("PsiPsiRandom","PsiPsiRandom",100,-TMath::Pi(),TMath::Pi(),100,-TMath::Pi(),TMath::Pi());
+  h_mPsiPsiRandom->Print();
+
+  h_mV1[0] = new TProfile("v1_MC","v1_MC",1,-0.5,0.5);
+  h_mV1[1] = new TProfile("v1_RC","v1_RC",1,-0.5,0.5);
+  h_mV2[0] = new TProfile("v2_MC","v2_MC",1,-0.5,0.5);
+  h_mV2[1] = new TProfile("v2_RC","v2_RC",1,-0.5,0.5);
+  //h_mPhiPsiEP = new TH1F("PhiPsiEP","PhiPsiEP",100,-TMath::Pi(),TMath::Pi());
+  //h_mPhiPsiRand = new TH1F("PhiPsiRand","PhiPsiRand",100,-TMath::Pi(),TMath::Pi());
+
+  // initialize the TNtuple
+  //gSystem->ListLibraries();
+  cout << "Right before inputfile" << endl;
+  cout << mInPutFile << endl;
+  mFile_InPut = TFile::Open(mInPutFile.c_str());
+  if (!mFile_InPut || mFile_InPut->IsZombie()) {
+    std::cerr << "Error opening file" << std::endl;
+    // Handle error, maybe exit
+  }
+
+  cout << "OPEN InPut File: " << mInPutFile.c_str() << endl;
+
+  if(pid == 0) mTTree = (TTree*) mFile_InPut->Get("McPhiMeson");
+
+  // initialize Ntuple
+  mTTree->SetBranchAddress("Centrality",&mCentrality);
+  mTTree->SetBranchAddress("PsiRP",&mPsi);
+  mTTree->SetBranchAddress("Psi1", &mPsi1);
+  mTTree->SetBranchAddress("Psi2", &mPsi2);
+
+  mTTree->SetBranchAddress("PhiPx",&mPhiPx);
+  mTTree->SetBranchAddress("PhiPy",&mPhiPy);
+  mTTree->SetBranchAddress("PhiPz",&mPhiPz);
+  mTTree->SetBranchAddress("PhiE", &mPhiE);
+
+  mTTree->SetBranchAddress("KpPx",&mKpPx);
+  mTTree->SetBranchAddress("KpPy",&mKpPy);
+  mTTree->SetBranchAddress("KpPz",&mKpPz);
+  mTTree->SetBranchAddress("KpE", &mKpE);
+
+  mTTree->SetBranchAddress("KmPx",&mKmPx);
+  mTTree->SetBranchAddress("KmPy",&mKmPy);
+  mTTree->SetBranchAddress("KmPz",&mKmPz);
+  mTTree->SetBranchAddress("KmE", &mKmE);
+
+  int num_tracks = mTTree->GetEntries();
+  cout << "Number of tracks in McPhiMeson = " << num_tracks<< endl;
+
+  if(mStartEvent > num_tracks) mStartEvent = num_tracks;
+  if(mStopEvent  > num_tracks) mStopEvent  = num_tracks;
+  cout << "New nStartEvent = " << mStartEvent << ", new nStopEvent = " << mStopEvent << endl;
+
+  mFile_OutPut = new TFile(mOutPutFile.c_str(),"RECREATE");
+  //f_y = new TF1("f_y",Form("exp(-x*x/2/%s)",mSigmay.c_str()),-1.0,1.0);
+
+  const double  pythialow[19] = { 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2};;
+  const double pythiahigh[19] = { 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2, 5.4};;
+
+  double norm[19] = {1.14659, 1.15282, 1.16102, 1.16754, 1.17421, 1.20569, 1.18756, 1.20748, 1.20482, 1.24736, 1.23579, 1.20088, 1.21209, 1.26302, 1.22473, 1.29652, 1.29134, 1.67825, 1.67648};
+  double mean[19] = {0.000950466, -0.00205036, 0.00635211, -0.00776218, -0.00329925, -0.00254986, 0.0106082, 0.00417584, 0.0110738, 0.0024981, 0.0287173, -0.0166698, -6.69877e-05, -0.0367374, -0.0154559, 0.0763402, -0.0882059, 0.113747, -0.173364};
+  double sigma[19] = {0.959611, 0.94694, 0.929603, 0.912229, 0.899472, 0.838369, 0.875892, 0.843554, 0.839229, 0.771095, 0.791428, 0.844824, 0.825385, 0.743799, 0.787513, 0.698393, 0.707714, 0.425395, 0.674687};
+
+  //double norm[19] = {1.14659, 1.15282, 1.16102, 1.16754, 1.17421, 1.20569, 1.18756, 1.20748, 1.20482, 1.24736, 1.23579, 1.20088, 1.21209, 1.26302, 1.22473, 1.29652, 1.29134, 1.67825, 1.67232};
+  //double mean[19] = {0.000950466, -0.00205036, 0.00635211, -0.00776218, -0.00329925, -0.00254986, 0.0106082, 0.00417584, 0.0110738, 0.0024981, 0.0287173, -0.0166698, -6.69877e-05, -0.0367374, -0.0154559, 0.0763402, -0.0882059, 0.113747, -0.142898};
+  //double sigma[19] = {0.959611, 0.94694, 0.929603, 0.912229, 0.899472, 0.838369, 0.875892, 0.843554, 0.839229, 0.771095, 0.791428, 0.844824, 0.825385, 0.743799, 0.787513, 0.698393, 0.707714, 0.425395, 0.742268};
+
+  for(int i = 0; i < 19; i++)
+  { 
+    pythiaflat[i]= new TF1(Form("pythiaflat_%d",i),"[0]*exp(-(x-[1])*(x-[1])/2/[2]/[2])",-1.0,1.0);
+    pythiaflat[i]->SetParameter(0,1.0/TMath::Sqrt(TMath::Pi()*2.0)/sigma[i]/TMath::Erf(1./TMath::Sqrt(2)/sigma[i]));
+    pythiaflat[i]->SetParameter(1,mean[i]);
+    pythiaflat[i]->SetParameter(2,sigma[i]);
+  }
+
+
+}
+
+void StEffMcPhiHelicityGlobal::Make()
+{
+  //std::random_device rd;
+  //std::mt19937 gen(rd());
+
+  double ptstudybinedges[5] = {1.2,1.8,2.4,3.0,5.4};
+  double rapiditystudybinedges[11] = {-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,0.8,1.0};
+  //double rapiditystudybinedges[6] = {0.0,0.2,0.4,0.6,0.8,1.0};
+
+  long start_event_use = mStartEvent;
+  long stop_event_use  = mStopEvent;
+  
+  
+  float ptbinedges[7] = {1.2,1.8,2.4,3.0,4.2,1.2,5.4};
+
+  double v2_7GeV[9] = {0.125818,0.125818,0.125818,0.125818,0.039951,0.039951,0.039951,0.013462,0.013462};
+
+  gRandom = new TRandom3();
+  gRandom->SetSeed();
+  //gRandom->SetSeed();
+ // mNtuple->GetEntry(0); // For unknown reasons root doesn't like it if someone starts to read a file not from the 0 entry
+
+  TF1 *f_flowreal = new TF1("f_flowreal",flowSampleNorm,-TMath::Pi(),TMath::Pi(),1);
+
+  double pTLevyParameters[9][3] = {{0.0122076,29.7477,0.195018},
+                                 {0.0122076,29.7477,0.195018},
+                                 {0.052985,23.8936,0.213681},
+                                 {0.052985,23.8936,0.213681},
+                                 {0.1211,50391.1,0.256257},
+                                 {0.188593,113.297,0.247588},
+                                 {0.27332,1.49425e+06,0.27385},
+                                 {0.409837,588417,0.271867},
+                                 {0.409837,588417,0.271867}};
+  TF1 *pTspectra[9];
+  double ptmaxes[9];
+  double ptnorms[9];
+  for(int icent = 0; icent < 9; icent++)
+  {
+    pTspectra[icent] = new TF1(Form("pTspectra_%d",icent),pTLevyNormalized,0.0,6.0,4);
+    for(int ipar = 0; ipar < 3; ipar++)
+    {
+      pTspectra[icent]->SetParameter(ipar,pTLevyParameters[icent][ipar]);
+    }
+    pTspectra[icent]->SetParameter(3,1.0);
+//    ptmaxes[icent] = pTspectra[icent]->GetMaximum();
+//    ptnorms[icent] = pTspectra[icent]->Integral(1.2,5.4);
+//    cout << "icent = " << icent << ", max  = " << ptmaxes[icent] << endl;
+//    cout << "icent = " << icent << ", norm = " << ptnorms[icent] << endl;
+  }
+
+//  int maxidx = TMath::LocMax(9,ptmaxes);
+//  int normidx = TMath::LocMax(9,ptnorms);
+//  cout << "max idx = " << maxidx << endl;
+// 
+//
+//  for(int icent = 0; icent < 9; icent++)  
+//  {
+//    double normalization_norm = ptnorms[normidx]/ptnorms[icent];
+//    double normalization_max = ptmaxes[maxidx]/ptmaxes[icent];
+//    cout << "icent = " << icent << ", normalization_max = " << normalization_max << endl;
+//    cout << "icent = " << icent << ", normalization_norm = " << normalization_norm << endl;
+//
+//    pTspectra[icent]->SetParameter(3,normalization_norm);
+//  }
+
+
+  //string inputfile = Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/%s/Efficiency/ptyspectra_datarcratio_%s.root",vmsa::mPID[pid].c_str(),vmsa::mBeamEnergy[energy].c_str());
+  //TFile *File_Spectra = TFile::Open(inputfile.c_str());
+  //TH2D *h_mSpectraRatio = (TH2D*) ((TH2D*) File_Spectra->Get("pty_datarcratio"))->Clone();
+  //double spectramax = h_mSpectraRatio->GetMaximum();
+  //h_mSpectraRatio->Scale(1./spectramax);
+  //cout << "spectra max = " << spectramax << ", normalzied max " << h_mSpectraRatio->GetMaximum() << endl;
+
+  //int eventtarget[4] = {1282940,301140,49281,7521};
+  //int eventtarget[4] = {1282940,301140,49281,100};
+  int eventtarget[6] = {1282940/400,301140/400,49281/400,7521/400,0,3000000/400};
+  int eventcounts[5][5] = {0};
+  int eventcountscent[5][40][4][2][2] = {0};
+
+  // [2] --> 0 == TPC+TOF, 1 == TPC Only, [4] --> Centralities {2,3,4,5}
+  int eventtargetcent[2][4] = {{215066/100, 433960/150, 836960/250, 1374000/350},
+                               {286649/100, 557476/150, 1111900/250, 1845500/350}};
+  //int eventtargetcent[2][4] = {{215066, 433960, 836960, 1374000},
+  //for(int i = 0; i < 19; i++) maxRapidity[i] = pythiaflat[i]->GetMaximum();
+  //std::random_shuffle(indices.begin(), indices.end(), [&](int stop_event_use) { return gRandom->Integer(stop_event_use); });
+
+  //float Centers[10] = {1.01948, 1.0192, 1.0193, 1.01929, 1.01935, 1.01932, 1.01934, 1.01929, 1.01916, 1.01871};
+  //float Widths[10] = {0.00472634, 0.00554642, 0.00543489, 0.00549556, 0.00545793, 0.00562504, 0.00566837, 0.00543217, 0.00562623, 0.00766693};
+
+
+
+  float Centers[20] = {
+                      1.01979,
+                      1.01929,
+                      1.01921,
+                      1.01927,
+                      1.01932,
+                      1.01938,
+                      1.01932,
+                      1.01931,
+                      1.01935,
+                      1.01937,
+                      1.01931,
+                      1.01938,
+                      1.01935,
+                      1.01933,
+                      1.01933,
+                      1.0193,
+                      1.01916,
+                      1.01923,
+                      1.01922,
+                      1.01802};
+
+  float Widths[20] = {
+                     0.00577762,
+                     0.00591744,
+                     0.00568268,
+                     0.00547138,
+                     0.0053927,
+                     0.00543833,
+                     0.00545122,
+                     0.00554825,
+                     0.00547315,
+                     0.00557866,
+                     0.0055438,
+                     0.0056577,
+                     0.00565501,
+                     0.00562766,
+                     0.00554065,
+                     0.00550593,
+                     0.00561318,
+                     0.00562575,
+                     0.0060122,
+                     0.00970733};
+
+
+    double RapidityBins[21] = {0.0};
+    for(int i = 0; i < 21; i++) {RapidityBins[i] = float(i-10)/10.; cout << "ybin edge = " << RapidityBins[i] << endl;}
+
+
+//  float Centers[8] = {
+//                   1.0192, 
+//                   1.0193, 
+//                   1.01929,
+//                   1.01935,
+//                   1.01932,
+//                   1.01934,
+//                   1.01929,
+//                   1.01916};
+//
+//  float Widths[8] = {
+//                  0.0055421, 
+//                  0.00543606,
+//                  0.0054964, 
+//                  0.00545731,
+//                  0.00562695,
+//                  0.00566979,
+//                  0.00543281,
+//                  0.00563775};
+
+//  float RapidityBins[9] = {-1.0,-0.6,-0.4,-0.2,0.0,0.2,0.4,0.6,1.0};
+
+
+  //float Centers[10] = {1.01973,
+  //                  1.01933,
+  //                  1.01933,
+  //                  1.01933,
+  //                  1.01942,
+  //                  1.01941,
+  //                  1.01936,
+  //                  1.01932,
+  //                  1.0193 ,
+  //                  1.01927};
+
+  //   float Widths[10] = {0.00579614, 
+  //                 0.00527172,
+  //                 0.00529874,
+  //                 0.00537653,
+  //                 0.00537651,
+  //                 0.00539351,
+  //                 0.00554963,
+  //                 0.00531796,
+  //                 0.00553582,
+  //                 0.00554026};
+
+  //TRandom3 randomGen;
+  //TFile *ToFFile_Fits = TFile::Open(Form("ToFMatching/ToFMatching_19GeV_Fits.root"));
+//  TH1F *h_FrameEta_PtRes;
+//  TH1F *h_FramePhi_PtRes;
+//  TH1F *h_FrameRapidity_PtRes;
+//  TFile *PtRes_Fits = TFile::Open(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/ptres/ptResolutionFunctions_19GeV_AllCent.root"));
+//  h_FrameEta_PtRes = (TH1F*) PtRes_Fits->Get("h_FrameEta_PtRes");
+//  h_FrameEta_PtRes->Print();
+//  h_FramePhi_PtRes = (TH1F*) PtRes_Fits->Get("h_FramePhi_PtRes");
+//  h_FramePhi_PtRes->Print();
+//  //h_FrameRapidity_PtRes = (TH1F*) PtRes_Fits->Get("h_FrameRapidity_PtRes");
+//  //h_FrameRapidity_PtRes->Print();
+//  
+//  int netares = h_FrameEta_PtRes->GetNbinsX();
+//  int nphires = h_FramePhi_PtRes->GetNbinsX();
+//  //int phinyres = h_FrameRapidity_PtRes->GetNbinsX();
+//  TH1D *ptres_fit_parameters[2][9][netares][nphires];
+//  TF1  *ptres_fits[2][9][netares][nphires];
+//  TH1D *ptresbias_fit_parameters[2][9][netares][nphires];
+//  TF1  *ptresbias_fits[2][9][netares][nphires];
+//
+//  for(int ic = 0; ic < 2; ic++)
+//  {
+//    for(int icent: {0,1,2,8})
+//    {
+//      for(int ieta = 0; ieta < netares; ieta++)
+//      {
+//        for(int iphi = 0; iphi < nphires; iphi++)
+//        {
+//          string histname = Form("ptres_fits_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+//          ptres_fit_parameters[ic][icent][ieta][iphi] = (TH1D*) PtRes_Fits->Get(histname.c_str());
+//          string funcname = Form("ptres_func_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+//          ptres_fits[ic][icent][ieta][iphi] = new TF1(funcname.c_str(),"([0] + [1]/x + [2]*x)*[3]",0.1,6.1);
+//          for(int i = 0; i < 3; i++)
+//          {
+//            ptres_fits[ic][icent][ieta][iphi]->FixParameter(i,ptres_fit_parameters[ic][icent][ieta][iphi]->GetBinContent(i+1));
+//            //cout << ", ic = " << ic << ", ieta = " << ieta << ",  iphi = " << iphi << ", parameter " << i << " = " << ptres_fit_parameters[ic][ieta][iphi]->GetBinContent(i+1) << endl;
+//          }
+//
+//          histname = Form("ptresbias_fits_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+//          ptresbias_fit_parameters[ic][icent][ieta][iphi] = (TH1D*) PtRes_Fits->Get(histname.c_str());
+//          funcname = Form("ptresbias_func_cent%d_charge%d_eta%d_phi%d",icent,ic,ieta,iphi);
+//          ptresbias_fits[ic][icent][ieta][iphi] = new TF1(funcname.c_str(),"(1-exp(-[0]*(x-[1])))-1+[2]+[3]*x*x",0.1,6.1);
+//          for(int i = 0; i < 4; i++)
+//          {
+//            ptresbias_fits[ic][icent][ieta][iphi]->FixParameter(i,ptresbias_fit_parameters[ic][icent][ieta][iphi]->GetBinContent(i+1));
+//            //cout << ", ic = " << ic << ", ieta = " << ieta << ",  iphi = " << iphi << ", parameter " << i << " = " << ptresbias_fit_parameters[ic][ieta][iphi]->GetBinContent(i+1) << endl;
+//          }
+//          //ptres_fits[iy][ic][ieta][iphi]->Print();
+//        }
+//      }
+//    }
+//  }
+  
+  TH1F *phirapidity = new TH1F("phirapidity","phirapidity",20,-1,1);
+
+
+//  TFile *ToFFile_Fits = TFile::Open(Form("/gpfs01/star/pwg/gwilks3/VectorMesonSpinAlignment/Data/Phi/ToFMatching/ToFMatching_19GeV_Cent26.root"));
+//  TH1F *h_FrameEtaToF = (TH1F*) ToFFile_Fits->Get("h_FrameEtaToF");
+//  h_FrameEtaToF->Print();
+//  TH1F *h_FramePhiToF = (TH1F*) ToFFile_Fits->Get("h_FramePhiToF");
+//  h_FramePhiToF->Print();
+//  
+//  string charge[3] = {"plus","minus","phi"};
+//
+//  int netatof = h_FrameEtaToF->GetNbinsX();
+//  int nphitof = h_FramePhiToF->GetNbinsX();
+//  TH1F* ToFFitParams[2][netatof][nphitof];
+//  TF1 *ToFFits[2][netatof][nphitof];
+//  for(int ic = 0; ic < 2; ic++)
+//  {
+//    for(int ieta =//// 0; ieta < netatof; ieta++)
+//    {
+//      for(int iphi = 0; iphi < nphitof; iphi++)
+//      {
+//        string histname = Form("fitParams_K%s_cent0_eta%d_phi%d",charge[ic].c_str(),ieta,iphi);
+//        ToFFitParams[ic][ieta][iphi] = (TH1F*) ToFFile_Fits->Get(histname.c_str());
+//        string funcname = Form("fitFunc_K%s_eta%d_phi%d",charge[ic].c_str(),ieta,iphi);
+//        //ToFFits[ic][ieta][iphi] = new TF1(funcname.c_str(),"[0] * (1 + TMath::Erf((x - [1]) / [2]))",0.0,7.0);
+//        ToFFits[ic][ieta][iphi] = new TF1(funcname.c_str(),"[0]/(1 + exp(-(x - [1]) / [2]))",0.0,7.0);
+//        for(int i = 0; i < 3; i++)
+//        {
+//          ToFFits[ic][ieta][iphi]->FixParameter(i,ToFFitParams[ic][ieta][iphi]->GetBinContent(i+1));
+//          //cout << "ic = " << ic << ", ieta = " << ieta << ",  iphi = " << iphi << ", parameter " << i << " = " << ToFFitParams[ic][ieta][iphi]->GetBinContent(i+1) << endl;
+//        }
+//        //ToFFits[ic][ieta][iphi]->Print();
+//      }
+//    }
+//  }
+
+  const double  pythiabins[20] = { 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2,5.4};;
+  const double  pythialow[19] = { 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2};;
+  const double pythiahigh[19] = { 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.6, 4.2, 5.4};;
+
+  TH1D *rapidityspectrum = new TH1D("rspectrum","rspectrum",19,pythiabins);
+
+  for(long i_track = start_event_use; i_track < stop_event_use; ++i_track) 
+  { 
+    //Long64_t randomIndex = indices.back(); //grab last value from randomly shuffled vector
+    //indices.pop_back(); // remove the value
+
+    //while(usedIndices.find(randomIndex) != usedIndices.end()) 
+    //{
+    //  randomIndex = gRandom->Integer(stop_event_use);
+    //}
+
+    //if(!mNtuple->GetEntry(randomIndex)) break;
+    //cout << "About to grab a random index" << endl;
+    //usedIndices.insert(randomIndex);
+    //cout << "Grabbed a random index" << endl;
+    
+    //if(usedIndices.find(randomIndex) == usedIndices.end()) 
+    //{
+    //  if(!mNtuple->GetEntry(randomIndex)) break;
+    //  //cout << "About to grab a random index" << endl;
+    //  usedIndices.insert(randomIndex);
+    //  //cout << "Grabbed a random index" << endl;
+    //}
+    //else 
+    //{
+    //  continue;
+    //}//
+
+    if (!mTTree->GetEntry(i_track)) break; // take track information
+    //if(!mNtuple->GetEntry(randomIndex)) break;
+    //  break;  // end of data chunk
+    if (floor(10.0*i_track/ static_cast<float>(stop_event_use)) > floor(10.0*(i_track-1)/ static_cast<float>(stop_event_use)))
+    {
+      cout << "=> processing data: " << 100.0*i_track/ static_cast<float>(stop_event_use) << "%" << endl;
+    }
+
+
+    McVecMeson McPhi; // initialize McPhi
+    mCentrality = 5;
+    McPhi.Centrality = mCentrality;
+    //McPhi.Centrality = 5;
+    //if(i_track%5000 == 0)
+    //{
+    //  int sum = 0;
+    //  for(int irho = 0; irho < 1; irho++)
+    //  {
+    //    for(int j = 20; j < 11; j++)
+    //    {
+    //      if(eventcounts[irho][j] > eventtarget[mInputPt] && mInputPt < 4) sum++;
+    //      if(mInputPt < 4) cout << irho << " " << j << " " << eventcounts[irho][j] << endl; 
+
+    //      if(mInputPt == 5) 
+    //      {
+    //        for(int iep = 0; iep < 2; iep++)
+    //        {
+    //          for(int iptres = 0; iptres < 2; iptres++)
+    //          {
+    //            if(eventcountscent[irho][j][(int)McPhi.Centrality-2][iep][iptres] > eventtargetcent[mTofFlag][(int)McPhi.Centrality-2]) sum++;
+    //            cout << irho << " " << j << " " << iep << " " << iptres << " " << eventcountscent[irho][j][(int)McPhi.Centrality-2][iep][iptres] << endl; 
+    //          }
+    //        }
+    //      }
+    //    }
+    //  }
+    //  if(mInputPt < 4 && sum == 25) break;
+    //  if(mInputPt == 5  && sum == 4) break;
+    //  cout << "Our check is okay " << sum << endl;
+    //}
+
+    //float zvertex = h_mVz->GetRandom();
+    //h_mVzOut->Fill(zvertex);
+    TLorentzVector lMcPhiGen;
+    lMcPhiGen.SetPxPyPzE(mPhiPx,mPhiPy,mPhiPz,mPhiE);
+    if(lMcPhiGen.M() <= 2.0*vmsa::mMassKaon) continue;
+    //cout << "phimeson mass = " << lMcPhiGen.M() << endl;
+
+    mPsi = gRandom->Uniform(-TMath::Pi(),TMath::Pi());
+
+    McPhi.Psi        = mPsi;
+    McPhi.Psi1       = mPsi;
+    McPhi.Psi2       = mPsi;
+    double delta = 0.0;
+    if(mOrder == 2) delta = f_pDel[mCentrality]->GetRandom();
+    McPhi.Psi2      = mPsi+delta;
+    double delta1;
+    if(mOrder == 1) delta1 = f_pDel1[mCentrality]->GetRandom();
+    //cout << delta
+
+    McPhi.Psi1      = mPsi+delta1;
+
+    while(McPhi.Psi2 < -0.5*TMath::Pi()) McPhi.Psi2 += TMath::Pi();
+    while(McPhi.Psi2 >= 0.5*TMath::Pi()) McPhi.Psi2 -= TMath::Pi();
+    while(McPhi.Psi1 <  -TMath::Pi()) McPhi.Psi1 += 2.0*TMath::Pi();
+    while(McPhi.Psi1 >=  TMath::Pi()) McPhi.Psi1 -= 2.0*TMath::Pi();
+
+    double PsiRC = McPhi.Psi1;
+    if(mOrder == 2) PsiRC = McPhi.Psi2;
+
+    TLorentzVector lMcKP;
+    lMcKP.SetPxPyPzE(mKpPx,mKpPy,mKpPz,mKpE);
+    TLorentzVector rl_kp = lMcKP;
+    TLorentzVector lMcKM;
+    lMcKM.SetPxPyPzE(mKmPx,mKmPy,mKmPz,mKmE);
+    TLorentzVector rl_km = lMcKM;
+
+    //cout << "K+ = " << endl;
+    //rl_kp.Print();
+  
+    //cout << "K- = " << endl;
+    //rl_km.Print();
+
+    TLorentzVector lMcPhi;
+    //lMcPhiGen.Print();
+
+    lMcPhi = lMcKP + lMcKM;
+
+    if(lMcPhi.M() <= 0.99 || lMcPhi.M() >= 1.019461 + (1.019461 - 0.99)) continue;
+
+    h_mCos2PhiPsi->Fill(McPhi.Centrality, TMath::Cos(2.0*(McPhi.Psi-McPhi.Psi2)));
+    h_mCosPhiPsi->Fill(McPhi.Centrality, TMath::Cos((McPhi.Psi-McPhi.Psi2)));
+    h_mCos2PhiPsi1->Fill(McPhi.Centrality, TMath::Cos(2.0*(McPhi.Psi-McPhi.Psi1)));
+    h_mCosPhiPsi1->Fill(McPhi.Centrality, TMath::Cos((McPhi.Psi-McPhi.Psi1)));
+
+    //lMcPhi.SetPtEtaPhiM(RcPhi.RcPt,RcPhi.RcEta,RcPhi.RcPhi,RcPhi.RcInvMass);
+    TVector3 vMcPhiBeta = -1.0*lMcPhi.BoostVector();
+    TVector3 phiMomentumLabUnit = lMcPhi.Vect().Unit();
+ 
+    lMcKP.Boost(vMcPhiBeta);
+    TVector3 vMcKP = lMcKP.Vect().Unit(); // direction of K+ momentum in phi-meson rest frame
+ 
+    double costheta = vMcKP.Dot(phiMomentumLabUnit);
+
+    TLorentzVector lBeamPos;
+    lBeamPos.SetPxPyPzE(0.0,0.0,9.75,9.796);
+    lBeamPos.Boost(vMcPhiBeta);
+    TLorentzVector lBeamNeg;
+    lBeamNeg.SetPxPyPzE(0.0,0.0,-9.75,9.796);
+    lBeamNeg.Boost(vMcPhiBeta);
+    
+    TLorentzVector lBeamTot = lBeamPos + lBeamNeg;
+  
+    TVector3 vBeamPos = lBeamPos.Vect();
+    TVector3 vBeamNeg = lBeamNeg.Vect();
+
+    TVector3 vBeamTotalUnit = lBeamTot.Vect().Unit();
+    TVector3 yaxisfrombeam = vBeamPos.Cross(vBeamNeg).Unit();
+
+    TVector3 zaxisfrombeam = vBeamTotalUnit;
+    TVector3 xaxisfrombeam = yaxisfrombeam.Cross(zaxisfrombeam).Unit();
+    
+    Double_t CosThetaStarH = vMcKP.Dot(zaxisfrombeam);
+
+    double xprojection = vMcKP.Dot(xaxisfrombeam);
+    double yprojection = vMcKP.Dot(yaxisfrombeam);
+  
+    double helicityangle = TMath::ATan2(yprojection,xprojection);
+    while(helicityangle < 0.0) helicityangle += 2.0*TMath::Pi();
+    while(helicityangle >= 2.0*TMath::Pi()) helicityangle -= 2.0*TMath::Pi();
+
+    TVector3 QVectorMc(TMath::Sin(McPhi.Psi),-1.0*TMath::Cos(McPhi.Psi),0.0);
+
+    double phistar = vMcKP.Phi();
+    TVector3 mcxprimeRP(0.0,0.0,1.0);
+    TVector3 mcyprimeRP(TMath::Cos(TMath::Pi()+McPhi.Psi),TMath::Sin(TMath::Pi()+McPhi.Psi),0.0);
+    Double_t mcproj_yprimeRP = vMcKP.Dot(mcyprimeRP);
+    Double_t mcproj_xprimeRP = vMcKP.Dot(mcxprimeRP);
+    Float_t mcphiprimeRP = TMath::ATan2(mcproj_yprimeRP,mcproj_xprimeRP);
+    while(mcphiprimeRP <  0.0) mcphiprimeRP += 2.0*TMath::Pi();
+    while(mcphiprimeRP >= 2.0*TMath::Pi()) mcphiprimeRP -= 2.0*TMath::Pi();
+
+    TVector3 nQMc = QVectorMc.Unit(); // direction of QVector
+    double McCosThetaStarRP = vMcKP.Dot(nQMc);
+
+    TVector3 QVectorRc(TMath::Sin(PsiRC),-1.0*TMath::Cos(PsiRC),0.0);
+    TVector3 nQRc = QVectorRc.Unit(); // direction of QVector
+
+    double phiPsi = lMcPhi.Phi() - McPhi.Psi;
+    //cout << "phiPsi = " << phiPsi/TMath::Pi() << endl;
+    while(phiPsi < -TMath::Pi()) phiPsi += 2.0*TMath::Pi();
+    while(phiPsi >=  TMath::Pi()) phiPsi -= 2.0*TMath::Pi();
+
+
+    double valRapidity = 0.0;
+    
+    //for(int i = 0; i < 19; i++)
+    //{
+    //  if(lMcPhi.Pt() >= pythialow[i] && lMcPhi.Pt() < pythiahigh[i]) 
+    //  {
+    //    valRapidity = pythiaflat[i]->Eval(lMcPhi.Rapidity());///maxRapidity[i];
+    //    break;
+    //  } 
+    //} 
+    int rapidityptbin = rapidityspectrum->FindBin(lMcPhi.Pt())-1;
+    if(rapidityptbin < 0 || rapidityptbin >= 19) continue; 
+    //  if(lMcPhi.Pt() >= pythialow[i] && lMcPhi.Pt() < pythiahigh[i]) 
+    //  {
+    //    valRapidity = pythiaflat[i]->Eval(lMcPhi.Rapidity());///maxRapidity[i];
+    //    break;
+    //  } 
+    //}  
+    valRapidity = pythiaflat[rapidityptbin]->Eval(lMcPhi.Rapidity());
+
+    if(valRapidity < 0) continue;
+ 
+    double weighty = valRapidity;
+
+
+    double v2real = f_mV2[int(McPhi.Centrality)]->Eval(lMcPhi.Pt());
+    f_flowreal->SetParameter(0,v2real);
+    //f_flowreal->SetParameter(0,v2real);
+    double weightflow = f_flowreal->Eval(phiPsi);
+    
+    //double weightpt = 
+    double weightpt = pTspectra[(int)McPhi.Centrality]->Eval(lMcPhi.Pt());
+
+    
+    int ybin = phirapidity->FindBin(lMcPhi.Rapidity())-1;
+
+
+
+    double etacuts[10] = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
+
+    TLorentzVector KaonPlus[42];// = {rl_kp, srl_kp};
+    TLorentzVector KaonMinus[42];// = {rl_km, srl_km};
+
+    double CosThetaStar[3][42];// = {{McCosThetaStarRP, sMcCosThetaStarRP},
+                                //{McCosThetaStarEP, sMcCosThetaStarEP}};
+   
+
+    double PhiPrime[2][42];// = {{mcphiprimeRP, smcphiprimeRP},
+                           // {mcphiprimeEP, smcphiprimeEP}};
+
+    TLorentzVector PhiMeson[42];// = {lMcPhi, slMcPhi};
+    
+    
+    //int resbinetap = h_FrameEta_PtRes->FindBin(rl_kp.Eta())-1;
+    //int resbinphip = h_FramePhi_PtRes->FindBin(rl_kp.Phi())-1;
+    //int resbinetam = h_FrameEta_PtRes->FindBin(rl_km.Eta())-1;
+    //int resbinphim = h_FramePhi_PtRes->FindBin(rl_km.Phi())-1;
+
+    //if(resbinetap < 0 || resbinetam < 0) continue;
+    //if(resbinetap >= netares || resbinetam >= netares) continue;
+    //if(resbinphip < 0 || resbinphim < 0) continue;
+    //if(resbinphip >= nphires || resbinphim >= nphires) continue;
+
+    
+    //int phiresbiny = h_FrameRapidity_PtRes->FindBin(lMcPhi.Rapidity())-1;    
+
+    int rescentbin = 8;
+    if(mStudy == 0) rescentbin = 8;
+    //if(mStudy != 0)
+    //{
+    //  if(McPhi.Centrality >= 0 && McPhi.Centrality <= 2) rescentbin = 0;
+    //  if(McPhi.Centrality >= 3 && McPhi.Centrality <= 5) rescentbin = 1;
+    //  if(McPhi.Centrality >= 6 && McPhi.Centrality <= 8) rescentbin = 2;
+    //}    
+
+
+    for(int iscale = 41; iscale < 42; iscale++)
+    {
+
+      double ptresp = 0.0;
+      double ptresm = 0.0;      
+
+      double ptresbiasp = 0.0;
+      double ptresbiasm = 0.0;
+      
+      double posPt = rl_kp.Pt();
+      double negPt = rl_km.Pt();
+
+      double deviationP = 0.0;//gRandom->Gaus(0,ptresp);
+      double deviationM = 0.0;//gRandom->Gaus(0,ptresm);
+
+      //if(iscale < 41)
+      //{
+
+      //  if(mStudy != 1) 
+      //  {
+      //    ptres_fits[0][rescentbin][resbinetap][resbinphip]->SetParameter(3,2.4+double(iscale-20)*0.03);
+      //    ptres_fits[1][rescentbin][resbinetam][resbinphim]->SetParameter(3,2.4+double(iscale-20)*0.03);
+      //  }
+      //  if(mStudy == 0 && mOrder == 1) 
+      //  {
+      //    ptres_fits[0][rescentbin][resbinetap][resbinphip]->SetParameter(3,2.7+double(iscale-20)*0.03);
+      //    ptres_fits[1][rescentbin][resbinetam][resbinphim]->SetParameter(3,2.7+double(iscale-20)*0.03);
+      //  }
+      //  if(mStudy == 1) 
+      //  {
+      //    ptres_fits[0][rescentbin][resbinetap][resbinphip]->SetParameter(3,2.7+double(iscale-20)*0.03);
+      //    ptres_fits[1][rescentbin][resbinetam][resbinphim]->SetParameter(3,2.7+double(iscale-20)*0.03);
+      //  }
+      //  ptresp = ptres_fits[0][rescentbin][resbinetap][resbinphip]->Eval(rl_kp.Pt());
+      //  ptresm = ptres_fits[1][rescentbin][resbinetam][resbinphim]->Eval(rl_km.Pt());
+      //  ptresbiasp = ptresbias_fits[0][rescentbin][resbinetap][resbinphip]->Eval(rl_kp.Pt());
+      //  ptresbiasm = ptresbias_fits[1][rescentbin][resbinetam][resbinphim]->Eval(rl_km.Pt());
+      //  
+      //  deviationP = gRandom->Gaus(0,ptresp);
+      //  deviationM = gRandom->Gaus(0,ptresm);
+      //}
+      posPt = rl_kp.Pt()*(1. + ptresbiasp + deviationP);
+      negPt = rl_km.Pt()*(1. + ptresbiasm + deviationM);
+      //posPt = rl_kp.Pt()*(1. + deviationP);
+      //negPt = rl_km.Pt()*(1. + deviationM);
+      
+
+
+      //if(iscale == 21) 
+      //{
+      //  posPt = rl_kp.Pt();
+      //  negPt = rl_km.Pt();
+      //}
+
+
+      TLorentzVector slMcKP;
+      slMcKP.SetPtEtaPhiM(posPt,rl_kp.Eta(),rl_kp.Phi(),rl_kp.M());
+      TLorentzVector srl_kp = slMcKP;
+      TLorentzVector slMcKM;
+      slMcKM.SetPtEtaPhiM(negPt,rl_km.Eta(),rl_km.Phi(),rl_km.M());
+      TLorentzVector srl_km = slMcKM;
+
+      TLorentzVector slMcPhi;
+      slMcPhi = slMcKP + slMcKM;
+      //lMcPhi.SetPtEtaPhiM(RcPhi.RcPt,RcPhi.RcEta,RcPhi.RcPhi,RcPhi.RcInvMass);
+      TVector3 svMcPhiBeta = -1.0*slMcPhi.BoostVector();
+      TVector3 sphiMomentumLabUnit = slMcPhi.Vect().Unit();
+ 
+      slMcKP.Boost(svMcPhiBeta);
+      TVector3 svMcKP = slMcKP.Vect().Unit(); // direction of K+ momentum in phi-meson rest frame
+ 
+      //double scostheta = svMcKP.Dot(sphiMomentumLabUnit);
+
+      //TLorentzVector slBeamPos;
+      //slBeamPos.SetPxPyPzE(0.0,0.0,9.75,9.796);
+      //slBeamPos.Boost(svMcPhiBeta);
+      //TLorentzVector slBeamNeg;
+      //slBeamNeg.SetPxPyPzE(0.0,0.0,-9.75,9.796);
+      //slBeamNeg.Boost(svMcPhiBeta);
+      //
+      //TLorentzVector slBeamTot = slBeamPos + slBeamNeg;
+  
+      //TVector3 svBeamPos = slBeamPos.Vect();
+      //TVector3 svBeamNeg = slBeamNeg.Vect();
+
+      //TVector3 svBeamTotalUnit = slBeamTot.Vect().Unit();
+      //TVector3 syaxisfrombeam = svBeamPos.Cross(svBeamNeg).Unit();
+
+      //TVector3 szaxisfrombeam = svBeamTotalUnit;
+      //TVector3 sxaxisfrombeam = syaxisfrombeam.Cross(szaxisfrombeam).Unit();
+      //
+      //Double_t sCosThetaStarH = svMcKP.Dot(szaxisfrombeam);
+
+      //double sxprojection = svMcKP.Dot(sxaxisfrombeam);
+      //double syprojection = svMcKP.Dot(syaxisfrombeam);
+  
+      //double shelicityangle = TMath::ATan2(syprojection,sxprojection);
+      //while(shelicityangle < 0.0) shelicityangle += 2.0*TMath::Pi();
+      //while(shelicityangle >= 2.0*TMath::Pi()) shelicityangle -= 2.0*TMath::Pi();
+
+      //double sphistar = svMcKP.Phi();
+
+      //TVector3 mcyprimeEP(TMath::Cos(TMath::Pi()+PsiRC),TMath::Sin(TMath::Pi()+PsiRC),0.0);
+      //Double_t mcproj_yprimeEP = vMcKP.Dot(mcyprimeEP);
+      //Double_t mcproj_xprimeEP = vMcKP.Dot(mcxprimeRP);
+      //Float_t mcphiprimeEP = TMath::ATan2(mcproj_yprimeEP,mcproj_xprimeEP);
+      //while(mcphiprimeEP <  0.0) mcphiprimeEP += 2.0*TMath::Pi();
+      //while(mcphiprimeEP >= 2.0*TMath::Pi()) mcphiprimeEP -= 2.0*TMath::Pi();
+
+      TVector3 smcyprimeRP(TMath::Cos(TMath::Pi()+McPhi.Psi),TMath::Sin(TMath::Pi()+McPhi.Psi),0.0);
+      Double_t smcproj_yprimeRP = svMcKP.Dot(smcyprimeRP);
+      Double_t smcproj_xprimeRP = svMcKP.Dot(mcxprimeRP);
+      Float_t smcphiprimeRP = TMath::ATan2(smcproj_yprimeRP,smcproj_xprimeRP);
+      while(smcphiprimeRP <  0.0) smcphiprimeRP += 2.0*TMath::Pi();
+      while(smcphiprimeRP >= 2.0*TMath::Pi()) smcphiprimeRP -= 2.0*TMath::Pi();
+
+      TVector3 smcyprimeEP(TMath::Cos(TMath::Pi()+PsiRC),TMath::Sin(TMath::Pi()+PsiRC),0.0);
+      Double_t smcproj_yprimeEP = svMcKP.Dot(smcyprimeEP);
+      Double_t smcproj_xprimeEP = svMcKP.Dot(mcxprimeRP);
+      Float_t smcphiprimeEP = TMath::ATan2(smcproj_yprimeEP,smcproj_xprimeEP);
+      while(smcphiprimeEP <  0.0) smcphiprimeEP += 2.0*TMath::Pi();
+      while(smcphiprimeEP >= 2.0*TMath::Pi()) smcphiprimeEP -= 2.0*TMath::Pi();
+
+      //double cosrandom = gRandom->Uniform(-1,1);
+      //double sinrandom = sqrt(1.-cosrandom*cosrandom);
+      double phirandom = gRandom->Uniform(-TMath::Pi(),TMath::Pi()); 
+
+      TVector3 nQRandom(TMath::Sin(phirandom),-1.0*TMath::Cos(phirandom),0.0);
+      //TVector3 nQRandom(sinrandom*cos(phirandom),sinrandom*sin(phirandom),cosrandom);
+
+      h_mPsiPsiRandom->Fill(McPhi.Psi1,phirandom);
+
+
+      //double McCosThetaStarEP = vMcKP.Dot(nQRc);
+      double sMcCosThetaStarRP = svMcKP.Dot(nQMc);
+      double sMcCosThetaStarEP = svMcKP.Dot(nQRc);
+
+      KaonPlus[iscale] = srl_kp;
+      KaonMinus[iscale] = srl_km;
+
+      CosThetaStar[0][iscale] = sMcCosThetaStarRP;
+      CosThetaStar[1][iscale] = sMcCosThetaStarEP;
+      CosThetaStar[2][iscale] = svMcKP.Dot(nQRandom);
+   
+      PhiPrime[0][iscale] = smcphiprimeRP;
+      PhiPrime[1][iscale] = smcphiprimeEP;
+
+      PhiMeson[iscale] = slMcPhi;
+    }
+    if(lMcPhi.Rapidity() > 1.0) continue; 
+    if(!(lMcPhi.Pt() >= ptbinedges[mInputPt] && lMcPhi.Pt() < ptbinedges[mInputPt+1])) continue; 
+
+    TF2 *rhofunc = new TF2("rhofunc",SpinDensity2Dcos,-1.0,1.0,0.0,2.0*TMath::Pi(),5);
+    rhofunc->FixParameter(0,1./3.+mrho00);
+    //rhofunc->FixParameter(0,1./3.);
+    rhofunc->FixParameter(1,0.0);
+    rhofunc->FixParameter(2,0.0);
+    rhofunc->FixParameter(3,rerho1n1);
+    rhofunc->FixParameter(4,0.0);
+    double valRho = rhofunc->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+    //double valRho = 1.0;//
+    double weightrho = valRho;
+
+    int idxbin = -1;
+    if(mStudy == 0)
+    { 
+      for(int ipt = 0; ipt < 4; ipt++)
+      {
+        if(lMcPhi.Pt() >= ptstudybinedges[ipt] && lMcPhi.Pt() < ptstudybinedges[ipt+1])
+        {
+          idxbin = ipt;
+        }
+      }
+    }
+    if(mStudy == 1) idxbin = mCentrality;
+    if(mStudy == 2) 
+    { 
+      for(int iy = 0; iy < 10; iy++)
+      {
+        if(lMcPhi.Rapidity() >= rapiditystudybinedges[iy] && lMcPhi.Rapidity() < rapiditystudybinedges[iy+1])
+        {
+          idxbin = iy;
+        }
+      }
+    }
+     
+
+    for(int iep = 1; iep < 2; iep++)
+    {
+      for(int iscale = 41; iscale < 42; iscale++)
+      //for(int iscale  )
+      {
+        //double weight = weightpt * weighty * weightflow * weightrho;
+        double weight = weightrho;
+        int idx = 0;
+
+        if(mIter > 0) 
+        {
+          if(mMethod == 2) valRho = f_mRhoPt_2D_Iter[idxbin]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+          if(mMethod == 1) valRho = f_mRhoPt_1D_Iter[idxbin]->Eval(McCosThetaStarRP);///maxRho[irho][j];
+          weightrho = valRho;
+          weight = weightpt *weighty * weightflow * weightrho;
+        }
+        
+        //if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],CosThetaStar[iep][0],PhiPrime[iep][iscale],PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+        //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Pt(),PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,idx,iep,iscale);
+        idx++;
+
+        if(TMath::Abs(PhiMeson[iscale].Rapidity()) > 1.0) continue; 
+        if(!(PhiMeson[iscale].Pt() >= ptbinedges[mInputPt] && PhiMeson[iscale].Pt() < ptbinedges[mInputPt+1])) continue; 
+
+        //if(mIter > 0) 
+        //{
+        //  valRho = f_mRhoPt_2D_Iter[idx][irho][j]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+        //  weightrho = valRho;
+        //  weight = weightpt *weighty * weightflow * weightrho;
+        //}
+        
+
+        //int sybin = -1;
+        //sybin = phirapidity->FindBin(PhiMeson[iscale].Rapidity())-1;
+
+        if(iscale == 41) 
+        {
+          mEffHistManger->FillHistCutSmearMC(McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[0][41],PhiPrime[0][41],weight,0,0,iscale);
+          mEffHistManger->FillHistCutSmearMC(McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[1][41],PhiPrime[1][41],weight,0,1,iscale);
+          mEffHistManger->FillHistRandom(0,McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[0][41],CosThetaStar[0][41],weight);
+          mEffHistManger->FillHistRandom(1,McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[1][41],CosThetaStar[2][41],weight);
+          //mEffHistManger->FillHistCutSmearMC(McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[0][41],PhiPrime[0][41],1.0,0,0,iscale);
+          //mEffHistManger->FillHistCutSmearMC(McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[1][41],PhiPrime[1][41],1.0,0,1,iscale);
+          //mEffHistManger->FillHistRandom(0,McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[0][41],CosThetaStar[0][41],1.0);
+          //mEffHistManger->FillHistRandom(1,McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[1][41],CosThetaStar[2][41],1.0);
+        
+          h_mV1[0]->Fill(0.0,cos(phiPsi));
+          h_mV2[0]->Fill(0.0,cos(2.*phiPsi));
+        }
+
+            
+        //int idx = 0;
+        
+        //if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],CosThetaStar[iep][0],PhiPrime[iep][iscale],PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+        //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,irho,j,idx,iep,iscale);
+        //idx++;
+
+        
+        //if(mIter > 0) 
+        //{
+        //  valRho = f_mRhoPt_2D_Iter[idx][irho][j]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+        //  weightrho = valRho;
+        //  weight = weightpt *weighty * weightflow * weightrho;
+        //}
+
+
+        if( KaonPlus[iscale].Pt() < 0.1 || KaonMinus[iscale].Pt() < 0.1) continue;
+        if( KaonPlus[iscale].P() > 10.0 || KaonMinus[iscale].P() > 10.0) continue;
+        if(fabs(KaonPlus[iscale].Eta()) >= 1.0 || fabs(KaonMinus[iscale].Eta()) >= 1.0) continue;
+
+        ////if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale]-CosThetaStar[iep][0],PhiPrime[iep][iscale]-PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+        //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,irho,j,idx,iep,iscale);
+        //idx++;
+
+//        double weight_eff_tpc_p = valtpcReconstructed(0,McPhi.Centrality,KaonPlus[41]);
+//        double weight_eff_tpc_m = valtpcReconstructed(1,McPhi.Centrality,KaonMinus[41]);
+//        if(weight_eff_tpc_p < 0.0) weight_eff_tpc_p = 0.0;  
+//        if(weight_eff_tpc_m < 0.0) weight_eff_tpc_m = 0.0;
+//        
+//        //double weight_eff_tpc_phi = valtpcReconstructedPhi(McPhi.Centrality,PhiMeson[41]);
+//        //if(weight_eff_tpc_phi < 0.0) weight_eff_tpc_phi = 0.0;
+//        
+//        //double weight_eff_tpc = weight_eff_tpc_phi;
+//        double weight_eff_tpc = weight_eff_tpc_p * weight_eff_tpc_m;
+//
+//        //weight *= weight_eff_tpc_p;                   
+//        //weight *= weight_eff_tpc_m;                   
+//        weight *= weight_eff_tpc;                   
+//
+//        //if(mIter > 0) 
+//        //{
+//        //  valRho = f_mRhoPt_2D_Iter[idx][irho][j]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+//        //  weightrho = valRho;
+//        //  weight = weightpt * weighty * weightflow * weightrho * weight_eff_tpc_p * weight_eff_tpc_m;
+//        //}
+//
+//        //////if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale]-CosThetaStar[iep][0],PhiPrime[iep][iscale]-PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+//        //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,irho,j,idx,iep,iscale);
+//        //idx++;
+//
+//        
+//        //Bool_t passnskp = true;
+//        //Bool_t passnskm = true;
+//        //int GlobalBinM = -1;
+//        //int GlobalBinP = -1;
+//        //findnsigHistPID(KaonMinus[iscale],0,GlobalBinM);
+//        //findnsigHistPID(KaonPlus[iscale],1,GlobalBinP);
+//
+//        //double weight_eff_nsig_m = val_nsig_PID(0,9,KaonMinus[iscale],GlobalBinM) ;
+//        //double weight_eff_nsig_p = val_nsig_PID(1,9,KaonPlus[iscale],GlobalBinP)  ;
+//        //if(weight_eff_nsig_p < 0.0) weight_eff_nsig_p = 0.0;  
+//        //if(weight_eff_nsig_m < 0.0) weight_eff_nsig_m = 0.0;
+//        //weight *= weight_eff_nsig_m;
+//        //weight *= weight_eff_nsig_p;
+//
+//        int PhiBinM = -1;
+//        int PhiBinP = -1;
+//        int EtaBinM = -1;
+//        int EtaBinP = -1;
+//        findnsigFuncPID(KaonMinus[iscale],0,PhiBinM,EtaBinM);
+//        findnsigFuncPID(KaonPlus[iscale],1,PhiBinP,EtaBinP);
+//
+//        double weight_eff_nsig_m;
+//        double weight_eff_nsig_p;
+//        //if(mStudy == 0) 
+//        //{
+//          weight_eff_nsig_m = funcval_nsig_PID(0,9,KaonMinus[iscale],PhiBinM,EtaBinM) ;
+//          weight_eff_nsig_p = funcval_nsig_PID(1,9,KaonPlus[iscale],PhiBinP,EtaBinP)  ;
+//        //}
+//        //if(mStudy != 0)
+//        //{
+//        //  weight_eff_nsig_m = funcval_nsig_PID(0,McPhi.Centrality,KaonMinus[iscale],PhiBinM,EtaBinM) ;
+//        //  weight_eff_nsig_p = funcval_nsig_PID(1,McPhi.Centrality,KaonPlus[iscale],PhiBinP,EtaBinP)  ;
+//        //}
+//        if(weight_eff_nsig_p < 0.0) weight_eff_nsig_p = 0.0;  
+//        if(weight_eff_nsig_m < 0.0) weight_eff_nsig_m = 0.0;
+//        weight *= weight_eff_nsig_m;
+//        weight *= weight_eff_nsig_p;
+//
+//        //if(mIter > 0) 
+//        //{
+//        //  valRho = f_mRhoPt_2D_Iter[idx][irho][j]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+//        //  weightrho = valRho;
+//        //  weight = weightpt * weighty * weightflow * weightrho * weight_eff_tpc_p * weight_eff_tpc_m * weight_eff_nsig_m * weight_eff_nsig_p;
+//        //}
+//    
+//        //////if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale]-CosThetaStar[iep][0],PhiPrime[iep][iscale]-PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+//        //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,irho,j,idx,iep,iscale);
+//        //idx++;
+//
+//        bool passToF = false;
+//        
+//        
+//        int GlobalBinEtaP = -1;
+//        int GlobalBinEtaM = -1;
+//        int GlobalBinPhiP = -1;
+//        int GlobalBinPhiM = -1;
+//
+//
+//        double kplus_phi = KaonPlus[iscale].Phi();
+//        double kminus_phi = KaonMinus[iscale].Phi();
+//         
+//        while(kplus_phi < -TMath::Pi()) kplus_phi += 2.0*TMath::Pi();
+//        while(kplus_phi >= TMath::Pi()) kplus_phi -= 2.0*TMath::Pi();
+//        while(kminus_phi < -TMath::Pi()) kminus_phi += 2.0*TMath::Pi();
+//        while(kminus_phi >= TMath::Pi()) kminus_phi -= 2.0*TMath::Pi();
+//
+//
+//        GlobalBinEtaP = h_FrameEtaToF->FindBin(KaonPlus[iscale].Eta())-1;
+//        GlobalBinEtaM = h_FrameEtaToF->FindBin(KaonMinus[iscale].Eta())-1;
+//        GlobalBinPhiP = h_FramePhiToF->FindBin(kplus_phi)-1;
+//        GlobalBinPhiM = h_FramePhiToF->FindBin(kminus_phi)-1;
+//        if(GlobalBinEtaP < 0 || GlobalBinEtaM < 0) passToF = false;   
+//        if(GlobalBinPhiP < 0 || GlobalBinPhiM < 0) passToF = false;   
+//        double valToFP = ToFFits[0][GlobalBinEtaP][GlobalBinPhiP]->Eval(KaonPlus[iscale].Pt());
+//        double valToFM = ToFFits[1][GlobalBinEtaM][GlobalBinPhiM]->Eval(KaonMinus[iscale].Pt());
+//          
+//        if(valToFP < 0) valToFP = 0.0;
+//        if(valToFM < 0) valToFM = 0.0;
+//        weight *= valToFP;
+//        weight *= valToFM;
+//
+//        //if(mIter > 0) 
+//        //{
+//        //  valRho = f_mRhoPt_2D_Iter[idx][irho][j]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+//        //  weightrho = valRho;
+//        //  weight = weightpt * weighty * weightflow * weightrho * weight_eff_tpc_p * weight_eff_tpc_m * weight_eff_nsig_m * weight_eff_nsig_p * valToFP * valToFM;
+//        //}
+//
+//
+//        ////if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale]-CosThetaStar[iep][0],PhiPrime[iep][iscale]-PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+//        //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,irho,j,idx,iep,iscale);
+//        //idx++;
+// 
+//        //Bool_t passm2kp = true;
+//        //Bool_t passm2km = true;
+//        //GlobalBinM = -1;
+//        //GlobalBinP = -1;
+//        //findm2HistPID(KaonMinus[iscale],0,GlobalBinM);
+//        //findm2HistPID(KaonPlus[iscale],1,GlobalBinP);
+// 
+//        //double weight_eff_m2_m = val_m2_PID(0,9,KaonMinus[iscale],GlobalBinM);
+//        //double weight_eff_m2_p = val_m2_PID(1,9,KaonPlus[iscale],GlobalBinP) ; 
+//        //if(weight_eff_m2_p < 0.0) weight_eff_m2_p = 0.0;  
+//        //if(weight_eff_m2_m < 0.0) weight_eff_m2_m = 0.0;
+//
+//        //weight *= weight_eff_m2_m;
+//        //weight *= weight_eff_m2_p;
+//
+//        PhiBinM = -1;
+//        PhiBinP = -1;
+//        EtaBinM = -1;
+//        EtaBinP = -1;
+//        findm2FuncPID(KaonMinus[iscale],0,PhiBinM,EtaBinM);
+//        findm2FuncPID(KaonPlus[iscale],1,PhiBinP,EtaBinP);
+// 
+//        double weight_eff_m2_m;
+//        double weight_eff_m2_p; 
+//        //if(mStudy == 0) 
+//        //{
+//          weight_eff_m2_m = funcval_m2_PID(0,9,KaonMinus[iscale],PhiBinM,EtaBinM);
+//          weight_eff_m2_p = funcval_m2_PID(1,9,KaonPlus[iscale],PhiBinP,EtaBinP) ; 
+//        //}
+//        //if(mStudy != 0)
+//        //{
+//        //  weight_eff_m2_m = funcval_m2_PID(0,McPhi.Centrality,KaonMinus[iscale],PhiBinM,EtaBinM);
+//        //  weight_eff_m2_p = funcval_m2_PID(1,McPhi.Centrality,KaonPlus[iscale],PhiBinP,EtaBinP) ; 
+//        //}
+//        if(weight_eff_m2_p < 0.0) weight_eff_m2_p = 0.0;  
+//        if(weight_eff_m2_m < 0.0) weight_eff_m2_m = 0.0;
+//
+//        weight *= weight_eff_m2_m;
+//        weight *= weight_eff_m2_p;
+//
+//        if(mIter > 0) 
+//        {
+//          if(mMethod == 2) valRho = f_mRhoPt_2D_Iter[idxbin]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+//          if(mMethod == 1) valRho = f_mRhoPt_1D_Iter[idxbin]->Eval(McCosThetaStarRP);///maxRho[irho][j];
+//          weightrho = valRho;
+//          weight = weightpt * weighty * weightflow * weightrho * weight_eff_tpc * weight_eff_nsig_m * weight_eff_nsig_p * valToFP * valToFM * weight_eff_m2_m * weight_eff_m2_p;
+//        }
+
+        ////if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale]-CosThetaStar[iep][0],PhiPrime[iep][iscale]-PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+        //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,irho,j,idx,iep,iscale);
+        //idx++;
+
+        
+        //if(mIter > 0) 
+        //{
+        //  valRho = f_mRhoPt_2D_Iter[idx][irho][j]->Eval(McCosThetaStarRP,mcphiprimeRP);///maxRho[irho][j];
+        //  weightrho = valRho;
+        //  weight = weightpt * weighty * weightflow * weightrho * weight_eff_tpc_p * weight_eff_tpc_m * weight_eff_nsig_m * weight_eff_nsig_p * valToFP * valToFM * weight_eff_m2_m * weight_eff_m2_p;
+        //}
+
+        if(PhiMeson[iscale].M() > mCenters[idxbin]-2.0*mWidths[idxbin] && PhiMeson[iscale].M() < mCenters[idxbin]+2.0*mWidths[idxbin]) 
+        {
+          ////if(iscale == 20 ) mEffHistManger->FillAngleSmear(McPhi.Centrality,PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale]-CosThetaStar[iep][0],PhiPrime[iep][iscale]-PhiPrime[iep][0],weight,irho,j,idx,iep,iscale);
+          mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Pt(),PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],weight,idx,iep,iscale);
+          mEffHistManger->FillHistRandom(2,McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[1][41],CosThetaStar[2][41],weight);
+          //mEffHistManger->FillHistCutSmear(McPhi.Centrality,PhiMeson[iscale].Pt(),PhiMeson[iscale].Rapidity(),CosThetaStar[iep][iscale],PhiPrime[iep][iscale],1.0,idx,iep,iscale);
+          //mEffHistManger->FillHistRandom(2,McPhi.Centrality,PhiMeson[41].Pt(),PhiMeson[41].Rapidity(),CosThetaStar[1][41],CosThetaStar[2][41],1.0);
+          h_mV1[1]->Fill(0.0,cos(phiPsi));
+          h_mV2[1]->Fill(0.0,cos(2.*phiPsi));
+        }
+        //mEffHistManger->FillPhiMass(idxbin,PhiMeson[iscale].M(),iscale,weight);
+        //if(PhiMeson[iscale].M() > mCenters[idxbin]-2.0*mWidths[idxbin] && PhiMeson[iscale].M() < mCenters[idxbin]+2.0*mWidths[idxbin]) mEffHistManger->FillPtRes(0,McPhi.Centrality,PhiMeson[iscale].Pt(),PhiMeson[iscale].Rapidity(),(KaonPlus[iscale].Pt()-rl_kp.Pt())/rl_kp.Pt(),iscale,weight);
+        //if(PhiMeson[iscale].M() > mCenters[idxbin]-2.0*mWidths[idxbin] && PhiMeson[iscale].M() < mCenters[idxbin]+2.0*mWidths[idxbin]) mEffHistManger->FillPtRes(1,McPhi.Centrality,PhiMeson[iscale].Pt(),PhiMeson[iscale].Rapidity(),(KaonMinus[iscale].Pt()-rl_km.Pt())/rl_km.Pt(),iscale,weight);
+        
+      }
+    }
+    
+    //cout << "After MC Fill 2" << endl;
+    //mEffHistManger->FillHistMc(McPhi.Centrality,RcPhi.RcPt,RcPhi.RcY,RcPhi.RcPhi,RcCosThetaStar,Psi,phistarRc,phiprimeRc);
+    //mEffHistManger->FillKaonHistMc(McPhi.Centrality,McPhi.McPhi,McPhi.McPt,McPhi.McY,McKP.McPt,McKP.McY,McKP.McEta,McKP.McPhi,phistar,McCosThetaStar,costheta); // K+
+    //cout << "After MC Fill 3" << endl;
+    //mEffHistManger->FillKaonHistMc(McPhi.Centrality,McPhi.McPhi,McPhi.McPt,McPhi.McY,McKM.McPt,McKM.McY,McKM.McEta,McKM.McPhi,phistar,McCosThetaStar,costheta); // K-
+    //cout << "After MC Fill 4" << endl;
+    //mEffHistManger->FillKaonDeltaHistMc(McPhi.Centrality,McPhi.McPhi,McPhi.McEta,McPhi.McPt,McPhi.McY,McKP.McPt,McKP.McEta,McKP.McPhi,McKM.McPt,McKM.McEta,McKM.McPhi,phistar); // K-
+    //cout << "After MC Fill 5" << endl;
+/*
+    if(mEtaMode == 0)
+    {
+      //if( fabs(McKP.McEta) > 0.5 || fabs(McKM.McEta) > 0.5 ) continue; // eta cuts for McPhi 
+      if( fabs(McKP.McEta) > 1.0 || fabs(McKM.McEta) > 1.0 ) continue; // eta cuts for McPhi 
+    }
+    else if(mEtaMode == 1)
+    {
+      if(    ! (fabs(McKP.McEta) <= 1.0 && (fabs(McKM.McEta) < 1.5 && fabs(McKM.McEta) > 1.0) ) 
+          && ! (fabs(McKM.McEta) <= 1.0 && (fabs(McKP.McEta) < 1.5 && fabs(McKP.McEta) > 1.0) ) ) continue; // eta cuts for McPhi 
+    }
+    else if(mEtaMode == 2)
+    {
+      if( ! (fabs(McKM.McEta) < 1.5 && fabs(McKM.McEta) > 1.0 && fabs(McKP.McEta) < 1.5 && fabs(McKP.McEta) > 1.0 ) ) continue; // eta cuts for McPhi 
+    }
+    else if(mEtaMode == 3)
+    {
+      if( fabs(McKP.McEta) > 0.4 || fabs(McKM.McEta) > 0.4 ) continue; // eta cuts for McPhi 
+    }
+    else if(mEtaMode == 4)
+    {
+      if( fabs(McKP.McEta) > 0.6 || fabs(McKM.McEta) > 0.6 ) continue; // eta cuts for McPhi 
+    }
+    else if(mEtaMode == 5)
+    {
+      if( fabs(McKP.McEta) > 0.8 || fabs(McKM.McEta) > 0.8 ) continue; // eta cuts for McPhi 
+    }
+
+
+
+    //cout << "Right Before RC Fill " << endl;
+    if( !mEffCut->passTrackCut(RcKP) ) continue; // eta and TPC cuts for RcKplus
+    if( !mEffCut->passTrackCut(RcKM) ) continue; // eta and TPC cuts for RcKminus
+    if( !mEffCut->passTrackCutPhi(RcPhi) ) continue;  // eta cuts for RcPhi 
+    mEffHistManger->FillPhiHistRc(McPhi.Centrality,RcPhi.RcPt,RcPhi.RcPhi,RcPhi.RcY,phistarRc,RcCosThetaStar,costhetaRc,RcKP.RcPt,RcKP.RcY);
+    mEffHistManger->FillHistRc(McPhi.Centrality,RcPhi.RcPt,RcPhi.RcY,RcPhi.RcPhi,RcCosThetaStar,Psi,phistarRc,phiprimeRc,RcKP.RcPt,RcKP.RcY,costhetaRc);
+    //mEffHistManger->FillKaonHistRc(McPhi.Centrality,RcPhi.RcPhi,RcPhi.RcPt,RcPhi.RcY,RcKP.RcPt,RcKP.RcY,RcKP.RcEta,RcKP.RcPhi,phistarRc,RcCosThetaStar,costhetaRc); // K+
+    mEffHistManger->FillKaonHistRc(McPhi.Centrality,RcPhi.RcPhi,RcPhi.RcPt,RcPhi.RcY,RcKM.RcPt,RcKM.RcY,RcKM.RcEta,RcKM.RcPhi,phistarRc,RcCosThetaStar,costhetaRc); // K-
+    mEffHistManger->FillKaonDeltaHistRc(McPhi.Centrality,RcPhi.RcPhi,RcPhi.RcEta,RcPhi.RcPt,RcPhi.RcY,RcKP.RcPt,RcKP.RcEta,RcKP.RcPhi,RcKM.RcPt,RcKM.RcEta,RcKM.RcPhi,phistarRc); // K-
+
+    //cout << "After RC Fill " << endl;
+    //cout << "Is RcPhi.RcPt = McPhi.McPt?           "; if(RcPhi.RcPt == McPhi.McPt) cout << "YES" << endl; else cout << "NO" << endl;
+    //cout << "RcPhi.RcPt = " << RcPhi.RcPt << "   McPhi.McPt = " << McPhi.McPt << endl;
+    //cout << "Is RcPhi.RcP = McPhi.McP?             "; if(RcPhi.RcP == McPhi.McP) cout << "YES" << endl; else cout << "NO" << endl;
+    //cout << "RcPhi.RcP = " << RcPhi.RcP << "   McPhi.McP = " << McPhi.McP << endl;
+    //cout << "Is RcPhi.RcEta = McPhi.McEta?         "; if(RcPhi.RcEta == McPhi.McEta) cout << "YES" << endl; else cout << "NO" << endl;
+    //cout << "RcPhi.RcEta = " << RcPhi.RcEta << "   McPhi.McEta = " << McPhi.McEta << endl;
+    //cout << "Is RcPhi.RcPhi = McPhi.McPhi?         "; if(RcPhi.RcPhi == McPhi.McPhi) cout << "YES" << endl; else cout << "NO" << endl;
+    //cout << "RcPhi.RcPhi = " << RcPhi.RcPhi << "   McPhi.McPhi = " << McPhi.McPhi << endl;
+    //cout << "Is RcPhi.RcInvMass = McPhi.McInvMass? "; if(RcPhi.RcInvMass == McPhi.McInvMass) cout << "YES" << endl; else cout << "NO" << endl;
+    //cout << "RcPhi.RcInvMass = " << RcPhi.RcInvMass << "   McPhi.McInvMass = " << McPhi.McInvMass << endl;
+  */
+  }
+  
+  cout << "=> processing data: 100%" << endl;
+  cout << "work done!" << endl;
+  //mEffHistManger->CalEffCosThetaStar();
+  //cout << "calculated efficiency" << endl;
+}
+
+void StEffMcPhiHelicityGlobal::Finish()
+{
+  mFile_OutPut->cd();
+  cout << "before writing hist" << endl;
+  mEffHistManger->WriteHist();
+  cout << "after writing hist" << endl;
+  //h_mVzOut->Write();
+  h_mCos2PhiPsi->Write();
+  h_mCosPhiPsi->Write();
+  h_mCos2PhiPsi1->Write();
+  h_mCosPhiPsi1->Write();
+  h_mPsiPsiRandom->Write();
+  h_mV1[0]->Write();
+  h_mV1[1]->Write();
+  h_mV2[0]->Write();
+  h_mV2[1]->Write();
+  cout << "FINISHED ALL WRITING" << endl;
+  mFile_OutPut->Close();
+  cout << "FINISHED ALL WRITING ANG CLOSED FILE" << endl;
+}
+
+bool Sampling(TF1 *f_rhoPhy, float CosThetaStar, float wMax)
+{
+  return !(gRandom->Rndm() > f_rhoPhy->Eval(CosThetaStar)/wMax);
+}
+bool SamplingHelicity(TF1 *f_rhoPhy, float CosThetaStar, float wMax)
+{
+  return !(gRandom->Rndm() > f_rhoPhy->Eval(CosThetaStar)/wMax);
+}
+
+bool Sampling2D(TF2 *f_rhoPhy, float ThetaStar, float PhiPrime, float wMax)
+{
+  return !(gRandom->Rndm() > f_rhoPhy->Eval(ThetaStar,PhiPrime)/wMax);
+}
+bool Sampling2DWeight(TF2 *f_rhoPhy, float ThetaStar, float PhiPrime, float wMax)
+{
+  return f_rhoPhy->Eval(ThetaStar,PhiPrime);
+}
+

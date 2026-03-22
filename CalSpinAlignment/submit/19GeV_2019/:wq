@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="1" filesPerHour="10" maxFilesPerProcess="1" fileListSyntax="paths" simulateSubmission="false">
+
+  <command>
+    root -l -b -q processKaonTTrees.C\(&energy;,0,\"&SM;\",\"$FILELIST\",\"$JOBID\"\)
+  </command>
+
+  <SandBox>
+    <Package>
+      <File>file:&codePath;/processKaonTTrees.C</File>
+    </Package>
+  </SandBox>
+
+  <input URL="filelist:&listPath;/kaonTTrees&SM;_TPCOnly_eta1p5.list" />
+  <stdout URL="file:&outPath;/Log/ProcessKaonTTrees/&outDir;/&SM;_$JOBID.out"/>
+  <stderr URL="file:&outPath;/Log/ProcessKaonTTrees/&outDir;/&SM;_$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/ProcessKaonTTrees/&outDir;/" />
+
+</job>
+

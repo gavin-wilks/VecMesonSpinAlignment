@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<job minFilesPerProcess="2" filesPerHour="10" maxFilesPerProcess="5" fileListSyntax="xrootd" simulateSubmission="false">
+
+  <command>
+    starver &library;
+    root4star -l -b -q ToFMatching.C\(\"$FILELIST\",\"$JOBID\",&energy;,&pid;\) </command>
+
+  <SandBox installer="ZIP">
+    <Package>
+      <File>file:&codePath;/ToFMatching.C</File>
+      <File>file:&codePath;/StRoot</File>
+      <File>file:&codePath;/.sl73_gcc485</File>
+    </Package>
+  </SandBox>
+
+  <!--input URL="filelist:/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/PidFlow/FileList/19p6GeV_2019/pico_chunk_&chunk;.list"/-->
+  <input URL="filelist:/star/u/gwilks3/Workspace/VectorMesonSpinAlignment/VecMesonSpinAlignment/ToFMatching/submit/7GeV_2021/resubmit.list" />
+  <!--stdout URL="file:&outPath;/Log/SpinAlignment/&outDir;_&SM;_$JOBID.out"/-->
+  <stdout discard="true"/>
+  <stderr URL="file:&outPath;/Log/&outDir;/$JOBID.err"/>
+
+  <Generator>
+    <ReportLocation>./JOBS/report/</ReportLocation>
+    <ScriptLocation>./JOBS/csh/</ScriptLocation>
+    <ListLocation>./JOBS/list/</ListLocation>
+  </Generator>
+
+  <output fromScratch="*.root" toURL="file:&outPath;/OutPut/&outDir;/" />
+
+</job>
+

@@ -254,7 +254,7 @@ namespace vmsa
   // int const BinPt  = 20;
   int const BinEta = 10;
   int const BinY = 30;
-  int const BinPhi = 36;
+  int const BinPhi = 12;
   int const BinCos = 7;
 
   // used in McPhiResCorr
