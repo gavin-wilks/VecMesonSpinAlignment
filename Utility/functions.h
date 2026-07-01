@@ -16,16 +16,6 @@ double Poly1Voigt(double *x, double *par)
   return norm * TMath::Voigt(xp,sigma,gamma) + par[4] + par[5]*xp;
 }
 
-double ExpVoigt(double *x, double *par)
-{
-  double xp = x[0]-par[0];
-  double sigma = par[1];
-  double gamma = par[2];
-  double norm = par[3];
- 
-  return norm * TMath::Voigt(xp,sigma,gamma) + par[4]*exp(par[5]*xp);
-}
-
 double Poly2Voigt(double *x, double *par)
 {
   double xp = x[0]-par[0];
@@ -34,6 +24,16 @@ double Poly2Voigt(double *x, double *par)
   double norm = par[3];
  
   return norm * TMath::Voigt(xp,sigma,gamma) + par[4] + par[5]*xp + par[6]*xp*xp;
+}
+
+double ExpVoigt(double *x, double *par)
+{
+  double xp = x[0]-par[0];
+  double sigma = par[1];
+  double gamma = par[2];
+  double norm = par[3];
+ 
+  return norm * TMath::Voigt(xp,sigma,gamma) + par[4]*exp(par[5]*xp);
 }
 
 double Voigt(double *x, double *par)
@@ -365,6 +365,29 @@ double SingleParticleGaussian(double *x, double *p)
   return (GaussX1);
 }
 
+
+
+double SpinDensity2DcosRP(double *x, double *p)
+{
+  double s2 = 1. - x[0]*x[0];
+  if(s2 < 0.0) s2 = 0.0;
+
+  double cospsi = p[6];
+  double cos2psi = p[7];
+
+  double rho = p[0]*(1.+cos2psi)/2. + (1.-p[0]+2.*p[3])*(1.-cos2psi)/4.;
+  double real = p[1]*cospsi;
+  double imag = p[2]*cos2psi;
+  double rerho1n1 = 1./8.*(3.*p[0]-1.+6.*p[3] - (3.*p[0]-1.-2.*p[3])*cos2psi);
+  double imrho1n1 = p[4]*cospsi;
+
+
+  return p[5]*(2./3.+(rho-1./3.)*(3*x[0]*x[0]-1.)
+               -sqrt(2.)*real*2*x[0]*TMath::Sqrt(s2)*cos(x[1])
+               +sqrt(2.)*imag*2*x[0]*TMath::Sqrt(s2)*sin(x[1])
+               -2.*rerho1n1*(s2)*cos(2.*x[1])
+               +2.*imrho1n1*(s2)*sin(2.*x[1]));
+}
 
 
 double SpinDensity2Dcos(double *x, double *p)
@@ -815,6 +838,32 @@ double Poly1MBreitWigner(double *x_val, double *par)
 
   return y;
 }
+//double Thresh(double *x_val, double *par)
+//{
+//  double x = x_val[0];
+//
+//  double mThr = 0.98735;
+//
+//  return par[0]*(1.0-TMath::Exp(-1.0*(x-mThr)/par[1]));
+//}
+//double ThreshBreitWigner(double *x_val, double *par)
+//{
+//  double x = x_val[0];
+//  double m0 = par[0];
+//  double Gamma = par[1];
+//  double Norm = par[2];
+//
+//  double denom = 2.0*TMath::Pi()*((x-m0)*(x-m0)+Gamma*Gamma/4.0);
+//  double BW = Norm*Gamma/denom;
+//
+//  double mThr = 0.98735;
+//
+//  double Poly = par[3]*(1.0-TMath::Exp(-1.0*(x-mThr)/par[4]));
+//
+//  double y = BW + Poly;
+//
+//  return y;
+//}
 double Poly2MBreitWigner(double *x_val, double *par)
 {
   double x = x_val[0];
