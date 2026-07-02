@@ -1265,6 +1265,7 @@ namespace vmsa
   float const CTS_low_KS[5] = {0.0/5.0,1.0/5.0,2.0/5.0,3.0/5.0,4.0/5.0};
   float const CTS_up_KS[5]  = {1.0/5.0,2.0/5.0,3.0/5.0,4.0/5.0,5.0/5.0};
 
+  // systematic dca
   int const Dca_start = 0;
   int const Dca_stop = 3;
   //int const Dca_stop = 1;
@@ -1274,12 +1275,15 @@ namespace vmsa
                                    {2.0,1.6,1.8},
                                    {2.0,1.6,1.8}};
 
+  // systematic nhitsfit
   int const mNHit_start = 0;
   int const mNHit_stop = 3;
 
+  // systmatic nsigma_kaon
   int const nSigKaon_start = 0;
   int const nSigKaon_stop = 3;
   //int const nSigKaon_stop = 1;
+
   float const mNSigmaKaonSys[3] = {2.5,1.5,2.0}; // nSigKaon sys. errors
   float const mNSigmaKaonSysKStar[3] = {2.0,1.6,1.8}; // nSigKaon sys. errors
 
@@ -1306,21 +1310,25 @@ namespace vmsa
   int const Sys_stop  = 1;
   int const Sys_QA    = 0;
 
+  // systematic nomalization
   int const Norm_start = 0;
   int const Norm_stop  = 3;
   int const Norm_QA    = 0;
 
+  // systematic yield integration method
   std::string const mInteMethod[2] = {"Count","Inte"};
   int const Method_start = 0;
   int const Method_stop  = 2;
   int const Method_QA    = 0;
 
+
+  // systematic variations for the signal extraction region. Gives the N values for m +/- N*Gamma
   //float const nSigVecSys[6] = {2.0,2.5,3.0,1.5,1.0,0.5};
   float const nSigVecSys[6] = {2.0,1.0,3.0,1.5,1.0,0.5};
   //float const nSigVecSys[6] = {0.5,1.0,1.5,2.0,2.5,3.0};
   float const nSigVecSysKS[3] = {2.0,1.5,2.5};
   int const Sig_start = 0;
-  int const Sig_stop  = 6;
+  int const Sig_stop  = 3;
   int const Sig_QA    = 0;
  /*
   // new systematics where we take the maximum of the residual background and yield extraction combinations
@@ -1353,51 +1361,47 @@ namespace vmsa
   int const mSysBunch[mNSys_Contributions+1] = {1,3,5,7,9,10,12,14,17};
   */
     //      Original systematics 2026.06.22
-  int const mNSys = 10;
-  int const mNSys_Total = 16;
-  //int const mNSys_Variables = 8;
-  int const mNSys_Variables = 9;
-  int const mSys[mNSys_Total][mNSys_Variables] = {
-                           {0,0,0,0,0,0,0,1,1},  //0
-                           {1,0,0,0,0,0,0,1,1},  //1  b1  dca
-                           {2,0,0,0,0,0,0,1,1},  //2
-                           {0,1,0,0,0,0,0,1,1},  //3  b2  nsigma
-                           {0,2,0,0,0,0,0,1,1},  //4
-                           {0,0,1,0,0,0,0,1,1},  //5  b3  nhitsfit
-                           {0,0,2,0,0,0,0,1,1},  //6
-                           {0,0,0,1,0,0,0,1,1},  //7  b4  nhitsratio
-                           {0,0,0,2,0,0,0,1,1},  //8
-                           {0,0,0,0,1,0,0,1,1},  //9  b5  m2
-                           {0,0,0,0,0,1,0,1,1},  //10 b6  normalization
-                           {0,0,0,0,0,2,0,1,1},  //11
-                           {0,0,0,0,0,0,1,1,1},  //12 b7  width
-                           {0,0,0,0,0,0,2,1,1},  //13
-                           {0,0,0,0,0,0,0,0,1},  //14 b8  yield extraction
-                           {0,0,0,0,0,0,0,1,2}  //15  b9  residual background
-                          };
- // int const mSys[mNSys_Total][mNSys_Variables] = {
- //                          {0,0,0,0,0,0,1,1,1},  //0
- //                          {1,0,0,0,0,0,1,1,1},  //1  b1  dca
- //                          {2,0,0,0,0,0,1,1,1},  //2
- //                          {0,1,0,0,0,0,1,1,1},  //3  b2  nsigma
- //                          {0,2,0,0,0,0,1,1,1},  //4
- //                          {0,0,1,0,0,0,1,1,1},  //5  b3  nhitsfit
- //                          {0,0,2,0,0,0,1,1,1},  //6
- //                          {0,0,0,1,0,0,1,1,1},  //7  b4  nhitsratio
- //                          {0,0,0,2,0,0,1,1,1},  //8
- //                          {0,0,0,0,1,0,1,1,1},  //9  b5  m2
- //                          {0,0,0,0,0,1,1,1,1},  //10 b6  normalization
- //                          {0,0,0,0,0,2,1,1,1},  //11
- //                          {0,0,0,0,0,0,0,1,1},  //12 b7  width
- //                          {0,0,0,0,0,0,2,1,1},  //13
- //                          {0,0,0,0,0,0,1,0,1},  //14 b8  yield extraction
- //                          {0,0,0,0,0,0,1,1,2}  //15  b9  residual background
- //                         };
-  
+  //int const mNSys = 10;
+  int const mNSys_Total = 16; // total variations including default
+  int const mNSys_Variables = 9; // total number of variables for systematic error
 
+  //mSys sets the index for each of the systematic variable and each variation
+  //The first index is the variation of which there are 16 variations total.
+  //The second index is the setting for the specific variable, where the indices are:
+  //0: dca
+  //1: nsigma
+  //2: nhitsfit
+  //3:nhitsratio
+  //4: m^2
+  //5:normalization
+  //6: integration width
+  //7: yield extraction method (default is 1 for integration and 0 for bin counting) 
+  //8: residual background choice (default is 1 for poly1) 
+  int const mSys[mNSys_Total][mNSys_Variables] = {//  b* represents the start of the variations for a specific systematic variable 
+                           {0,0,0,0,0,0,0,1,1},  //0      default settings
+                           {1,0,0,0,0,0,0,1,1},  //1  b1  dca < 1.0 cm
+                           {2,0,0,0,0,0,0,1,1},  //2      dca < 3.0 cm
+                           {0,1,0,0,0,0,0,1,1},  //3  b2  |nsigma_kaon| < 1.5 
+                           {0,2,0,0,0,0,0,1,1},  //4      |nsigma_kaon| < 2.0
+                           {0,0,1,0,0,0,0,1,1},  //5  b3  nhitsfit > 16
+                           {0,0,2,0,0,0,0,1,1},  //6      nhitsfit > 18
+                           {0,0,0,1,0,0,0,1,1},  //7  b4  nhitsratio > 0.54
+                           {0,0,0,2,0,0,0,1,1},  //8      nhitsratio > 0.56
+                           {0,0,0,0,1,0,0,1,1},  //9  b5  0.18 < m2 < 0.34 GeV^2/c^4 
+                           {0,0,0,0,0,1,0,1,1},  //10 b6  normalization [0.99,1.0] GeV/c^2
+                           {0,0,0,0,0,2,0,1,1},  //11     normalization [0.99,1.0] and [1.05,1.08] GeV/c^2
+                           {0,0,0,0,0,0,1,1,1},  //12 b7  yield integration width 1*Gamma
+                           {0,0,0,0,0,0,2,1,1},  //13     yield integration width 3*Gamma
+                           {0,0,0,0,0,0,0,0,1},  //14 b8  yield extraction (bin counting)
+                           {0,0,0,0,0,0,0,1,2}  //15  b9  residual background (poly2)
+                          };
+
+  // mSysBunch represents which of the secondary indices are used for each systematic variable
+  // example: for dca systematic the default settings mSys[][0] are compared to mSys[1], mSys[2]
+  //          to determined the final systematic. This corresponds to the range isys >= mSysBunch[0] && isys < mSysBunch[1].
   int const mSysBunch[mNSys_Variables+1] = {1,3,5,7,9,10,12,14,15,16};
   
-
+  // These are similar variables but used for the original systematic error estimation method for the Nature paper
   int const mNSys_Total_Original = 25;
   int const mNSys_Variables_Original = 3;
   int const mSysO[mNSys_Total_Original][mNSys_Variables] = {
@@ -1447,6 +1451,7 @@ namespace vmsa
   int const mBeamYear[NumBeamEnergy] = {2021,2020,2020,2019,2019,2018,2011,2019,2019,2019,2019,2019,2019,2019};
 
   std::string const mPID[3]   = {"Phi","Rho","KStar"};
+  // normalization start and stop with systematic variations
   float const Norm_Start[3][2]  = {{1.05,0.99},{0.41,0.30},{1.15,0.70}}; // normalise to right and left
   float const Norm_Stop[3][2]   = {{1.08,1.00},{0.46,0.31},{1.20,0.72}};
   //float const Norm_Start[3][2]  = {{1.04,0.99},{0.41,0.30},{1.15,0.70}}; // normalise to right and left
@@ -1455,6 +1460,9 @@ namespace vmsa
   float const Norm_Stop_Tof[3][2]   = {{1.05,1.00},{0.46,0.31},{1.20,0.72}};
   //float const BW_Start[3]     = {0.997,1.0,0.76};
   //float const BW_Start[3]     = {1.0,1.0,0.76}; //Original commented out for TPC only testing
+
+ 
+  // BW variables set the start and stop of the fitting ranges for different particles (0 = phi-meson)
   float const BW_Start[3]     = {0.994,1.0,0.76}; //Original commented out for TPC only testing
   float const BW_Start_Tof[3]     = {0.994,1.0,0.76}; //Original commented out for TPC only testing
   //float const BW_Stop[3]      = {1.050,1.0,1.03};
@@ -1463,6 +1471,8 @@ namespace vmsa
   //float const BW_Start[3]     = {0.983,1.0,0.76};
   // float const BW_Start[3]     = {0.99,1.0,1.0}; // for RooFit
   //float const BW_Stop[3]      = {1.050,1.0,1.03};
+
+
   float const Width[3]        = {0.00426,0.0487,0.0473};
   float const InvMass_low[3]  = {0.98,0.4,0.6};
   float const InvMass_high[3] = {1.08,0.6,1.2};
